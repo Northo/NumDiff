@@ -1,0 +1,4 @@
+*.log
+*.aux
+*.bib
+.ipynb_checkpoints
