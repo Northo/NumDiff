@@ -86,9 +86,29 @@ U_func = step_continuation(U)
 plt.plot(x, U_func(x))
 plt.plot(x, U)
 
+
 # **a)**
 
 # +
+def find_erros(M_list, BCs, f):
+    # Error functions to measure.
+    # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
+    error_functions = [
+        ["L2 discrete", lambda U, u, x: L2_discrete_error(U, u(x))],
+        ["L2 continous step", lambda U, u, x: L2_continous_error(step_continuation(U), u)],
+        ["L2 continous interpolation", lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)]
+    ]
+    errors = {error[0]:[] for error in error_functions}
+    
+    for M in M_list:
+        A, F, x = generate_problem(f, M, *BCs)
+        U = np.linalg.solve(A, F)
+        analytical = u(*BCs)
+        for error_name, error_function in error_functions:
+            errors[error_name].append(error_function(U, analytical, x))
+            
+    return errors
+
 # Boundary conditions.
 BCs = [(BCType.VALUE, 0), (BCType.NEUMANN, 0)]
 
@@ -100,22 +120,7 @@ M_list = np.geomspace(
     dtype=int
 )
 
-# Error functions to measure.
-# Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
-error_functions = [
-    ["L2 discrete", lambda U, u, x: L2_discrete_error(U, u(x))],
-    ["L2 continous step", lambda U, u, x: L2_continous_error(step_continuation(U), u)],
-    ["L2 continous interpolation", lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)]
-]
-errors = {error[0]:[] for error in error_functions}
-
-for M in M_list:
-    A, F, x = generate_problem(f, M, *BCs)
-    U = np.linalg.solve(A, F)
-    analytical = u(*BCs)
-    for error_name, error_function in error_functions:
-        errors[error_name].append(error_function(U, analytical, x))
-        
+errors = find_erros(M_list, BCs, f) 
 for name, error in errors.items():
     plt.plot(M_list, error, '-x', label=name)
 
@@ -129,4 +134,57 @@ tikzplotlib.save("figures/a_error.pgf")
 plt.plot()
 # -
 
-#
+# **b)**
+
+# +
+# Boundary conditions.
+BCs = [(BCType.VALUE, 0), (BCType.VALUE, 1)]
+
+# M-values to check for.
+M_list = np.geomspace(
+    10,
+    500,
+    10,
+    dtype=int
+)
+
+errors = find_erros(M_list, BCs, f) 
+for name, error in errors.items():
+    plt.plot(M_list, error, '-x', label=name)
+
+plt.title("Errors as a function of points $M$")
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("$M$")
+plt.ylabel("Error")
+plt.legend()
+tikzplotlib.save("figures/a_error.pgf")
+plt.plot()
+
+# +
+# Boundary conditions.
+BCs = [(BCType.NEUMANN, 0), (BCType.NEUMANN, 0.5)]
+
+# M-values to check for.
+M_list = np.geomspace(
+    10,
+    500,
+    10,
+    dtype=int
+)
+
+errors = find_erros(M_list, BCs, f) 
+for name, error in errors.items():
+    plt.plot(M_list, error, '-x', label=name)
+
+plt.title("Errors as a function of points $M$")
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("$M$")
+plt.ylabel("Error")
+plt.legend()
+tikzplotlib.save("figures/a_error.pgf")
+plt.plot()
+# -
+
+
