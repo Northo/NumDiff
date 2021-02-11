@@ -22,20 +22,9 @@ from scipy.sparse import dia_matrix
 from scipy.integrate import quad
 import seaborn
 from enum import Enum
+from functools import partial
 
 seaborn.set(style='ticks', palette='Set2')
-
-# +
-M = 100
-x, h = np.linspace(0, 1, num=M+2, retstep=True)
-
-diagonal = np.full(M+1, -2.0)
-diagonal[-1] = -3*h/2
-upper_diagonal = np.ones(M)
-lower_diagonal = np.ones(M)
-lower_diagonal[-1] = 2*h
-A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
-A[-1, -3] = -h/2
 
 
 # +
@@ -46,57 +35,7 @@ def u(x, alpha=0, sigma=0):
     return alpha + (1-np.cos(2*np.pi*x))/(4*np.pi**2) + x**3/6 + x*(sigma-0.5)
 
 
-# +
-alpha = 0
-sigma = 0
-
-F = f(x[1:])
-F[0] -= alpha/h**2
-F[-1] = -sigma
-
-
 # -
-
-@interact(alpha=(-0.10, 0.10, 0.01), sigma=(-1.0, 1.0, 0.1))
-def solve_problem(alpha, sigma):
-    F[0] = f(x[1]) - alpha/h**2
-    F[-1] = -sigma
-    U = np.linalg.solve(A/h**2, F)
-    plt.plot(x[1:], U, lw=5, ls="dashed")
-    #plt.ylim(-0.1, 0.1)
-    plt.plot(x, u(x, alpha=alpha, sigma=sigma))
-
-
-# # Implementation using Scipy's sparse arrays:
-
-# +
-
-M = 100
-x, h = np.linspace(0, 1, num=M+2, retstep=True)
-
-diagonal = np.full(M+1, -2.0)
-diagonal[-1] = -3*h/2
-upper_diagonal = np.ones(M)
-lower_diagonal = np.ones(M)
-lower_diagonal[-1] = 2*h
-
-A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
-A[-1, -3] = -h/2
-# -
-
-diagonal = np.full(M+1, -2.0)
-diagonal[-1] = -3*h/2
-upper_diagonal = np.ones(M+1)
-lower_diagonal = np.ones(M+1)
-lower_diagonal[-2] = 2*h
-lower_lower_diagonal = np.zeros(M+1)
-lower_lower_diagonal[-3] = -h/2
-B = dia_matrix(([lower_lower_diagonal, lower_diagonal, diagonal, upper_diagonal], [-2, -1, 0, 1]), shape=(M+1, M+1))
-
-print(B.toarray())
-
-B
-
 
 # # Let's build some machinery!
 
@@ -250,39 +189,44 @@ def generate_problem(f, M, BC_left, BC_right):
 
 # -
 
-M = 100
+M = 500
 A, F, x = generate_problem(f, M,
-                           (BCType.NEUMANN, -1), 
-                           (BCType.VALUE, 0)
+                           (BCType.VALUE, 0), 
+                           (BCType.NEUMANN, 0)
                           )
 U = np.linalg.solve(A, F)
 plt.plot(x, U)
 plt.show()
 
-A[-1, [-2, -1]]
-
+# +
 M_list = np.geomspace(10, 500, 10, dtype=int)
 L2_discrete_errors = []
 L2_continous_errors = []
 L2_continous_errors_inter = []
+
+BCs = [(BCType.VALUE, 0), (BCType.NEUMANN, 1)]
+
 for M in M_list:
-    A, F, x = generate_problem(f, M)
+    A, F, x = generate_problem(f, M, *BCs)
     U = np.linalg.solve(A, F)
+    analytical = partial(u, alpha=0, sigma=1)
+    
     L2_discrete_errors.append(
-        L2_discrete_error(U, u(x))
+        L2_discrete_error(U, analytical(x))
     )
     L2_continous_errors.append(
-        L2_continous_error(step_continuation(U), u)
+        L2_continous_error(step_continuation(U), analytical)
     )
     L2_continous_errors_inter.append(
-        L2_continous_error(interpolation_continuation(U), u)
+        L2_continous_error(interpolation_continuation(U), analytical)
     )
     
+# -
 
 plt.plot(M_list, L2_discrete_errors, 'o-', label="Discrete")
 plt.plot(M_list, L2_continous_errors, 'x-', label="Continous")
 plt.plot(M_list, L2_continous_errors_inter, 'x-', label="Continous (interpolation)")
-plt.plot([1e2, 1e3, 1e3, 1e2], [10e-4, 10e-6, 10e-4, 10e-4], lw=0.5, c="gray")
+# plt.plot([1e2, 1e3, 1e3, 1e2], [10e-4, 10e-6, 10e-4, 10e-4], lw=0.5, c="gray")
 plt.xscale('log')
 plt.yscale('log')
 plt.legend()
