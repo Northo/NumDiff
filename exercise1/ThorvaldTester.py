@@ -20,6 +20,7 @@ import seaborn
 import tqdm
 from ipywidgets import interact
 from utils import *  # Local file
+import tikzplotlib
 
 seaborn.set(style="ticks", palette="Set2")
 # -
@@ -47,8 +48,6 @@ seaborn.set(style="ticks", palette="Set2")
 # a'(1) &= K2 + \frac12.
 # \end{align}
 # In our code, we formulate a set of linear equations for $K1, K2$ from the BCs.
-
-# # Let's build some machinery!
 
 M = 500
 A, F, x = generate_problem(f, M, (BCType.VALUE, 0), (BCType.NEUMANN, 0))
@@ -87,4 +86,47 @@ U_func = step_continuation(U)
 plt.plot(x, U_func(x))
 plt.plot(x, U)
 
+# **a)**
 
+# +
+# Boundary conditions.
+BCs = [(BCType.VALUE, 0), (BCType.NEUMANN, 0)]
+
+# M-values to check for.
+M_list = np.geomspace(
+    10,
+    500,
+    10,
+    dtype=int
+)
+
+# Error functions to measure.
+# Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
+error_functions = [
+    ["L2 discrete", lambda U, u, x: L2_discrete_error(U, u(x))],
+    ["L2 continous step", lambda U, u, x: L2_continous_error(step_continuation(U), u)],
+    ["L2 continous interpolation", lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)]
+]
+errors = {error[0]:[] for error in error_functions}
+
+for M in M_list:
+    A, F, x = generate_problem(f, M, *BCs)
+    U = np.linalg.solve(A, F)
+    analytical = u(*BCs)
+    for error_name, error_function in error_functions:
+        errors[error_name].append(error_function(U, analytical, x))
+        
+for name, error in errors.items():
+    plt.plot(M_list, error, '-x', label=name)
+
+plt.title("Errors as a function of points $M$")
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("$M$")
+plt.ylabel("Error")
+plt.legend()
+tikzplotlib.save("figures/a_error.pgf")
+plt.plot()
+# -
+
+#
