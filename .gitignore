@@ -2,3 +2,4 @@
 *.aux
 *.bib
 .ipynb_checkpoints
+__pycache__
