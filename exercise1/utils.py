@@ -5,6 +5,8 @@ import numpy as np
 from scipy.integrate import quad
 
 
+import warnings
+
 class BCType(Enum):
     DIRICHLET = 1
     NEUMANN = 2
@@ -130,10 +132,148 @@ def generate_problem(f, M, BC_left, BC_right):
     return A / h ** 2, F, x[inner]
 
 
+def generate_problem_low_order(f, M, BC_left, BC_right):
+    """Set up the matrix-problem to sovle the Poisson equation with one Neumann B.C.
+    Arguments:
+        f : function The function on the RHS of Poisson (u'' = f).
+        M : Integer The number of internal points to use.
+        BC_left/right: tuple The boundary conditions of the problem. The tuple has two,
+                       elements, where the first defines the type and the second the value.
+
+    With 'internal points' in M, one here means points in the closed interval (0,1).
+    The points at x=0 and x=1 are denoted x_0 and x_(M+1), and are not
+    included in the 'internal points'."""
+
+    # Depending on the BCs, the size of our matrix varies.
+    # We need at least an MxM-system. For each Neumann-BC we must increase by one.
+    # nn: number_neumann, for brevity.
+    nn = np.sum([BC[0] == BCType.NEUMANN for BC in [BC_left, BC_right]])
+    # Independent of nn, we want M+2 points in order to be consitent with notation in problem text.
+    x, h = np.linspace(0, 1, num=M + 2, retstep=True)
+    # For later convenience, we will define inner, which is simply the range of x-values we actually use.
+    inner = range(
+        int(not BC_left[0] == BCType.NEUMANN),
+        M
+        + 1
+        + int(
+            BC_right[0] == BCType.NEUMANN
+        ),  # Add one because range is excluding endpoint.
+    )
+
+    # Apply values common for all BCs.
+    diagonal = np.full(M + nn, -2)
+    upper_diagonal = np.ones(M + nn - 1)
+    lower_diagonal = np.ones(M + nn - 1)
+    A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
+    F = f(x[inner])
+
+    # Change elements specific for BCs.
+    if BC_left[0] == BCType.NEUMANN:
+        F[0] = BC_left[1]
+        A[0, [0, 1]] = (
+            np.array([-1, 1]) * h
+        )  # Forward difference first derivative of order 2.
+    elif BC_left[0] == BCType.DIRICHLET:
+        F[0] -= BC_left[1] / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    if BC_right[0] == BCType.NEUMANN:
+        F[-1] = BC_right[1]
+        A[-1, [-2, -1]] = (
+            np.array([1, -1]) * h
+        )  # Forward difference first derivative of order 2.
+    elif BC_right[0] == BCType.DIRICHLET:
+        F[-1] -= BC_right[1] / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    return A / h ** 2, F, x[inner]
+
+def generate_problem_high_order(f, M, BC_left, BC_right):
+    """Set up the matrix-problem to sovle the Poisson equation with one Neumann B.C.
+    Arguments:
+        f : function The function on the RHS of Poisson (u'' = f).
+        M : Integer The number of internal points to use.
+        BC_left/right: tuple The boundary conditions of the problem. The tuple has two,
+                       elements, where the first defines the type and the second the value.
+
+    With 'internal points' in M, one here means points in the closed interval (0,1).
+    The points at x=0 and x=1 are denoted x_0 and x_(M+1), and are not
+    included in the 'internal points'."""
+
+    # Depending on the BCs, the size of our matrix varies.
+    # We need at least an MxM-system. For each Neumann-BC we must increase by one.
+    # nn: number_neumann, for brevity.
+    nn = np.sum([BC[0] == BCType.NEUMANN for BC in [BC_left, BC_right]])
+    # Independent of nn, we want M+2 points in order to be consitent with notation in problem text.
+    x, h = np.linspace(0, 1, num=M + 2, retstep=True)
+    # For later convenience, we will define inner, which is simply the range of x-values we actually use.
+    inner = range(
+        int(not BC_left[0] == BCType.NEUMANN),
+        M
+        + 1
+        + int(
+            BC_right[0] == BCType.NEUMANN
+        ),  # Add one because range is excluding endpoint.
+    )
+
+    # Apply values common for all BCs.
+    diagonal = np.full(M + nn, -2)
+    upper_diagonal = np.ones(M + nn - 1)
+    lower_diagonal = np.ones(M + nn - 1)
+    A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
+    F = f(x[inner])
+
+    # Change elements specific for BCs.
+    if BC_left[0] == BCType.NEUMANN:
+        F[0] = BC_left[1]
+        A[0, [0, 1, 2, 3]] = (
+            np.array([-11/6, 3, -3/2, 1/3]) * h
+        )  # Forward difference first derivative of order 2.
+    elif BC_left[0] == BCType.DIRICHLET:
+        F[0] -= BC_left[1] / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    if BC_right[0] == BCType.NEUMANN:
+        F[-1] = BC_right[1]
+        A[-1, [-4, -3, -2, -1]] = (
+            np.array([-1/3, 3/2, -3, 11/6]) * h
+        )  # Forward difference first derivative of order 2.
+    elif BC_right[0] == BCType.DIRICHLET:
+        F[-1] -= BC_right[1] / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    return A / h ** 2, F, x[inner]
+
 def f(x):
     return np.cos(2 * np.pi * x) + x
 
 
+def solve_handle(A, F, retresidual=False, retrank=False, rets=False):
+    """Solve the system Ax=F, but handle singular."""
+    try:
+        U = np.linalg.solve(A, F)
+        residual, rank, s = None, None, None
+    except np.linalg.LinAlgError:
+        warnings.warn("Singular matrix")
+        U, residual, rank, s = np.linalg.lstsq(A, F)
+    stats = []
+    if retresidual:
+        stats.append(residual)
+    if retrank:
+        stats.append(rank)
+    if rets:
+        stats.append(s)
+    
+    if stats:
+        return U, *stats
+    else:
+        return U
+    
+    
 def u(BC_left=DEFAULT_BCs[0], BC_right=DEFAULT_BCs[1]):
     """Returns the analytical solution with given BCs.
     See analytical solution to understand spaghetti."""
@@ -157,7 +297,7 @@ def u(BC_left=DEFAULT_BCs[0], BC_right=DEFAULT_BCs[1]):
     b = np.empty(2)
     b[0] = BC_left_eq[2]
     b[1] = BC_right_eq[2]
-    K1, K2 = np.linalg.solve(A, b)
+    K1, K2 = solve_handle(A, b)
 
     def _u(x):
         return (
@@ -167,3 +307,40 @@ def u(BC_left=DEFAULT_BCs[0], BC_right=DEFAULT_BCs[1]):
         )
 
     return np.vectorize(_u)
+
+
+def generate_problem_neumann_neumann(f, M, alpha1, alpha2):
+    """Set up the matrix-problem to sovle the Poisson equation with one Neumann B.C.
+    Arguments:
+        f : function The function on the RHS of Poisson (u'' = f).
+        M : Integer The number of internal points to use.
+        alpha1/alpha2 : float Derivative position x=0 and x=1.
+        
+    With 'internal points' in M, one here means points in the closed interval (0,1).
+    The points at x=0 and x=1 are denoted x_0 and x_(M+1), and are not
+    included in the 'internal points'.
+    
+    As the system is only determined up to a constant, the additional constraint u(0) = 0 is applied.
+    """
+
+    x, h = np.linspace(0, 1, num=M+2, retstep=True)
+    inner = range(1, M+2)
+    diagonal = np.full(M+1, -2)
+    upper_diagonal = np.ones(M)
+    lower_diagonal = np.ones(M)
+    A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
+    F = f(x[inner])
+    
+    # Right boundary condition
+    F[-1] = alpha2
+    A[-1, [-3, -2, -1]] = (
+        np.array([1 / 2, -2, 3 / 2]) * h
+    )  # Forward difference first derivative of order 2.
+    
+    # Left boundary condition
+    F[0] = alpha1
+    A[0, [0, 1]] = (
+        np.array([2, -1/2]) * h
+    )  # Forward difference first derivative of order 2, setting U(0) = 0.
+
+    return A / h ** 2, F, x[inner]

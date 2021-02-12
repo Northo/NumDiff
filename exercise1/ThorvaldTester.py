@@ -90,7 +90,7 @@ plt.plot(x, U)
 # **a)**
 
 # +
-def find_erros(M_list, BCs, f):
+def find_erros(M_list, BCs, f, DEBUG=False):
     # Error functions to measure.
     # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
     error_functions = [
@@ -102,12 +102,25 @@ def find_erros(M_list, BCs, f):
     
     for M in M_list:
         A, F, x = generate_problem(f, M, *BCs)
-        U = np.linalg.solve(A, F)
+        U = solve_handle(A, F)
         analytical = u(*BCs)
+        if DEBUG:
+            print("Existence neumann:", existence_neumann_neumann(F, x[1]-x[0], BCs[0][1], BCs[1][1]))
+            plt.plot(x, U, label="U")
+            plt.plot(x, analytical(x), label="analytical")
+            plt.legend()
+            plt.show()
         for error_name, error_function in error_functions:
             errors[error_name].append(error_function(U, analytical, x))
             
     return errors
+
+def existence_neumann_neumann(F, h, sigma0, sigma1):
+    integral = F[0] / 2 + np.sum(F[1:-1]) + F[-1] / 2
+    integral *= h
+    # The condition is that difference is zero
+    difference = (sigma1 - sigma0) - integral
+    return difference
 
 # Boundary conditions.
 BCs = [(BCType.VALUE, 0), (BCType.NEUMANN, 0)]
@@ -143,32 +156,7 @@ BCs = [(BCType.VALUE, 0), (BCType.VALUE, 1)]
 # M-values to check for.
 M_list = np.geomspace(
     10,
-    500,
-    10,
-    dtype=int
-)
-
-errors = find_erros(M_list, BCs, f) 
-for name, error in errors.items():
-    plt.plot(M_list, error, '-x', label=name)
-
-plt.title("Errors as a function of points $M$")
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("$M$")
-plt.ylabel("Error")
-plt.legend()
-tikzplotlib.save("figures/a_error.pgf")
-plt.plot()
-
-# +
-# Boundary conditions.
-BCs = [(BCType.NEUMANN, 0), (BCType.NEUMANN, 0.5)]
-
-# M-values to check for.
-M_list = np.geomspace(
-    10,
-    500,
+    1000,
     10,
     dtype=int
 )
@@ -186,5 +174,66 @@ plt.legend()
 tikzplotlib.save("figures/a_error.pgf")
 plt.plot()
 # -
+
+# ## The issue of two Neumann-conditions
+# When having two Neumann conditions, the solution is only specified up to a constant, as a constant is the homogeneous solution to Poisson's equation.
+# We solve this by simply adding the constraint $u(0) = 0$.
+
+# +
+# Boundary conditions.
+alpha1 = 0
+alpha2 = 0.5
+BCs = [(BCType.NEUMANN, alpha1), (BCType.NEUMANN, alpha2)]
+
+
+def find_erros(M_list, BCs, f, DEBUG=False):
+    # Error functions to measure.
+    # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
+    error_functions = [
+        ["L2 discrete", lambda U, u, x: L2_discrete_error(U, u(x))],
+        ["L2 continous step", lambda U, u, x: L2_continous_error(step_continuation(U), u)],
+        ["L2 continous interpolation", lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)]
+    ]
+    errors = {error[0]:[] for error in error_functions}
+    
+    for M in M_list:
+        A, F, x = generate_problem_neumann_neumann(f, M, alpha1, alpha2)
+        U = solve_handle(A, F)
+        analytical_nonzero = u(*BCs)
+        analytical = lambda x: analytical_nonzero(x) - analytical_nonzero(0)
+        if DEBUG:
+            print("Existence neumann:", existence_neumann_neumann(F, x[1]-x[0], BCs[0][1], BCs[1][1]))
+            plt.plot(x, U, label="U")
+            plt.plot(x, analytical(x), label="analytical")
+            plt.legend()
+            plt.show()
+        for error_name, error_function in error_functions:
+            errors[error_name].append(error_function(U, analytical, x))
+            
+# M-values to check for.
+M_list = np.geomspace(
+    20,
+    5000,
+    10,
+    dtype=int
+)
+
+errors = find_erros(M_list, BCs, f, DEBUG=True) 
+for name, error in errors.items():
+    plt.plot(M_list, error, '-x', label=name)
+
+plt.title("Errors as a function of points $M$")
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("$M$")
+plt.ylabel("Error")
+plt.legend()
+tikzplotlib.save("figures/a_error.pgf")
+plt.plot()
+# -
+# ## 
+
+
+
 
 
