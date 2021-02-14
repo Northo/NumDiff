@@ -1,6 +1,15 @@
 \documentclass{article}
 
+\usepackage{fullpage} % decrease page margins
+\usepackage[parfill]{parskip} % change new paragraph indent to new line
+\usepackage{tikz} % for drawing
+
+\usepackage{amsmath}
+
 \usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{dateplot}
 
 %% \pgfplotsset{compat=newest,
 %%     width=6cm,
@@ -19,8 +28,6 @@
 %% \tikzset{
 %%     semithick/.style={line width=0.8pt},
 %% }
-\usepgfplotslibrary{groupplots}
-\usepgfplotslibrary{dateplot}
 
 \begin{document}
 \input{exercise1.tex}
