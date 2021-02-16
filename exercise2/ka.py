@@ -52,27 +52,6 @@ def forward_euler(bc1, bc2, M, N, t_end):
     return x, U
 
 
-def forward_euler_test():
-    M = 100
-    N = 10000
-    # These should be the Dirchlet BC's corresponding to the given Neumann BC's
-    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    x, U_0 = forward_euler(bc1, bc2, M, N, 0.0)
-    x, U_1 = forward_euler(bc1, bc2, M, N, 0.01)
-    x, U_2 = forward_euler(bc1, bc2, M, N, 0.02)
-    x, U_3 = forward_euler(bc1, bc2, M, N, 0.03)
-    x, U_4 = forward_euler(bc1, bc2, M, N, 0.1)
-    # plot
-    plt.plot(x, u0(x))
-    plt.plot(x, U_0, ".")
-    plt.plot(x, U_1, ".")
-    plt.plot(x, U_2, ".")
-    plt.plot(x, U_3, ".")
-    plt.plot(x, U_4, ".")
-    plt.show()
-
-
 def backwards_euler(bc1, bc2, M, N, t_end):
     x, h = np.linspace(0, 1, M, retstep=True)
     t, k = np.linspace(0, t_end, N, retstep=True)
@@ -92,18 +71,14 @@ def backwards_euler(bc1, bc2, M, N, t_end):
     return x, U
 
 
-def backwards_euler_test():
-    M = 100
-    N = 100
+def test_method(method, M, N):
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-
-    x, U_0 = backwards_euler(bc1, bc2, M, N, 0.0)
-    x, U_1 = backwards_euler(bc1, bc2, M, N, 0.01)
-    x, U_2 = backwards_euler(bc1, bc2, M, N, 0.02)
-    x, U_3 = backwards_euler(bc1, bc2, M, N, 0.03)
-    x, U_4 = backwards_euler(bc1, bc2, M, N, 0.1)
-
+    x, U_0 = method(bc1, bc2, M, N, 0.0)
+    x, U_1 = method(bc1, bc2, M, N, 0.01)
+    x, U_2 = method(bc1, bc2, M, N, 0.02)
+    x, U_3 = method(bc1, bc2, M, N, 0.03)
+    x, U_4 = method(bc1, bc2, M, N, 0.1)
     # plot
     plt.plot(x, u0(x))
     plt.plot(x, U_0, ".")
@@ -116,7 +91,7 @@ def backwards_euler_test():
 
 if __name__ == "__main__":
     ## Test forward Euler ##
-    forward_euler_test()
+    test_method(forward_euler, 100, 10000)
 
     ## Test Backwards Euler
-    backwards_euler_test()
+    test_method(backwards_euler, 100, 100)
