@@ -4,6 +4,26 @@ from scipy.sparse import diags
 from matplotlib import pyplot as plt
 
 
+# Stolen from Hermdog's solution to exercise 1
+class BoundaryCondition:
+    DIRCHLET = 1
+    NEUMANN = 2
+    
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
+
+
+def g(bc, u0, t):
+    """ Boundary condition """
+    if bc.type == BoundaryCondition.DIRCHLET:
+        return bc.value
+    elif bc.type == BoundaryCondition.NEUMANN:
+        return u0 + bc.value*t
+    else:
+        raise("unknown boundary condition type")
+
+
 def u0(x):
     """ Initial condition u(x, 0) = 2*pi*x - sin(2*pi*x) """
     return 2*np.pi*x - np.sin(2*np.pi*x)
@@ -26,8 +46,8 @@ def forward_euler(bc1, bc2, M, N, t_end):
     U = u0(x) # initial, t = 0
     
     for ti in t[1:]:
-        U[0] = bc1 # bc1 and bc2 can be functions of time, but currently only numbers 
-        U[-1] = bc2 # so having this asign in the loop is not needed.
+        U[0] = g(bc1, U[0], ti)
+        U[-1] = g(bc2, U[-1], ti)
         U[1:-1] = U[1:-1] + r * (U[:-2] -2*U[1:-1] +U[2:])
     return x, U
 
@@ -36,8 +56,8 @@ def forward_euler_test():
     M = 100
     N = 10000
     # These should be the Dirchlet BC's corresponding to the given Neumann BC's
-    bc1 = u0(0)
-    bc2 = u0(1)
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     x, U_0 = forward_euler(bc1, bc2, M, N, 0.0)
     x, U_1 = forward_euler(bc1, bc2, M, N, 0.01)
     x, U_2 = forward_euler(bc1, bc2, M, N, 0.02)
@@ -65,17 +85,33 @@ def backwards_euler(bc1, bc2, M, N, t_end):
     A = diags([diag, offdiag, offdiag], [0,1,-1])
     for ti in t[1:]:
         b = U[1:-1]
-        b[0] += r*g0(ti)
-        b[-1] += r*g1(ti)
+        b[0] += r*g(bc1, U[0], ti)
+        b[-1] += r*g(bc2, U[-1], ti)
         # solve AhU=b
-    print(A.toarray())
+        U[1:-1] = np.linalg.solve(A.toarray(), b)
+    return x, U
 
 
 def backwards_euler_test():
-    M = 6
-    N = 10
-    t_end = 1
-    backwards_euler(1,1, M, N, t_end)
+    M = 100
+    N = 100
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+
+    x, U_0 = backwards_euler(bc1, bc2, M, N, 0.0)
+    x, U_1 = backwards_euler(bc1, bc2, M, N, 0.01)
+    x, U_2 = backwards_euler(bc1, bc2, M, N, 0.02)
+    x, U_3 = backwards_euler(bc1, bc2, M, N, 0.03)
+    x, U_4 = backwards_euler(bc1, bc2, M, N, 0.1)
+
+    # plot
+    plt.plot(x, u0(x))
+    plt.plot(x, U_0, ".")
+    plt.plot(x, U_1, ".")
+    plt.plot(x, U_2, ".")
+    plt.plot(x, U_3, ".")
+    plt.plot(x, U_4, ".")
+    plt.show()
     
 
 if __name__ == "__main__":
@@ -83,5 +119,4 @@ if __name__ == "__main__":
     forward_euler_test()
 
     ## Test Backwards Euler
-    # backwards_euler_test()
-    
+    backwards_euler_test()
