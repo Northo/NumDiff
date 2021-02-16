@@ -15,7 +15,16 @@ class BoundaryCondition:
 
 
 def g(bc, u0, t):
-    """ Boundary condition """
+    """
+    Gets the value at one of the boundaries at time t
+
+    Parameters:
+        bc : BoundaryCondition (Dirchlet or Neumann)
+        u0 : initial condition/value at the boundary
+        t : time after initial tim 0 (t >= 0)
+    Returns:
+        u(x) at the boundary corresponding to the given parameters (x=0 or x=1)
+    """
 
     if bc.type == BoundaryCondition.DIRCHLET:
         return bc.value
