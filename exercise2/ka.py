@@ -16,6 +16,7 @@ class BoundaryCondition:
 
 def g(bc, u0, t):
     """ Boundary condition """
+
     if bc.type == BoundaryCondition.DIRCHLET:
         return bc.value
     elif bc.type == BoundaryCondition.NEUMANN:
@@ -26,6 +27,7 @@ def g(bc, u0, t):
 
 def u0(x):
     """ Initial condition u(x, 0) = 2*pi*x - sin(2*pi*x) """
+
     return 2*np.pi*x - np.sin(2*np.pi*x)
 
 
@@ -34,12 +36,16 @@ def forward_euler(bc1, bc2, M, N, t_end):
     Solve pde using forward Euler method
 
     Parameters:
+        bc1 : BoundaryCondition at x=0
+        bc2 : BoundaryCondition at x=1
         M : Number of spacial grid points
         N : Number of time grid points
+        t_end : ending time for computation/iteration
     Returns:
         x : spatial grid
         U : solution of the heat equation at time t_end
     """
+
     x, h = np.linspace(0, 1, M, retstep=True)
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k/(h**2)
@@ -53,6 +59,20 @@ def forward_euler(bc1, bc2, M, N, t_end):
 
 
 def backwards_euler(bc1, bc2, M, N, t_end):
+    """
+    Solve pde using backwards Euler method
+
+    Parameters:
+        bc1 : BoundaryCondition at x=0
+        bc2 : BoundaryCondition at x=1
+        M : Number of spacial grid points
+        N : Number of time grid points
+        t_end : ending time for computation/iteration
+    Returns:
+        x : spatial grid
+        U : solution of the heat equation at time t_end
+    """
+
     x, h = np.linspace(0, 1, M, retstep=True)
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k/(h**2)
@@ -71,6 +91,20 @@ def backwards_euler(bc1, bc2, M, N, t_end):
 
 
 def crank_nicolson(bc1, bc2, M, N, t_end):
+    """
+    Solve pde using backwards Crank-Nicolson
+
+    Parameters:
+        bc1 : BoundaryCondition at x=0
+        bc2 : BoundaryCondition at x=1
+        M : Number of spacial grid points
+        N : Number of time grid points
+        t_end : ending time for computation/iteration
+    Returns:
+        x : spatial grid
+        U : solution of the heat equation at time t_end
+    """
+
     x, h = np.linspace(0, 1, M, retstep=True)
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k/(h**2)
@@ -89,6 +123,14 @@ def crank_nicolson(bc1, bc2, M, N, t_end):
 
 
 def test_method(method, M, N):
+    """
+    Do a testrun and plot results for a numerical solver of the heat equation
+
+    Parameters:
+        method : the function name of the method to be tested e.g. forward_euler
+        M : number of spacial grid points
+        N : number of time grid points
+    """
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     x, U_0 = method(bc1, bc2, M, N, 0.0)
