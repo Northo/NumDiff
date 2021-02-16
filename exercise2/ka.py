@@ -33,7 +33,7 @@ def u0(x):
 
 def forward_euler(bc1, bc2, M, N, t_end):
     """
-    Solve pde using forward Euler method
+    Solve the 1D heat equation using forward Euler method
 
     Parameters:
         bc1 : BoundaryCondition at x=0
@@ -60,7 +60,7 @@ def forward_euler(bc1, bc2, M, N, t_end):
 
 def backwards_euler(bc1, bc2, M, N, t_end):
     """
-    Solve pde using backwards Euler method
+    Solve the 1D heat equation using backwards Euler method
 
     Parameters:
         bc1 : BoundaryCondition at x=0
@@ -92,7 +92,7 @@ def backwards_euler(bc1, bc2, M, N, t_end):
 
 def crank_nicolson(bc1, bc2, M, N, t_end):
     """
-    Solve pde using backwards Crank-Nicolson
+    Solve the 1D heat equation using backwards Crank-Nicolson
 
     Parameters:
         bc1 : BoundaryCondition at x=0
