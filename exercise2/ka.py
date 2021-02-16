@@ -66,8 +66,25 @@ def backwards_euler(bc1, bc2, M, N, t_end):
         b = U[1:-1]
         b[0] += r*g(bc1, U[0], ti)
         b[-1] += r*g(bc2, U[-1], ti)
-        # solve AhU=b
-        U[1:-1] = np.linalg.solve(A.toarray(), b)
+        U[1:-1] = np.linalg.solve(A.toarray(), b) # There is probably a solver made for sparse arrays which is better
+    return x, U
+
+
+def crank_nicolson(bc1, bc2, M, N, t_end):
+    x, h = np.linspace(0, 1, M, retstep=True)
+    t, k = np.linspace(0, t_end, N, retstep=True)
+    r = k/(h**2)
+    U = u0(x) # initial, t = 0
+
+    m = M-2
+    diag = np.repeat(1+r, m)
+    offdiag = np.repeat(-r/2, m-1)
+    A = diags([diag, offdiag, offdiag], [0,1,-1])
+    for ti in t[1:]:
+        b = (r/2)*U[:-2] + (1-r)*U[1:-1] + (r/2)*U[2:]
+        b[0] += (r/2)*g(bc1, U[0], ti)
+        b[-1] += (r/2)*g(bc2, U[-1], ti)
+        U[1:-1] = np.linalg.solve(A.toarray(), b) # There is probably a solver made for sparse arrays which is better
     return x, U
 
 
@@ -95,3 +112,6 @@ if __name__ == "__main__":
 
     ## Test Backwards Euler
     test_method(backwards_euler, 100, 100)
+
+    ## Test Crank-Nicolson
+    test_method(crank_nicolson, 100, 100)
