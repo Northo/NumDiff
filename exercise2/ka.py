@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 ''' Task 2 -- Heat equation'''
 import numpy as np
 from scipy.sparse import diags
@@ -67,9 +69,9 @@ def forward_euler(bc1, bc2, M, N, t_end):
     return x, U
 
 
-def backwards_euler(bc1, bc2, M, N, t_end):
+def backward_euler(bc1, bc2, M, N, t_end):
     """
-    Solve the 1D heat equation using backwards Euler method
+    Solve the 1D heat equation using backward Euler method
 
     Parameters:
         bc1 : BoundaryCondition at x=0
@@ -101,7 +103,7 @@ def backwards_euler(bc1, bc2, M, N, t_end):
 
 def crank_nicolson(bc1, bc2, M, N, t_end):
     """
-    Solve the 1D heat equation using backwards Crank-Nicolson
+    Solve the 1D heat equation using backward Crank-Nicolson
 
     Parameters:
         bc1 : BoundaryCondition at x=0
@@ -148,6 +150,7 @@ def test_method(method, M, N):
     x, U_3 = method(bc1, bc2, M, N, 0.03)
     x, U_4 = method(bc1, bc2, M, N, 0.1)
     # plot
+    plt.title(method.__name__)
     plt.plot(x, u0(x))
     plt.plot(x, U_0, ".")
     plt.plot(x, U_1, ".")
@@ -161,8 +164,8 @@ if __name__ == "__main__":
     ## Test forward Euler ##
     test_method(forward_euler, 100, 10000)
 
-    ## Test Backwards Euler
-    test_method(backwards_euler, 100, 100)
+    ## Test backward Euler
+    test_method(backward_euler, 100, 100)
 
     ## Test Crank-Nicolson
     test_method(crank_nicolson, 100, 100)
