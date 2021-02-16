@@ -3,6 +3,9 @@
 ''' Task 2 -- Heat equation'''
 import numpy as np
 from scipy.sparse import diags
+from scipy.sparse import csr_matrix
+from scipy.sparse import csc_matrix
+from scipy.sparse.linalg import spsolve
 from matplotlib import pyplot as plt
 
 
@@ -101,12 +104,12 @@ def backward_euler(bc1, bc2, M, N, t_end):
     m = M-2
     diag = np.repeat(1+2*r, m)
     offdiag = np.repeat(-r, m-1)
-    A = diags([diag, offdiag, offdiag], [0,1,-1])
+    A = csr_matrix(diags([diag, offdiag, offdiag], [0,1,-1]))
     for (i, ti) in enumerate(t[1:]):
         b = U[1:-1]
         b[0] += r*g(bc1, U[0], ti)
         b[-1] += r*g(bc2, U[-1], ti)
-        U[1:-1] = np.linalg.solve(A.toarray(), b) # There is probably a solver made for sparse arrays which is better
+        U[1:-1] = spsolve(A, b) # There is probably a solver made for sparse arrays which is better
         solution_matrix[i] = U
     return x, U, solution_matrix
 
@@ -138,12 +141,12 @@ def crank_nicolson(bc1, bc2, M, N, t_end):
     m = M-2
     diag = np.repeat(1+r, m)
     offdiag = np.repeat(-r/2, m-1)
-    A = diags([diag, offdiag, offdiag], [0,1,-1])
+    A = csc_matrix(diags([diag, offdiag, offdiag], [0,1,-1]))
     for (i, ti) in enumerate(t[1:]):
         b = (r/2)*U[:-2] + (1-r)*U[1:-1] + (r/2)*U[2:]
         b[0] += (r/2)*g(bc1, U[0], ti)
         b[-1] += (r/2)*g(bc2, U[-1], ti)
-        U[1:-1] = np.linalg.solve(A.toarray(), b) # There is probably a solver made for sparse arrays which is better
+        U[1:-1] = spsolve(A, b) # There is probably a solver made for sparse arrays which is better
         solution_matrix[i] = U
     return x, U, solution_matrix
 
