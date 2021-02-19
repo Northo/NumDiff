@@ -83,20 +83,21 @@ def interpolation_continuation(V, x_min=0, x_max=1):
 
     return V_continous
 
+error_functions = {
+    "L2 discrete": lambda U, u, x: L2_discrete_error(U, u(x)),
+    "L2 continous step": lambda U, u, x: L2_continous_error(step_continuation(U), u),
+    "L2 continous interpolation": lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)
+}
 
-def find_errors(M_list, f, BCs):
+
+def find_errors(M_list, f, BCs, error_functions=error_functions):
     """Find errors for given values of M for different norms
     Returns:
        errors : dict Errors for each norm, key is the norm name, value is a list
     of errors for that norm over M_list."""
     # Error functions to measure.
     # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
-    error_functions = [
-        ["L2 discrete", lambda U, u, x: L2_discrete_error(U, u(x))],
-        ["L2 continous step", lambda U, u, x: L2_continous_error(step_continuation(U), u)],
-        ["L2 continous interpolation", lambda U, u, x: L2_continous_error(interpolation_continuation(U), u)]
-    ]
-    errors = {error_name:[] for error_name, error_function in error_functions}
+    errors = {error_name:[] for error_name, error_function in error_functions.items()}
     for M in M_list:
         A, F, x = generate_problem(f, M, BCs)
         U = solve_handle(A, F)
@@ -105,6 +106,22 @@ def find_errors(M_list, f, BCs):
             errors[error_name].append(
                 error_function(U, analytical, x)
             )
+    return errors
+
+def find_errors_np(M_list, f, BCs, error_functions=error_functions):
+    """Find errors for given values of M for different norms"""
+    # Error functions to measure.
+    # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
+
+    errors = np.empty((len(error_functions)+1, len(M_list)))
+    errors[0, :] = M_list
+    for j, M in enumerate(M_list):
+        A, F, x = generate_problem(f, M, BCs)
+        U = solve_handle(A, F)
+        analytical = u(BCs)
+        for i, (error_name, error_function) in enumerate(error_functions.items()):
+            errors[i+1, j] = error_function(U, analytical, x)
+
     return errors
 
 def write_errors_file(filename, Ms, errors):
