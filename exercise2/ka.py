@@ -172,13 +172,22 @@ def test_method(method, M, N, t_end):
     plt.show()
 
 
-# makes a piecewise constant function of spacial coordinate x from a reference solution u
-make_piecewise_constant = lambda x, u : np.piecewise(x,[u[i]<x<=u[j] for (i,j) in zip(range(len(u)-1), range(1, len(u)))], u)
+def make_piecewise_constant(u):
+    """
+    make a piecewise constant function of spacial coordinate x from a reference solution u
+    
+    Parameters:
+        u : Array, the reference solution
+    Returns:
+        numpy.piecewise function, piecewise constant funciton of x
+    """
+
+    return lambda x : np.piecewise(x,[u[i]<x<=u[j] for (i,j) in zip(range(len(u)-1), range(1, len(u)))], u)
 
 
 def relative_error(U, x,ref_sol):
     M = len(U) # Same number as M+2 in the assignment text
-    piecewise_const = np.vectorize(lambda y : make_piecewise_constant(y, ref_sol))
+    piecewise_const = np.vectorize(make_piecewise_constant(ref_sol))
     U_ref = piecewise_const(x)
     return np.sqrt(np.sum( (1/M) * (U_ref-U)**2 )) / np.sqrt(np.sum( (1/M) * U_ref**2 ))
 
@@ -214,3 +223,4 @@ if __name__ == "__main__":
     ## Test Crank-Nicolson
     test_method(crank_nicolson, 100, 100, 1)
     test_method(crank_nicolson, 100, 1000, 1)
+    #convergence_plot(crank_nicolson, 100, 100, 1)
