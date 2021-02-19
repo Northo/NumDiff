@@ -88,7 +88,7 @@ def num(x, bc1, bc2, f=f1, order=2):
     if bc1.type == BoundaryCondition.DIRICHLET:
         A[0,0] = 1
         b[0] = bc1.value
-    elif bc1.type == BoundaryCondition.NEUMANN and uniformstep and order == 2:
+    elif bc1.type == BoundaryCondition.NEUMANN and step_is_uniform and order == 2:
         # only for uniform step size
         A[0,0] = -3/(2*h)
         A[0,1] = +2/h
@@ -100,7 +100,7 @@ def num(x, bc1, bc2, f=f1, order=2):
     if bc2.type == BoundaryCondition.DIRICHLET:
         A[M-1,M-1] = 1
         b[-1] = bc2.value
-    elif bc2.type == BoundaryCondition.NEUMANN and uniformstep and order == 2:
+    elif bc2.type == BoundaryCondition.NEUMANN and step_is_uniform and order == 2:
         # only for uniform step size
         A[M-1,M-3] = +1/(2*h)
         A[M-1,M-2] = -2/h
