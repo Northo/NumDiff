@@ -177,27 +177,28 @@ def test_method(method, M, N, t_end):
     plt.show()
 
 
-def make_piecewise_constant(u):
+def make_piecewise_constant(xr, ur):
     """
     make a piecewise constant function of spacial coordinate x from a reference solution u
 
     Parameters:
-        u : Array, the reference solution
+        xr : x grid for the reference solution
+        ur : Array, the reference solution
     Returns:
         numpy.piecewise function, piecewise constant funciton of x
     """
 
     return lambda x: np.piecewise(
-        x, [u[i] < x <= u[j] for (i, j) in zip(range(len(u) - 1), range(1, len(u)))], u
+        x,
+        [xr[i] <= x < xr[j] for (i, j) in zip(range(len(ur) - 1), range(1, len(ur)))],
+        ur,
     )
 
 
-def relative_error(U, x, ref_sol):
+def relative_error(U, U_ref):
     """ Compute and return relative error """
 
     M = len(U)  # Same number as M+2 in the assignment text
-    piecewise_const = np.vectorize(make_piecewise_constant(ref_sol))
-    U_ref = piecewise_const(x)
     return np.sqrt(np.sum((1 / M) * (U_ref - U) ** 2)) / np.sqrt(
         np.sum((1 / M) * U_ref ** 2)
     )
@@ -207,15 +208,16 @@ def convergence_plot(method, M_ref, N, t_end):
     """ Make convergence (plot relative error asf. of M) """
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    _, ref_sol, _ = method(bc1, bc2, M_ref, N, t_end)
+    ref_x, _, ref_sol, _ = method(bc1, bc2, M_ref, N, t_end)
+    piecewise_const = np.vectorize(make_piecewise_constant(ref_x, ref_sol))
 
-    M_array = np.arange(10, M_ref)
+    M_array = np.arange(10, M_ref, 50)
     error_array = np.zeros(len(M_array))
-    error_array2 = np.zeros(len(M_array))
 
     for (i, M) in enumerate(M_array):
-        x, U, _ = method(bc1, bc2, M, N, t_end)
-        error_array[i] = relative_error(U, x, ref_sol)
+        x, _, U, _ = method(bc1, bc2, M, N, t_end)
+        U_ref = piecewise_const(x)
+        error_array[i] = relative_error(U, U_ref)
     plt.xlabel("M")
     plt.ylabel("rel. error")
     plt.plot(M_array, error_array)
@@ -226,12 +228,13 @@ if __name__ == "__main__":
     ### Testing num methods ###
     ## Test forward Euler ##
     test_method(forward_euler, 100, 10000, 0.1)
-
     ## Test backward Euler
     test_method(backward_euler, 100, 100, 0.1)
-
     ## Test Crank-Nicolson
-    test_method(crank_nicolson, 100, 100, 0.1)
+    test_method(crank_nicolson, 1000, 100, 0.1)
 
     ### Testing convergence plot ###
-    # convergence_plot(crank_nicolson, 100, 1000, 1)
+    # NB! These take some time running
+    # convergence_plot(forward_euler, 1000, 100000, 0.01)
+    # convergence_plot(backward_euler, 1000, 100, 0.01)
+    # convergence_plot(crank_nicolson, 1000, 100, 0.01)
