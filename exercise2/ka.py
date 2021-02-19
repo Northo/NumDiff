@@ -43,7 +43,7 @@ def u0(x):
     return 2 * np.pi * x - np.sin(2 * np.pi * x)
 
 
-def forward_euler(bc1, bc2, M, N, t_end):
+def forward_euler(bc1, bc2, M, N, t_end, log=True):
     """
     Solve the 1D heat equation using forward Euler method
 
@@ -65,18 +65,22 @@ def forward_euler(bc1, bc2, M, N, t_end):
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
 
-    solution_matrix = np.zeros((N, M))
-    solution_matrix[0] = U
+    if log:
+        solution_matrix = np.zeros((N, M))
+        solution_matrix[0] = U
 
     for (i, ti) in enumerate(t[1:]):
         U[0] = bc1.g(U[0], ti)
         U[-1] = bc2.g(U[-1], ti)
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
-        solution_matrix[i] = U
-    return x, t, U, solution_matrix
+        if log:
+            solution_matrix[i] = U
+    if log:
+        return x, t, U, solution_matrix
+    return x, t, U
 
 
-def backward_euler(bc1, bc2, M, N, t_end):
+def backward_euler(bc1, bc2, M, N, t_end, log=True):
     """
     Solve the 1D heat equation using backward Euler method
 
@@ -98,8 +102,9 @@ def backward_euler(bc1, bc2, M, N, t_end):
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
 
-    solution_matrix = np.zeros((N, M))
-    solution_matrix[0] = U
+    if log:
+        solution_matrix = np.zeros((N, M))
+        solution_matrix[0] = U
 
     m = M - 2
     diag = np.repeat(1 + 2 * r, m)
@@ -110,11 +115,14 @@ def backward_euler(bc1, bc2, M, N, t_end):
         b[0] += r * bc1.g(U[0], ti)
         b[-1] += r * bc2.g(U[-1], ti)
         U[1:-1] = spsolve(A, b)
-        solution_matrix[i] = U
-    return x, t, U, solution_matrix
+        if log:
+            solution_matrix[i] = U
+    if log:
+        return x, t, U, solution_matrix
+    return x, t, U
 
 
-def crank_nicolson(bc1, bc2, M, N, t_end):
+def crank_nicolson(bc1, bc2, M, N, t_end, log=True):
     """
     Solve the 1D heat equation using backward Crank-Nicolson
 
@@ -136,8 +144,9 @@ def crank_nicolson(bc1, bc2, M, N, t_end):
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
 
-    solution_matrix = np.zeros((N, M))
-    solution_matrix[0] = U
+    if log:
+        solution_matrix = np.zeros((N, M))
+        solution_matrix[0] = U
 
     m = M - 2
     diag = np.repeat(1 + r, m)
@@ -148,8 +157,11 @@ def crank_nicolson(bc1, bc2, M, N, t_end):
         b[0] += (r / 2) * bc1.g(U[0], ti)
         b[-1] += (r / 2) * bc2.g(U[-1], ti)
         U[1:-1] = spsolve(A, b)
-        solution_matrix[i] = U
-    return x, t, U, solution_matrix
+        if log:
+            solution_matrix[i] = U
+    if log:
+        return x, t, U, solution_matrix
+    return x, t, U
 
 
 def test_method(method, M, N, t_end):
@@ -177,47 +189,49 @@ def test_method(method, M, N, t_end):
     plt.show()
 
 
-def make_piecewise_constant(u):
+def make_piecewise_constant(xr, ur):
     """
     make a piecewise constant function of spacial coordinate x from a reference solution u
 
     Parameters:
-        u : Array, the reference solution
+        xr : x grid for the reference solution
+        ur : Array, the reference solution
     Returns:
         numpy.piecewise function, piecewise constant funciton of x
     """
 
     return lambda x: np.piecewise(
-        x, [u[i] < x <= u[j] for (i, j) in zip(range(len(u) - 1), range(1, len(u)))], u
+        x,
+        [xr[i] <= x < xr[j] for (i, j) in zip(range(len(ur) - 1), range(1, len(ur)))],
+        ur,
     )
 
 
-def relative_error(U, x, ref_sol):
-    """ Compute and return relative error """
+def l2_discrete_relative_error(U, U_ref):
+    """ Compute and return the l2 discrete relative error """
 
     M = len(U)  # Same number as M+2 in the assignment text
-    piecewise_const = np.vectorize(make_piecewise_constant(ref_sol))
-    U_ref = piecewise_const(x)
-    return np.sqrt(np.sum((1 / M) * (U_ref - U) ** 2)) / np.sqrt(
-        np.sum((1 / M) * U_ref ** 2)
-    )
+    return (np.linalg.norm(U_ref - U) / np.sqrt(M)) / (np.linalg.norm(U) / np.sqrt(M))
 
 
-def convergence_plot(method, M_ref, N, t_end):
+def convergence_plot(method, M_ref, M_max, N, t_end):
     """ Make convergence (plot relative error asf. of M) """
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    _, ref_sol, _ = method(bc1, bc2, M_ref, N, t_end)
+    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False)
+    piecewise_const = np.vectorize(make_piecewise_constant(ref_x, ref_sol))
 
-    M_array = np.arange(10, M_ref)
+    M_array = np.arange(10, M_max, 10)
     error_array = np.zeros(len(M_array))
-    error_array2 = np.zeros(len(M_array))
 
     for (i, M) in enumerate(M_array):
-        x, U, _ = method(bc1, bc2, M, N, t_end)
-        error_array[i] = relative_error(U, x, ref_sol)
+        x, _, U = method(bc1, bc2, M, N, t_end, log=False)
+        U_ref = piecewise_const(x)
+        error_array[i] = l2_discrete_relative_error(U, U_ref)
     plt.xlabel("M")
     plt.ylabel("rel. error")
+    plt.xscale("log")
+    plt.yscale("log")
     plt.plot(M_array, error_array)
     plt.show()
 
@@ -225,13 +239,14 @@ def convergence_plot(method, M_ref, N, t_end):
 if __name__ == "__main__":
     ### Testing num methods ###
     ## Test forward Euler ##
-    test_method(forward_euler, 100, 10000, 0.1)
-
+    # test_method(forward_euler, 100, 10000, 0.1)
     ## Test backward Euler
-    test_method(backward_euler, 100, 100, 0.1)
-
+    # test_method(backward_euler, 100, 100, 0.1)
     ## Test Crank-Nicolson
-    test_method(crank_nicolson, 100, 100, 0.1)
+    # test_method(crank_nicolson, 1000, 100, 0.1)
 
     ### Testing convergence plot ###
-    # convergence_plot(crank_nicolson, 100, 1000, 1)
+    # NB! These take some time running
+    # convergence_plot(forward_euler, 100000, 100, 100000, 0.01)
+    convergence_plot(backward_euler, 100000, 100, 100, 0.01)
+    convergence_plot(crank_nicolson, 100000, 100, 100, 0.1)
