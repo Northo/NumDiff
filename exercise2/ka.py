@@ -18,25 +18,23 @@ class BoundaryCondition:
         self.type = type
         self.value = value
 
+    def g(self, u0, t):
+        """
+        Gets the value at one of the boundaries at time t
 
-def g(bc, u0, t):
-    """
-    Gets the value at one of the boundaries at time t
+        Parameters:
+            u0 : initial condition/value at the boundary
+            t : time after initial tim 0 (t >= 0)
+        Returns:
+            u(x) at the boundary corresponding to the given parameters (x=0 or x=1)
+        """
 
-    Parameters:
-        bc : BoundaryCondition (Dirchlet or Neumann)
-        u0 : initial condition/value at the boundary
-        t : time after initial tim 0 (t >= 0)
-    Returns:
-        u(x) at the boundary corresponding to the given parameters (x=0 or x=1)
-    """
-
-    if bc.type == BoundaryCondition.DIRCHLET:
-        return bc.value
-    elif bc.type == BoundaryCondition.NEUMANN:
-        return u0 + bc.value*t
-    else:
-        raise("unknown boundary condition type")
+        if self.type == self.DIRCHLET:
+            return self.value
+        elif self.type == self.NEUMANN:
+            return u0 + self.value*t
+        else:
+            raise("unknown boundary condition type")
 
 
 def u0(x):
@@ -70,8 +68,8 @@ def forward_euler(bc1, bc2, M, N, t_end):
     solution_matrix[0] = U
     
     for (i, ti) in enumerate(t[1:]):
-        U[0] = g(bc1, U[0], ti)
-        U[-1] = g(bc2, U[-1], ti)
+        U[0] = bc1.g(U[0], ti)
+        U[-1] = bc2.g(U[-1], ti)
         U[1:-1] = U[1:-1] + r * (U[:-2] -2*U[1:-1] +U[2:])
         solution_matrix[i] = U
     return x, U, solution_matrix
@@ -107,8 +105,8 @@ def backward_euler(bc1, bc2, M, N, t_end):
     A = csr_matrix(diags([diag, offdiag, offdiag], [0,1,-1]))
     for (i, ti) in enumerate(t[1:]):
         b = U[1:-1]
-        b[0] += r*g(bc1, U[0], ti)
-        b[-1] += r*g(bc2, U[-1], ti)
+        b[0] += r*bc1.g(U[0], ti)
+        b[-1] += r*bc2.g(U[-1], ti)
         U[1:-1] = spsolve(A, b) # There is probably a solver made for sparse arrays which is better
         solution_matrix[i] = U
     return x, U, solution_matrix
@@ -144,8 +142,8 @@ def crank_nicolson(bc1, bc2, M, N, t_end):
     A = csc_matrix(diags([diag, offdiag, offdiag], [0,1,-1]))
     for (i, ti) in enumerate(t[1:]):
         b = (r/2)*U[:-2] + (1-r)*U[1:-1] + (r/2)*U[2:]
-        b[0] += (r/2)*g(bc1, U[0], ti)
-        b[-1] += (r/2)*g(bc2, U[-1], ti)
+        b[0] += (r/2)*bc1.g(U[0], ti)
+        b[-1] += (r/2)*bc2.g(U[-1], ti)
         U[1:-1] = spsolve(A, b) # There is probably a solver made for sparse arrays which is better
         solution_matrix[i] = U
     return x, U, solution_matrix
@@ -174,12 +172,45 @@ def test_method(method, M, N, t_end):
     plt.show()
 
 
+# makes a piecewise constant function of spacial coordinate x from a reference solution u
+make_piecewise_constant = lambda x, u : np.piecewise(x,[u[i]<x<=u[j] for (i,j) in zip(range(len(u)-1), range(1, len(u)))], u)
+
+
+def relative_error(U, x,ref_sol):
+    M = len(U) # Same number as M+2 in the assignment text
+    piecewise_const = np.vectorize(lambda y : make_piecewise_constant(y, ref_sol))
+    U_ref = piecewise_const(x)
+    return np.sqrt(np.sum( (1/M) * (U_ref-U)**2 )) / np.sqrt(np.sum( (1/M) * U_ref**2 ))
+
+
+def convergence_plot(method, M_ref, N, t_end):
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    _, ref_sol, _ = method(bc1, bc2, M_ref, N, t_end)
+    
+    M_array = np.arange(10, M_ref)
+    error_array = np.zeros(len(M_array))
+    error_array2 = np.zeros(len(M_array))
+
+    for (i, M) in enumerate(M_array):
+        x, U, _ = method(bc1, bc2, M, N, t_end)
+        error_array[i] = relative_error(U, x, ref_sol)
+    plt.xlabel("M")
+    plt.ylabel("rel. error")
+    plt.plot(M_array, error_array)
+    plt.show()
+
+
 if __name__ == "__main__":
+    ### Testing num methods ###
     ## Test forward Euler ##
-    test_method(forward_euler, 100, 100, 1)
+    #test_method(forward_euler, 100, 100, 1)
+    #test_method(forward_euler, 100, 1000, 1)
 
     ## Test backward Euler
-    test_method(backward_euler, 100, 100, 1)
+    #test_method(backward_euler, 100, 100, 1)
+    #test_method(backward_euler, 100, 1000, 1)
 
     ## Test Crank-Nicolson
     test_method(crank_nicolson, 100, 100, 1)
+    test_method(crank_nicolson, 100, 1000, 1)
