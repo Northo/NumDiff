@@ -61,13 +61,18 @@ def num(x, bc1, bc2, f=f1, order=2):
     # internal points
     for m in range(1, M-1):
         if order == 1:
-             # Assume uniform step size
+            # Assume uniform step size
+            # TODO: how the fuck do this properly???
+            # TODO: how to do next-to-last point with fwd diff, without singular matrix?
             if m == M-2:
-                # TODO: how to do order-1 approx properly at last point without getting singular matrix?
-                # forward difference
                 A[m,m] = +1/h**2
                 A[m,m+1] = -2/h**2
-                #A[m,m+2] = +1/h**2 # == 0
+                #A[m,m+2] = +1/h**2
+
+                #A[m,m-1] = 1/2
+                #A[m,m+0] = -1
+                #A[m,m+1] = 1/2
+                #b[m] = 0
             else:
                 # forward difference
                 A[m,m] = +1/h**2
@@ -88,11 +93,16 @@ def num(x, bc1, bc2, f=f1, order=2):
     if bc1.type == BoundaryCondition.DIRICHLET:
         A[0,0] = 1
         b[0] = bc1.value
-    elif bc1.type == BoundaryCondition.NEUMANN and step_is_uniform and order == 2:
+    elif bc1.type == BoundaryCondition.NEUMANN and step_is_uniform:
         # only for uniform step size
-        A[0,0] = -3/(2*h)
-        A[0,1] = +2/h
-        A[0,2] = -1/(2*h)
+        if order == 1:
+            A[0,:] = 0
+            A[0,1] = +1/h
+            A[0,0] = -1/h
+        elif order == 2:
+            A[0,0] = -3/(2*h)
+            A[0,1] = +2/h
+            A[0,2] = -1/(2*h)
         b[0] = bc1.value
     else:
         raise("Unsupported boundary condition")
@@ -100,17 +110,24 @@ def num(x, bc1, bc2, f=f1, order=2):
     if bc2.type == BoundaryCondition.DIRICHLET:
         A[M-1,M-1] = 1
         b[-1] = bc2.value
-    elif bc2.type == BoundaryCondition.NEUMANN and step_is_uniform and order == 2:
+    elif bc2.type == BoundaryCondition.NEUMANN and step_is_uniform:
         # only for uniform step size
-        A[M-1,M-3] = +1/(2*h)
-        A[M-1,M-2] = -2/h
-        A[M-1,M-1] = +3/(2*h)
+        if order == 1:
+            A[M-1,:] = 0
+            A[M-1,M-1] = +1/h
+            A[M-1,M-2] = -1/h
+        elif order == 2:
+            A[M-1,M-3] = +1/(2*h)
+            A[M-1,M-2] = -2/h
+            A[M-1,M-1] = +3/(2*h)
         b[-1] = bc2.value
         if bc1.type == BoundaryCondition.NEUMANN:
             print("Warning: non-unique solution, imposing extra constraint u(0) == 0")
             A[0,0] = 0 # apply u(0) == 0 (i.e. "remove" U_0 from first equation)
     else:
         raise("Unsupported boundary condition type")
+
+    print(A)
 
     U = np.linalg.solve(A, b)
     return U
@@ -121,11 +138,47 @@ def compare(x, u, U):
     plt.legend()
     plt.show()
 
-def compare_num_anal(bc1, bc2, M=500):
+def compare_num_anal(bc1, bc2, M=500, showplot=True, outpath=""):
     x = np.linspace(0, 1, M)
     U = num(x, bc1, bc2)
     u = anal(x, bc1, bc2)
-    compare(x, u, U)
+
+    if outpath != "":
+        table = np.column_stack((x, U, u))
+        np.savetxt(outpath, table, header="x U u", comments="")
+
+    if showplot:
+        compare(x, u, U)
+
+def errors(x, bc1, bc2, order):
+    return err_disc, err_cont
+
+def convergence_plot(bc1, bc2, showplot=False, outpath=""):
+    Ms = [8,16,32,64,128,256,512,1024]
+    hs = []
+    errs_disc = [[], []]
+    errs_cont = [[], []]
+    for M in Ms:
+        x, h = np.linspace(0, 1, M, retstep=True)
+        hs.append(h)
+        u = anal(x, bc1, bc2)
+        #for order in (1, 2):
+        for order in (2,):
+            U = num(x, bc1, bc2, order=order)
+            #compare(x, u, U)
+            err_disc = l2_disc(u-U) / l2_disc(u)
+            err_cont = l2_cont(u-U, x) / l2_cont(u, x)
+            errs_disc[-1+order].append(err_disc)
+            errs_cont[-1+order].append(err_cont)
+
+    if showplot:
+        plt.loglog(Ms, errs_disc[1], label="discrete")
+        plt.loglog(Ms, errs_cont[1], label="continuous")
+        plt.show()
+
+    if outpath != "":
+        table = np.column_stack((hs, errs_disc[1], errs_cont[1]))
+        np.savetxt(outpath, table, header="h disc cont", comments="")
 
 def l2_cont(y, x):
     # interpolate integration with trapezoid rule
@@ -176,7 +229,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return err_disc, err_cont
 
     # Uniform Mesh Refinement (UMR) (order 1 and order 2)
-    Ms_umr = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
+    Ms_umr = [16, 32, 64, 128, 256, 512, 1024]
     errs_disc_umr_order1 = []
     errs_cont_umr_order1 = []
     errs_disc_umr_order2 = []
@@ -220,8 +273,22 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     plt.legend()
     plt.show()
 
-#bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 2)
-#bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1)
-#compare_num_anal(bc1, bc2)
+# Task 1a
+bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 0)
+bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_neu.dat")
+convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_neu_err.dat")
+
+# Task 1b
+bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
+bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
+compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_dir.dat")
+convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_dir_err.dat")
+
+# Task 1c
+bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1/2)
+compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/neu_neu.dat")
+convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/neu_neu_err.dat")
 
 manufactured_solution_mesh_refinement()

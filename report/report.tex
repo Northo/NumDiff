@@ -3,10 +3,11 @@
 \usepackage{fullpage} % decrease page margins
 \usepackage[parfill]{parskip} % change new paragraph indent to new line
 \usepackage{tikz} % for drawing
+\usepackage{caption} % for captions
 
 \usepackage{amsmath}
 
-\usepackage{pgfplots}
+\usepackage{pgfplots} % for plotting
 \pgfplotsset{compat=1.17}
 \usepgfplotslibrary{groupplots}
 \usepgfplotslibrary{dateplot}
@@ -30,6 +31,6 @@
 %% }
 
 \begin{document}
-\include{exercise1/exercise1.tex}
-\include{exercise2/exercise2.tex}
+\input{exercise1/exercise1.tex}
+\input{exercise2/exercise2.tex}
 \end{document}
