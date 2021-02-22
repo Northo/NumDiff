@@ -103,16 +103,26 @@ def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
 
     m = M - 2
     diag = np.repeat(1 + 2 * r, m)
-    offdiag = np.repeat(-r, m - 1)
-    A = csr_matrix(diags([diag, offdiag, offdiag], [0, 1, -1]))
+    offdiag_upper = np.repeat(-r, m - 1)
+    offdiag_lower = np.repeat(-r, m - 1)
+    if bc1.type == BoundaryCondition.NEUMANN:
+        diag[0] = 1-r
+        offdiag_upper[0] = r
+    if bc2.type == BoundaryCondition.NEUMANN:
+        diag[-1] = 1+r
+    A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
     for (i, ti) in enumerate(t[1:]):
         b = U[1:-1]
         if bc1.type == BoundaryCondition.DIRCHLET:
             b[0] += r * bc1.value(ti)
+        elif bc1.type == BoundaryCondition.NEUMANN:
+            b[0] -= r * 2*r*h*bc1.value(ti)
         else:
             raise("Unsupported boundary condition type")
         if bc2.type == BoundaryCondition.DIRCHLET:
             b[-1] += r * bc2.value(ti)
+        elif bc2.type == BoundaryCondition.NEUMANN:
+            b[-1] += r * 2*r*h*bc2.value(ti)
         else:
             raise("Unsupported boundary condition type")
         U[1:-1] = spsolve(A, b)
@@ -276,3 +286,4 @@ def task2b():
 
 if __name__ == "__main__":
     test_method(forward_euler, 100, 10000, 0.1)
+    test_method(backward_euler, 100, 100, 0.1)
