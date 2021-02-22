@@ -57,10 +57,14 @@ def forward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
     for (i, ti) in enumerate(t[1:]):
         if bc1.type == BoundaryCondition.DIRCHLET:
             U[0] = bc1.value(ti)
+        elif bc1.type == BoundaryCondition.NEUMANN:
+            U[0] = r*(U[1] - U[0] - 2*h*bc1.value(ti))
         else:
             raise("Unsupported boundary condition type")
         if bc2.type == BoundaryCondition.DIRCHLET:
             U[-1] = bc2.value(ti)
+        elif bc2.type == BoundaryCondition.NEUMANN:
+            U[-1] = r*(U[-2] - U[-1] + 2*h*bc1.value(ti))
         else:
             raise("Unsupported boundary condition type")
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
@@ -105,8 +109,12 @@ def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
         b = U[1:-1]
         if bc1.type == BoundaryCondition.DIRCHLET:
             b[0] += r * bc1.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
         if bc2.type == BoundaryCondition.DIRCHLET:
             b[-1] += r * bc2.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
         U[1:-1] = spsolve(A, b)
         if log:
             solution_matrix[i] = U
@@ -174,8 +182,10 @@ def test_method(method, M, N, t_end):
         t_end : end time
     """
 
-    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
-    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
+    #bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
+    #bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     x, t, U_final, solutions = method(bc1, bc2, M, N, t_end)
 
     num_samples = 5
@@ -246,9 +256,9 @@ def test():
     ## Test forward Euler ##
     test_method(forward_euler, 100, 10000, 0.1)
     ## Test backward Euler
-    test_method(backward_euler, 100, 100, 0.1)
+    #test_method(backward_euler, 100, 100, 0.1)
     ## Test Crank-Nicolson
-    test_method(crank_nicolson, 100, 100, 0.1)
+    #test_method(crank_nicolson, 100, 100, 0.1)
 
 
 def task2a():
@@ -265,6 +275,4 @@ def task2b():
 
 
 if __name__ == "__main__":
-    test()
-    #2a()
-    #2b()
+    test_method(forward_euler, 100, 10000, 0.1)
