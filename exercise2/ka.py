@@ -9,41 +9,26 @@ from scipy.sparse.linalg import spsolve
 from matplotlib import pyplot as plt
 
 
-# Hermdog's BC class from exercise 1 with an added method
+# Hermdog's BC class from exercise 1
 class BoundaryCondition:
     DIRCHLET = 1
     NEUMANN = 2
 
     def __init__(self, type, value):
         self.type = type
-        self.value = value
-
-    def g(self, u0, t):
-        """
-        Compute the value at the boundary at time t
-
-        Parameters:
-            u0 : initial condition for the boundary
-            t : time after initial time 0 (t >= 0)
-        Returns:
-            u(x) at the boundary
-        """
-
-        if self.type == self.DIRCHLET:
-            return self.value
-        elif self.type == self.NEUMANN:
-            return u0 + self.value * t
+        if callable(value):
+            self.value = value
         else:
-            raise ("unknown boundary condition type")
+            self.value = lambda t: value
 
 
-def u0(x):
+def initial(x):
     """ Initial condition u(x, 0) = 2*pi*x - sin(2*pi*x) """
 
     return 2 * np.pi * x - np.sin(2 * np.pi * x)
 
 
-def forward_euler(bc1, bc2, M, N, t_end, log=True):
+def forward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
     """
     Solve the 1D heat equation using forward Euler method
 
@@ -70,8 +55,14 @@ def forward_euler(bc1, bc2, M, N, t_end, log=True):
         solution_matrix[0] = U
 
     for (i, ti) in enumerate(t[1:]):
-        U[0] = bc1.g(U[0], ti)
-        U[-1] = bc2.g(U[-1], ti)
+        if bc1.type == BoundaryCondition.DIRCHLET:
+            U[0] = bc1.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
+        if bc2.type == BoundaryCondition.DIRCHLET:
+            U[-1] = bc2.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
         if log:
             solution_matrix[i] = U
@@ -80,7 +71,7 @@ def forward_euler(bc1, bc2, M, N, t_end, log=True):
     return x, t, U
 
 
-def backward_euler(bc1, bc2, M, N, t_end, log=True):
+def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
     """
     Solve the 1D heat equation using backward Euler method
 
@@ -112,8 +103,10 @@ def backward_euler(bc1, bc2, M, N, t_end, log=True):
     A = csr_matrix(diags([diag, offdiag, offdiag], [0, 1, -1]))
     for (i, ti) in enumerate(t[1:]):
         b = U[1:-1]
-        b[0] += r * bc1.g(U[0], ti)
-        b[-1] += r * bc2.g(U[-1], ti)
+        if bc1.type == BoundaryCondition.DIRCHLET:
+            b[0] += r * bc1.value(ti)
+        if bc2.type == BoundaryCondition.DIRCHLET:
+            b[-1] += r * bc2.value(ti)
         U[1:-1] = spsolve(A, b)
         if log:
             solution_matrix[i] = U
@@ -122,7 +115,7 @@ def backward_euler(bc1, bc2, M, N, t_end, log=True):
     return x, t, U
 
 
-def crank_nicolson(bc1, bc2, M, N, t_end, log=True):
+def crank_nicolson(bc1, bc2, M, N, t_end, u0=initial, log=True):
     """
     Solve the 1D heat equation using backward Crank-Nicolson
 
@@ -154,8 +147,14 @@ def crank_nicolson(bc1, bc2, M, N, t_end, log=True):
     A = csr_matrix(diags([diag, offdiag, offdiag], [0, 1, -1]))
     for (i, ti) in enumerate(t[1:]):
         b = (r / 2) * U[:-2] + (1 - r) * U[1:-1] + (r / 2) * U[2:]
-        b[0] += (r / 2) * bc1.g(U[0], ti)
-        b[-1] += (r / 2) * bc2.g(U[-1], ti)
+        if bc1.type == BoundaryCondition.DIRCHLET:
+            b[0] += (r / 2) * bc1.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
+        if bc2.type == BoundaryCondition.DIRCHLET:
+            b[-1] += (r / 2) * bc2.value(ti)
+        else:
+            raise("Unsupported boundary condition type")
         U[1:-1] = spsolve(A, b)
         if log:
             solution_matrix[i] = U
@@ -175,8 +174,8 @@ def test_method(method, M, N, t_end):
         t_end : end time
     """
 
-    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
+    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
     x, t, U_final, solutions = method(bc1, bc2, M, N, t_end)
 
     num_samples = 5
@@ -207,17 +206,23 @@ def make_piecewise_constant(xr, ur):
     )
 
 
+def discrete_l2_norm(V):
+    """ discrete l2 norm """
+    return np.linalg.norm(V)/np.sqrt(len(V))
+
+
 def l2_discrete_relative_error(U, U_ref):
     """ Compute and return the l2 discrete relative error """
 
     M = len(U)  # Same number as M+2 in the assignment text
-    return (np.linalg.norm(U_ref - U) / np.sqrt(M)) / (np.linalg.norm(U) / np.sqrt(M))
+    return discrete_l2_norm(U_ref-U) / discrete_l2_norm(U)
+    #return (np.linalg.norm(U_ref - U) / np.sqrt(M)) / (np.linalg.norm(U) / np.sqrt(M))
 
 
 def convergence_plot(method, M_ref, M_max, N, t_end):
     """ Make convergence (plot relative error asf. of M) """
-    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
+    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
     ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False)
     piecewise_const = np.vectorize(make_piecewise_constant(ref_x, ref_sol))
 
@@ -236,17 +241,30 @@ def convergence_plot(method, M_ref, M_max, N, t_end):
     plt.show()
 
 
-if __name__ == "__main__":
+def test():
     ### Testing num methods ###
     ## Test forward Euler ##
-    # test_method(forward_euler, 100, 10000, 0.1)
+    test_method(forward_euler, 100, 10000, 0.1)
     ## Test backward Euler
-    # test_method(backward_euler, 100, 100, 0.1)
+    test_method(backward_euler, 100, 100, 0.1)
     ## Test Crank-Nicolson
-    # test_method(crank_nicolson, 1000, 100, 0.1)
+    test_method(crank_nicolson, 100, 100, 0.1)
 
-    ### Testing convergence plot ###
+
+def task2a():
     # NB! These take some time running
-    # convergence_plot(forward_euler, 100000, 100, 100000, 0.01)
-    convergence_plot(backward_euler, 100000, 100, 100, 0.01)
+    #convergence_plot(forward_euler, 100000, 100, 100000, 0.01)
+    #convergence_plot(backward_euler, 100000, 100, 100, 0.01)
     convergence_plot(crank_nicolson, 100000, 100, 100, 0.1)
+
+
+def task2b():
+    # Set up problem
+    initial = lambda x : np.sin(x) # inital condition
+    pass
+
+
+if __name__ == "__main__":
+    test()
+    #2a()
+    #2b()
