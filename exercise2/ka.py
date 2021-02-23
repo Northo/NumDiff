@@ -102,33 +102,69 @@ def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
         solution_matrix = np.zeros((N, M))
         solution_matrix[0] = U
 
-    m = M - 2
-    diag = np.repeat(1 + 2 * r, m)
-    offdiag_upper = np.repeat(-r, m - 1)
-    offdiag_lower = np.repeat(-r, m - 1)
-    if bc1.type == BoundaryCondition.NEUMANN:
+    if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.NEUMANN:
+        # neumann-neumann
+        diag = np.repeat(1 + 2 * r, M)
+        offdiag_upper = np.repeat(-r, M - 1)
+        offdiag_lower = np.repeat(-r, M - 1)
         diag[0] = 1-r
         offdiag_upper[0] = r
-    if bc2.type == BoundaryCondition.NEUMANN:
         diag[-1] = 1+r
-    A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
-    for (i, ti) in enumerate(t[1:]):
-        b = U[1:-1]
-        if bc1.type == BoundaryCondition.DIRCHLET:
-            b[0] += r * bc1.value(ti)
-        elif bc1.type == BoundaryCondition.NEUMANN:
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = U
             b[0] -= r * 2*r*h*bc1.value(ti)
-        else:
-            raise("Unsupported boundary condition type")
-        if bc2.type == BoundaryCondition.DIRCHLET:
-            b[-1] += r * bc2.value(ti)
-        elif bc2.type == BoundaryCondition.NEUMANN:
             b[-1] += r * 2*r*h*bc2.value(ti)
-        else:
-            raise("Unsupported boundary condition type")
-        U[1:-1] = spsolve(A, b)
-        if log:
-            solution_matrix[i] = U
+            U = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    elif bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.DIRCHLET:
+        # dirchlet-dirchlet
+        m = M - 2
+        diag = np.repeat(1 + 2 * r, m)
+        offdiag_upper = np.repeat(-r, m - 1)
+        offdiag_lower = np.repeat(-r, m - 1)
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = U[1:-1]
+            b[0] += r * bc1.value(ti)
+            b[-1] += r * bc2.value(ti)
+            U[1:-1] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    elif bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN:
+        # dirchlet-neumann
+        m = M - 1
+        diag = np.repeat(1 + 2 * r, m)
+        offdiag_upper = np.repeat(-r, m - 1)
+        offdiag_lower = np.repeat(-r, m - 1)
+        diag[-1] = 1+r
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = U[1:]
+            b[0] += r * bc1.value(ti)
+            b[-1] += r * 2*r*h*bc2.value(ti)
+            U[1:] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    elif bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET:
+        # neumann-dirchlet
+        m = M - 1
+        diag = np.repeat(1 + 2 * r, m)
+        offdiag_upper = np.repeat(-r, m - 1)
+        offdiag_lower = np.repeat(-r, m - 1)
+        diag[0] = 1-r
+        offdiag_upper[0] = r
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = U[:-1]
+            b[0] -= r * 2*r*h*bc1.value(ti)
+            b[-1] += r * bc2.value(ti)
+            U[:-1] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    else:
+        raise("Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann.")
     if log:
         return x, t, U, solution_matrix
     return x, t, U
@@ -160,34 +196,74 @@ def crank_nicolson(bc1, bc2, M, N, t_end, u0=initial, log=True):
         solution_matrix = np.zeros((N, M))
         solution_matrix[0] = U
 
-    m = M - 2
-    diag = np.repeat(1 + r, m)
-    offdiag_upper = np.repeat(-r / 2, m - 1)
-    offdiag_lower = np.repeat(-r / 2, m - 1)
-    if bc1.type == BoundaryCondition.NEUMANN:
+    if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.NEUMANN:
+        # Neuman-Neuman
+        diag = np.repeat(1 + r, M)
+        offdiag_upper = np.repeat(-r / 2, M - 1)
+        offdiag_lower = np.repeat(-r / 2, M - 1)
         diag[0] = 1 + r/2
         offdiag_upper[0] = -r/2
-    if bc2.type == BoundaryCondition.NEUMANN:
         diag[-1] = 1 + r/2
         offdiag_lower[-1] = -r/2
-    A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
-    for (i, ti) in enumerate(t[1:]):
-        b = (r / 2) * U[:-2] + (1 - r) * U[1:-1] + (r / 2) * U[2:]
-        if bc1.type == BoundaryCondition.DIRCHLET:
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = np.zeros(M)
+            b[1:-1] = (r / 2) * U[:-2] + (1 - r) * U[1:-1] + (r / 2) * U[2:]
+            b[0] = U[0] + (r/2) * (U[1] - U[0]) - 2*r*h*bc1.value(ti)
+            b[-1] = U[-1] + (r/2) * (U[-2] - U[-1]) + 2*r*h*bc2.value(ti)
+            U = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    if bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.DIRCHLET:
+        # DIRCHLET-DIRCHLET
+        m = M - 2
+        diag = np.repeat(1 + r, m)
+        offdiag_upper = np.repeat(-r / 2, m - 1)
+        offdiag_lower = np.repeat(-r / 2, m - 1)
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = (r / 2) * U[:-2] + (1 - r) * U[1:-1] + (r / 2) * U[2:]
             b[0] += (r / 2) * bc1.value(ti)
-        elif bc1.type == BoundaryCondition.NEUMANN:
-            b[0] += (r/2) * (U[1] - U[0]) - 2*r*h*bc1.value(ti)
-        else:
-            raise("Unsupported boundary condition type")
-        if bc2.type == BoundaryCondition.DIRCHLET:
             b[-1] += (r / 2) * bc2.value(ti)
-        elif bc2.type == BoundaryCondition.NEUMANN:
-            b[-1] += (r/2) * (U[-2] - U[-1]) + 2*r*h*bc2.value(ti)
-        else:
-            raise("Unsupported boundary condition type")
-        U[1:-1] = spsolve(A, b)
+            U[1:-1] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
+    if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET:
+        # NEUMANN-DIRCHLET
+        print("WARNING: Case Neumann-Dirchlet not yet tested, werid stuff may happen!")
+        m = M - 1
+        diag = np.repeat(1 + r, m)
+        offdiag_upper = np.repeat(-r / 2, m - 1)
+        offdiag_lower = np.repeat(-r / 2, m - 1)
+        diag[0] = 1 + r/2
+        offdiag_upper[0] = -r/2
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = (r / 2) * U[:-1] + (1 - r) * U[:-1] + (r / 2) * U[1:]
+            b[0] += (r/2) * (U[1] - U[0]) - 2*r*h*bc1.value(ti)
+            b[-1] += (r / 2) * bc2.value(ti)
+            U[:-1] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
         if log:
-            solution_matrix[i] = U
+            return x, t, U, solution_matrix
+    if bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN:
+        # DIRCHLET-NEUMANN
+        print("WARNING: Case Dirchlet-Neumann not yet tested, werid stuff may happen!")
+        m = M - 1
+        diag = np.repeat(1 + r, m)
+        offdiag_upper = np.repeat(-r / 2, m - 1)
+        offdiag_lower = np.repeat(-r / 2, m - 1)
+        diag[-1] = 1 + r/2
+        offdiag_lower[-1] = -r/2
+        A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+        for (i, ti) in enumerate(t[1:]):
+            b = (r / 2) * U[:-1] + (1 - r) * U[1:] + (r / 2) * U[1:]
+            b[0] += (r / 2) * bc1.value(ti)
+            b[-1] += (r/2) * (U[-2] - U[-1]) + 2*r*h*bc2.value(ti)
+            U[1:] = spsolve(A, b)
+            if log:
+                solution_matrix[i] = U
     if log:
         return x, t, U, solution_matrix
     return x, t, U
@@ -324,7 +400,7 @@ def test():
 
 
 def task2a():
-    #discrete_convergence_plot(forward_euler, 1000, 100, 10000, 0.1)
+    discrete_convergence_plot(forward_euler, 1000, 100, 100, 0.2)
     discrete_convergence_plot(backward_euler, 1000, 100, 100, 0.2)
     discrete_convergence_plot(crank_nicolson, 1000, 100, 100, 0.2)
 
@@ -337,5 +413,4 @@ def task2b():
 
 if __name__ == "__main__":
     test()
-    task2a()
-    #continous_convergence_plot(crank_nicolson, 1000, 100, 100, 0.2)
+    #task2a()
