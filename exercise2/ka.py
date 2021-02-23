@@ -6,6 +6,7 @@ from scipy.sparse import diags
 from scipy.sparse import csr_matrix
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import spsolve
+from scipy.integrate import quad
 from matplotlib import pyplot as plt
 
 
@@ -58,13 +59,13 @@ def forward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
         if bc1.type == BoundaryCondition.DIRCHLET:
             U[0] = bc1.value(ti)
         elif bc1.type == BoundaryCondition.NEUMANN:
-            U[0] = r*(U[1] - U[0] - 2*h*bc1.value(ti))
+            U[0] += r*(U[1] - U[0] - 2*h*bc1.value(ti))
         else:
             raise("Unsupported boundary condition type")
         if bc2.type == BoundaryCondition.DIRCHLET:
             U[-1] = bc2.value(ti)
         elif bc2.type == BoundaryCondition.NEUMANN:
-            U[-1] = r*(U[-2] - U[-1] + 2*h*bc1.value(ti))
+            U[-1] += r*(U[-2] - U[-1] + 2*h*bc1.value(ti))
         else:
             raise("Unsupported boundary condition type")
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
@@ -242,28 +243,68 @@ def discrete_l2_norm(V):
     return np.linalg.norm(V)/np.sqrt(len(V))
 
 
-def l2_discrete_relative_error(U, U_ref):
+def l2_discrete_relative_error(U_ref, U):
     """ Compute and return the l2 discrete relative error """
 
-    M = len(U)  # Same number as M+2 in the assignment text
-    return discrete_l2_norm(U_ref-U) / discrete_l2_norm(U)
-    #return (np.linalg.norm(U_ref - U) / np.sqrt(M)) / (np.linalg.norm(U) / np.sqrt(M))
+    return discrete_l2_norm(U_ref-U) / discrete_l2_norm(U_ref)
 
 
-def convergence_plot(method, M_ref, M_max, N, t_end):
+def L2_continous_norm(v, x_min=0, x_max=1):
+    """ Compute and return the L2 continous norm """
+    return np.sqrt(quad(lambda x:v(x)**2, x_min, x_max)[0])
+
+
+def L2_continous_relative_error(U_ref, U):
+    """ Compute and return the L2 continous relative error """
+    return L2_continous_norm(lambda x : U_ref(x)-U(x)) / L2_continous_norm(U_ref)
+
+
+def discrete_convergence_plot(method, M_ref, M_max, N, t_end):
     """ Make convergence (plot relative error asf. of M) """
-    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
-    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
-    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False)
-    piecewise_const = np.vectorize(make_piecewise_constant(ref_x, ref_sol))
 
+    # Neuman BC's
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1)
+    
+    # Reference solution (in place of analytical)
+    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False) # reference sol in array form
+    u = np.vectorize(make_piecewise_constant(ref_x, ref_sol)) # reference sol, piece wise constant callable function
+
+    # Different M values (for parameter sweep)
     M_array = np.arange(10, M_max, 10)
-    error_array = np.zeros(len(M_array))
+    error_array = np.zeros(len(M_array)) # for storing relative errors
 
     for (i, M) in enumerate(M_array):
-        x, _, U = method(bc1, bc2, M, N, t_end, log=False)
-        U_ref = piecewise_const(x)
-        error_array[i] = l2_discrete_relative_error(U, U_ref)
+        x, _, U = method(bc1, bc2, M, N, t_end, log=False) # solution with current M
+        U_ref = u(x) # Discretized reference solution
+        error_array[i] = l2_discrete_relative_error(U_ref, U) # dicrete relative error
+    plt.xlabel("M")
+    plt.ylabel("rel. error")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.plot(M_array, error_array)
+    plt.show()
+
+
+def continous_convergence_plot(method, M_ref, M_max, N, t_end):
+    """ Make convergence (plot relative error asf. of M) """
+
+    # Neuman BC's
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1)
+    
+    # Reference solution (in place of analytical)
+    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False) # reference sol in array form
+    U_ref = make_piecewise_constant(ref_x, ref_sol) # reference sol, piece wise constant callable function
+
+    # Different M values (for parameter sweep)
+    M_array = np.arange(10, M_max, 10)
+    error_array = np.zeros(len(M_array)) # for storing relative errors
+
+    for (i, M) in enumerate(M_array):
+        x, _, U_array = method(bc1, bc2, M, N, t_end, log=False) # solution with current M
+        U = make_piecewise_constant(x, U_array)
+        error_array[i] = L2_continous_relative_error(U_ref, U) # continous relative error
     plt.xlabel("M")
     plt.ylabel("rel. error")
     plt.xscale("log")
@@ -275,18 +316,17 @@ def convergence_plot(method, M_ref, M_max, N, t_end):
 def test():
     ### Testing num methods ###
     ## Test forward Euler ##
-    test_method(forward_euler, 100, 10000, 0.1)
+    test_method(forward_euler, 100, 10000, 0.2)
     ## Test backward Euler
-    #test_method(backward_euler, 100, 100, 0.1)
+    test_method(backward_euler, 100, 100, 0.2)
     ## Test Crank-Nicolson
-    #test_method(crank_nicolson, 100, 100, 0.1)
+    test_method(crank_nicolson, 100, 100, 0.2)
 
 
 def task2a():
-    # NB! These take some time running
-    #convergence_plot(forward_euler, 100000, 100, 100000, 0.01)
-    #convergence_plot(backward_euler, 100000, 100, 100, 0.01)
-    convergence_plot(crank_nicolson, 100000, 100, 100, 0.1)
+    #discrete_convergence_plot(forward_euler, 1000, 100, 10000, 0.1)
+    discrete_convergence_plot(backward_euler, 1000, 100, 100, 0.2)
+    discrete_convergence_plot(crank_nicolson, 1000, 100, 100, 0.2)
 
 
 def task2b():
@@ -296,6 +336,6 @@ def task2b():
 
 
 if __name__ == "__main__":
-    test_method(forward_euler, 100, 10000, 0.1)
-    test_method(backward_euler, 100, 100, 0.1)
-    test_method(crank_nicolson, 100, 100, 0.1)
+    test()
+    task2a()
+    #continous_convergence_plot(crank_nicolson, 1000, 100, 100, 0.2)
