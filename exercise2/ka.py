@@ -59,18 +59,18 @@ def forward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
         if bc1.type == BoundaryCondition.DIRCHLET:
             U[0] = bc1.value(ti)
         elif bc1.type == BoundaryCondition.NEUMANN:
-            U[0] += r*(U[1] - U[0] - 2*h*bc1.value(ti))
+            U[0] += r * (U[1] - U[0] - 2 * h * bc1.value(ti))
         else:
-            raise("Unsupported boundary condition type")
+            raise ("Unsupported boundary condition type")
         if bc2.type == BoundaryCondition.DIRCHLET:
             U[-1] = bc2.value(ti)
         elif bc2.type == BoundaryCondition.NEUMANN:
-            U[-1] += r*(U[-2] - U[-1] + 2*h*bc1.value(ti))
+            U[-1] += r * (U[-2] - U[-1] + 2 * h * bc1.value(ti))
         else:
-            raise("Unsupported boundary condition type")
+            raise ("Unsupported boundary condition type")
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
         if log:
-            solution_matrix[i] = U
+            solution_matrix[i+1] = U
     if log:
         return x, t, U, solution_matrix
     return x, t, U
@@ -107,18 +107,21 @@ def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
         diag = np.repeat(1 + 2 * r, M)
         offdiag_upper = np.repeat(-r, M - 1)
         offdiag_lower = np.repeat(-r, M - 1)
-        diag[0] = 1-r
+        diag[0] = 1 - r
         offdiag_upper[0] = r
-        diag[-1] = 1+r
+        diag[-1] = 1 + r
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = U
-            b[0] -= r * 2*r*h*bc1.value(ti)
-            b[-1] += r * 2*r*h*bc2.value(ti)
+            b[0] -= r * 2 * r * h * bc1.value(ti)
+            b[-1] += r * 2 * r * h * bc2.value(ti)
             U = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
-    elif bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.DIRCHLET:
+                solution_matrix[i+1] = U
+    elif (
+        bc1.type == BoundaryCondition.DIRCHLET
+        and bc2.type == BoundaryCondition.DIRCHLET
+    ):
         # dirchlet-dirchlet
         m = M - 2
         diag = np.repeat(1 + 2 * r, m)
@@ -131,40 +134,46 @@ def backward_euler(bc1, bc2, M, N, t_end, u0=initial, log=True):
             b[-1] += r * bc2.value(ti)
             U[1:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
-    elif bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN:
+                solution_matrix[i+1] = U
+    elif (
+        bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN
+    ):
         # dirchlet-neumann
         m = M - 1
         diag = np.repeat(1 + 2 * r, m)
         offdiag_upper = np.repeat(-r, m - 1)
         offdiag_lower = np.repeat(-r, m - 1)
-        diag[-1] = 1+r
+        diag[-1] = 1 + r
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = U[1:]
             b[0] += r * bc1.value(ti)
-            b[-1] += r * 2*r*h*bc2.value(ti)
+            b[-1] += r * 2 * r * h * bc2.value(ti)
             U[1:] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
-    elif bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET:
+                solution_matrix[i+1] = U
+    elif (
+        bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET
+    ):
         # neumann-dirchlet
         m = M - 1
         diag = np.repeat(1 + 2 * r, m)
         offdiag_upper = np.repeat(-r, m - 1)
         offdiag_lower = np.repeat(-r, m - 1)
-        diag[0] = 1-r
+        diag[0] = 1 - r
         offdiag_upper[0] = r
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = U[:-1]
-            b[0] -= r * 2*r*h*bc1.value(ti)
+            b[0] -= r * 2 * r * h * bc1.value(ti)
             b[-1] += r * bc2.value(ti)
             U[:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
+                solution_matrix[i+1] = U
     else:
-        raise("Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann.")
+        raise (
+            "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
+        )
     if log:
         return x, t, U, solution_matrix
     return x, t, U
@@ -201,20 +210,23 @@ def crank_nicolson(bc1, bc2, M, N, t_end, u0=initial, log=True):
         diag = np.repeat(1 + r, M)
         offdiag_upper = np.repeat(-r / 2, M - 1)
         offdiag_lower = np.repeat(-r / 2, M - 1)
-        diag[0] = 1 + r/2
-        offdiag_upper[0] = -r/2
-        diag[-1] = 1 + r/2
-        offdiag_lower[-1] = -r/2
+        diag[0] = 1 + r / 2
+        offdiag_upper[0] = -r / 2
+        diag[-1] = 1 + r / 2
+        offdiag_lower[-1] = -r / 2
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = np.zeros(M)
             b[1:-1] = (r / 2) * U[:-2] + (1 - r) * U[1:-1] + (r / 2) * U[2:]
-            b[0] = U[0] + (r/2) * (U[1] - U[0]) - 2*r*h*bc1.value(ti)
-            b[-1] = U[-1] + (r/2) * (U[-2] - U[-1]) + 2*r*h*bc2.value(ti)
+            b[0] = U[0] + (r / 2) * (U[1] - U[0]) - 2 * r * h * bc1.value(ti)
+            b[-1] = U[-1] + (r / 2) * (U[-2] - U[-1]) + 2 * r * h * bc2.value(ti)
             U = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
-    if bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.DIRCHLET:
+                solution_matrix[i+1] = U
+    elif (
+        bc1.type == BoundaryCondition.DIRCHLET
+        and bc2.type == BoundaryCondition.DIRCHLET
+    ):
         # DIRCHLET-DIRCHLET
         m = M - 2
         diag = np.repeat(1 + r, m)
@@ -227,43 +239,51 @@ def crank_nicolson(bc1, bc2, M, N, t_end, u0=initial, log=True):
             b[-1] += (r / 2) * bc2.value(ti)
             U[1:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
-    if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET:
+                solution_matrix[i+1] = U
+    elif (
+        bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET
+    ):
         # NEUMANN-DIRCHLET
         print("WARNING: Case Neumann-Dirchlet not yet tested, werid stuff may happen!")
         m = M - 1
         diag = np.repeat(1 + r, m)
         offdiag_upper = np.repeat(-r / 2, m - 1)
         offdiag_lower = np.repeat(-r / 2, m - 1)
-        diag[0] = 1 + r/2
-        offdiag_upper[0] = -r/2
+        diag[0] = 1 + r / 2
+        offdiag_upper[0] = -r / 2
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = (r / 2) * U[:-1] + (1 - r) * U[:-1] + (r / 2) * U[1:]
-            b[0] += (r/2) * (U[1] - U[0]) - 2*r*h*bc1.value(ti)
+            b[0] += (r / 2) * (U[1] - U[0]) - 2 * r * h * bc1.value(ti)
             b[-1] += (r / 2) * bc2.value(ti)
             U[:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
+                solution_matrix[i+1] = U
         if log:
             return x, t, U, solution_matrix
-    if bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN:
+    elif (
+        bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN
+    ):
         # DIRCHLET-NEUMANN
         print("WARNING: Case Dirchlet-Neumann not yet tested, werid stuff may happen!")
         m = M - 1
         diag = np.repeat(1 + r, m)
         offdiag_upper = np.repeat(-r / 2, m - 1)
         offdiag_lower = np.repeat(-r / 2, m - 1)
-        diag[-1] = 1 + r/2
-        offdiag_lower[-1] = -r/2
+        diag[-1] = 1 + r / 2
+        offdiag_lower[-1] = -r / 2
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
         for (i, ti) in enumerate(t[1:]):
             b = (r / 2) * U[:-1] + (1 - r) * U[1:] + (r / 2) * U[1:]
             b[0] += (r / 2) * bc1.value(ti)
-            b[-1] += (r/2) * (U[-2] - U[-1]) + 2*r*h*bc2.value(ti)
+            b[-1] += (r / 2) * (U[-2] - U[-1]) + 2 * r * h * bc2.value(ti)
             U[1:] = spsolve(A, b)
             if log:
-                solution_matrix[i] = U
+                solution_matrix[i+1] = U
+    else:
+        raise (
+            "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
+        )
     if log:
         return x, t, U, solution_matrix
     return x, t, U
@@ -280,8 +300,8 @@ def test_method(method, M, N, t_end):
         t_end : end time
     """
 
-    #bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
-    #bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
+    # bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
+    # bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     x, t, U_final, solutions = method(bc1, bc2, M, N, t_end)
@@ -296,7 +316,28 @@ def test_method(method, M, N, t_end):
     plt.show()
 
 
-def make_piecewise_constant(xr, ur):
+def discrete_l2_norm(V):
+    """ discrete l2 norm """
+    return np.linalg.norm(V) / np.sqrt(len(V))
+
+
+def l2_discrete_relative_error(U_ref, U):
+    """ Compute and return the l2 discrete relative error """
+
+    return discrete_l2_norm(U_ref - U) / discrete_l2_norm(U_ref)
+
+
+def L2_continous_norm(v, x_min=0, x_max=1):
+    """ Compute and return the L2 continous norm """
+    return np.sqrt(quad(lambda x: v(x) ** 2, x_min, x_max)[0])
+
+
+def L2_continous_relative_error(U_ref, U):
+    """ Compute and return the L2 continous relative error """
+    return L2_continous_norm(lambda x: U_ref(x) - U(x)) / L2_continous_norm(U_ref)
+
+
+def piecewise_constant_continuation(xr, ur):
     """
     make a piecewise constant function of spacial coordinate x from a reference solution u
 
@@ -314,25 +355,10 @@ def make_piecewise_constant(xr, ur):
     )
 
 
-def discrete_l2_norm(V):
-    """ discrete l2 norm """
-    return np.linalg.norm(V)/np.sqrt(len(V))
+def continous_continuation(xr, ur):
+    """ Cont. continuation using interpolation """
 
-
-def l2_discrete_relative_error(U_ref, U):
-    """ Compute and return the l2 discrete relative error """
-
-    return discrete_l2_norm(U_ref-U) / discrete_l2_norm(U_ref)
-
-
-def L2_continous_norm(v, x_min=0, x_max=1):
-    """ Compute and return the L2 continous norm """
-    return np.sqrt(quad(lambda x:v(x)**2, x_min, x_max)[0])
-
-
-def L2_continous_relative_error(U_ref, U):
-    """ Compute and return the L2 continous relative error """
-    return L2_continous_norm(lambda x : U_ref(x)-U(x)) / L2_continous_norm(U_ref)
+    return lambda x: np.interp(x, xr, ur)
 
 
 def discrete_convergence_plot(method, M_ref, M_max, N, t_end):
@@ -341,19 +367,23 @@ def discrete_convergence_plot(method, M_ref, M_max, N, t_end):
     # Neuman BC's
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1)
-    
+
     # Reference solution (in place of analytical)
-    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False) # reference sol in array form
-    u = np.vectorize(make_piecewise_constant(ref_x, ref_sol)) # reference sol, piece wise constant callable function
+    ref_x, _, ref_sol = method(
+        bc1, bc2, M_ref, N, t_end, log=False
+    )  # reference sol in array form
+    u = np.vectorize(
+        piecewise_constant_continuation(ref_x, ref_sol)
+    )  # reference sol, piece wise constant callable function
 
     # Different M values (for parameter sweep)
-    M_array = np.arange(10, M_max, 10)
-    error_array = np.zeros(len(M_array)) # for storing relative errors
+    M_array = np.arange(45, M_max, 10)
+    error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, M) in enumerate(M_array):
-        x, _, U = method(bc1, bc2, M, N, t_end, log=False) # solution with current M
-        U_ref = u(x) # Discretized reference solution
-        error_array[i] = l2_discrete_relative_error(U_ref, U) # dicrete relative error
+        x, _, U = method(bc1, bc2, M, N, t_end, log=False)  # solution with current M
+        U_ref = u(x)  # Discretized reference solution
+        error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
     plt.xlabel("M")
     plt.ylabel("rel. error")
     plt.xscale("log")
@@ -368,19 +398,27 @@ def continous_convergence_plot(method, M_ref, M_max, N, t_end):
     # Neuman BC's
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1)
-    
+
     # Reference solution (in place of analytical)
-    ref_x, _, ref_sol = method(bc1, bc2, M_ref, N, t_end, log=False) # reference sol in array form
-    U_ref = make_piecewise_constant(ref_x, ref_sol) # reference sol, piece wise constant callable function
+    ref_x, _, ref_sol = method(
+        bc1, bc2, M_ref, N, t_end, log=False
+    )  # reference sol in array form
+    U_ref = continous_continuation(
+        ref_x, ref_sol
+    )  # reference sol, callable function
 
     # Different M values (for parameter sweep)
-    M_array = np.arange(10, M_max, 10)
-    error_array = np.zeros(len(M_array)) # for storing relative errors
+    M_array = np.arange(45, M_max, 10)
+    error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, M) in enumerate(M_array):
-        x, _, U_array = method(bc1, bc2, M, N, t_end, log=False) # solution with current M
-        U = make_piecewise_constant(x, U_array)
-        error_array[i] = L2_continous_relative_error(U_ref, U) # continous relative error
+        x, _, U_array = method(
+            bc1, bc2, M, N, t_end, log=False
+        )  # solution with current M
+        U = continous_continuation(x, U_array)
+        error_array[i] = L2_continous_relative_error(
+            U_ref, U
+        )  # continous relative error
     plt.xlabel("M")
     plt.ylabel("rel. error")
     plt.xscale("log")
@@ -390,7 +428,7 @@ def continous_convergence_plot(method, M_ref, M_max, N, t_end):
 
 
 def test():
-    ### Testing num methods ###
+    """ Solves and plots solution at different sample times """
     ## Test forward Euler ##
     test_method(forward_euler, 100, 10000, 0.2)
     ## Test backward Euler
@@ -399,18 +437,64 @@ def test():
     test_method(crank_nicolson, 100, 100, 0.2)
 
 
-def task2a():
-    discrete_convergence_plot(forward_euler, 1000, 100, 100, 0.2)
-    discrete_convergence_plot(backward_euler, 1000, 100, 100, 0.2)
-    discrete_convergence_plot(crank_nicolson, 1000, 100, 100, 0.2)
+def make_discrete_convergence_plots():
+    """ 2a) """
+    #discrete_convergence_plot(forward_euler, 1000, 200, 100, 0.2)
+    discrete_convergence_plot(backward_euler, 10000, 200, 100, 0.2)
+    discrete_convergence_plot(crank_nicolson, 1000, 200, 100, 0.2)
+
+
+def make_continous_convergence_plots():
+    """ 2a) """
+    #continous_convergence_plot(forward_euler, 1000, 200, 100, 0.2)
+    continous_convergence_plot(backward_euler, 1000, 200, 100, 0.2)
+    continous_convergence_plot(crank_nicolson, 1000, 200, 100, 0.2)
 
 
 def task2b():
     # Set up problem
-    initial = lambda x : np.sin(x) # inital condition
-    pass
+    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
+    def u0(x, x_min=0, x_max=1):
+        mid = (x_max - x_min)/2
+        if x_min <= x and x <= mid:
+            return x
+        elif mid < x and x <= x_max:
+            return (x_max - x)
+        else:
+            return 0
+    u0 = np.vectorize(u0)
+    """
+    x = np.linspace(0,1, 50)
+    plt.plot(x, u0(x))
+    plt.show()
+    """
+    
+    # Test solvers for the new equation/conditions
+    x, t, U, solutions = forward_euler(bc1, bc2, 100, 10000, 0.1, u0=u0)
+    plt.title("FE")
+    plt.plot(x, solutions[0], label="initial")
+    plt.plot(x, U, label="final")
+    plt.legend()
+    plt.show()
+
+    x, t, U, solutions = backward_euler(bc1, bc2, 100, 10000, 0.1, u0=u0)
+    plt.title("BE")
+    plt.plot(x, solutions[0], label="initial")
+    plt.plot(x, U, label="final")
+    plt.legend()
+    plt.show()
+
+    x, t, U, solutions = crank_nicolson(bc1, bc2, 100, 100, 0.1, u0=u0)
+    plt.title("CN")
+    plt.plot(x, solutions[0], label="initial")
+    plt.plot(x, U, label="final")
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
-    test()
-    #task2a()
+    #test()
+    #make_discrete_convergence_plots()
+    #make_continous_convergence_plots()
+    task2b()
