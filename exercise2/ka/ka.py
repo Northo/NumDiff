@@ -4,7 +4,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from utils import BoundaryCondition, Grid
+from utils import BoundaryCondition, Grid, piecewise_constant_continuation, continous_continuation, l2_discrete_relative_error, L2_continous_relative_error
 from routines import forward_euler, backward_euler, crank_nicolson
 
 
@@ -31,7 +31,8 @@ def test_method(method, M, N, t_end):
 
         return 2 * np.pi * x - np.sin(2 * np.pi * x)
 
-    x, t, U_final, solutions = method(bc1, bc2, u0, M, N, t_end)
+    grid = Grid(True, M) # universal grid
+    x, t, U_final, solutions = method(grid, bc1, bc2, u0, N, t_end)
 
     num_samples = 5
     for i in range(num_samples):
@@ -47,8 +48,9 @@ def discrete_convergence_plot(method, bc1, bc2, u0, M_ref, M_max, N, t_end):
     """ Make convergence (plot relative error asf. of M) """
 
     # Reference solution (in place of analytical)
+    ref_grid = Grid(True, M_ref)
     ref_x, _, ref_sol = method(
-        bc1, bc2, u0, M_ref, N, t_end, log=False
+        ref_grid, bc1, bc2, u0, N, t_end, log=False
     )  # reference sol in array form
     u = np.vectorize(
         piecewise_constant_continuation(ref_x, ref_sol)
@@ -59,7 +61,8 @@ def discrete_convergence_plot(method, bc1, bc2, u0, M_ref, M_max, N, t_end):
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, M) in enumerate(M_array):
-        x, _, U = method(bc1, bc2, u0, M, N, t_end, log=False)  # solution with current M
+        grid = Grid(True, M)
+        x, _, U = method(grid, bc1, bc2, u0, N, t_end, log=False)  # solution with current M
         U_ref = u(x)  # Discretized reference solution
         error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
     plt.xlabel("M")
@@ -78,8 +81,9 @@ def continous_convergence_plot(method, bc1, bc2, u0, M_ref, M_max, N, t_end):
     #bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 
     # Reference solution (in place of analytical)
+    ref_grid = Grid(True, M_ref)
     ref_x, _, ref_sol = method(
-        bc1, bc2, u0, M_ref, N, t_end, log=False
+        ref_grid, bc1, bc2, u0, N, t_end, log=False
     )  # reference sol in array form
     U_ref = continous_continuation(
         ref_x, ref_sol
@@ -90,8 +94,9 @@ def continous_convergence_plot(method, bc1, bc2, u0, M_ref, M_max, N, t_end):
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, M) in enumerate(M_array):
+        grid = Grid(True, M)
         x, _, U_array = method(
-            bc1, bc2, u0, M, N, t_end, log=False
+            grid, bc1, bc2, u0, N, t_end, log=False
         )  # solution with current M
         U = continous_continuation(x, U_array)
         error_array[i] = L2_continous_relative_error(
@@ -145,48 +150,18 @@ def make_continous_convergence_plots():
     continous_convergence_plot(crank_nicolson, bc1, bc2, u0, 1000, 200, 100, 0.2)
 
 
-def task2b():
-    # Set up problem
-    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
-    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
-    def u0(x, x_min=0, x_max=1):
-        mid = (x_max - x_min)/2
-        if x_min <= x and x <= mid:
-            return x
-        elif mid < x and x <= x_max:
-            return (x_max - x)
-        else:
-            return 0
-    u0 = np.vectorize(u0)
-    
-    # Test solvers for the new equation/conditions
-    x, t, U, solutions = forward_euler(bc1, bc2, u0, 100, 10000, 0.1)
-    plt.title("FE")
-    plt.plot(x, solutions[0], label="initial")
-    plt.plot(x, U, label="final")
-    plt.legend()
-    plt.show()
-
-    x, t, U, solutions = backward_euler(bc1, bc2, u0, 100, 10000, 0.1)
-    plt.title("BE")
-    plt.plot(x, solutions[0], label="initial")
-    plt.plot(x, U, label="final")
-    plt.legend()
-    plt.show()
-
-    x, t, U, solutions = crank_nicolson(bc1, bc2, u0, 100, 100, 0.1)
-    plt.title("CN")
-    plt.plot(x, solutions[0], label="initial")
-    plt.plot(x, U, label="final")
-    plt.legend()
-    plt.show()
-
-
 if __name__ == "__main__":
     #test()
     #make_discrete_convergence_plots()
     #make_continous_convergence_plots()
-    #task2b()
     test_method(forward_euler, 100, 10000, 0.2)
     test_method(backward_euler, 100, 100, 0.2)
     test_method(crank_nicolson, 100, 100, 0.2)
+
+    def u0(x):
+        """ Initial condition u(x, 0) = 2*pi*x - sin(2*pi*x) """
+
+        return 2 * np.pi * x - np.sin(2 * np.pi * x)
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    discrete_convergence_plot(crank_nicolson, bc1, bc2, u0, 1000, 200, 100, 0.2)

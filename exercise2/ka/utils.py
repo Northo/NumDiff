@@ -19,11 +19,11 @@ class BoundaryCondition:
 
 class Grid:
 
-    def __init__(self, is_uniform, x):
+    def __init__(self, is_uniform, M):
         self.is_uniform = is_uniform
-        self.x = x
+        self.x, h = np.linspace(0, 1, M, retstep=True)
         if is_uniform:
-            self.h = x[1] - x[0]
+            self.h = h
         else:
             self.h = 0
 
@@ -71,6 +71,3 @@ def continous_continuation(xr, ur):
     """ Cont. continuation using interpolation """
 
     return lambda x: np.interp(x, xr, ur)
-
-
-
