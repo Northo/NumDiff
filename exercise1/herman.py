@@ -42,7 +42,7 @@ def anal(x, bc1, bc2):
 
     return c2*x + c1 + 1/12*(2*np.pi**2*x**3 - 3*np.cos(2*np.pi*x))/np.pi**2
 
-def num(x, bc1, bc2, f=f1, order=2):
+def num(x, bc1, bc2, f=f1):
     hs = x[1:] - x[:-1]
     h_min = np.min(hs)
     h_max = np.max(hs)
@@ -52,87 +52,62 @@ def num(x, bc1, bc2, f=f1, order=2):
         h = hs[0]
     else:
         h = 0 # hopefully crash by diving by zero if accessed where uniform step is assumed
-    print("Order", order)
 
     M = np.size(x)
     A = np.zeros((M,M))
     b = np.array([f(x) for x in x])
 
-    # internal points
+    # Set up equations for internal points
+    # Approximation is 2nd order when the step size is uniform
+    # Approximation is 1st order when the step size is non-uniform
     for m in range(1, M-1):
-        if order == 1:
-            # Assume uniform step size
-            # TODO: how the fuck do this properly???
-            # TODO: how to do next-to-last point with fwd diff, without singular matrix?
-            if m == M-2:
-                A[m,m] = +1/h**2
-                A[m,m+1] = -2/h**2
-                #A[m,m+2] = +1/h**2
+        # Account for variable step size (see Owren page 69 with a=1, c=0)
+        # WARNING: is second order only if left- and right step sizes are equal
+        h1 = x[m] - x[m-1]
+        h2 = x[m+1] - x[m]
+        A[m,m-1] = +2/(h1*(h1+h2))                  # reduces to +1/h**2 when h1 = h2 = h
+        A[m,m+0] = -2/(h1*(h1+h2)) - 2/(h2*(h1+h2)) # reduces to -2/h**2 when h1 = h2 = h
+        A[m,m+1] = +2/(h2*(h1+h2))                  # reduces to +1/h**2 when h1 = h2 = h
 
-                #A[m,m-1] = 1/2
-                #A[m,m+0] = -1
-                #A[m,m+1] = 1/2
-                #b[m] = 0
-            else:
-                # forward difference
-                A[m,m] = +1/h**2
-                A[m,m+1] = -2/h**2
-                A[m,m+2] = +1/h**2
-        elif order == 2: # assu
-            # Account for variable step size (see Owren page 69 with a=1, c=0)
-            # WARNING: is second order only if left- and right step sizes are equal
-            h1 = x[m] - x[m-1]
-            h2 = x[m+1] - x[m]
-            A[m,m-1] = +2/(h1*(h1+h2))
-            A[m,m+1] = +2/(h2*(h1+h2))
-            A[m,m] = -2/(h1*(h1+h2)) - 2/(h2*(h1+h2))
-            #A[m,m] = -2/h**2
-            #A[m,m-1] = +1/h**2
-            #A[m,m+1] = +1/h**2
-
+    # Set up equation for left boundary condition
     if bc1.type == BoundaryCondition.DIRICHLET:
+        # Trivial equation 1 * U[0] = bc1.value
         A[0,0] = 1
         b[0] = bc1.value
     elif bc1.type == BoundaryCondition.NEUMANN and step_is_uniform:
-        # only for uniform step size
-        if order == 1:
-            A[0,:] = 0
-            A[0,1] = +1/h
-            A[0,0] = -1/h
-        elif order == 2:
-            A[0,0] = -3/(2*h)
-            A[0,1] = +2/h
-            A[0,2] = -1/(2*h)
+        # 2nd order approximation (only supported for uniform step size)
+        A[0,0] = -3/(2*h)
+        A[0,1] = +2/h
+        A[0,2] = -1/(2*h)
         b[0] = bc1.value
     else:
         raise("Unsupported boundary condition")
 
+    # Set up equation for right boundary condition
     if bc2.type == BoundaryCondition.DIRICHLET:
+        # Trivial equation 1 * U[M-1] = bc2.value
         A[M-1,M-1] = 1
         b[-1] = bc2.value
     elif bc2.type == BoundaryCondition.NEUMANN and step_is_uniform:
+        # 2nd order approximation (only supported for uniform step size)
         # only for uniform step size
-        if order == 1:
-            A[M-1,:] = 0
-            A[M-1,M-1] = +1/h
-            A[M-1,M-2] = -1/h
-        elif order == 2:
-            A[M-1,M-3] = +1/(2*h)
-            A[M-1,M-2] = -2/h
-            A[M-1,M-1] = +3/(2*h)
+        A[M-1,M-3] = +1/(2*h)
+        A[M-1,M-2] = -2/h
+        A[M-1,M-1] = +3/(2*h)
         b[-1] = bc2.value
         if bc1.type == BoundaryCondition.NEUMANN:
             print("Warning: non-unique solution, imposing extra constraint u(0) == 0")
-            A[0,0] = 0 # apply u(0) == 0 (i.e. "remove" U_0 from first equation)
+            A[:,0] = 0 # makes matrix singular, so must ultimately solve AU = b with least squares method
     else:
         raise("Unsupported boundary condition type")
 
-    print(A)
-
-    U = np.linalg.solve(A, b)
+    if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.NEUMANN:
+        U = np.linalg.lstsq(A, b)[0]
+    else:
+        U = np.linalg.solve(A, b)
     return U
 
-def compare(x, u, U):
+def plot_num_over_anal(x, u, U):
     plt.plot(x, u, label="analytic", linewidth=5, color="black")
     plt.plot(x, U, label="numerical", linewidth=2, color="red")
     plt.legend()
@@ -148,28 +123,26 @@ def compare_num_anal(bc1, bc2, M=500, showplot=True, outpath=""):
         np.savetxt(outpath, table, header="x U u", comments="")
 
     if showplot:
-        compare(x, u, U)
+        plot_num_over_anal(x, u, U)
 
-def errors(x, bc1, bc2, order):
+def errors(x, bc1, bc2):
     return err_disc, err_cont
 
 def convergence_plot(bc1, bc2, showplot=False, outpath=""):
     Ms = [8,16,32,64,128,256,512,1024]
     hs = []
-    errs_disc = [[], []]
-    errs_cont = [[], []]
+    errs_disc = []
+    errs_cont = []
     for M in Ms:
         x, h = np.linspace(0, 1, M, retstep=True)
         hs.append(h)
         u = anal(x, bc1, bc2)
-        #for order in (1, 2):
-        for order in (2,):
-            U = num(x, bc1, bc2, order=order)
-            #compare(x, u, U)
-            err_disc = l2_disc(u-U) / l2_disc(u)
-            err_cont = l2_cont(u-U, x) / l2_cont(u, x)
-            errs_disc[-1+order].append(err_disc)
-            errs_cont[-1+order].append(err_cont)
+        U = num(x, bc1, bc2)
+        #compare(x, u, U)
+        err_disc = l2_disc(u-U) / l2_disc(u)
+        err_cont = l2_cont(u-U, x) / l2_cont(u, x)
+        errs_disc.append(err_disc)
+        errs_cont.append(err_cont)
 
     if showplot:
         plt.loglog(Ms, errs_disc[1], label="discrete")
@@ -182,6 +155,7 @@ def convergence_plot(bc1, bc2, showplot=False, outpath=""):
 
 def l2_cont(y, x):
     # interpolate integration with trapezoid rule
+    # TODO: interpolate with higher accuracy?
     return np.sqrt(np.trapz(y**2, x))
 
 def l2_disc(y):
@@ -264,31 +238,31 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         errs_disc_amr.append(err_disc)
         errs_cont_amr.append(err_cont)
 
-    plt.loglog(Ms_umr, errs_disc_umr_order2, label="UMR (order 2)")
-    plt.loglog(Ms_umr, errs_cont_umr_order2, label="UMR (order 2)")
-    plt.loglog(Ms_umr, errs_disc_umr_order1, label="UMR (order 1)")
-    plt.loglog(Ms_umr, errs_cont_umr_order1, label="UMR (order 1)")
-    plt.loglog(Ms_amr, errs_disc_amr, label="AMR (order \"1-2\")")
-    plt.loglog(Ms_amr, errs_cont_amr, label="AMR (order \"1-2\")")
+    plt.loglog(Ms_umr, errs_disc_umr_order2, marker="x", label="UMR (order 2)")
+    plt.loglog(Ms_umr, errs_cont_umr_order2, marker="x", label="UMR (order 2)")
+    plt.loglog(Ms_umr, errs_disc_umr_order1, marker="x", label="UMR (order 1)")
+    plt.loglog(Ms_umr, errs_cont_umr_order1, marker="x", label="UMR (order 1)")
+    plt.loglog(Ms_amr, errs_disc_amr, marker="x", label="AMR (order \"1-2\")")
+    plt.loglog(Ms_amr, errs_cont_amr, marker="x", label="AMR (order \"1-2\")")
     plt.legend()
     plt.show()
 
 # Task 1a
 bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 0)
 bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_neu.dat")
-convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_neu_err.dat")
+compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_neu.dat")
+convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_neu_err.dat")
 
 # Task 1b
 bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
 bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
-compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_dir.dat")
-convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/dir_dir_err.dat")
+compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_dir.dat")
+convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_dir_err.dat")
 
 # Task 1c
 bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1/2)
-compare_num_anal(bc1, bc2, showplot=False, outpath="../report/exercise1/neu_neu.dat")
-convergence_plot(bc1, bc2, showplot=False, outpath="../report/exercise1/neu_neu_err.dat")
+compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu.dat")
+convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu_err.dat")
 
-manufactured_solution_mesh_refinement()
+# manufactured_solution_mesh_refinement()
