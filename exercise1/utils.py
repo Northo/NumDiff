@@ -2,8 +2,10 @@ import warnings
 from dataclasses import dataclass
 from enum import Enum
 from functools import partial
+from collections.abc import Callable
 
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.integrate import quad
 
 
@@ -85,7 +87,7 @@ def interpolation_continuation(V, x_min=0, x_max=1):
     return V_continous
 
 
-error_functions = {
+DEFAULT_ERROR_FUNCTIONS = {
     "L2 discrete": lambda U, u, x: L2_discrete_error(U, u(x)),
     "L2 continous step": lambda U, u, x: L2_continous_error(step_continuation(U), u),
     "L2 continous interpolation": lambda U, u, x: L2_continous_error(
@@ -94,38 +96,53 @@ error_functions = {
 }
 
 
-def find_errors(M_list, f, BCs, error_functions=error_functions):
-    """Find errors for given values of M for different norms
+def find_errors(parameter_list, problem_generator, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
+    """Find errors for given values of parameter_list, which is typically M or tol.
+    Arguments:
+       parameter_list : iterable The parameter to compare error over, for example M or tol.
+       problem_generator : function Suitable problem generator. Signature callable(f, parameter, BCs) -> A, F, x
+       f : function The source term.
+       u : function Analytical solution (or approximate solution used for error estimation).
     Returns:
-       errors : dict Errors for each norm, key is the norm name, value is a list
-    of errors for that norm over M_list."""
-    # Error functions to measure.
+       errors : dict Errors for each norm, key is the error name, value is a list
+    of errors for that error over M_list."""
     # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
-    errors = {error_name: [] for error_name, error_function in error_functions.items()}
-    for M in M_list:
-        A, F, x = generate_problem(f, M, BCs)
+    errors = {error_name: [] for error_name in error_functions}
+    for param in parameter_list:
+        A, F, x = problem_generator(f, param, BCs)
         U = solve_handle(A, F)
-        analytical = u(BCs)
-        for error_name, error_function in error_functions:
-            errors[error_name].append(error_function(U, analytical, x))
+        for error_name, error_function in error_functions.items():
+            errors[error_name].append(error_function(U, u, x))
     return errors
 
 
-def find_errors_np(M_list, f, BCs, error_functions=error_functions):
-    """Find errors for given values of M for different norms"""
-    # Error functions to measure.
-    # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
+def find_errors_M(Ms, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
+    """Wrapper for find_errors when parameter is M"""
+    return find_errors(
+        Ms,
+        generate_problem,
+        f,
+        u,
+        BCs,
+        error_functions
+    )
 
-    errors = np.empty((len(error_functions) + 1, len(M_list)))
-    errors[0, :] = M_list
-    for j, M in enumerate(M_list):
-        A, F, x = generate_problem(f, M, BCs)
-        U = solve_handle(A, F)
-        analytical = u(BCs)
-        for i, (error_name, error_function) in enumerate(error_functions.items()):
-            errors[i + 1, j] = error_function(U, analytical, x)
 
-    return errors
+def find_errors_tol(tols, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
+    """Wrapper for find_errors when parameter is tol"""
+    def problem_generator(f, tol, BCs):
+        error = lambda a, c, b: np.abs(f(c) * (b-c))
+        x = partition_interval(0, 1, error, tol)
+        return generate_problem_variable_step(f, x, BCs)
+
+    return find_errors(
+        tols,
+        problem_generator,
+        f,
+        u,
+        BCs,
+        error_functions
+    )
 
 
 def write_errors_file(filename, Ms, errors):
@@ -139,6 +156,12 @@ def write_errors_file(filename, Ms, errors):
             file.write(str(Ms[i]))
             for error in errors:
                 file.write("\t" + f"{errors[error][i]:8.3f}")
+
+
+def plot_errors(errors, parameter_list):
+    """Used for debugging"""
+    for error_name, error in errors.items():
+        plt.loglog(parameter_list, error, '-x', label=error_name)
 
 
 def existence_neumann_neumann(F, h, sigma0, sigma1):
@@ -272,10 +295,6 @@ def generate_problem_variable_step(f, x, BCs=[BC(value=1), BC(value=1)]):
     return A, F, x[1:-1]
 
 
-def f(x):
-    return np.cos(2 * np.pi * x) + x
-
-
 def solve_handle(A, F, retresidual=False, retrank=False, rets=False):
     """Solve the system Ax=F, but handle singular."""
     try:
@@ -297,7 +316,7 @@ def solve_handle(A, F, retresidual=False, retrank=False, rets=False):
         return U
 
 
-def u(BCs=DEFAULT_BCs):
+def get_u(BCs=DEFAULT_BCs):
     """Much nicer analytical solution finder taken from Herman."""
     c1 = c2 = 0
     bc_left, bc_right = BCs

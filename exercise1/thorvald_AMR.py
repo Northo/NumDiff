@@ -11,6 +11,10 @@ def f(x, eps=1):
     return -2 * u(x, eps=eps) * (eps - 2 * (0.5 - x)**2) / eps**2
 
 
+############
+# Solve the 
+
+
 M = 100
 eps = 0.05
 
