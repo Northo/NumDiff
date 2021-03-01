@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 
-def backwards_euler(f, M, N, t_end, g_0, g_1):
+def solve_de(f, M, N, t_end, g_0, g_1, method="be"):
     ''' 
     Solves a differential equation of the type
         d_t u = d_x**2 u, where 
@@ -28,18 +28,28 @@ def backwards_euler(f, M, N, t_end, g_0, g_1):
     k = t_end/N
     r = k/h**2
 
-    main_diag = np.full(M+1, 1 + 2*r)
-    off_diag = np.full(M, -r)
-    A = np.diag(off_diag, -1) + np.diag(off_diag, 1) + np.diag(main_diag, 0)
 
     x = np.linspace(h, 1, M+1)
     t = np.linspace(0, t_end, N)
     sol = np.zeros((N, M+1))
     sol[0] = f(x.copy())
+
+    if method == "be":
+        main_diag = np.full(M+1, 1+2*r)
+        off_diag = np.full(M, -r)
+    elif method == "cn":
+        main_diag = np.full(M+1, 1+r)
+        off_diag = np.full(M, -r/2)
+    A = np.diag(off_diag, -1) + np.diag(off_diag, 1) + np.diag(main_diag, 0)
+
     for i in range(N-1):
         b = sol[i]
-        b[0] += r*g_0(t[i+1])
-        b[-1] += r*g_1(t[i+1])
+        if method == "be":
+            b[0] += r*g_0(t[i+1])
+            b[-1] += r*g_1(t[i+1])
+        elif method == "cn":
+            b[0] += 0.5*r*g_0(t[i+1])
+            b[-1] += 0.5*r*g_1(t[i+1])
         sol[i+1] = linalg.solve(A, b)
     return x, sol
 
@@ -62,7 +72,8 @@ h = 1/(m+1)
 alpha = 0
 sigma = 0
 
-x, U_euler = backwards_euler(g, m, N, t_end, g_0, g_1)
+x, U_be = solve_de(g, m, N, t_end, g_0, g_1, method="be")
+x, U_cn = solve_de(g, m, N, t_end, g_0, g_1, method="cn")
 #x, U_1 = solve_order_1(f, m, h, alpha, sigma)
 #x, U_2 = solve_order_2(f, m, h, alpha, sigma)
 #x, U_2 = solve_order_2(v, m, h, alpha, sigma)
@@ -88,9 +99,13 @@ def animate_time_development(x, U):
     ax = plt.axes(xlim=(x[0], x[-1]), ylim=(0,np.max(U)*1.1))
     curve, = ax.plot(x, U[0])
     anim = animation.FuncAnimation(fig, animate, fargs=(x, U, curve))
-    plt.show()
+    return anim
 
-animate_time_development(x, U_euler)
+anim_be = animate_time_development(x, U_be)
+plt.show()
+
+anim_cn = animate_time_development(x, U_cn)
+plt.show()
     
 
 # The following functions solve boundary value 
