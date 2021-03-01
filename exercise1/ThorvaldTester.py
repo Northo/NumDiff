@@ -391,4 +391,95 @@ plt.legend()
 
 
 
+# # Some testing of AMR
 
+# +
+def f(x):
+    """Monotonic function"""
+    return np.log(x)
+
+def finv(x):
+    return np.exp(x)
+
+
+# -
+
+x = np.linspace(0, 10, 60)
+plt.plot(x, f(x))
+
+plt.scatter(finv(np.arange(10)), np.zeros(10))
+
+plt.plot(f(x), np.cos(f(x)), '-x')
+
+
+def f(x):
+    return np.cos(2*np.pi*x) + x
+
+
+plt.plot(x, f(x))
+plt.plot(x, 8*np.gradient(f(x)))
+plt.axhline(0, color='gray', linestyle='dashed')
+
+plt.plot(f(x), np.cos(f(x)), '-x')
+
+x2 = np.linspace(-0.5, 2, 100)
+plt.plot(x2, np.cos(x2))
+
+x = np.linspace(-np.pi/2, np.pi/2, 100)
+#x = np.linspace(0, np.pi, 100)
+x = np.linspace(-1, 1, 100)
+plt.plot(x, np.sin(x))
+
+plt.plot(x, np.arccos(x))
+plt.plot(x, np.arcsin(x))
+plt.plot(x, 1/(1-x**2))
+
+
+# +
+def f(x):
+    return np.cos(2*np.pi*x) + x
+
+x = np.linspace(0, 1, 100)
+# -
+
+plt.plot(x, f(x))
+
+x = [0.0]
+end = False
+h_0 = 0.1
+h_min = 0.001
+a = 0.07
+while not end:
+    new_x = x[-1] + np.maximum(h_0 - a*np.abs(f(x[-1])), h_min)
+    if new_x >= 1:
+        end = True
+        x.append(1)
+    else:
+        x.append(new_x)
+x = np.array(x)
+
+plt.plot(x, f(x), '-x')
+
+
+# +
+def f(x):
+    return np.cos(x)
+
+x = np.linspace(-1, 1, 100)
+plt.plot(x, f(x))
+# -
+
+plt.scatter(-np.arccos(x), np.zeros_like(x), s=0.1)
+
+
+# +
+def u(x, eps=1):
+    return np.exp(-1/eps * (x-0.5)**2)
+
+def f(x, eps=1):
+    return -2 * u(x, eps=eps) * (eps - 2 * (0.5 - x)**2) / eps**2
+
+
+# -
+
+plt.plot(x, f(x))
