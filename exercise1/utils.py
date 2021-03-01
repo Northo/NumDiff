@@ -337,36 +337,28 @@ def u(BCs=DEFAULT_BCs):
     return _u
 
 
-# def u(BCs=DEFAULT_BCs):
-#     """Returns the analytical solution with given BCs.
-#     See analytical solution to understand spaghetti."""
+def _split_interval(a, b, error_function, tol):
+    """Helper function used by partition_interval"""
+    c = (a + b) / 2  # Bisection
+    if error_function(a, c, b) <= tol:
+        partition =  [c]
+    else:
+        partition = [
+            *_split_interval(a, c, error_function, tol),
+            c,
+            *_split_interval(c, b, error_function, tol)
+        ]
+    return partition
 
-#     # We wish to find K1 and K2 so that our BCs are solved.
-#     # This equates to solving two linear equations, one from each BC.
-#     bc_left, bc_right = BCs
-#     if bc_left.type == BCType.VALUE:
-#         bc_left_eq = (1, 0, 1 / (4 * np.pi ** 2) + bc_left.value)
-#     else:
-#         bc_left_eq = (0, 1, bc_left.value)
 
-#     if bc_right.type == BCType.VALUE:
-#         bc_right_eq = (1, 1, -(2 * np.pi ** 2 - 3) / (12 * np.pi ** 2) + bc_right.value)
-#     else:
-#         bc_right_eq = (0, 1, -0.5 + bc_right.value)
-
-#     A = np.empty((2, 2))
-#     A[0, :] = bc_left_eq[:2]
-#     A[1, :] = bc_right_eq[:2]
-#     b = np.empty(2)
-#     b[0] = bc_left_eq[2]
-#     b[1] = bc_right_eq[2]
-#     K1, K2 = solve_handle(A, b)
-
-#     def _u(x):
-#         return (
-#             K2 * x
-#             + K1
-#             + (2 * np.pi ** 2 * x ** 3 - 3 * np.cos(2 * np.pi * x)) / (12 * np.pi ** 2)
-#         )
-
-#     return np.vectorize(_u)
+def partition_interval(a, b, error_function: Callable[[float, float, float], float], tol):
+    """Partition an interval adaptively.
+    Makes error_function less than tol for all sub intervals.
+    Arguments:
+        a,b : float The start and stop of the interval.
+        errror_function : func(a, c, b) -> err, error estimation for the interval [a, b].
+        tol : float The tolerance for the error on an interval.
+    Returns:
+        x : ndarray The partitioned interval."""
+    x = _split_interval(a, b, error_function, tol)
+    return np.array([a, *x, b])
