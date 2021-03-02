@@ -11,23 +11,9 @@ def f(x, eps=1):
     return -2 * u(x, eps=eps) * (eps - 2 * (0.5 - x)**2) / eps**2
 
 
-def _split_interval(a, b, error_function, tol):
-    c = (a + b) / 2  # Bisection
-    if error_function(a, c, b) <= tol:
-        partition =  [c]
-    else:
-        partition = [
-            *_split_interval(a, c, error_function, tol),
-            c,
-            *_split_interval(c, b, error_function, tol)
-        ]
-    return partition
+############
+# Solve the 
 
-def partition_interval(a, b, error_function, tol):
-    """Partition an interval adaptively.
-    Makes error_function less than tol for all sub intervals."""
-    x = _split_interval(a, b, error_function, tol)
-    return np.array([a, *x, b])
 
 M = 100
 eps = 0.05
