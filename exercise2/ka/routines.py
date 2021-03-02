@@ -21,11 +21,13 @@ class Grid:
     UNIFORM = 1
     ADAPTIVE = 2
 
-    def __init__(self, type, ):
+    def __init__(self, type, x):
         self.type = type
+        self.x = x
+        self.h = x[1:] - x[:-1]
 
 
-def forward_euler(bc1, bc2, u0, M, N, t_end, log=True):
+def forward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
     """
     Solve the 1D heat equation using forward Euler method
 
@@ -41,8 +43,11 @@ def forward_euler(bc1, bc2, u0, M, N, t_end, log=True):
         U : solution of the heat equation at time t_end
         solution_matrix : NxM matrix, row i is U at time ti 0 < ti < t_end
     """
-
-    x, h = np.linspace(0, 1, M, retstep=True)
+    if grid.type != Grid.UNIFORM:
+        raise("Unsupported error, FE does not currently support non uniform grids")
+    x = grid.x
+    M = len(x)
+    h = grid.h[0] # Uniform grid, all equal
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
@@ -68,11 +73,11 @@ def forward_euler(bc1, bc2, u0, M, N, t_end, log=True):
         if log:
             solution_matrix[i+1] = U
     if log:
-        return x, t, U, solution_matrix
-    return x, t, U
+        return t, U, solution_matrix
+    return t, U
 
 
-def backward_euler(bc1, bc2, u0, M, N, t_end, log=True):
+def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
     """
     Solve the 1D heat equation using backward Euler method
 
@@ -89,7 +94,9 @@ def backward_euler(bc1, bc2, u0, M, N, t_end, log=True):
         solution_matrix : NxM matrix, row i is U at time ti 0 < ti < t_end
     """
 
-    x, h = np.linspace(0, 1, M, retstep=True)
+    x = grid.x
+    h = grid.h[0]
+    M = len(x)
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
@@ -171,11 +178,11 @@ def backward_euler(bc1, bc2, u0, M, N, t_end, log=True):
             "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
         )
     if log:
-        return x, t, U, solution_matrix
-    return x, t, U
+        return t, U, solution_matrix
+    return t, U
 
 
-def crank_nicolson(bc1, bc2, u0, M, N, t_end, log=True):
+def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
     """
     Solve the 1D heat equation using backward Crank-Nicolson
 
@@ -192,7 +199,9 @@ def crank_nicolson(bc1, bc2, u0, M, N, t_end, log=True):
         solution_matrix : NxM matrix, row i is U at time ti 0 < ti < t_end
     """
 
-    x, h = np.linspace(0, 1, M, retstep=True)
+    x = grid.x
+    h = grid.h[0]
+    M = len(x)
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
@@ -255,8 +264,6 @@ def crank_nicolson(bc1, bc2, u0, M, N, t_end, log=True):
             U[:-1] = spsolve(A, b)
             if log:
                 solution_matrix[i+1] = U
-        if log:
-            return x, t, U, solution_matrix
     elif (
         bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN
     ):
@@ -281,11 +288,11 @@ def crank_nicolson(bc1, bc2, u0, M, N, t_end, log=True):
             "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
         )
     if log:
-        return x, t, U, solution_matrix
-    return x, t, U
+        return t, U, solution_matrix
+    return t, U
 
 
-def test_method(method, M, N, t_end):
+def test_method(method, grid, N, t_end):
     """
     Do a testrun and plot results for a numerical solver of the heat equation.
     For "veryfying" that a method works.
@@ -298,23 +305,33 @@ def test_method(method, M, N, t_end):
         t_end : end time
     """
 
-    # bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
-    # bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
-    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-
     def u0(x):
         """ Initial condition u(x, 0) = 2*pi*x - sin(2*pi*x) """
 
         return 2 * np.pi * x - np.sin(2 * np.pi * x)
 
-    x, t, U_final, solutions = method(bc1, bc2, u0, M, N, t_end)
+    # bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(0))
+    # bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, initial(1))
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+
+    t, U_final, solutions = method(grid, bc1, bc2, u0, N, t_end)
 
     num_samples = 5
     for i in range(num_samples):
         j = i * N // num_samples
         ti = t[j]
-        plt.plot(x, solutions[j], ".", label=f"t={ti}")
+        plt.plot(grid.x, solutions[j], ".", label=f"t={ti}")
     plt.title(method.__name__)
     plt.legend()
     plt.show()
+
+
+if __name__ == "__main__":
+    M = 100
+    N = 100
+    N_FE = 10000
+    grid = Grid(Grid.UNIFORM, np.linspace(0, 1, M))
+    test_method(forward_euler, grid, N_FE, 0.2)
+    test_method(backward_euler, grid, N, 0.2)
+    test_method(crank_nicolson, grid, N, 0.2)
