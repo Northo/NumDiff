@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.integrate import quad
+from matplotlib import animation
+from collections.abc import Callable  # Spooky stuff I don't know what is
 
 from routines import Grid
 
@@ -116,3 +118,56 @@ def continous_convergence_plot(
         plt.plot(M_array, error_array)
         plt.show()
     return error_array, M_array
+
+
+# From ../jonas.py
+def animate(i, x, U, curve):
+    curve.set_data(x, U[i])
+    return curve
+
+
+# From ../jonas.py
+def animate_time_development(x, U):
+    """
+    Animates values of U developing in N time steps.
+    Variables:
+        x:  np.array of x values in which function is evaluated.
+        U:  np.array with dimensions (N, M) holding
+            M function values in N time steps.
+    """
+    fig = plt.figure()
+    ax = plt.axes(xlim=(x[0], x[-1]), ylim=(0, np.max(U) * 1.1))
+    (curve,) = ax.plot(x, U[0])
+    anim = animation.FuncAnimation(fig, animate, fargs=(x, U, curve))
+    return anim
+
+
+# From T-vice
+def _split_interval(a, b, error_function, tol):
+    """Helper function used by partition_interval"""
+    c = (a + b) / 2  # Bisection
+    if error_function(a, c, b) <= tol:
+        partition = [c]
+    else:
+        partition = [
+            *_split_interval(a, c, error_function, tol),
+            c,
+            *_split_interval(c, b, error_function, tol),
+        ]
+    return partition
+
+
+# From T-vice
+def partition_interval(
+    a, b, error_function: Callable[[float, float, float], float], tol
+):
+    """Partition an interval adaptively.
+    Makes error_function less than tol for all sub intervals.
+    Arguments:
+        a,b : float The start and stop of the interval.
+        errror_function : func(a, c, b) -> err, error estimation for the interval [a, b].
+        tol : float The tolerance for the error on an interval.
+    Returns:
+        x : ndarray The partitioned interval."""
+    x = _split_interval(a, b, error_function, tol)
+    return np.array([a, *x, b])

@@ -273,15 +273,17 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
     ):
         # DIRCHLET-DIRCHLET
         m = M - 2
-        diag = 1 + r_arr/2 * (1 / h_left + 1 / h_right)
+        diag = 1 + r_arr / 2 * (1 / h_left + 1 / h_right)
         offdiag_upper = -r_arr[:-1] / (2 * h_right[:-1])
         offdiag_lower = -r_arr[1:] / (2 * h_left[1:])
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
 
         for (i, ti) in enumerate(t[1:]):
-            b = U[1:-1] + r_arr/2 * (U[2:]/h_right - (1/h_left + 1/h_right)*U[1:-1] + U[:-2]/h_left)
-            b[0] += k / (2*h_arr[0] ** 2) * bc1.value(ti)
-            b[-1] += k / (2*h_arr[-1] ** 2) * bc2.value(ti)
+            b = U[1:-1] + r_arr / 2 * (
+                U[2:] / h_right - (1 / h_left + 1 / h_right) * U[1:-1] + U[:-2] / h_left
+            )
+            b[0] += k / (2 * h_arr[0] ** 2) * bc1.value(ti)
+            b[-1] += k / (2 * h_arr[-1] ** 2) * bc2.value(ti)
             U[1:-1] = spsolve(A, b)
             if log:
                 solution_matrix[i + 1] = U
