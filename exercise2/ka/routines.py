@@ -48,10 +48,10 @@ def forward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
         solution_matrix : NxM matrix, row i is U at time ti 0 < ti < t_end
     """
     if not grid.is_uniform:
-        raise("Unsupported error, FE does not currently support non uniform grids")
+        raise ("Unsupported error, FE does not currently support non uniform grids")
     x = grid.x
     M = len(x)
-    h = grid.h[0] # Uniform grid, all equal
+    h = grid.h[0]  # Uniform grid, all equal
     t, k = np.linspace(0, t_end, N, retstep=True)
     r = k / (h ** 2)
     U = u0(x)  # initial, t = 0
@@ -75,7 +75,7 @@ def forward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
             raise ("Unsupported boundary condition type")
         U[1:-1] = U[1:-1] + r * (U[:-2] - 2 * U[1:-1] + U[2:])
         if log:
-            solution_matrix[i+1] = U
+            solution_matrix[i + 1] = U
     if log:
         return t, U, solution_matrix
     return t, U
@@ -105,9 +105,9 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
     h = grid.h[0]
     r = k / (h ** 2)
 
-    h_arr = grid.h # array
+    h_arr = grid.h  # array
     h_left, h_right = h_arr[:-1], h_arr[1:]
-    r_arr = 2*k/(h_left + h_right)
+    r_arr = 2 * k / (h_left + h_right)
 
     if log:
         solution_matrix = np.zeros((N, M))
@@ -115,7 +115,9 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
 
     if bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.NEUMANN:
         if not grid.is_uniform:
-            raise("Unsupported error, does not currently support non uniform grids for these BCs")
+            raise (
+                "Unsupported error, does not currently support non uniform grids for these BCs"
+            )
         # neumann-neumann
         diag = np.repeat(1 + 2 * r, M)
         offdiag_upper = np.repeat(-r, M - 1)
@@ -130,25 +132,25 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += r * 2 * r * h * bc2.value(ti)
             U = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     elif (
         bc1.type == BoundaryCondition.DIRCHLET
         and bc2.type == BoundaryCondition.DIRCHLET
     ):
         # dirchlet-dirchlet
         m = M - 2
-        diag = 1 + r_arr*(1/h_left + 1/h_right)
-        offdiag_upper = -r_arr[:-1]/h_right[:-1]
-        offdiag_lower = -r_arr[1:]/h_left[1:]
+        diag = 1 + r_arr * (1 / h_left + 1 / h_right)
+        offdiag_upper = -r_arr[:-1] / h_right[:-1]
+        offdiag_lower = -r_arr[1:] / h_left[1:]
         A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
 
         for (i, ti) in enumerate(t[1:]):
             b = U[1:-1]
-            b[0] += k/(h_arr[0]**2) * bc1.value(ti)
-            b[-1] += k/(h_arr[-1]**2) * bc2.value(ti)
+            b[0] += k / (h_arr[0] ** 2) * bc1.value(ti)
+            b[-1] += k / (h_arr[-1] ** 2) * bc2.value(ti)
             U[1:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
         """
         m = M - 2
         diag = np.repeat(1 + 2 * r, m)
@@ -168,7 +170,9 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
     ):
         # dirchlet-neumann
         if not grid.is_uniform:
-            raise("Unsupported error, does not currently support non uniform grids for these BCs")
+            raise (
+                "Unsupported error, does not currently support non uniform grids for these BCs"
+            )
         m = M - 1
         diag = np.repeat(1 + 2 * r, m)
         offdiag_upper = np.repeat(-r, m - 1)
@@ -181,13 +185,15 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += r * 2 * r * h * bc2.value(ti)
             U[1:] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     elif (
         bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET
     ):
         # neumann-dirchlet
         if not grid.is_uniform:
-            raise("Unsupported error, does not currently support non uniform grids for these BCs")
+            raise (
+                "Unsupported error, does not currently support non uniform grids for these BCs"
+            )
         m = M - 1
         diag = np.repeat(1 + 2 * r, m)
         offdiag_upper = np.repeat(-r, m - 1)
@@ -201,7 +207,7 @@ def backward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += r * bc2.value(ti)
             U[:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     else:
         raise (
             "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
@@ -234,9 +240,9 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
     h = grid.h[0]
     r = k / (h ** 2)
 
-    h_arr = grid.h # array
+    h_arr = grid.h  # array
     h_left, h_right = h_arr[:-1], h_arr[1:]
-    r_arr = 2*k/(h_left + h_right)
+    r_arr = 2 * k / (h_left + h_right)
     U = u0(x)  # initial, t = 0
 
     if log:
@@ -260,7 +266,7 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] = U[-1] + (r / 2) * (U[-2] - U[-1]) + 2 * r * h * bc2.value(ti)
             U = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     elif (
         bc1.type == BoundaryCondition.DIRCHLET
         and bc2.type == BoundaryCondition.DIRCHLET
@@ -277,7 +283,7 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += (r / 2) * bc2.value(ti)
             U[1:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     elif (
         bc1.type == BoundaryCondition.NEUMANN and bc2.type == BoundaryCondition.DIRCHLET
     ):
@@ -296,7 +302,7 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += (r / 2) * bc2.value(ti)
             U[:-1] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     elif (
         bc1.type == BoundaryCondition.DIRCHLET and bc2.type == BoundaryCondition.NEUMANN
     ):
@@ -315,7 +321,7 @@ def crank_nicolson(grid, bc1, bc2, u0, N, t_end, log=True):
             b[-1] += (r / 2) * (U[-2] - U[-1]) + 2 * r * h * bc2.value(ti)
             U[1:] = spsolve(A, b)
             if log:
-                solution_matrix[i+1] = U
+                solution_matrix[i + 1] = U
     else:
         raise (
             "Unsupported boundary condition type(s). The supported are: Dirchlet and Neumann."
@@ -345,8 +351,8 @@ def test_method(method, grid, N, t_end):
 
     bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, u0(0))
     bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, u0(1))
-    #bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    #bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    # bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    # bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 
     t, U_final, solutions = method(grid, bc1, bc2, u0, N, t_end)
 
@@ -364,9 +370,9 @@ if __name__ == "__main__":
     M = 100
     N = 100
     N_FE = 10000
-    grid = Grid(Grid.NON_UNIFORM, np.linspace(0, 1, M)**2)
+    grid = Grid(Grid.NON_UNIFORM, np.linspace(0, 1, M) ** 2)
     unigrid = Grid(Grid.UNIFORM, np.linspace(0, 1, M))
-    #test_method(forward_euler, unigrid, N_FE, 0.1)
+    # test_method(forward_euler, unigrid, N_FE, 0.1)
     test_method(backward_euler, unigrid, N, 0.1)
     test_method(backward_euler, grid, N, 0.1)
-    #test_method(crank_nicolson, unigrid, N, 0.1)
+    # test_method(crank_nicolson, unigrid, N, 0.1)
