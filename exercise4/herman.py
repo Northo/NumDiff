@@ -1,20 +1,28 @@
 #!/usr/bin/python3
 
 import numpy as np
+import scipy as sp
+import scipy.linalg
 import matplotlib.pyplot as plt
 import matplotlib
 
 def theta_method(t, A, U0, theta):
-    N_time = np.shape(t)[0]
-    N_space = np.shape(U0)[0]
+    N_time = t.shape[0]
+    N_space = U0.shape[0]
     U = np.empty((N_time, N_space))
     U[0] = U0
     I = np.identity(N_space)
 
+    M1, M2, lu, piv = None, None, None, None
     for n in range(1, N_time):
         dt = t[n] - t[n-1]
-        U[n] = np.linalg.solve(I - theta*dt*A, np.dot((I + (1-theta)*dt*A), U[n-1]))
-
+        if n == 1 or dt - (t[n-1] - t[n-2]) > 1e-10:
+            # LU-factorize matrices with equal time step
+            # to solve matrix equation more efficiently for multiple inputs
+            M1 = I - theta*dt*A
+            M2 = I + (1-theta)*dt*A
+            lu, piv = sp.linalg.lu_factor(M1)
+        U[n] = sp.linalg.lu_solve((lu, piv), M2 @ U[n-1])
     return U
 
 def forward_euler(t, A, U0):
