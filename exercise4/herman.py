@@ -41,7 +41,7 @@ def main():
     N = np.shape(x)[0]
 
     A = np.zeros((N, N))
-    stencil1 = np.array([-1, 0, +1]) / h
+    stencil1 = np.array([-1, 0, +1]) / (2*h)
     stencil3 = np.array([-1/8, 0, +3/8, 0, -3/8, 0, +1/8]) / h**3
     relinds1 = [i - (len(stencil1)-1)//2 for i in range(0, len(stencil1))]
     relinds3 = [i - (len(stencil3)-1)//2 for i in range(0, len(stencil3))]
