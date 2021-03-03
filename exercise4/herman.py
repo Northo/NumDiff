@@ -25,56 +25,78 @@ def theta_method(t, A, U0, theta):
         U[n] = sp.linalg.lu_solve((lu, piv), M2 @ U[n-1])
     return U
 
-def forward_euler(t, A, U0):
-    return theta_method(t, A, U0, theta=0)
+def solve_analytical(x, t):
+    t = np.array(t)
+    return np.sin(np.pi*(x-t.reshape(-1,1)))
 
-def backward_euler(t, A, U0):
-    return theta_method(t, A, U0, theta=1)
-
-def crank_nicholson(t, A, U0):
-    return theta_method(t, A, U0, theta=1/2)
-
-def animate_solution(x, t, U, u):
-    fig, ax = plt.subplots()
-
-    ymin = np.min((np.min(U), np.min(u)))
-    ymax = np.max((np.max(U), np.max(u)))
-    ax.set_ylim(ymin, ymax)
-    ax.set_xlim(x[0], x[-1])
-
-    graph1, = ax.plot([], [], linewidth=1, color="red")
-    graph2, = ax.plot([], [], linewidth=5, color="black")
-
-    def animate(i):
-        graph1.set_data(x, U[i,:])
-        graph2.set_data(x, u[i,:])
-
-    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0)
-    plt.show()
-
-def main():
-    N = 400
-    x, h = np.linspace(-1, +1, N, retstep=True)
-    t, k = np.linspace(0, 1, 500, retstep=True)
-    N = np.shape(x)[0]
-
-    print(f"k/h^2 = {k/h**2}")
+def solve_numerical(x, t, method="crank-nicholson"):
+    N = x.shape[0]
+    dx = x[1] - x[0]
 
     A = np.zeros((N, N))
-    stencil1 = np.array([-1, 0, +1]) / (2*h)
-    stencil3 = np.array([-1/8, 0, +3/8, 0, -3/8, 0, +1/8]) / h**3
+    stencil1 = np.array([-1, 0, +1]) / (2*dx) # 1st derivative
+    stencil3 = np.array([-1/8, 0, +3/8, 0, -3/8, 0, +1/8]) / dx**3 # 3rd derivative
     relinds1 = [i - (len(stencil1)-1)//2 for i in range(0, len(stencil1))]
     relinds3 = [i - (len(stencil3)-1)//2 for i in range(0, len(stencil3))]
     for i in range(0, N):
+        # impose periodic BCs by wrapping stencil coefficients around the matrix
         inds1 = [(i + relind1) % N for relind1 in relinds1]
         inds3 = [(i + relind3) % N for relind3 in relinds3]
         A[i,inds1] -= (1+np.pi**2) * stencil1
         A[i,inds3] -= stencil3
 
-    U0 = np.sin(np.pi*x)
-    U = crank_nicholson(t, A, U0)
-    u = np.sin(np.pi*(x-t.reshape(-1,1)))
+    U0 = solve_analytical(x, [t[0]])[0] # sin(pi*x)
 
+    if method == "forward-euler":
+        return theta_method(t, A, U0, 0)
+    elif method == "backward-euler":
+        return theta_method(t, A, U0, 1)
+    elif method == "crank-nicholson":
+        return theta_method(t, A, U0, 1/2)
+    else:
+        raise(f"Unknown method \"{method}\"")
+
+def animate_solution(x, t, u1, u2):
+    fig, ax = plt.subplots()
+
+    # set constant limits with room to show both solutions at all times
+    ymin = np.min((np.min(u1), np.min(u2)))
+    ymax = np.max((np.max(u1), np.max(u2)))
+    ax.set_ylim(ymin, ymax)
+    ax.set_xlim(x[0], x[-1])
+
+    graph1, = ax.plot([], [])
+    graph2, = ax.plot([], [])
+    def animate(i):
+        graph1.set_data(x, u1[i,:])
+        graph2.set_data(x, u2[i,:])
+
+    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0)
+    plt.show()
+
+def convergence_plot():
+    Ms = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    errs = []
+    for M in Ms:
+        x, dx = np.linspace(-1, +1, M, retstep=True)
+        t, dt = np.linspace(0, 1, 200, retstep=True)
+        u = solve_analytical(x, t)[-1] # u(t=1)
+        U = solve_numerical(x, t)[-1] # U(t=1)
+        err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
+        errs.append(err)
+
+    plt.loglog(Ms, errs)
+    plt.show()
+
+def main():
+    N = 400
+    x, dx = np.linspace(-1, +1, N, retstep=True)
+    t, dt = np.linspace(0, 1, 500, retstep=True)
+    print(f"dt/dx^2 = {dt/dx**2}") # stability depends on this number (?)
+
+    u = solve_analytical(x, t)
+    U = solve_numerical(x, t)
     animate_solution(x, t, U, u)
 
 main()
+# convergence_plot()
