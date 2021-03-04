@@ -88,30 +88,29 @@ def animate_solution(x, t, u1, u2):
     plt.show()
 
 def convergence_plot():
-    rs = [1/4, 2/4, 3/4, 4/4, 5/4]
+    methods = ["crank-nicholson"]
     Ms = [16, 32, 64, 128, 256, 512, 1024]
+    Ns = [2**2, 2**3, 2**4, 2**5, 2**6, 2**7, 2**8]
 
-    series = [
-        {"method": "crank-nicholson", "r": 20},
-    ]
-
-    for s in series:
-        method = s["method"]
-        r = s["r"]
-        errs = []
-        for M in Ms:
-            x, dx = np.linspace(-1, +1, M, retstep=True)
-            # t, dt = np.linspace(0, 1, 200, retstep=True)
-            dt = r * dx**2
-            t = np.arange(0, 1, dt)
-            print(len(t))
-            u = solve_analytical(x, t)[-1] # u(t=1)
-            U = solve_numerical(x, t, method=s["method"])[-1] # U(t=1)
-            err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
-            errs.append(err)
-        label = f"{{s[\"method\"]}}"
-        plt.loglog(Ms, errs, label=label)
-
+    for method in methods:
+        for N in Ns:
+            t, dt = np.linspace(0, 1, N, retstep=True)
+            Ms_to_plot = []
+            errs = []
+            for M in Ms:
+                x, dx = np.linspace(-1, +1, M, retstep=True)
+                u = solve_analytical(x, t)[-1] # u(t=1)
+                try:
+                    U = solve_numerical(x, t, method=method)[-1] # U(t=1)
+                    err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
+                    Ms_to_plot.append(M)
+                    errs.append(err)
+                except:
+                    pass # e.g. if Euler method diverges
+            label = f"{method} N={N}"
+            plt.loglog(Ms_to_plot, errs, label=label)
+    plt.ylim(1e-3, 1e1)
+    plt.legend()
     plt.show()
 
 def norm_evolution():
@@ -149,5 +148,5 @@ def main():
     animate_solution(x, t, U, u)
 
 # main()
-# convergence_plot()
-norm_evolution()
+convergence_plot()
+# norm_evolution()
