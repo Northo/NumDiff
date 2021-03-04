@@ -87,28 +87,40 @@ def animate_solution(x, t, u1, u2):
     plt.show()
 
 def convergence_plot():
-    Ms = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
-    errs = []
-    for M in Ms:
-        x, dx = np.linspace(-1, +1, M, retstep=True)
-        t, dt = np.linspace(0, 1, 200, retstep=True)
-        u = solve_analytical(x, t)[-1] # u(t=1)
-        U = solve_numerical(x, t)[-1] # U(t=1)
-        err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
-        errs.append(err)
+    rs = [1/4, 2/4, 3/4, 4/4, 5/4]
+    Ms = [16, 32, 64, 128, 256, 512, 1024]
 
-    plt.loglog(Ms, errs)
+    series = [
+        {"method": "crank-nicholson", "r": 20},
+    ]
+
+    for s in series:
+        method = s["method"]
+        r = s["r"]
+        errs = []
+        for M in Ms:
+            x, dx = np.linspace(-1, +1, M, retstep=True)
+            # t, dt = np.linspace(0, 1, 200, retstep=True)
+            dt = r * dx**2
+            t = np.arange(0, 1, dt)
+            print(len(t))
+            u = solve_analytical(x, t)[-1] # u(t=1)
+            U = solve_numerical(x, t, method=s["method"])[-1] # U(t=1)
+            err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
+            errs.append(err)
+        label = f"{{s[\"method\"]}}"
+        plt.loglog(Ms, errs, label=label)
+
     plt.show()
 
 def main():
     N = 400
-    x, dx = np.linspace(-1, +1, N, retstep=True)
-    t, dt = np.linspace(0, 1, 500, retstep=True)
-    print(f"dt/dx^2 = {dt/dx**2}") # stability depends on this number (?)
+    x = np.linspace(-1, +1, N)
+    t = np.linspace(0, 1, 500)
 
     u = solve_analytical(x, t)
     U = solve_numerical(x, t)
     animate_solution(x, t, U, u)
 
-main()
-# convergence_plot()
+# main()
+convergence_plot()
