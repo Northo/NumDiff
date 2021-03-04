@@ -114,6 +114,31 @@ def convergence_plot():
 
     plt.show()
 
+def norm_evolution():
+    series = [
+        {"method": "crank-nicholson", "M": 200, "N": 200},
+        {"method": "forward-euler", "M": 100, "N": 100}
+    ]
+
+    for s in series:
+        method = s["method"]
+
+        x = np.linspace(-1, +1, s["M"])
+        t = np.linspace(0, 1, s["N"])
+        U = solve_numerical(x, t, method=method)
+
+        N = t.shape[0]
+        L2 = np.empty(N)
+        for i in range(0, N):
+            L2[i] = np.linalg.norm(U, 2)
+
+        label = f"{method}"
+        plt.plot(t, (L2 - np.mean(L2)) / np.mean(L2), label=label)
+
+    plt.ylim(-0.01, +0.01) # relative error always [-1, +1]
+    plt.legend()
+    plt.show()
+
 def main():
     N = 400
     x = np.linspace(-1, +1, N)
@@ -124,4 +149,5 @@ def main():
     animate_solution(x, t, U, u)
 
 # main()
-convergence_plot()
+# convergence_plot()
+norm_evolution()
