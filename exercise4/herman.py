@@ -14,11 +14,11 @@ def theta_method(t, A, U0, theta):
     dt = t[1] - t[0]
     assert grid_is_uniform(t), "Time step not constant"
 
-    N_time = t.shape[0]
-    N_space = U0.shape[0]
-    U = np.empty((N_time, N_space))
+    N = t.shape[0]
+    M = U0.shape[0]
+    U = np.empty((N, M))
     U[0] = U0
-    I = np.identity(N_space)
+    I = np.identity(M)
 
     # Solve matrix system M1 @ U[n] == M2 @ U[n-1] at each time step
     # The matrices M1 and M2 are constant,
@@ -26,7 +26,7 @@ def theta_method(t, A, U0, theta):
     M1 = I - theta*dt*A
     M2 = I + (1-theta)*dt*A
     lu, piv = sp.linalg.lu_factor(M1)
-    for n in range(1, N_time):
+    for n in range(1, N):
         dt = t[n] - t[n-1]
         U[n] = sp.linalg.lu_solve((lu, piv), M2 @ U[n-1])
     return U
@@ -39,21 +39,22 @@ def solve_numerical(x, t, method="crank-nicholson"):
     assert grid_is_uniform(x), "Space step not uniform"
     assert grid_is_uniform(t), "Time step not uniform"
 
-    N = x.shape[0]
+    M = x.shape[0]
+    N = t.shape[0]
     dx = x[1] - x[0]
     dt = t[1] - t[0]
 
-    print(f"M = {N}, dt/dx^2 = {dt/dx**2}")
+    print(f"M = {M}, N = {N}, dt/dx^2 = {dt/dx**2}")
 
-    A = np.zeros((N, N))
+    A = np.zeros((M, M))
     stencil1 = np.array([-1, 0, +1]) / (2*dx) # 1st derivative
     stencil3 = np.array([-1/8, 0, +3/8, 0, -3/8, 0, +1/8]) / dx**3 # 3rd derivative
     relinds1 = [i - (len(stencil1)-1)//2 for i in range(0, len(stencil1))]
     relinds3 = [i - (len(stencil3)-1)//2 for i in range(0, len(stencil3))]
-    for i in range(0, N):
+    for i in range(0, M):
         # impose periodic BCs by wrapping stencil coefficients around the matrix
-        inds1 = [(i + relind1) % N for relind1 in relinds1]
-        inds3 = [(i + relind3) % N for relind3 in relinds3]
+        inds1 = [(i + relind1) % M for relind1 in relinds1]
+        inds3 = [(i + relind3) % M for relind3 in relinds3]
         A[i,inds1] -= (1+np.pi**2) * stencil1
         A[i,inds3] -= stencil3
 
