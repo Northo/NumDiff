@@ -6,22 +6,28 @@ import scipy.linalg
 import matplotlib.pyplot as plt
 import matplotlib
 
+def grid_is_uniform(x, eps=1e-10):
+    dx = x[1] - x[0]
+    return np.max(dx - (x[1:] - x[:-1])) < eps
+
 def theta_method(t, A, U0, theta):
+    dt = t[1] - t[0]
+    assert grid_is_uniform(t), "Time step not constant"
+
     N_time = t.shape[0]
     N_space = U0.shape[0]
     U = np.empty((N_time, N_space))
     U[0] = U0
     I = np.identity(N_space)
 
-    M1, M2, lu, piv = None, None, None, None
+    # Solve matrix system M1 @ U[n] == M2 @ U[n-1] at each time step
+    # The matrices M1 and M2 are constant,
+    # so optimize by LU-factorizing M1 to solve the system for many different RHSes
+    M1 = I - theta*dt*A
+    M2 = I + (1-theta)*dt*A
+    lu, piv = sp.linalg.lu_factor(M1)
     for n in range(1, N_time):
         dt = t[n] - t[n-1]
-        if n == 1 or dt - (t[n-1] - t[n-2]) > 1e-10:
-            # LU-factorize matrices with equal time step
-            # to solve matrix equation more efficiently for multiple inputs
-            M1 = I - theta*dt*A
-            M2 = I + (1-theta)*dt*A
-            lu, piv = sp.linalg.lu_factor(M1)
         U[n] = sp.linalg.lu_solve((lu, piv), M2 @ U[n-1])
     return U
 
@@ -30,8 +36,14 @@ def solve_analytical(x, t):
     return np.sin(np.pi*(x-t.reshape(-1,1)))
 
 def solve_numerical(x, t, method="crank-nicholson"):
+    assert grid_is_uniform(x), "Space step not uniform"
+    assert grid_is_uniform(t), "Time step not uniform"
+
     N = x.shape[0]
     dx = x[1] - x[0]
+    dt = t[1] - t[0]
+
+    print(f"M = {N}, dt/dx^2 = {dt/dx**2}")
 
     A = np.zeros((N, N))
     stencil1 = np.array([-1, 0, +1]) / (2*dx) # 1st derivative
