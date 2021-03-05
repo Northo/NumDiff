@@ -96,7 +96,7 @@ DEFAULT_ERROR_FUNCTIONS = {
 }
 
 
-def find_errors(parameter_list, problem_generator, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
+def find_errors(parameter_list, problem_generator, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS, return_Ms=False):
     """Find errors for given values of parameter_list, which is typically M or tol.
     Arguments:
        parameter_list : iterable The parameter to compare error over, for example M or tol.
@@ -108,11 +108,15 @@ def find_errors(parameter_list, problem_generator, f, u, BCs, error_functions=DE
     of errors for that error over M_list."""
     # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
     errors = {error_name: [] for error_name in error_functions}
+    Ms = []
     for param in parameter_list:
         A, F, x = problem_generator(f, param, BCs)
+        Ms.append(len(x))
         U = solve_handle(A, F)
         for error_name, error_function in error_functions.items():
             errors[error_name].append(error_function(U, u, x))
+    if return_Ms:
+        return errors, Ms
     return errors
 
 
@@ -124,7 +128,7 @@ def find_errors_M(Ms, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
         f,
         u,
         BCs,
-        error_functions
+        error_functions,
     )
 
 
@@ -141,7 +145,8 @@ def find_errors_tol(tols, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
         f,
         u,
         BCs,
-        error_functions
+        error_functions,
+        return_Ms=True,
     )
 
 
@@ -158,10 +163,10 @@ def write_errors_file(filename, Ms, errors):
                 file.write("\t" + f"{errors[error][i]:8.3f}")
 
 
-def plot_errors(errors, parameter_list):
+def plot_errors(errors, parameter_list, suffix="", prefix=""):
     """Used for debugging"""
     for error_name, error in errors.items():
-        plt.loglog(parameter_list, error, '-x', label=error_name)
+        plt.loglog(parameter_list, error, label=prefix+error_name+suffix)
 
 
 def existence_neumann_neumann(F, h, sigma0, sigma1):

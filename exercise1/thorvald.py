@@ -1,6 +1,8 @@
 from utils import *
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+from functools import partial
 
 DATA_PATH = "data_thorvald/"  # Relative path for data files.
 DEBUG = False
@@ -56,14 +58,24 @@ def f(x, eps=1):
     """"Analytical solution."""
     return -2 * u(x, eps=eps) * (eps - 2 * (0.5 - x)**2) / eps**2
 
+u = partial(u, eps=0.01)
+f = partial(f, eps=0.01)
+
 BCs = [
     BC(BCType.DIRICHLET, u(0)),
     BC(BCType.DIRICHLET, u(1))
 ]
-tols = np.linspace(0.05, 0.9, 10)
+tols = np.linspace(0.01, 0.5, 30)
 
-errors = find_errors_tol(tols, f, u, BCs)
+errors, Ms = find_errors_tol(tols, f, u, BCs)
+errors_M = find_errors_M(Ms, f, u, BCs)
 if DEBUG or DEBUG_C:
-    plot_errors(errors, tols)
+    plt.gca().set_prop_cycle(
+        marker=['o', '+', 'x', '*', '.', 'X'],
+        color=list(mcolors.BASE_COLORS)[:6],
+        linestyle=['-', '--', ':', '-.', '--', '-'],
+    )
+    plot_errors(errors, Ms, suffix="TOL")
+    plot_errors(errors_M, Ms, suffix="Ms")
     plt.legend()
     plt.show()
