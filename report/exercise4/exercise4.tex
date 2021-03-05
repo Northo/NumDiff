@@ -1,0 +1,47 @@
+\section{KdV equation}
+
+KdV equation:
+\begin{equation}
+u_t + (1+\pi^2)u_x + u_{xxx} = 0
+\end{equation}
+
+Theta method:
+\begin{equation}
+\frac{u_m^{n+1} - u_m^n}{k} = (1-\theta) F(u^n) + \theta F(u^{n+1})
+\end{equation}
+where
+\begin{equation}
+F(u^n) = -(1+\pi^2) \frac{u_{m+1}^n-u_{m-1}^n}{2h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
+\end{equation}
+$\theta = 0$ is forward Euler, $\theta = 1/2$ is Crank-Nicholson, $\theta = 1$ is backward Euler.
+
+Separation of variables:
+\begin{equation}
+u(x, t) = X(x) T(t)
+\end{equation}
+Insert into KdV equation to get $T = A e^{zt}$.
+$X(x)$ is periodic, so expand it in a Fourier series:
+\begin{equation}
+X(x) = \sum_k C_k e^{ikx}
+\end{equation}
+The general solution is then
+\begin{equation}
+u(x, t) = \sum_k C_k e^{kt} e^{ikx}
+\end{equation}
+so
+\begin{equation}
+u_m^n = \sum_k C_k e^{kt_n} e^{ikx_m}
+\end{equation}
+With constant time steps, $t_n = nk$, we can write
+\begin{equation}
+u_m^n = \sum_k C_k G^n e^{ikx_m}
+\end{equation}
+Consider a general term in the series $u_m^n = G^n e^{ikx_m}$. Insert into discretized KdV equation to get
+\begin{equation}
+\frac{G-1}{k} = [(1-\theta)+\theta G] [-(1+\pi^2) \frac{e^{iqh}-e^{-iqh}}{2h} - \frac{e^{3iqh}-e^{-3iqh}-3(e^{iqh}-e^{-iqh})}{8h^3}]
+\end{equation}
+Expand using Euler's identity to get
+\begin{equation}
+\frac{G-1}{k} = i [(1-\theta)+\theta G] [-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}]
+\end{equation}
+$\theta = 0$ gives $|G| > 1$ (unstable), but $\theta = 1/2$ gives $|G| = 1$ (stable)! (unconditionally)
