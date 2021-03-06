@@ -96,58 +96,19 @@ DEFAULT_ERROR_FUNCTIONS = {
 }
 
 
-def find_errors(parameter_list, problem_generator, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS, return_Ms=False):
+def find_errors(Ms, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
     """Find errors for given values of parameter_list, which is typically M or tol.
-    Arguments:
-       parameter_list : iterable The parameter to compare error over, for example M or tol.
-       problem_generator : function Suitable problem generator. Signature callable(f, parameter, BCs) -> A, F, x
-       f : function The source term.
-       u : function Analytical solution (or approximate solution used for error estimation).
     Returns:
        errors : dict Errors for each norm, key is the error name, value is a list
     of errors for that error over M_list."""
     # Each function must have the call signature f(U:ndarray, u:function, x:ndarray).
     errors = {error_name: [] for error_name in error_functions}
-    Ms = []
-    for param in parameter_list:
-        A, F, x = problem_generator(f, param, BCs)
-        Ms.append(len(x))
+    for M in Ms:
+        A, F, x = generate_problem(f, M, BCs)
         U = solve_handle(A, F)
         for error_name, error_function in error_functions.items():
             errors[error_name].append(error_function(U, u, x))
-    if return_Ms:
-        return errors, Ms
     return errors
-
-
-def find_errors_M(Ms, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
-    """Wrapper for find_errors when parameter is M"""
-    return find_errors(
-        Ms,
-        generate_problem,
-        f,
-        u,
-        BCs,
-        error_functions,
-    )
-
-
-def find_errors_tol(tols, f, u, BCs, error_functions=DEFAULT_ERROR_FUNCTIONS):
-    """Wrapper for find_errors when parameter is tol"""
-    def problem_generator(f, tol, BCs):
-        error = lambda a, c, b: np.abs(f(c) * (b-c))
-        x = partition_interval(0, 1, error, tol)
-        return generate_problem_variable_step(f, x, BCs)
-
-    return find_errors(
-        tols,
-        problem_generator,
-        f,
-        u,
-        BCs,
-        error_functions,
-        return_Ms=True,
-    )
 
 
 def write_errors_file(filename, Ms, errors):
@@ -166,7 +127,7 @@ def write_errors_file(filename, Ms, errors):
 def plot_errors(errors, parameter_list, suffix="", prefix=""):
     """Used for debugging"""
     for error_name, error in errors.items():
-        plt.loglog(parameter_list, error, label=prefix+error_name+suffix)
+        plt.loglog(parameter_list, error, label=prefix + error_name + suffix)
 
 
 def existence_neumann_neumann(F, h, sigma0, sigma1):
@@ -365,17 +326,19 @@ def _split_interval(a, b, error_function, tol):
     """Helper function used by partition_interval"""
     c = (a + b) / 2  # Bisection
     if error_function(a, c, b) <= tol:
-        partition =  [c]
+        partition = [c]
     else:
         partition = [
             *_split_interval(a, c, error_function, tol),
             c,
-            *_split_interval(c, b, error_function, tol)
+            *_split_interval(c, b, error_function, tol),
         ]
     return partition
 
 
-def partition_interval(a, b, error_function: Callable[[float, float, float], float], tol):
+def partition_interval(
+    a, b, tol, error_function: Callable[[float, float, float], float]
+):
     """Partition an interval adaptively.
     Makes error_function less than tol for all sub intervals.
     Arguments:
@@ -386,3 +349,45 @@ def partition_interval(a, b, error_function: Callable[[float, float, float], flo
         x : ndarray The partitioned interval."""
     x = _split_interval(a, b, error_function, tol)
     return np.array([a, *x, b])
+
+
+def curvature_estimator(f):
+    """Generate a curvature estimator"""
+
+    def error_estimate(a, c, b):
+        return np.abs(f(c) * (b - a))
+
+    return error_estimate
+
+
+def trapz_curvature_estimator(f):
+    def error_estimate(a, c, b):
+        x = np.array([a, c, b])
+        return np.trapz(np.abs(f(x)), x=x)
+
+    return error_estimate
+
+
+def quad_curvature_estimator(f):
+    def error_estimate(a, c, b):
+        return quad(lambda x: np.abs(f(x)), a, b)[0]
+
+    return error_estimate
+
+
+def exact_estimator(f, u):
+    """Generate an exact estimator"""
+
+    def error_estimate(a, c, b):
+        trunc_error = u(a) + u(b) - 2 * u(c) - f(c)
+        return np.abs(trunc_error * (b - a))
+
+    return error_estimate
+
+
+def min_dist_mixin(estimator, min_dist):
+    def error_estimate(a, c, b):
+        dist = b - a
+        return np.where(dist < min_dist, estimator(a, c, b), np.inf)
+
+    return error_estimate
