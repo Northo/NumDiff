@@ -232,7 +232,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     strategies = [
         {"label": "UMR", "plot": False, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
         {"label": "AMR, const charge per cell", "plot": False, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1]},
-        {"label": "AMR2, const charge per cell", "plot": False, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1, 0.05, 0.01]},
+        {"label": "AMR2, const charge per cell", "plot": False, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1, 0.05, 0.01, 0.005, 0.001]},
         {"label": "AMR, truncerr using exact sol", "plot": False, "decider": should_subdivide_amr3, "tols": [1, 1e-1, 1e-2]}
     ]
 
@@ -255,6 +255,42 @@ def manufactured_solution_mesh_refinement(maxM=1000):
 
             if strategy["plot"]:
                 plot_solution(x, u, U, ffunc, grid=True)
+
+    # ONE MORE STRATEGY
+    strategies.append({})
+    strategies[-1]["label"] = "extra"
+    strategies[-1]["npoints"] = []
+    strategies[-1]["errs_disc"] = []
+    strategies[-1]["errs_cont"] = []
+    x = [0, 1]
+    for M in range(3, 100):
+        i_max = 0
+        charge_max = 0
+        for i in range(0, len(x)-1):
+            x1, x2 = x[i], x[i+1]
+            charge = (np.abs(ffunc(x1)) + np.abs(ffunc(x2))) / 2 * (x2 - x1)
+            if charge > charge_max:
+                charge_max = charge
+                i_max = i
+        x.insert(i_max+1, (x[i_max] + x[i_max+1]) / 2)
+
+        if len(x) == 80:
+            print(x)
+            plt.plot(x, np.zeros(len(x)), "k|")
+            plt.show()
+
+        xx = np.array(x)
+        u = ufunc(xx) # analytic solution
+        bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
+        bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
+        U = num(xx, bc1, bc2, f=ffunc) # numerical solution
+        err_disc = l2_disc(u-U) / l2_disc(u)
+        err_cont = l2_cont(u-U, xx) / l2_cont(u, xx)
+
+        strategies[-1]["npoints"].append(len(x))
+        strategies[-1]["errs_disc"].append(err_disc)
+        strategies[-1]["errs_cont"].append(err_cont)
+        
 
     for i, strategy in enumerate(strategies):
         plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="x", label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
