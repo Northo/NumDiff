@@ -172,7 +172,7 @@ def l2_disc(y):
     N = np.size(y)
     return np.sqrt(1/N*np.sum(y**2))
 
-def subdivide_interval2(x1, x3, should_subdivide, tol):
+def subdivide_interval(x1, x3, should_subdivide, tol):
     x = []
     def subdivide(x1, x3):
         x2 = (x1 + x3) / 2
@@ -189,22 +189,9 @@ def subdivide_interval2(x1, x3, should_subdivide, tol):
     x.append(x3) # append right point (only point missing)
     return np.array(x)
 
-def subdivide_interval3(x1, x3, should_subdivide, tol):
-    x = []
-    def subdivide(x1, x3):
-        x2 = (x1 + x3) / 2
-        if should_subdivide(x1, x2, x3, tol):
-            subdivide(x1, x2) # error too high, subdivide further
-            subdivide(x2, x3)
-        else:
-            x.append(x1) # error low enough, accept
-    subdivide(x1, x3)
-    x.append(x3) # append right point (only point missing)
-    return np.array(x)
-
 def manufactured_solution_mesh_refinement(maxM=1000):
     # symbolic manufactured solution
-    eps = 0.01
+    eps = 1e-3
     xsym = sympy.symbols("x")
     usym = sympy.exp(-1/eps*(xsym-1/2)**2)
     fsym = sympy.diff(sympy.diff(usym, xsym), xsym)
@@ -233,7 +220,8 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         cell_charge = np.trapz(np.abs(ffunc(x)), x)
         return cell_charge > tol
 
-    def should_subdivide_amr3(x1, x2, x3, tol):
+    def should_subdivide_amr3(x1, x2, tol):
+        x2, x3 = (x1+x2)/2, x2
         h1 = x2 - x1
         h2 = x3 - x2
         u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
@@ -242,10 +230,10 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return truncerr > tol
 
     strategies = [
-        {"label": "UMR", "plot": False, "n": 2, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
-        {"label": "AMR, const charge per cell", "plot": False, "n": 2, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1,0.05,0.01]},
-        {"label": "AMR2, const charge per cell", "plot": False, "n": 2, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1,0.05,0.01,0.005,0.001]},
-        {"label": "AMR, truncerr using exact sol", "plot": False, "n": 3, "decider": should_subdivide_amr3, "tols": [1, 0.5, 0.1, 0.05, 0.01]}
+        {"label": "UMR", "plot": False, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
+        {"label": "AMR, const charge per cell", "plot": False, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1]},
+        {"label": "AMR2, const charge per cell", "plot": False, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1, 0.05, 0.01]},
+        {"label": "AMR, truncerr using exact sol", "plot": False, "decider": should_subdivide_amr3, "tols": [1, 1e-1, 1e-2]}
     ]
 
     for strategy in strategies:
@@ -254,11 +242,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         strategy["errs_cont"] = []
 
         for tol in strategy["tols"]:
-            x = None
-            if strategy["n"] == 2:
-                x = subdivide_interval2(0, 1, strategy["decider"], tol)
-            elif strategy["n"] == 3:
-                x = subdivide_interval3(0, 1, strategy["decider"], tol)
+            x = subdivide_interval(0, 1, strategy["decider"], tol)
             u = ufunc(x) # analytic solution
             bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
             bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
