@@ -6,6 +6,10 @@ import scipy.linalg
 import matplotlib.pyplot as plt
 import matplotlib
 
+def write_table_to_file(path, table, headers):
+    np.savetxt(path, table, header=" ".join(headers), comments="")
+    print(f"Wrote to {path}")
+
 def grid_is_uniform(x, eps=1e-10):
     dx = x[1] - x[0]
     return np.max(dx - (x[1:] - x[:-1])) < eps
@@ -83,8 +87,11 @@ def animate_solution(x, t, u1, u2):
     def animate(i):
         graph1.set_data(x, u1[i,:])
         graph2.set_data(x, u2[i,:])
+        graph1.set_label(f"u1(t={t[i]:.2f})")
+        graph2.set_label(f"u2(t={t[i]:.2f})")
+        ax.legend(loc="upper right")
 
-    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0)
+    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0, frames=len(t))
     plt.show()
 
 def convergence_plot():
@@ -138,15 +145,25 @@ def norm_evolution():
     plt.legend()
     plt.show()
 
-def main():
+def main(animate=True, write=False, time_samples=5):
     N = 400
     x = np.linspace(-1, +1, N)
     t = np.linspace(0, 1, 500)
 
     u = solve_analytical(x, t)
     U = solve_numerical(x, t)
-    animate_solution(x, t, U, u)
 
-# main()
-convergence_plot()
+    if animate:
+        animate_solution(x, t, U, u)
+
+    if write:
+        inds = np.round(np.linspace(0, len(t)-1, time_samples)).astype(int)
+
+        cols = [x] + [u[i,:] for i in inds] + [U[i,:] for i in inds]
+        headers = ["x "] + [f"{t[i]}" for i in inds]
+        table = np.transpose(np.array(cols))
+        write_table_to_file("../report/exercise4/timeevol.dat", table, headers)
+
+main(animate=False, write=True, time_samples=5)
+# convergence_plot()
 # norm_evolution()
