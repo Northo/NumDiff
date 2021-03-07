@@ -1,8 +1,42 @@
 \section{Linearized Korteweg-De Vries equation in one dimension}
 
-KdV equation:
+In this section, we will study the one-dimensional linearized Korteweg-De Vries equation
 \begin{equation}
-u_t + (1+\pi^2)u_x + u_{xxx} = 0
+\pd{u}{t} + \left(1+\pi^2\right)\pd{u}{x} + \pd[3]{u}{x} = 0 \qquad (t \geq 0) \quad (-L/2 \leq x \leq +L/2),
+\end{equation}
+where the solution $u = u(x,t)$ is subject to periodic boundary conditions
+\begin{equation*}
+u(x+L, t) = u(x, t).
+\end{equation*}
+
+\subsection{Analytical solution}
+
+As the solution is periodic in space at every instant $t$, it can be expressed as a Fourier-series
+\begin{equation}
+u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i k_n x)}
+\end{equation}
+with wavenumbers $k_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
+This can be derived formally by separation of variables.
+Inserting the Fourier series into the equation gives
+\begin{equation*}
+	\sum_n \left( \dot{c}_n(t) + i \left( \left( 1+\pi^2 \right) k_n - k_n^3 \right) c_n(t) \right) \exp{(i k_n x)} = 0.
+\end{equation*}
+Due to orthogonality of the Fourier basis functions $\exp(i k_n x)$, this can only vanish if all coefficients separately vanish, so
+\begin{equation}
+	c_n(t) = c_n(0) \exp{\left( i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
+\end{equation}
+
+The solution has the property that the $L_2$-norm $\Vert u(x,t) \Vert_2 = ( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x )^{1/2}$ is preserved over time.
+To understand this, first note carefully how the first order time derivative combined with spatial derivatives of odd order produced coefficients of variable phase, but constant magnitude $|c_n(t)|^2 = |c_n(0)|^2$.
+This means that each Fourier mode is undamped in time, so
+\begin{equation}
+\begin{split}
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \dif x \\
+                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n} \dif x} \\
+											  &= L \sum_n \left| c_n(t) \right|^2 \\
+											  &= L \sum_n \left| c_n(0) \right|^2 \\
+											  &= \int_{-L/2}^{+L/2} \left| u(x,0) \right|^2 \dif x.
+\end{split}
 \end{equation}
 
 \begin{figure}
