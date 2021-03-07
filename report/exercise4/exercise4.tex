@@ -39,6 +39,22 @@ This means that each Fourier mode is undamped in time, so
 \end{split}
 \end{equation}
 
+\subsection{Numerical solution method}
+
+We will solve the Korteweg-De Vries equation with second order finite differences in space and the forward Euler, backward Euler and Crank-Nicholson methods in time.
+
+GRID FIGURE?? $x_0$ to $x_{M-1}$ makes modulo arithmetic intuitive.
+
+We approximate the spatial derivatives with the central differences
+\begin{equation*}
+	\pd{}{x} = \frac{\delta}{2h} + O(h^2) \qquad \text{and} \qquad \pd[3]{}{x} = \frac{\delta^3}{(2h)^3} + O(h^2)
+\end{equation*}
+and write the time integration methods collectively using the theta method
+\begin{equation}
+% \frac{u_m^{n+1} - u_m^n}{k} = (1-\theta) F(u^n) + \theta F(u^{n+1})
+\pd{u}{t} = F(u) \quad \rightarrow \quad \frac{u(x,t+k)-u(x,t)}{k} = (1-\theta) F(u(x, t)) + \theta F(u(x, t+k))
+\end{equation}
+
 \begin{figure}
 \begin{tikzpicture}
 \begin{axis}[
