@@ -83,3 +83,28 @@ Expand using Euler's identity to get
 \frac{G-1}{k} = i [(1-\theta)+\theta G] [-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}]
 \end{equation}
 $\theta = 0$ gives $|G| > 1$ (unstable), but $\theta = 1/2$ gives $|G| = 1$ (stable)! (unconditionally)
+
+Proof of conserved norm:
+Due to periodicity (if one is very pedantic, one can obtain this by separation of variables)
+\begin{equation}
+	u(x, t) = \sum_n c_n(t) e^{i k_n x}
+\end{equation}
+Insert into the KdV equation to get
+\begin{equation}
+	\sum_n \left\{ \dot{c}_n(t) + i [(1+\pi^2)k_n - k_n^3] c_n(t) \right\} e^{i k_n x}= 0
+\end{equation}
+For the sum to be $0$, each term inside the curly brackets must vanish, so
+\begin{equation}
+	c_n(t) = c_n(0) \exp{\left\{ i [(1+\pi^2)k_n - k_n^3] t \right\} }
+\end{equation}
+Thus,
+\begin{equation}
+\begin{split}
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \\
+                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{(i(k_m-k_n)x)}}_{L \delta_{m n}} \\
+											  &= L \sum_n \left| c_m(t) \right|^2 \\
+											  &= L \sum_n \left| c_m(0) \right|^2 \\
+											  &= \int_{-L/2}^{+L/2} \dif x \left| u(x,0) \right|^2,
+\end{split}
+\end{equation}
+so the spatial $L_2$-norm is preserved over time.
