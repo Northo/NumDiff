@@ -2,6 +2,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.integrate import solve_ivp
+from utils import *
 
 
 def u0(x):
@@ -42,22 +43,62 @@ def lax_friedrich(u0, N, M, t_end, log=True):
     return t, x, U
 
 
+def difference_norm_plot(solutions, t):
+    for (i, sol) in enumerate(solutions[1:]):
+        diff = solutions[i] - solutions[i - 1]
+        diff_norm = discrete_l2_norm(diff)
+        plt.plot(t[i], diff_norm, ".")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.show()
+
+
+def find_breaking_time(solutions):
+    """
+    Find time of breakdown
+
+    Criterion for breakdown:
+        When solutions stops being monotonic decreasing moving from the apex
+        towards either boundary.
+    """
+    j_end = len(solutions[0])
+    for (i, sol) in enumerate(solutions):
+        j_max = np.where(solutions[i] == np.amax(solutions[i]))[0][0]
+        for j in range(j_max, j_end - 1):
+            if solutions[i][j] < solutions[i][j + 1]:
+                return t[i]
+        for j in range(j_max):
+            if solutions[i][j] > solutions[i][j + 1]:
+                return t[i]
+    else:
+        print("No breakdown time found")
+        return 0
+
+
 ######################
 ### System of ODEs ###
 ######################
 x, h = np.linspace(0, 1, 1000, retstep=True)
 t0 = 0
-tf = 0.1
+tf = 0.06
 
 # Solve ivp/bvp
 sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.001)
 t, ut = sol.t, sol.y.T
 print(sol.success)
 
+# Plot solutions at all times in [0, tf]
 for (i, ti) in enumerate(t):
     plt.plot(x, ut[i], label=f"t={ti}")
 plt.legend()
 plt.show()
+
+# Difference between subsequent solutions
+difference_norm_plot(ut, t)
+
+# Find and print time of breaking
+t_breaking = find_breaking_time(ut)
+print(f"Time of breaking: {t_breaking}")
 
 
 ########################################
