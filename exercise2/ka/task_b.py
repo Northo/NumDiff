@@ -50,7 +50,7 @@ def make_convergence_plots(u0, bc1, bc2):
 
 
 # Convergence plots (shabby yea)
-# make_convergence_plots(u0, bc1, bc2)
+make_convergence_plots(u0, bc1, bc2)
 
 # Animation
 # animation = animate_time_development(unigrid.x, sols)
