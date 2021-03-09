@@ -4,3 +4,8 @@
 .ipynb_checkpoints
 __pycache__
 *.ipynb
+*.swp
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.auxlock

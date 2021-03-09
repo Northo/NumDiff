@@ -22,7 +22,7 @@ f = partial(f, eps=eps)
 u = partial(u, eps=eps)
 x = np.linspace(0, 1, M)
 
-error = lambda a, c, b: np.abs(f(c) * (b-c))
+error = lambda a, c, b: np.abs(f(c) * (b-a))
 error_exact = lambda a, c, b: np.abs(
     (b-a) * (f(c) - (u(a) + u(b) - 2*u(c)))
 )

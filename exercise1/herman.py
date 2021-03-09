@@ -112,14 +112,14 @@ def plot_solution(x, u, U, f, grid=False):
     ax1.plot(x, u, label="analytic", linewidth=5, color="black")
     ax1.plot(x, U, label="numerical", linewidth=2, color="red")
     if grid:
-        ax1.plot(x, U, "r|")
+        ax1.plot(x, U, "bo")
     ax1.legend()
 
     xfine = np.linspace(x[0], x[-1], 500)
     ax2.set_title("f(x)")
     ax2.plot(xfine, f(xfine), "k-", label="source")
     if grid:
-        ax2.plot(x, f(x), "r|", label="source")
+        ax2.plot(x, f(x), "bo", label="source")
 
     plt.show()
 
@@ -172,7 +172,7 @@ def l2_disc(y):
     N = np.size(y)
     return np.sqrt(1/N*np.sum(y**2))
 
-def subdivide_interval2(x1, x3, should_subdivide, tol):
+def subdivide_interval(x1, x3, should_subdivide, tol):
     x = []
     def subdivide(x1, x3):
         x2 = (x1 + x3) / 2
@@ -189,22 +189,9 @@ def subdivide_interval2(x1, x3, should_subdivide, tol):
     x.append(x3) # append right point (only point missing)
     return np.array(x)
 
-def subdivide_interval3(x1, x3, should_subdivide, tol):
-    x = []
-    def subdivide(x1, x3):
-        x2 = (x1 + x3) / 2
-        if should_subdivide(x1, x2, x3, tol):
-            subdivide(x1, x2) # error too high, subdivide further
-            subdivide(x2, x3)
-        else:
-            x.append(x1) # error low enough, accept
-    subdivide(x1, x3)
-    x.append(x3) # append right point (only point missing)
-    return np.array(x)
-
 def manufactured_solution_mesh_refinement(maxM=1000):
     # symbolic manufactured solution
-    eps = 0.01
+    eps = 1e-3
     xsym = sympy.symbols("x")
     usym = sympy.exp(-1/eps*(xsym-1/2)**2)
     fsym = sympy.diff(sympy.diff(usym, xsym), xsym)
@@ -217,6 +204,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     absffunc = sympy.lambdify(xsym, absfsym, "numpy")
     fsqfunc = sympy.lambdify(xsym, fsqsym, "numpy")
 
+    """
     def should_subdivide_umr(x1, x2, tol):
         return x2 - x1 > tol
 
@@ -233,7 +221,8 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         cell_charge = np.trapz(np.abs(ffunc(x)), x)
         return cell_charge > tol
 
-    def should_subdivide_amr3(x1, x2, x3, tol):
+    def should_subdivide_amr3(x1, x2, tol):
+        x2, x3 = (x1+x2)/2, x2
         h1 = x2 - x1
         h2 = x3 - x2
         u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
@@ -242,10 +231,10 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return truncerr > tol
 
     strategies = [
-        {"label": "UMR", "plot": False, "n": 2, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
-        {"label": "AMR, const charge per cell", "plot": False, "n": 2, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1,0.05,0.01]},
-        {"label": "AMR2, const charge per cell", "plot": False, "n": 2, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1,0.05,0.01,0.005,0.001]},
-        {"label": "AMR, truncerr using exact sol", "plot": False, "n": 3, "decider": should_subdivide_amr3, "tols": [1, 0.5, 0.1, 0.05, 0.01]}
+        {"label": "UMR", "plot": False, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
+        {"label": "AMR, const charge per cell", "plot": False, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1]},
+        {"label": "AMR2, const charge per cell", "plot": False, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1, 0.05, 0.01, 0.005, 0.001]},
+        {"label": "AMR, truncerr using exact sol", "plot": False, "decider": should_subdivide_amr3, "tols": [1, 1e-1, 1e-2]}
     ]
 
     for strategy in strategies:
@@ -254,11 +243,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         strategy["errs_cont"] = []
 
         for tol in strategy["tols"]:
-            x = None
-            if strategy["n"] == 2:
-                x = subdivide_interval2(0, 1, strategy["decider"], tol)
-            elif strategy["n"] == 3:
-                x = subdivide_interval3(0, 1, strategy["decider"], tol)
+            x = subdivide_interval(0, 1, strategy["decider"], tol)
             u = ufunc(x) # analytic solution
             bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
             bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
@@ -271,6 +256,73 @@ def manufactured_solution_mesh_refinement(maxM=1000):
 
             if strategy["plot"]:
                 plot_solution(x, u, U, ffunc, grid=True)
+    """
+
+    def find_interval_with_maximum(x, quantity_function):
+        i1_max = 0
+        quantity_max = 0
+        for i1 in range(0, len(x)-1):
+            i2 = i1 + 1
+            x1, x2 = x[i1], x[i2]
+            quantity = quantity_function(x1, x2)
+            if quantity > quantity_max:
+                quantity_max = quantity
+                i1_max = i1
+        i2_max = i1_max + 1
+        return i1_max, i2_max
+
+
+    def pointadder_umr(x):
+        M = len(x) + 1
+        return np.linspace(0, 1, M) # must create completely new grid to create a uniform grid with one additional point
+
+    def source_measurer(x1, x2):
+        return (np.abs(ffunc(x1)) + np.abs(ffunc(x2))) / 2 * (x2 - x1) # TODO: bad when f varies rapidly on (x1,x2)
+
+    def pointadder_source(x):
+        i1, i2 = find_interval_with_maximum(x, source_measurer)
+        x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
+        return x
+
+    def truncerr_measurer(x1, x2):
+        x1, x2, x3 = x1, (x1 + x2) / 2, x2 # swap, so x1 < x2 < x3
+        h1, h2 = x2 - x1, x3 - x2
+        u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
+        f2 = ffunc(x2)
+        return np.abs(2/(h1+h2) * ((u3-u2) / h2 - (u2-u1) / h1) - f2)
+
+    def pointadder_trunc(x):
+        i1, i2 = find_interval_with_maximum(x, truncerr_measurer)
+        x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
+        return x
+
+    strategies = [
+        {"label": "UMR", "pointadder": pointadder_umr},
+        {"label": "AMR-source", "pointadder": pointadder_source},
+        {"label": "AMR-trunc", "pointadder": pointadder_trunc},
+    ]
+
+    for strategy in strategies:
+        strategy["npoints"] = []
+        strategy["errs_disc"] = []
+        strategy["errs_cont"] = []
+        pointadder = strategy["pointadder"]
+        label = strategy["label"]
+
+        x = [0, 1]
+        while len(x) < 100:
+            x = pointadder(x)
+            xx = np.array(x)
+            u = ufunc(xx) # analytic solution
+            bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
+            bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
+            U = num(xx, bc1, bc2, f=ffunc) # numerical solution
+            err_disc = l2_disc(u-U) / l2_disc(u)
+            err_cont = l2_cont(u-U, xx) / l2_cont(u, xx)
+            strategy["npoints"].append(len(x))
+            strategy["errs_disc"].append(err_disc)
+            strategy["errs_cont"].append(err_cont)
+            print(len(x), err_disc)
 
     for i, strategy in enumerate(strategies):
         plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="x", label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")

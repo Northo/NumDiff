@@ -1,0 +1,219 @@
+\section{Linearized Korteweg-De Vries equation in one dimension}
+
+In this section, we will study the one-dimensional linearized Korteweg-De Vries equation
+\begin{equation}
+\pd{u}{t} + \left(1+\pi^2\right)\pd{u}{x} + \pd[3]{u}{x} = 0 \qquad (t \geq 0) \quad (-L/2 \leq x \leq +L/2),
+\end{equation}
+where the solution $u = u(x,t)$ is subject to periodic boundary conditions
+\begin{equation*}
+u(x+L, t) = u(x, t).
+\end{equation*}
+
+\subsection{Analytical solution}
+
+As the solution is periodic in space at every instant $t$, it can be expressed as a Fourier-series
+\begin{equation}
+u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i k_n x)}
+\end{equation}
+with wavenumbers $k_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
+This can be derived formally by separation of variables.
+Inserting the Fourier series into the equation gives
+\begin{equation*}
+	\sum_n \left( \dot{c}_n(t) + i \left( \left( 1+\pi^2 \right) k_n - k_n^3 \right) c_n(t) \right) \exp{(i k_n x)} = 0.
+\end{equation*}
+Due to orthogonality of the Fourier basis functions $\exp(i k_n x)$, this can only vanish if all coefficients separately vanish, so
+\begin{equation}
+	c_n(t) = c_n(0) \exp{\left( i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
+\end{equation}
+
+The solution has the property that the $L_2$-norm $\Vert u(x,t) \Vert_2 = ( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x )^{1/2}$ is preserved over time.
+To understand this, first note carefully how the first order time derivative combined with spatial derivatives of odd order produced coefficients of variable phase, but constant magnitude $|c_n(t)|^2 = |c_n(0)|^2$.
+This means that each Fourier mode is undamped in time, so
+\begin{equation}
+\begin{split}
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \dif x \\
+                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n} \dif x} \\
+											  &= L \sum_n \left| c_n(t) \right|^2 \\
+											  &= L \sum_n \left| c_n(0) \right|^2 \\
+											  &= \int_{-L/2}^{+L/2} \left| u(x,0) \right|^2 \dif x.
+\end{split}
+\end{equation}
+
+\subsection{Numerical solution method}
+
+GRID FIGURE?? $x_0$ to $x_{M-1}$ makes modulo arithmetic intuitive.
+
+We will solve the Korteweg-De Vries equation with the central finite differences
+\begin{equation*}
+\begin{split}
+	\dpd{u}{x}    = \frac{\delta}{2h}       + O(h^2) &= \frac{u_{m+1}^n-u_{m-1}^n}{2h}  \\
+	\dpd[3]{u}{x} = \frac{\delta^3}{(2h)^3} + O(h^2) &= \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
+\end{split}
+\end{equation*}
+in space, and doing the integration of $u_t = F(u_x, u_{xxx})$ in time using both the Euler method and the Crank-Nicholson method.
+They can be written simultaneously by inserting $\theta = 0$ and $\theta = 1/2$, respectively, in the Theta method
+\begin{equation*}
+% \frac{u_m^{n+1} - u_m^n}{k} = (1-\theta) F(u^n) + \theta F(u^{n+1})
+\begin{split}
+\quad \frac{u(x,t+k)-u(x,t)}{k} &= (1-\theta) F\left(u_x(x, t),u_{xxx}(x,t)\right) + \theta F\left(u_x(x, t+k),u_{xxx}(x,t+k)\right)  \\
+											&+ O \left( k \left(\frac{1}{2}-\theta\right) + k^2 \left( \frac{1}{6} - \frac{\theta}{2} \right) \right).
+\end{split}
+\end{equation*}
+This results in the system of equations
+\begin{equation*}
+	\left(1-\theta k \left(-\left(1+\pi^2\right)\frac{\delta}{2h} - \frac{\delta^3}{(2h)^3}\right)\right) U_m^{n+1}
+	= \left(1-\left(1-\theta\right) k \left(-\left(1+\pi^2\right)\frac{\delta}{2h} - \frac{\delta^3}{(2h)^3}\right)\right) U_m^n
+\end{equation*}
+for the unknown values $U_0^{n+1}, \,\dots\,, U_{M-1}^{n+1}$ at the next time step in terms of the known values $U_0^{n}, \,\dots\,, U_{M-1}^{n}$ at the current time step.
+In matrix form, the system can be written
+\begin{equation}
+	\left(I - \theta k A\right) U^{n+1} = \left(I - \left(1-\theta\right) k A\right) U^n,
+	\label{matrixeq}
+\end{equation}
+where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A = $
+\newcommand\ca{\color{red}}
+\newcommand\cb{\color{magenta}}
+\newcommand\cc{\color{blue}}
+\newcommand\cd{\color{cyan}}
+% https://tex.stackexchange.com/a/571702
+\begin{equation*}
+\renewcommand{\arraystretch}{1.25} % stretch matrix vertically to make it square
+\renewcommand{\arraycolsep}{4.9pt} % juuuust make matrix fill page width
+% TODO: fix signs
+\frac{-1}{2h}\begin{bNiceMatrix}[r]
+0           & \ca +1   &             &             &             &             &             &             & \cb -1      \\
+\cb -1      & 0        & \ca +1      &             &             &             &             &             &             \\
+            & \cb -1   & 0           & \ca +1      &             &             &             &             &             \\
+            &          & \cb -1      & 0           & \ca +1      &             &             &             &             \\
+            &          &             & \cb \ddots  & \ddots      & \ca \ddots  &             &             &             \\
+            &          &             &             & \cb -1      & 0           & \ca +1      &             &             \\
+            &          &             &             &             & \cb -1      & 0           & \ca +1      &             \\
+            &          &             &             &             &             & \cb -1      & 0           & \ca +1      \\
+\ca +1      &          &             &             &             &             &             & \cb -1      & 0           \\
+\end{bNiceMatrix}
+-\frac{1+\pi^2}{h^3}\begin{bNiceMatrix}[r]
+% 0      & +1/2h  &        &        & -1/2h  \\
+% -1/2h  & 0      & +1/2h  &        &        \\
+       % & \ddots & \ddots & \ddots &        \\
+       % &        & -1/2h  & 0      & +1/2h  \\
+% +1/2h  &        &        & -1/2h  & 0      \\
+0           & \ca -3      & 0           & \cc +1      &             &             & \cd -1      & 0           & \cb +3      \\
+\cb +3      & 0           & \ca -3      & 0           & \cc +1      &             &             & \cd -1      & 0           \\
+0           & \cb +3      & 0           & \ca -3      & 0           & \cc +1      &             &             & \cd -1      \\
+\cd -1      & 0           & \cb +3      & 0           & \ca -3      & 0           & \cc +1      &             &             \\
+            & \cd \ddots  & \ddots      & \cb \ddots  & \ddots      & \ca \ddots  & \ddots      & \cc \ddots  &             \\
+            &             & \cd -1      & 0           & \cb +3      & 0           & \ca -3      & 0           & \cc +1      \\
+\cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           & \ca -3      & 0           \\
+0           & \cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           & \ca -3      \\
+\ca -3      & 0           & \cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           \\
+\end{bNiceMatrix}
+.
+\end{equation*}
+where we have imposed periodic boundary conditions $U_m^n = U_{m+M}^n$ by simply wrapping the spatial derivative stencils around the matrix.
+
+We then solve the system by preparing $U^0$ from the initial condition and solve \cref{matrixeq} repeatedly to step forward in time.
+Note that with the constant time step $k$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
+
+\begin{figure}
+\begin{tikzpicture}
+\begin{axis}[
+areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
+areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
+width=17cm,
+height=12cm,
+view={-28}{+30},
+xlabel={$x$},
+ylabel={$t$},
+zmin=0,
+ymajorgrids,
+xmajorgrids,
+xtick distance=0.50,
+ytick distance=0.25,
+legend cell align={left},
+]
+\pgfplotsinvokeforeach{5,4,...,1}{
+	% Filled version
+	% \addplot3 [areaplot1] table [x index=0,y expr={#1/5},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
+	% \pgfmathparse{int(round(5+#1))};
+	% \pgfmathtruncatemacro\mymacro{round(5+#1)};
+	% \addplot3 [areaplot2] table [x index=0,y expr={#1/5},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat} \closedcycle;
+	% \node[draw] at (0, 2) {\mymacro}; % for debug
+
+	% Non-filled version
+	\addplot3 [fill=gray, opacity=0.75, mark=none, draw=gray!80!black, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$u(x,t) = \sin(\pi(x-t))$}}{}
+	\pgfmathparse{int(round(5+#1))};
+	\pgfmathtruncatemacro\mymacro{round(5+#1)};
+	\addplot3 [mark=none, color=red, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat};
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$U(x_m,t_n)$}}{}
+	\node[draw] at (0, 2) {\mymacro}; % for debug
+}
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
+Theta method:
+\begin{equation}
+\frac{u_m^{n+1} - u_m^n}{k} = (1-\theta) F(u^n) + \theta F(u^{n+1})
+\end{equation}
+where
+\begin{equation}
+F(u^n) = -(1+\pi^2) \frac{u_{m+1}^n-u_{m-1}^n}{2h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
+\end{equation}
+$\theta = 0$ is forward Euler, $\theta = 1/2$ is Crank-Nicholson, $\theta = 1$ is backward Euler.
+
+Separation of variables:
+\begin{equation}
+u(x, t) = X(x) T(t)
+\end{equation}
+Insert into KdV equation to get $T = A e^{zt}$.
+$X(x)$ is periodic, so expand it in a Fourier series:
+\begin{equation}
+X(x) = \sum_k C_k e^{ikx}
+\end{equation}
+The general solution is then
+\begin{equation}
+u(x, t) = \sum_k C_k e^{kt} e^{ikx}
+\end{equation}
+so
+\begin{equation}
+u_m^n = \sum_k C_k e^{kt_n} e^{ikx_m}
+\end{equation}
+With constant time steps, $t_n = nk$, we can write
+\begin{equation}
+u_m^n = \sum_k C_k G^n e^{ikx_m}
+\end{equation}
+Consider a general term in the series $u_m^n = G^n e^{ikx_m}$. Insert into discretized KdV equation to get
+\begin{equation}
+\frac{G-1}{k} = [(1-\theta)+\theta G] [-(1+\pi^2) \frac{e^{iqh}-e^{-iqh}}{2h} - \frac{e^{3iqh}-e^{-3iqh}-3(e^{iqh}-e^{-iqh})}{8h^3}]
+\end{equation}
+Expand using Euler's identity to get
+\begin{equation}
+\frac{G-1}{k} = i [(1-\theta)+\theta G] [-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}]
+\end{equation}
+$\theta = 0$ gives $|G| > 1$ (unstable), but $\theta = 1/2$ gives $|G| = 1$ (stable)! (unconditionally)
+
+Proof of conserved norm:
+Due to periodicity (if one is very pedantic, one can obtain this by separation of variables)
+\begin{equation}
+	u(x, t) = \sum_n c_n(t) e^{i k_n x}
+\end{equation}
+Insert into the KdV equation to get
+\begin{equation}
+	\sum_n \left\{ \dot{c}_n(t) + i [(1+\pi^2)k_n - k_n^3] c_n(t) \right\} e^{i k_n x}= 0
+\end{equation}
+For the sum to be $0$, each term inside the curly brackets must vanish, so
+\begin{equation}
+	c_n(t) = c_n(0) \exp{\left\{ i [(1+\pi^2)k_n - k_n^3] t \right\} }
+\end{equation}
+Thus,
+\begin{equation}
+\begin{split}
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \\
+                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{(i(k_m-k_n)x)}}_{L \delta_{m n}} \\
+											  &= L \sum_n \left| c_m(t) \right|^2 \\
+											  &= L \sum_n \left| c_m(0) \right|^2 \\
+											  &= \int_{-L/2}^{+L/2} \dif x \left| u(x,0) \right|^2,
+\end{split}
+\end{equation}
+so the spatial $L_2$-norm is preserved over time.

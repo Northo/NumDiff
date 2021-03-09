@@ -2,10 +2,22 @@
 
 \usepackage{fullpage} % decrease page margins
 \usepackage[parfill]{parskip} % change new paragraph indent to new line
+
 \usepackage{tikz} % for drawing
+\usetikzlibrary{external} % cache figures to reduce compilation times
+\tikzexternalize[prefix=figurecache/] % cache figures into ./figurecache/ (WARNING: directory must exist and pdflatex must be run with --shell-escape)
+
 \usepackage{caption} % for captions
+\usepackage{ifthen} % for if/else statements (in plots)
 
 \usepackage{amsmath}
+\usepackage{commath}
+
+\usepackage[sort,noabbrev]{cleveref} % for nicer equation references
+
+\usepackage{mathtools}
+\usepackage{nicematrix}
+\usepackage{xcolor}
 
 \usepackage{pgfplots} % for plotting
 \pgfplotsset{compat=1.17}
@@ -32,5 +44,13 @@
 
 \begin{document}
 \input{exercise1/exercise1.tex}
+
+\clearpage
 \input{exercise2/exercise2.tex}
+
+\clearpage
+\input{exercise3/exercise3.tex}
+
+\clearpage
+\input{exercise4/exercise4.tex}
 \end{document}
