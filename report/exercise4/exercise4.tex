@@ -119,6 +119,17 @@ Note that with the constant time step $k$, all matrices in \cref{matrixeq} are c
 \begin{figure}
 \begin{tikzpicture}
 \begin{axis}[
+	height=10cm, width=1.00\textwidth, xlabel={$x$}, ylabel={$t$}, restrict z to domain=-5:+5, view={-10}{+10}, ymin=0, ymax=1,
+]
+	% \addplot3 [surf, mesh/cols=20] table {exercise4/cranknich.dat};
+	\addplot3 [surf, mesh/cols=20] table {exercise4/crank-nicholson-M20-N400.dat};
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+\begin{tikzpicture}
+\begin{axis}[
 areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
 areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
 width=17cm,
