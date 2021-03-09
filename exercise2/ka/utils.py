@@ -171,13 +171,3 @@ def partition_interval(
         x : ndarray The partitioned interval."""
     x = _split_interval(a, b, error_function, tol)
     return np.array([a, *x, b])
-
-
-#def adaptive_solver(routine, bc1, bc2, u0, N, t_end, n_div, tol, log=True):
-#
-#    intermediate_times = np.linspace(0, t_end, n_div)
-#    for t_end in intermediate_times:
-#        x = partition_interval(0, 1, error_func, tol)
-#        grid = Grid(Grid.NON_UNIFORM, x)
-#        t
-#

@@ -1,10 +1,10 @@
+#!/usr/bin/python3
 from heateq import *
-
-# Is this a good manufactured solution/bc/initial cond? :p
 
 PLOT_SAMPLES = False
 
 
+# Is this a good manufactured solution/bc/initial cond? :p
 def u0(x):
     """ Initial condition """
     # return 10*np.sin(x*np.pi)
