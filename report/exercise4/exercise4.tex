@@ -78,9 +78,10 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 % https://tex.stackexchange.com/a/571702
 \begin{equation*}
 \renewcommand{\arraystretch}{1.25} % stretch matrix vertically to make it square
-\renewcommand{\arraycolsep}{4.9pt} % juuuust make matrix fill page width
+\renewcommand{\arraycolsep}{4.7pt} % juuuust make matrix fill page width
 % TODO: fix signs
-\frac{-1}{2h}\begin{bNiceMatrix}[r]
+\frac{-1}{2h}
+\begin{bmatrix}
 0           & \ca +1   &             &             &             &             &             &             & \cb -1      \\
 \cb -1      & 0        & \ca +1      &             &             &             &             &             &             \\
             & \cb -1   & 0           & \ca +1      &             &             &             &             &             \\
@@ -90,8 +91,9 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
             &          &             &             &             & \cb -1      & 0           & \ca +1      &             \\
             &          &             &             &             &             & \cb -1      & 0           & \ca +1      \\
 \ca +1      &          &             &             &             &             &             & \cb -1      & 0           \\
-\end{bNiceMatrix}
--\frac{1+\pi^2}{h^3}\begin{bNiceMatrix}[r]
+\end{bmatrix}
+-\frac{1+\pi^2}{h^3}
+\begin{bmatrix}
 % 0      & +1/2h  &        &        & -1/2h  \\
 % -1/2h  & 0      & +1/2h  &        &        \\
        % & \ddots & \ddots & \ddots &        \\
@@ -106,7 +108,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 \cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           & \ca -3      & 0           \\
 0           & \cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           & \ca -3      \\
 \ca -3      & 0           & \cc +1      &             &             & \cd -1      & 0           & \cb +3      & 0           \\
-\end{bNiceMatrix}
+\end{bmatrix}
 .
 \end{equation*}
 where we have imposed periodic boundary conditions $U_m^n = U_{m+M}^n$ by simply wrapping the spatial derivative stencils around the matrix.
