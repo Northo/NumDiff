@@ -120,9 +120,9 @@ def norm_evolution():
     plt.show()
 
 def main(animate=True, write=False, time_samples=5):
-    N = 400
+    N = 800
     x = np.linspace(-1, +1, N)
-    t = np.linspace(0, 1, 500)
+    t = np.linspace(0, 1, 100)
 
     u = solve_analytical(x, t)
     U = solve_numerical(x, t)
@@ -183,8 +183,9 @@ def convergence_plots():
 
 def snapshots():
     runs = [
-        {"method": "crank-nicholson", "M": [20, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000], "N": [10, 100]},
+        # {"method": "crank-nicholson", "M": [20, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000], "N": [10, 100]},
         # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
+        {"method": "forward-euler", "M": [5, 10, 15, 20, 25], "N": [300000]},
     ]
 
     for run in runs:
@@ -206,9 +207,10 @@ def snapshots():
                 write_table_to_file(path, np.transpose(columns), headers)
 
                 # plt.plot(x, U[-1], label=f"N={N}")
+                # plt.plot(x, u[-1], color="black")
             # plt.show()
 
-# main(animate=False, write=True, time_samples=5)
+main(animate=True, write=True, time_samples=5)
 # convergence_plots()
-snapshots()
+# snapshots()
 # norm_evolution()

@@ -23,7 +23,7 @@ Inserting the Fourier series into the equation gives
 \end{equation*}
 Due to orthogonality of the Fourier basis functions $\exp(i k_n x)$, this can only vanish if all coefficients separately vanish, so
 \begin{equation}
-	c_n(t) = c_n(0) \exp{\left( i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
+	c_n(t) = c_n(0) \exp{\left( -i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
 \end{equation}
 
 The solution has the property that the $L_2$-norm $\Vert u(x,t) \Vert_2 = ( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x )^{1/2}$ is preserved over time.
@@ -117,26 +117,77 @@ We then solve the system by preparing $U^0$ from the initial condition and solve
 Note that with the constant time step $k$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
 
 \begin{figure}
-\centering
-% https://tex.stackexchange.com/questions/232690/color-coded-plots-with-colorbar-in-pgfplots
 \begin{tikzpicture}
-\begin{axis}[title={$N=10$},ylabel=$u$, xlabel=$x$, width=7.5cm]
-\addplot [color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
-\addlegendentry{$\sin(\pi(x-1))$};
-\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
-	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
+\begin{axis}[
+areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
+areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
+width=17cm,
+height=12cm,
+view={-28}{+30},
+xlabel={$x$},
+ylabel={$t$},
+zmin=0,
+ymajorgrids,
+xmajorgrids,
+zmajorgrids,
+xtick distance=0.50,
+ytick distance=0.25,
+ztick distance=1,
+legend cell align={left},
+title={Crank-Nicholson ($M=800, \, N=100$)},
+zticklabel={\pgfmathparse{\tick-1}$\pgfmathprintnumber{\pgfmathresult}$} % hack to offset labels by 1 (to make it possible to use filling, which is 0-based)
+]
+\pgfplotsinvokeforeach{5,4,...,1}{
+	% TODO: set zlims correctly
+	% Filled version
+	% \addplot3 [areaplot1] table [x index=0,y expr={#1/5},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
+	% \pgfmathparse{int(round(5+#1))};
+	% \pgfmathtruncatemacro\mymacro{round(5+#1)};
+	% \addplot3 [areaplot2] table [x index=0,y expr={#1/5},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat} \closedcycle;
+	% \node[draw] at (0, 2) {\mymacro}; % for debug
+
+	% Non-filled version
+	\addplot3 [fill=gray, opacity=0.75, mark=none, draw=gray!80!black, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$u(x,t) = \sin(\pi(x-t))$}}{}
+	\pgfmathparse{int(round(5+#1))};
+	\pgfmathtruncatemacro\mymacro{round(5+#1)};
+	\addplot3 [mark=none, color=red, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat};
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$U(x_m,t_n)$}}{}
+	% \node[draw] at (0, 2) {\mymacro}; % for debug
 }
 \end{axis}
 \end{tikzpicture}
+\caption{\label{ex4_solution_3d}}
+\end{figure}
+
+Next, we test our numerical solution on the problem defined by the initial condition $u(x, 0) = \sin(\pi x)$ on $x \in [-1, +1]$ with $L = 2$.
+The Fourier series of the analytical solution then has nonzero coefficients $c_{\pm1}(0) = \pm 1/2i$ and wavenumbers $k_{\pm 1} = \pm \pi$, which give rise to the analytical solution $u(x, t) = \sin(\pi(x-t))$.
+As shown in \cref{ex4_solution_3d}, the solution represents a sine wave traveling with velocity $1$ to the right.
+
+In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Euler method and the Crank-Nicholson method.
+Note that the Crank-Nicholson method approaches the exact solution with as little as $N=10$ time steps and a few hundred spatial grid points $M$, while the Euler method produces garbage with as many as $N=300000$ time steps and seems to become unstable for very few spatial grid points.
+\Cref{ex4_euler_vs_crank_convergence} supports our suspicions, showing the stable second order (?) nature of the Crank-Nicholson method and the unstability of the Euler method.
+
+\begin{figure}
 \begin{tikzpicture}
-\begin{axis}[title={$N=100$},xlabel=$x$, width=7.5cm, colorbar, colorbar style={ylabel=$M$}]
+\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Forward Euler ($N=300000$)}]
+\pgfplotsinvokeforeach{5,10,15,20,25} {
+	\addplot table {exercise4/snapshot-forward-euler-M#1-N300000.dat};
+	\addlegendentry{$M=#1$};
+}
 \addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
-\addlegendentry{$\sin(\pi(x-1))$};
-\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
-	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N100.dat};
-}
 \end{axis}
 \end{tikzpicture}
+\begin{tikzpicture}
+\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)}]
+\pgfplotsinvokeforeach{200,400,600} {
+	\addplot table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
+	\addlegendentry{$M=#1$};
+}
+\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\end{axis}
+\end{tikzpicture}
+\caption{\label{ex4_euler_vs_crank_snapshots}}
 \end{figure}
 
 \begin{figure}
@@ -157,7 +208,39 @@ Note that with the constant time step $k$, all matrices in \cref{matrixeq} are c
 }
 \end{loglogaxis}
 \end{tikzpicture}
-\caption{Convergence plot at $t=1$, comparison between Crank-Nicholson and Forward Euler}
+\caption{\label{ex4_euler_vs_crank_convergence}Convergence plot at $t=1$, comparison between Crank-Nicholson and Forward Euler}
+\end{figure}
+
+\subsection{Stability analysis}
+
+
+
+% TODO: one figure with Euler, small M large N
+% TODO: one figure with CN, 
+
+In FIGURES, we 
+
+\begin{figure}
+\centering
+% https://tex.stackexchange.com/questions/232690/color-coded-plots-with-colorbar-in-pgfplots
+\begin{tikzpicture}
+\begin{axis}[title={$N=10$},ylabel=$u$, xlabel=$x$, width=13cm, height=8cm, colorbar, colorbar style={ylabel=$M$}, xmin=-1, xmax=+1]
+\addplot [color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addlegendentry{$\sin(\pi(x-1))$};
+\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
+	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
+}
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}
+\begin{axis}[title={$N=100$},xlabel=$x$, width=13cm, height=8cm, colorbar, colorbar style={ylabel=$M$}, xmin=-1, xmax=+1]
+\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addlegendentry{$\sin(\pi(x-1))$};
+\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
+	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N100.dat};
+}
+\end{axis}
+\end{tikzpicture}
 \end{figure}
 
 \begin{figure}
@@ -167,44 +250,6 @@ Note that with the constant time step $k$, all matrices in \cref{matrixeq} are c
 ]
 	% \addplot3 [surf, mesh/cols=20] table {exercise4/cranknich.dat};
 	\addplot3 [surf, mesh/cols=20] table {exercise4/crank-nicholson-M20-N400.dat};
-\end{axis}
-\end{tikzpicture}
-\end{figure}
-
-\begin{figure}
-\begin{tikzpicture}
-\begin{axis}[
-areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
-areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
-width=17cm,
-height=12cm,
-view={-28}{+30},
-xlabel={$x$},
-ylabel={$t$},
-zmin=0,
-ymajorgrids,
-xmajorgrids,
-xtick distance=0.50,
-ytick distance=0.25,
-legend cell align={left},
-]
-\pgfplotsinvokeforeach{5,4,...,1}{
-	% Filled version
-	% \addplot3 [areaplot1] table [x index=0,y expr={#1/5},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
-	% \pgfmathparse{int(round(5+#1))};
-	% \pgfmathtruncatemacro\mymacro{round(5+#1)};
-	% \addplot3 [areaplot2] table [x index=0,y expr={#1/5},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat} \closedcycle;
-	% \node[draw] at (0, 2) {\mymacro}; % for debug
-
-	% Non-filled version
-	\addplot3 [fill=gray, opacity=0.75, mark=none, draw=gray!80!black, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
-	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$u(x,t) = \sin(\pi(x-t))$}}{}
-	\pgfmathparse{int(round(5+#1))};
-	\pgfmathtruncatemacro\mymacro{round(5+#1)};
-	\addplot3 [mark=none, color=red, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat};
-	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$U(x_m,t_n)$}}{}
-	\node[draw] at (0, 2) {\mymacro}; % for debug
-}
 \end{axis}
 \end{tikzpicture}
 \end{figure}
