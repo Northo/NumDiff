@@ -181,6 +181,34 @@ def convergence_plots():
         path = f"../report/exercise4/convergence-{method}.dat"
         write_table_to_file(path, np.transpose(columns), headers)
 
+def snapshots():
+    runs = [
+        {"method": "crank-nicholson", "M": [20, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000], "N": [10, 100]},
+        # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
+    ]
+
+    for run in runs:
+        method = run["method"]
+        run["x"] = []
+        run["U"] = []
+        for N in run["N"]:
+            run["x"].append([])
+            run["U"].append([])
+            for M in run["M"]:
+                x = np.linspace(-1, +1, M)
+                t = np.linspace(0, 1, N)
+                u = solve_analytical(x, t)
+                U = solve_numerical(x, t, method=run["method"])
+
+                path = f"../report/exercise4/snapshot-{method}-M{M}-N{N}.dat"
+                columns = [x, U[-1,:]]
+                headers = ["x", "U"]
+                write_table_to_file(path, np.transpose(columns), headers)
+
+                # plt.plot(x, U[-1], label=f"N={N}")
+            # plt.show()
+
 # main(animate=False, write=True, time_samples=5)
-convergence_plots()
+# convergence_plots()
+snapshots()
 # norm_evolution()

@@ -118,6 +118,29 @@ Note that with the constant time step $k$, all matrices in \cref{matrixeq} are c
 
 \begin{figure}
 \centering
+% https://tex.stackexchange.com/questions/232690/color-coded-plots-with-colorbar-in-pgfplots
+\begin{tikzpicture}
+\begin{axis}[title={$N=10$},ylabel=$u$, xlabel=$x$, width=7.5cm]
+\addplot [color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addlegendentry{$\sin(\pi(x-1))$};
+\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
+	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
+}
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}
+\begin{axis}[title={$N=100$},xlabel=$x$, width=7.5cm, colorbar, colorbar style={ylabel=$M$}]
+\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addlegendentry{$\sin(\pi(x-1))$};
+\pgfplotsinvokeforeach{20,40,60,80,100,200,300,400,500,600,700,800,900,1000} {
+	\addplot [mesh, point meta=#1] table {exercise4/snapshot-crank-nicholson-M#1-N100.dat};
+}
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+\centering
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$M$,ylabel={relative error},legend pos=north east,width=8cm,title=Crank-Nicholson]
 \pgfplotsinvokeforeach{10,20,30,40,50} {
