@@ -94,32 +94,6 @@ def animate_solution(x, t, u1, u2):
     ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0, frames=len(t))
     plt.show()
 
-def convergence_plot():
-    methods = ["crank-nicholson"]
-    Ms = [16, 32, 64, 128, 256, 512, 1024]
-    Ns = [2**2, 2**3, 2**4, 2**5, 2**6, 2**7, 2**8]
-
-    for method in methods:
-        for N in Ns:
-            t, dt = np.linspace(0, 1, N, retstep=True)
-            Ms_to_plot = []
-            errs = []
-            for M in Ms:
-                x, dx = np.linspace(-1, +1, M, retstep=True)
-                u = solve_analytical(x, t)[-1] # u(t=1)
-                try:
-                    U = solve_numerical(x, t, method=method)[-1] # U(t=1)
-                    err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
-                    Ms_to_plot.append(M)
-                    errs.append(err)
-                except:
-                    pass # e.g. if Euler method diverges
-            label = f"{method} N={N}"
-            plt.loglog(Ms_to_plot, errs, label=label)
-    plt.ylim(1e-3, 1e1)
-    plt.legend()
-    plt.show()
-
 def norm_evolution():
     series = [
         {"method": "crank-nicholson", "M": 200, "N": 200},
@@ -164,6 +138,49 @@ def main(animate=True, write=False, time_samples=5):
         table = np.transpose(np.array(cols))
         write_table_to_file("../report/exercise4/timeevol.dat", table, headers)
 
-main(animate=False, write=True, time_samples=5)
-# convergence_plot()
+def write_results(x, t, U, path):
+    x, y = np.meshgrid(x, t)
+    x, y = x.reshape(-1), y.reshape(-1)
+    z = U.reshape(-1)
+    print(x)
+    print(y)
+    print(z)
+    write_table_to_file(path, np.transpose([x,y,z]), ["x t U"])
+
+def convergence_plots():
+    runs = [
+        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [10, 20, 30, 40, 50]},
+        {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
+        # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
+    ]
+
+    for run in runs:
+        run["err"] = []
+        for N in run["N"]:
+            run["err"].append([])
+            for M in run["M"]:
+                x = np.linspace(-1, +1, M)
+                t = np.linspace(0, 1, N)
+                u = solve_analytical(x, t)
+                U = solve_numerical(x, t, method=run["method"])
+
+                err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
+                run["err"][-1].append(err)
+
+    for run in runs:
+        plt.title(run["method"])
+        for n, N in enumerate(run["N"]):
+            plt.loglog(run["M"], run["err"][n], label=f"N={N}")
+        plt.show()
+
+    for run in runs:
+        method = run["method"]
+        columns = [run["M"]] + [run["err"][i] for i in range(0, len(run["N"]))]
+        headers = ["M"     ] + [f"E{N}"       for N in run["N"]]
+
+        path = f"../report/exercise4/convergence-{method}.dat"
+        write_table_to_file(path, np.transpose(columns), headers)
+
+# main(animate=False, write=True, time_samples=5)
+convergence_plots()
 # norm_evolution()

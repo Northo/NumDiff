@@ -117,6 +117,27 @@ We then solve the system by preparing $U^0$ from the initial condition and solve
 Note that with the constant time step $k$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
 
 \begin{figure}
+\centering
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$M$,ylabel={relative error},legend pos=north east,width=8cm,title=Crank-Nicholson]
+\pgfplotsinvokeforeach{10,20,30,40,50} {
+	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
+	\addlegendentry{$N=#1$};
+}
+\end{loglogaxis}
+\end{tikzpicture}
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$M$,legend pos=north west,width=8cm,title=Forward Euler]
+\pgfplotsinvokeforeach{10000,20000,30000} {
+	\addplot table [x=M, y=E#1] {exercise4/convergence-forward-euler.dat};
+	\addlegendentry{$N=#1$};
+}
+\end{loglogaxis}
+\end{tikzpicture}
+\caption{Convergence plot at $t=1$, comparison between Crank-Nicholson and Forward Euler}
+\end{figure}
+
+\begin{figure}
 \begin{tikzpicture}
 \begin{axis}[
 	height=10cm, width=1.00\textwidth, xlabel={$x$}, ylabel={$t$}, restrict z to domain=-5:+5, view={-10}{+10}, ymin=0, ymax=1,
