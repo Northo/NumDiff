@@ -191,6 +191,7 @@ def subdivide_interval(x1, x3, should_subdivide, tol):
 
 def manufactured_solution_mesh_refinement(maxM=1000):
     # symbolic manufactured solution
+    # eps = 1e-3
     eps = 1e-3
     xsym = sympy.symbols("x")
     usym = sympy.exp(-1/eps*(xsym-1/2)**2)
@@ -271,16 +272,29 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         i2_max = i1_max + 1
         return i1_max, i2_max
 
-
     def pointadder_umr(x):
         M = len(x) + 1
         return np.linspace(0, 1, M) # must create completely new grid to create a uniform grid with one additional point
 
-    def source_measurer(x1, x2):
+    def source_measurer_f(x1, x2):
+        return np.abs(ffunc(x1) + ffunc(x2)) / 2 * (x2 - x1) # TODO: bad when f varies rapidly on (x1,x2)
+
+    def source_measurer_f_integral(x1, x2):
+        return scipy.integrate.quad(ffunc, x1, x2)[0]
+
+    def pointadder_source_f(x):
+        i1, i2 = find_interval_with_maximum(x, source_measurer_f)
+        x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
+        return x
+
+    def source_measurer_absf(x1, x2):
         return (np.abs(ffunc(x1)) + np.abs(ffunc(x2))) / 2 * (x2 - x1) # TODO: bad when f varies rapidly on (x1,x2)
 
-    def pointadder_source(x):
-        i1, i2 = find_interval_with_maximum(x, source_measurer)
+    def source_measurer_absf_integral(x1, x2):
+        return scipy.integrate.quad(absffunc, x1, x2)[0]
+
+    def pointadder_source_absf(x):
+        i1, i2 = find_interval_with_maximum(x, source_measurer_absf)
         x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
         return x
 
@@ -296,10 +310,29 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
         return x
 
+    def pointadder_source_balance(x):
+        i1, i2 = find_interval_with_maximum(x, source_measurer_f)
+        x1, x2 = x[i1], x[i2]
+
+        def optim(xx):
+            # want to make this 0
+            # I1 = scipy.integrate.quad(absffunc, x1, xx)[0] 
+            # I2 = scipy.integrate.quad(absffunc, xx, x2)[0]
+            # return I1 - I2
+            return source_measurer_f(x1, xx) - source_measurer_f(xx, x2)
+            # print("     ", I1, I2)
+
+        xsplit = scipy.optimize.root_scalar(optim, method="bisect", bracket=[x1, x2], x0=(x1+x2)/2).root
+        x.insert(i2, xsplit)
+        # print("  ", x1, x2, xsplit)
+        return x
+
     strategies = [
         {"label": "UMR", "pointadder": pointadder_umr},
-        {"label": "AMR-source", "pointadder": pointadder_source},
+        {"label": "AMR-source-f", "pointadder": pointadder_source_f},
+        {"label": "AMR-source-absf", "pointadder": pointadder_source_absf},
         {"label": "AMR-trunc", "pointadder": pointadder_trunc},
+        {"label": "AMR-source-balance", "pointadder": pointadder_source_balance},
     ]
 
     for strategy in strategies:
@@ -323,6 +356,12 @@ def manufactured_solution_mesh_refinement(maxM=1000):
             strategy["errs_disc"].append(err_disc)
             strategy["errs_cont"].append(err_cont)
             print(len(x), err_disc)
+
+            # if len(x) == 27 and label == "AMR-source-f":
+                # plot_solution(xx, u, U, ffunc, grid=True)
+            # if strategy["label"] == "AMR-source-balance":
+                # plot_solution(xx, u, U, ffunc, grid=True)
+
 
     for i, strategy in enumerate(strategies):
         plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="x", label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
