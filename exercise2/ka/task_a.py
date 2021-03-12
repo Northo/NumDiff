@@ -9,11 +9,11 @@ def make_discrete_convergence_plots(u0, bc1, bc2):
     ref_grid = Grid(Grid.UNIFORM, np.linspace(0, 1, M_ref))
     outpath=f"./data/2a_BE_discrete_err.dat"
     discrete_convergence_plot_M_ref(
-        backward_euler, ref_grid, bc1, bc2, u0, 200, N, 0.5, plot=True, outpath=outpath
+        backward_euler, ref_grid, bc1, bc2, u0, N, 0.5, plot=True, outpath=outpath
     )
     outpath=f"./data/2a_BE_continous_err.dat"
     discrete_convergence_plot_M_ref(
-        crank_nicolson, ref_grid, bc1, bc2, u0, 200, N, 0.5, plot=True, outpath=outpath
+        crank_nicolson, ref_grid, bc1, bc2, u0, N, 0.5, plot=True, outpath=outpath
     )
 
 
@@ -23,11 +23,11 @@ def make_continous_convergence_plots(u0, bc1, bc2):
     ref_grid = Grid(Grid.UNIFORM, np.linspace(0, 1, M_ref))
     outpath=f"./data/2a_CN_discrete_err.dat"
     continous_convergence_plot_M_ref(
-        backward_euler, ref_grid, bc1, bc2, u0, 200, N, 0.5, plot=True, outpath=outpath
+        backward_euler, ref_grid, bc1, bc2, u0, N, 0.5, plot=True, outpath=outpath
     )
     outpath=f"./data/2a_CN_continous_err.dat"
     continous_convergence_plot_M_ref(
-        crank_nicolson, ref_grid, bc1, bc2, u0, 200, N, 0.5, plot=True, outpath=outpath
+        crank_nicolson, ref_grid, bc1, bc2, u0, N, 0.5, plot=True, outpath=outpath
     )
 
 
