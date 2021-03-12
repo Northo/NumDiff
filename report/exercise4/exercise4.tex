@@ -46,24 +46,31 @@ GRID FIGURE?? $x_0$ to $x_{M-1}$ makes modulo arithmetic intuitive.
 We will solve the Korteweg-De Vries equation with the central finite differences
 \begin{equation*}
 \begin{split}
-	\dpd{u}{x}    = \frac{\delta}{2h}       + O(h^2) &= \frac{u_{m+1}^n-u_{m-1}^n}{2h}  \\
-	\dpd[3]{u}{x} = \frac{\delta^3}{(2h)^3} + O(h^2) &= \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
+	\dpd{u}{x}    = \frac{\delta}{2h}       + O(h^2) &= \frac{u_{m+1}^n-u_{m-1}^n}{2h} + O(h^2) \\
+	\dpd[3]{u}{x} = \frac{\delta^3}{(2h)^3} + O(h^2) &= \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3} + O(h^2)
 \end{split}
 \end{equation*}
 in space, and doing the integration of $u_t = F(u_x, u_{xxx})$ in time using both the Euler method and the Crank-Nicholson method.
 They can be written simultaneously by inserting $\theta = 0$ and $\theta = 1/2$, respectively, in the Theta method
 \begin{equation*}
 % \frac{u_m^{n+1} - u_m^n}{k} = (1-\theta) F(u^n) + \theta F(u^{n+1})
+% TODO: mean really mean F(u_x, u_xxx)
+% \frac{u(x,t+k)-u(x,t)}{k} = (1-\theta) F\left(u(x, t)\right) + \theta F\left(u(x, t+k)\right) 
+% + O \left( k \left(\frac{1}{2}-\theta\right) + k^2 \left( \frac{1}{6} - \frac{\theta}{2} \right) \right).
+\frac{U_m^{n+1} - U_m^n}{\Delta t} = (1-\theta) F(U_m^n) + \theta F(U_m^{n+1}),
+\end{equation*}
+where all spatial discretization is contained in
+\begin{equation*}
 \begin{split}
-\quad \frac{u(x,t+k)-u(x,t)}{k} &= (1-\theta) F\left(u_x(x, t),u_{xxx}(x,t)\right) + \theta F\left(u_x(x, t+k),u_{xxx}(x,t+k)\right)  \\
-											&+ O \left( k \left(\frac{1}{2}-\theta\right) + k^2 \left( \frac{1}{6} - \frac{\theta}{2} \right) \right).
+	F(U_m^n) &= -\left(1+\pi^2\right) \frac{\delta}{2h} U_m^n        - \frac{\delta^3}{(2h)^3} U_m^n \\
+			 &= -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
 \end{split}
 \end{equation*}
 This results in the system of equations
-\begin{equation*}
+\begin{equation}\label{theta_method_discretized}
 	\left(1-\theta k \left(-\left(1+\pi^2\right)\frac{\delta}{2h} - \frac{\delta^3}{(2h)^3}\right)\right) U_m^{n+1}
 	= \left(1-\left(1-\theta\right) k \left(-\left(1+\pi^2\right)\frac{\delta}{2h} - \frac{\delta^3}{(2h)^3}\right)\right) U_m^n
-\end{equation*}
+\end{equation}
 for the unknown values $U_0^{n+1}, \,\dots\,, U_{M-1}^{n+1}$ at the next time step in terms of the known values $U_0^{n}, \,\dots\,, U_{M-1}^{n}$ at the current time step.
 In matrix form, the system can be written
 \begin{equation}
@@ -213,12 +220,43 @@ Note that the Crank-Nicholson method approaches the exact solution with as littl
 
 \subsection{Stability analysis}
 
+Motivated by the above examples of the Euler method and the Crank-Nicholson method, we perform a Von Neumann analysis of their stability.
+Just like the exact solution, the numerical solution is subject to periodic boundary conditions in space and can therefore be expanded in a Fourier series
+\begin{equation}
+	U_m^n = U(x_m, t_n) = \sum_l C_l^n \exp \left(i k_l x_m\right).
+\end{equation}
+Consider now only a single Fourier mode $C_l^n \exp (i k_l x_m)$ in the series.
+Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i k_l x_m)$ and expanding exponentials using Euler's identity gives
+% TODO: need a cleaner version of the discretized equation
+\begin{equation*}
+% \frac{C_l^{n+1}-C_l^n}{\Delta t} = \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{e^{i k_l h}-e^{-i k_l h}}{2h} - \frac{e^{3i k_l h}-e^{-3i k_l h}-3(e^{i k_l h}-e^{-i k_l h})}{8h^3}\right)
+% \frac{C_l^{n+1}-C_l^n}{\Delta t} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}\right)
+\frac{C_l^{n+1}-C_l^n}{\Delta t} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right), \quad \text{where} \,\, f(k_l) = \left(-\left(1+\pi^2\right) \frac{\sin(k_l h)}{h} - \frac{\sin^3(k_l h)}{h^3}\right).
+\end{equation*}
 
+Now look at the amplification factor $G_l = C_l^{n+1} / C_l^n$ of Fourier mode $l$ over one time step. 
+With $\theta = 1/2$, the Crank-Nicholson method gives 
+\begin{equation*}
+	G_l = \frac{1 + i \Delta t f(x) / 2}{1 - i \Delta t f(x) / 2} \quad \implies \quad \abs{G_l} = 1.
+\end{equation*}
+The amplitude of all Fourier modes is thus preserved over time independently of $\Delta t$ and $\Delta x$, and we say the Crank-Nicholson method is \textbf{unconditionally stable}.
+
+The Euler method has $\theta = 0$ and gives
+\begin{equation*}
+	G_l = 1 + i \Delta t f(x) \quad \implies \quad \abs{G_l} = \sqrt{1 + \Delta t^2 f(k_l)^2}.
+\end{equation*}
+Since $\abs{\sin(k_l h)} \leq 1$ for all $k_l$, we can bound $f(k_l)$ by
+\begin{equation*}
+	\abs{f(k_l)} \leq \frac{(1+\pi^2)}{\Delta x} + \frac{1}{\Delta x^3} = \frac{1}{\Delta x^3} \left( (1+\pi^2) \Delta x^2 + 1 \right) \leq \frac{1}{\Delta x^3} \left( (1+\pi^2) L^2 + 1 \right).
+\end{equation*}
+Then $\abs{G_l} = \sqrt{1 + O(\Delta t^2 / \Delta x^6)}$.
+% TODO: cite von neumann stability criterion
+The Von Neumann stability criterion $\abs{G_l} \leq 1 + O(\Delta t)$ \cite{owren} is attained only with $\Delta t \geq O(\Delta x^6)$, corresponding to \emph{extremely small} time steps.
+Thus, while the Euler method in theory is \textbf{conditionally stable}, it is unstable for all practical time steps.
+Other methods are far superior, as they allow for both a much greater resolution of the spatial grid in addition to larger time steps.
 
 % TODO: one figure with Euler, small M large N
 % TODO: one figure with CN, 
-
-In FIGURES, we 
 
 \begin{figure}
 \centering
@@ -263,59 +301,3 @@ where
 F(u^n) = -(1+\pi^2) \frac{u_{m+1}^n-u_{m-1}^n}{2h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8h^3}
 \end{equation}
 $\theta = 0$ is forward Euler, $\theta = 1/2$ is Crank-Nicholson, $\theta = 1$ is backward Euler.
-
-Separation of variables:
-\begin{equation}
-u(x, t) = X(x) T(t)
-\end{equation}
-Insert into KdV equation to get $T = A e^{zt}$.
-$X(x)$ is periodic, so expand it in a Fourier series:
-\begin{equation}
-X(x) = \sum_k C_k e^{ikx}
-\end{equation}
-The general solution is then
-\begin{equation}
-u(x, t) = \sum_k C_k e^{kt} e^{ikx}
-\end{equation}
-so
-\begin{equation}
-u_m^n = \sum_k C_k e^{kt_n} e^{ikx_m}
-\end{equation}
-With constant time steps, $t_n = nk$, we can write
-\begin{equation}
-u_m^n = \sum_k C_k G^n e^{ikx_m}
-\end{equation}
-Consider a general term in the series $u_m^n = G^n e^{ikx_m}$. Insert into discretized KdV equation to get
-\begin{equation}
-\frac{G-1}{k} = [(1-\theta)+\theta G] [-(1+\pi^2) \frac{e^{iqh}-e^{-iqh}}{2h} - \frac{e^{3iqh}-e^{-3iqh}-3(e^{iqh}-e^{-iqh})}{8h^3}]
-\end{equation}
-Expand using Euler's identity to get
-\begin{equation}
-\frac{G-1}{k} = i [(1-\theta)+\theta G] [-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}]
-\end{equation}
-$\theta = 0$ gives $|G| > 1$ (unstable), but $\theta = 1/2$ gives $|G| = 1$ (stable)! (unconditionally)
-
-Proof of conserved norm:
-Due to periodicity (if one is very pedantic, one can obtain this by separation of variables)
-\begin{equation}
-	u(x, t) = \sum_n c_n(t) e^{i k_n x}
-\end{equation}
-Insert into the KdV equation to get
-\begin{equation}
-	\sum_n \left\{ \dot{c}_n(t) + i [(1+\pi^2)k_n - k_n^3] c_n(t) \right\} e^{i k_n x}= 0
-\end{equation}
-For the sum to be $0$, each term inside the curly brackets must vanish, so
-\begin{equation}
-	c_n(t) = c_n(0) \exp{\left\{ i [(1+\pi^2)k_n - k_n^3] t \right\} }
-\end{equation}
-Thus,
-\begin{equation}
-\begin{split}
-\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \\
-                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{(i(k_m-k_n)x)}}_{L \delta_{m n}} \\
-											  &= L \sum_n \left| c_m(t) \right|^2 \\
-											  &= L \sum_n \left| c_m(0) \right|^2 \\
-											  &= \int_{-L/2}^{+L/2} \dif x \left| u(x,0) \right|^2,
-\end{split}
-\end{equation}
-so the spatial $L_2$-norm is preserved over time.
