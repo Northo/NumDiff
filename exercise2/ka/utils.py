@@ -211,7 +211,7 @@ def _split_interval(a, b, error_function, tol):
 
 # From T-vice
 def partition_interval(
-    a, b, error_function: Callable[[float, float, float], float], tol
+        a, b, tol, error_function: Callable[[float, float, float], float]
 ):
     """Partition an interval adaptively.
     Makes error_function less than tol for all sub intervals.
@@ -310,36 +310,11 @@ def animate_time_development(x, U):
     return anim
 
 
-def curvature_estimator(f):
+def curvature_estimator(u):
     """Generate a curvature estimator"""
 
     def error_estimate(a, c, b):
-        return np.abs(f(c) * (b - a))
-
-    return error_estimate
-
-
-def trapz_curvature_estimator(f):
-    def error_estimate(a, c, b):
-        x = np.array([a, c, b])
-        return np.trapz(np.abs(f(x)), x=x)
-
-    return error_estimate
-
-
-def quad_curvature_estimator(f):
-    def error_estimate(a, c, b):
-        return quad(lambda x: np.abs(f(x)), a, b)[0]
-
-    return error_estimate
-
-
-def exact_estimator(f, u):
-    """Generate an exact estimator"""
-
-    def error_estimate(a, c, b):
-        trunc_error = u(a) + u(b) - 2 * u(c) - f(c)
-        return np.abs(trunc_error * (b - a))
+        return np.abs(2 * u(c) - u(a) - u(b))
 
     return error_estimate
 
@@ -350,3 +325,32 @@ def min_dist_mixin(estimator, min_dist):
         return np.where(dist < min_dist, estimator(a, c, b), np.inf)
 
     return error_estimate
+
+
+def find_error(
+        partitioner,
+        parameters,
+        error_function,
+        analytical_func,
+        method,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+):
+    Ms = []
+    errors = []
+    analytical = partial(analytical_func, t=t_end)
+    for (i, param) in enumerate(parameters):
+        x = partitioner(0, 1, param)
+        Ms.append(len(x))
+        # TODO: Set to UNIFORM if x is uniform
+        grid_Mi = Grid(Grid.NON_UNIFORM, x)
+        _, U = method(
+            grid_Mi, bc1, bc2, u0, N, t_end, log=False
+        )  # solution with current M
+        errors.append(
+            error_function(U, analytical, x)
+        )
+    return Ms, errors
