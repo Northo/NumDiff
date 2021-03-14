@@ -232,8 +232,10 @@ def AMR_discrete_convergence_plot(error_function, analy, method, bc1, bc2, u0, N
     error_array = np.empty(len(M_array))
     tols = np.geomspace(0.0000046, 0.1, len(M_array))
     u_analy = lambda x: analy(x, t_end) # analytical sol at t_end
+    actual_M = []
     for (i, tol) in enumerate(tols):
         x = partition_interval(0, 1, error_function, tol)
+        actual_M.append(len(x))
         grid_Mi = Grid(Grid.NON_UNIFORM, x)
         _, U = method(
             grid_Mi, bc1, bc2, u0, N, t_end, log=False
@@ -249,8 +251,8 @@ def AMR_discrete_convergence_plot(error_function, analy, method, bc1, bc2, u0, N
         plt.ylabel("rel. error")
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(M_array, error_array)
-        plt.plot(M_array, error_array, "x")
+        plt.plot(actual_M, error_array)
+        plt.plot(actual_M, error_array, "x")
         plt.show()
     return error_array, M_array
 
@@ -260,8 +262,10 @@ def AMR_continous_convergence_plot(error_function, analy, method, bc1, bc2, u0, 
     error_array = np.empty(len(M_array))
     tols = np.geomspace(0.0000046, 0.1, len(M_array))
     U_ref = lambda x: analy(x, t_end) # analytical sol at t_end
+    actual_M = []
     for (i, tol) in enumerate(tols):
         x = partition_interval(0, 1, error_function, tol)
+        actual_M.append(len(x))
         grid_Mi = Grid(Grid.NON_UNIFORM, x)
         _, U_array = method(
             grid_Mi, bc1, bc2, u0, N, t_end, log=False
@@ -277,8 +281,8 @@ def AMR_continous_convergence_plot(error_function, analy, method, bc1, bc2, u0, 
         plt.ylabel("rel. error")
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(M_array, error_array)
-        plt.plot(M_array, error_array, "x")
+        plt.plot(actual_M, error_array)
+        plt.plot(actual_M, error_array, "x")
         plt.show()
     return error_array, M_array
 
@@ -302,3 +306,45 @@ def animate_time_development(x, U):
     (curve,) = ax.plot(x, U[0])
     anim = animation.FuncAnimation(fig, animate, fargs=(x, U, curve))
     return anim
+
+
+def curvature_estimator(f):
+    """Generate a curvature estimator"""
+
+    def error_estimate(a, c, b):
+        return np.abs(f(c) * (b - a))
+
+    return error_estimate
+
+
+def trapz_curvature_estimator(f):
+    def error_estimate(a, c, b):
+        x = np.array([a, c, b])
+        return np.trapz(np.abs(f(x)), x=x)
+
+    return error_estimate
+
+
+def quad_curvature_estimator(f):
+    def error_estimate(a, c, b):
+        return quad(lambda x: np.abs(f(x)), a, b)[0]
+
+    return error_estimate
+
+
+def exact_estimator(f, u):
+    """Generate an exact estimator"""
+
+    def error_estimate(a, c, b):
+        trunc_error = u(a) + u(b) - 2 * u(c) - f(c)
+        return np.abs(trunc_error * (b - a))
+
+    return error_estimate
+
+
+def min_dist_mixin(estimator, min_dist):
+    def error_estimate(a, c, b):
+        dist = b - a
+        return np.where(dist < min_dist, estimator(a, c, b), np.inf)
+
+    return error_estimate
