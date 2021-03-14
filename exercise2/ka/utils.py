@@ -5,6 +5,7 @@ from matplotlib import animation
 from collections.abc import Callable  # Spooky stuff I don't know what is
 
 from routines import Grid
+from functools import partial
 
 
 def discrete_l2_norm(V):
