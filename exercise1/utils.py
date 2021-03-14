@@ -205,6 +205,66 @@ def generate_problem(f, M, BCs=DEFAULT_BCs):
     return A, F, x[inner]
 
 
+def generate_problem(f, M, BCs=DEFAULT_BCs):
+    """Set up the matrix-problem to sovle the Poisson equation with one Neumann B.C.
+    Arguments:
+        f : function The function on the RHS of Poisson (u'' = f).
+        M : Integer The number of internal points to use.
+        bc_left/right: tuple The boundary conditions of the problem. The tuple has two,
+                       elements, where the first defines the type and the second the value.
+
+    With 'internal points' in M, one here means points in the closed interval (0,1).
+    The points at x=0 and x=1 are denoted x_0 and x_(M+1), and are not
+    included in the 'internal points'."""
+
+    bc_left, bc_right = BCs
+
+    # Depending on the BCs, the size of our matrix varies.
+    # We need at least an MxM-system. For each Neumann-BC we must increase by one.
+    # nn: number_neumann, for brevity.
+    # Independent of nn, we want M+2 points in order to be consistent with notation in problem text.
+    x, h = np.linspace(0, 1, num=M + 2, retstep=True)
+
+    # Apply values common for all BCs.
+    diagonal = np.full(M + 2, -2 / h ** 2)
+    upper_diagonal = np.ones(M + 1) / h ** 2
+    lower_diagonal = np.ones(M + 1) / h ** 2
+    A = np.diag(diagonal) + np.diag(upper_diagonal, k=1) + np.diag(lower_diagonal, k=-1)
+    F = f(x)
+    start = 0
+    end = -1
+
+    A[0, [0, 1, 2]] = np.array([-3/2, 2, -1/2]) * h  # Forward 1. derivative order 2
+    A[-1, [-3, -2, -1]] = np.array([1/2, -2, 3/2]) * h  # Backward 1. derivative order 2
+
+    # Change elements specific for BCs.
+    if bc_right.is_neumann():
+        F[-1] = bc_right.value
+    elif bc_right.is_dirichlet():
+        # Remove the last part of the problem
+        end = -2
+        F[end] -= bc_right.value / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    if bc_left.is_neumann():
+        F[0] = bc_left.value
+        if bc_right.is_neumann():
+            # Solution only determined up to a constant.
+            # We set u(0) = 0 as extra condition.
+            # A[:, 0] = 0
+            warnings.warn(
+                "Two Neumann conditions renders the IVP ill-posed."
+            )
+    elif bc_left.is_dirichlet():
+        start = 1
+        F[start] -= bc_left.value / h ** 2
+    else:
+        raise Exception("Unknown boundary condition type.")
+
+    return A[start:end, start:end], F[start:end], x[start:end]
+
+
 def generate_problem_variable_step(f, x, BCs=[BC(value=1), BC(value=1)]):
     """Generate probelm for variable step size x.
     Currently only implmented for Dirichlet BCs"""
