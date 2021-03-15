@@ -243,7 +243,7 @@ def AMR_discrete_convergence_plot(error_function, analy, method, bc1, bc2, u0, N
         U_ref = u_analy(grid_Mi.x)  # Discretized reference solution
         error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
     if outpath != "":
-        table = np.column_stack((M_array, error_array))
+        table = np.column_stack((actual_M, error_array))
         np.savetxt(outpath, table, header="M err", comments="")
         plt.title(outpath)
     if plot:
@@ -273,7 +273,7 @@ def AMR_continous_convergence_plot(error_function, analy, method, bc1, bc2, u0, 
         U = continous_continuation(grid_Mi.x, U_array)
         error_array[i] = L2_continous_relative_error(U_ref, U)  # dicrete relative error
     if outpath != "":
-        table = np.column_stack((M_array, error_array))
+        table = np.column_stack((actual_M, error_array))
         np.savetxt(outpath, table, header="M err", comments="")
         plt.title(outpath)
     if plot:

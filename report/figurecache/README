@@ -1,3 +1,0 @@
-This directory caches figures from the Latex document.
-This prevents recompilation of figures every time the document is compiled.
-The cached figures should be local and not part of the Git repository.
