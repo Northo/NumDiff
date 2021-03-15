@@ -85,12 +85,11 @@ tf = 0.06
 # Solve ivp/bvp
 sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.001)
 t, ut = sol.t, sol.y.T
-print(sol.success)
 
 # Plot solutions at all times in [0, tf]
 for (i, ti) in enumerate(t):
     plt.plot(x, ut[i], label=f"t={ti}")
-plt.legend()
+#plt.legend()
 plt.show()
 
 # Difference between subsequent solutions
