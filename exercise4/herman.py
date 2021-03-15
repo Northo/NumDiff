@@ -39,7 +39,7 @@ def solve_analytical(x, t):
     t = np.array(t)
     return np.sin(np.pi*(x-t.reshape(-1,1)))
 
-def solve_numerical(x, t, method="crank-nicholson"):
+def solve_numerical(x, t, U0=None, method="crank-nicholson"):
     assert grid_is_uniform(x), "Space step not uniform"
     assert grid_is_uniform(t), "Time step not uniform"
 
@@ -62,7 +62,8 @@ def solve_numerical(x, t, method="crank-nicholson"):
         A[i,inds1] -= (1+np.pi**2) * stencil1
         A[i,inds3] -= stencil3
 
-    U0 = solve_analytical(x, [t[0]])[0] # sin(pi*x)
+    if U0 is None:
+        U0 = np.sin(np.pi*x)
 
     if method == "forward-euler":
         return theta_method(t, A, U0, 0)
@@ -73,12 +74,16 @@ def solve_numerical(x, t, method="crank-nicholson"):
     else:
         raise(f"Unknown method \"{method}\"")
 
-def animate_solution(x, t, u1, u2):
+def animate_solution(x, t, u1, u2=None):
     fig, ax = plt.subplots()
 
-    # set constant limits with room to show both solutions at all times
-    ymin = np.min((np.min(u1), np.min(u2)))
-    ymax = np.max((np.max(u1), np.max(u2)))
+    if u2 is None:
+        ymin = np.min(u1)
+        ymax = np.max(u1)
+    else:
+        # set constant limits with room to show both solutions at all times
+        ymin = np.min((np.min(u1), np.min(u2)))
+        ymax = np.max((np.max(u1), np.max(u2)))
     ax.set_ylim(ymin, ymax)
     ax.set_xlim(x[0], x[-1])
 
@@ -86,38 +91,67 @@ def animate_solution(x, t, u1, u2):
     graph2, = ax.plot([], [])
     def animate(i):
         graph1.set_data(x, u1[i,:])
-        graph2.set_data(x, u2[i,:])
         graph1.set_label(f"u1(t={t[i]:.2f})")
-        graph2.set_label(f"u2(t={t[i]:.2f})")
+
+        if u2 is not None:
+            graph2.set_data(x, u2[i,:])
+            graph2.set_label(f"u2(t={t[i]:.2f})")
         ax.legend(loc="upper right")
 
-    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=0, frames=len(t))
+    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=10, frames=len(t))
     plt.show()
 
 def norm_evolution():
-    series = [
-        {"method": "crank-nicholson", "M": 200, "N": 200},
-        {"method": "forward-euler", "M": 100, "N": 100}
+    runs = [
+        {"method": "forward-euler", "M": 15, "N": [30000, 40000, 50000]},
+        {"method": "forward-euler", "M": 20, "N": [30000, 40000, 50000]},
+        {"method": "forward-euler", "M": 25, "N": [30000, 40000, 50000]},
+        {"method": "crank-nicholson", "M": 800, "N": [100, 200, 300]},
     ]
 
-    for s in series:
-        method = s["method"]
+    for run in runs:
+        method = run["method"]
+        run["L2"] = []
+        for N in run["N"]:
+            x = np.linspace(-1, +1, run["M"])
+            t = np.linspace(0, 1, N)
+            # U0 = np.sin(np.pi*x) + np.sin(3*np.pi*x)
+            # U0 = np.heaviside(x+0.5, 0.5) * (1 - np.heaviside(x-0.5, 0.5))
+            U0 = np.exp(-10*x**2)
+            U = solve_numerical(x, t, U0=U0, method=method)
+            # plt.plot(x, U0)
+            # plt.show()
+            # animate_solution(x, t, U)
 
-        x = np.linspace(-1, +1, s["M"])
-        t = np.linspace(0, 1, s["N"])
-        U = solve_numerical(x, t, method=method)
+            L2 = np.linalg.norm(U, 2, axis=1) / np.sqrt(run["M"])
+            run["L2"].append(L2)
 
-        N = t.shape[0]
-        L2 = np.empty(N)
-        for i in range(0, N):
-            L2[i] = np.linalg.norm(U, 2)
-
-        label = f"{method}"
-        plt.plot(t, (L2 - np.mean(L2)) / np.mean(L2), label=label)
-
-    plt.ylim(-0.01, +0.01) # relative error always [-1, +1]
+    for run in runs:
+        for n, N in enumerate(run["N"]):
+            plt.plot(np.linspace(0, 1, N), run["L2"][n], label=run["method"])
+            # plt.ylim(L2[0]-0.5, L2[0]+0.5)
+    L2min = np.min([run["L2"][n][0] for n, _ in enumerate(run["N"]) for run in runs])
+    L2max = np.max([run["L2"][n][0] for n, _ in enumerate(run["N"]) for run in runs])
+    plt.ylim(L2min-0.5, L2max+0.5)
     plt.legend()
     plt.show()
+
+    # Write to file
+    # headers = ["t", f"{N}"]
+    # columns = [np.linspace(0, 1, 100), run["L2"][n][inds]]
+    headers = []
+    columns = []
+    for run in runs:
+        M = run["M"]
+        for n, N in enumerate(run["N"]):
+            inds = np.round(np.linspace(0, N-1, 100)).astype(int) # sample at 100 times
+            label = run["method"] + f"-M{M}-N{N}"
+            headers.append(label)
+            columns.append(run["L2"][n][inds])
+    path = f"../report/exercise4/norm-evolution.dat"
+    write_table_to_file(path, np.transpose(columns), headers)
+
+    # plt.ylim(-0.01, +0.01) # relative error always [-1, +1]
 
 def main(animate=True, write=False, time_samples=5):
     N = 800
@@ -210,7 +244,7 @@ def snapshots():
                 # plt.plot(x, u[-1], color="black")
             # plt.show()
 
-main(animate=True, write=True, time_samples=5)
+# main(animate=True, write=True, time_samples=5)
 # convergence_plots()
 # snapshots()
-# norm_evolution()
+norm_evolution()

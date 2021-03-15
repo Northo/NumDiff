@@ -3,6 +3,7 @@
 In this section, we will study the one-dimensional linearized Korteweg-De Vries equation
 \begin{equation}
 \pd{u}{t} + \left(1+\pi^2\right)\pd{u}{x} + \pd[3]{u}{x} = 0 \qquad (t \geq 0) \quad (-L/2 \leq x \leq +L/2),
+\label{kdv_equation}
 \end{equation}
 where the solution $u = u(x,t)$ is subject to periodic boundary conditions
 \begin{equation*}
@@ -14,6 +15,7 @@ u(x+L, t) = u(x, t).
 As the solution is periodic in space at every instant $t$, it can be expressed as a Fourier-series
 \begin{equation}
 u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i k_n x)}
+\label{fourier_series}
 \end{equation}
 with wavenumbers $k_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
 This can be derived formally by separation of variables.
@@ -24,19 +26,7 @@ Inserting the Fourier series into the equation gives
 Due to orthogonality of the Fourier basis functions $\exp(i k_n x)$, this can only vanish if all coefficients separately vanish, so
 \begin{equation}
 	c_n(t) = c_n(0) \exp{\left( -i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
-\end{equation}
-
-The solution has the property that the $L_2$-norm $\Vert u(x,t) \Vert_2 = ( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x )^{1/2}$ is preserved over time.
-To understand this, first note carefully how the first order time derivative combined with spatial derivatives of odd order produced coefficients of variable phase, but constant magnitude $|c_n(t)|^2 = |c_n(0)|^2$.
-This means that each Fourier mode is undamped in time, so
-\begin{equation}
-\begin{split}
-\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 &= \int_{-L/2}^{+L/2} \sum_{m,n} c_m(t) c_n^*(t) \exp{(i k_m x)} \exp{(-i k_n x)} \dif x \\
-                                              &= \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n} \dif x} \\
-											  &= L \sum_n \left| c_n(t) \right|^2 \\
-											  &= L \sum_n \left| c_n(0) \right|^2 \\
-											  &= \int_{-L/2}^{+L/2} \left| u(x,0) \right|^2 \dif x.
-\end{split}
+	\label{fourier_coefficients}
 \end{equation}
 
 \subsection{Numerical solution method}
@@ -289,6 +279,72 @@ Other methods are far superior, as they allow for both a much greater resolution
 	% \addplot3 [surf, mesh/cols=20] table {exercise4/cranknich.dat};
 	\addplot3 [surf, mesh/cols=20] table {exercise4/crank-nicholson-M20-N400.dat};
 \end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\subsection{Time evolution of norm}
+
+The stability of the finite difference methods can be even better illustrated by investigating the time evolution of the $L_2$-norm of the solution.
+To this end, we will first show that the $L_2$-norm of the analytical solution is preserved over time.
+Then we will show the time evolution of the $L_2$-norm of numerical solutions.
+
+The $L_2$-norm of the analytical solution is defined as
+\begin{equation*}
+	\Vert u(x,t) \Vert_2 = \left( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x \right)^{1/2}.
+\end{equation*}
+To understand why it is constant in time, insert the Fourier expansion \cref{fourier_series} for $u(x,t)$ to get
+\begin{equation*}
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
+\end{equation*}
+Since the Fourier coefficients \cref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
+Note in retrospect how the odd number of spatial derivatives in \cref{kdv_equation} ensures that the exponential in \cref{fourier_coefficients} has a purely imaginary argument and thus constant magnitude.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+	group style={group size=2 by 1, horizontal sep=0.3cm},
+	height=7cm,
+	width=0.52\textwidth,
+	ymin=0.4, ymax=0.5, restrict y to domain=0:10,
+]
+	\pgfplotscreateplotcyclelist{mycycle}{
+		{black,solid},
+		{black,dashdotted},
+		{black,dashed},
+		{blue,solid},
+		{blue,dashdotted},
+		{blue,dashed},
+		{green,solid},
+		{green,dashdotted},
+		{green,dashed},
+		{red,solid},
+		{red,dashdotted},
+		{red,dashed},
+	};
+
+	\nextgroupplot[title={Forward Euler}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east];
+	\addplot {0};
+	\addlegendentry{$N=30000$};
+	\addplot {0};
+	\addlegendentry{$N=40000$};
+	\addplot {0};
+	\addlegendentry{$N=50000$};
+
+	\pgfplotsinvokeforeach{15,20,25} {
+		\addplot table [x expr=\coordindex/100, y={forward-euler-M#1-N30000}] {exercise4/norm-evolution.dat};
+		\addplot table [x expr=\coordindex/100, y={forward-euler-M#1-N40000}] {exercise4/norm-evolution.dat};
+		\addplot table [x expr=\coordindex/100, y={forward-euler-M#1-N50000}] {exercise4/norm-evolution.dat};
+	}
+
+	\nextgroupplot[title={Crank-Nicholson}, xlabel=$t$,yticklabels={,,}];
+	\pgfplotsinvokeforeach{800} {
+		\addplot [color=black] table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
+		\addplot [color=black] table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};
+		\addplot [color=black] table [x expr=\coordindex/100, y={crank-nicholson-M#1-N300}] {exercise4/norm-evolution.dat};
+	}
+% \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
+\end{groupplot}
 \end{tikzpicture}
 \end{figure}
 
