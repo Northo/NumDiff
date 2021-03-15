@@ -1,4 +1,19 @@
 \section{Heat equation in one dimension}
+In this seection, we will solve one-dimensional differential equations with time evolution. 
+Firstly, we will solve the one-dimensional heat equation with Neumann boundary conditions, using both the Backward Euler method and Crank-Nicolson's method.
+We will then analyse the error of our methods using a manufactured solution to which the analytical solution is known.
+For this, we will use both uniform and adaptive mesh refinement, and the different methods will be discussed.
+Finally, we will solve the inviscid Burgers' equation and evaluate the breaking which this equation exhibits.
+
+Firstly, we consider the one-dimensional heat equation with Neumann boundary conditions
+\begin{equation*}
+    u_t = u_{xx}, \quad u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
+\end{equation*}
+valid for $x \in [0,1] := \Omega$ and $t > 0$.
+The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ parts, as described in section \ref{task_1}.
+We also divide the time interval $t \in [0,t_{end}]$ into parts, so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$.
+For $t = 0$, the solution is the given initial condition.
+
 
 \begin{figure}[h]
     \centering
