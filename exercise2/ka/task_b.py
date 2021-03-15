@@ -56,7 +56,7 @@ if PLOT_SAMPLES:
 
 
 def make_UMR_convergence_plots(u0, bc1, bc2):
-    N = 100
+    N = 1000
     outpath=f"{OUT_DIR}2b_UMR_BE_discrete_err.dat"
     discrete_convergence_plot(
         analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
@@ -101,7 +101,7 @@ plt.show()
 
 
 def make_AMR_convergence_plots(u0, bc1, bc2):
-    N = 100
+    N = 1000
     outpath=f"{OUT_DIR}2b_AMR_BE_discrete_err.dat"
     AMR_discrete_convergence_plot(
         error_func, analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
