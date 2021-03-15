@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+    \begin{loglogaxis}[
+        title={2a Convergence plot, l2 cont. rel. err.},
+        xlabel={$M$},
+        ylabel={Relative error},
+        ]
+        \addplot[color=blue,mark=x] table[x={M}, y={err}] {exercise2/data_ka/2a_BE_continous_err_N100_Mref1000_tend1.dat};
+        \addplot[color=red,mark=*] table[x={M}, y={err}] {exercise2/data_ka/2a_CN_continous_err_N100_Mref1000_tend1.dat};
+        \legend{Backward Euler, Crank-Nicolson};
+    \end{loglogaxis}
+\end{tikzpicture}
