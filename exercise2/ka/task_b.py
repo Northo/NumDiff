@@ -56,26 +56,29 @@ if PLOT_SAMPLES:
 
 
 def make_UMR_convergence_plots(u0, bc1, bc2):
-    N = 100
-    outpath=f"{OUT_DIR}2b_UMR_BE_discrete_err.dat"
+    N = 10000
+    t_end = 1
+    outpath=f"{OUT_DIR}2b_UMR_BE_discrete_err_N{N}_tend{t_end}.dat"
     discrete_convergence_plot(
-        analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_CN_discrete_err.dat"
+    outpath=f"{OUT_DIR}2b_UMR_CN_discrete_err_N{N}_tend{t_end}.dat"
     discrete_convergence_plot(
-        analytical, crank_nicolson, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_BE_continous_err.dat"
+    outpath=f"{OUT_DIR}2b_UMR_BE_continous_err_N{N}_tend{t_end}.dat"
     continous_convergence_plot(
-        analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_CN_continous_err.dat"
+    outpath=f"{OUT_DIR}2b_UMR_CN_continous_err_N{N}_tend{t_end}.dat"
     continous_convergence_plot(
-        analytical, crank_nicolson, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
 
-
-make_UMR_convergence_plots(u0, bc1, bc2)
+# I think UMR plots are pretty good now
+# Commenting out this function call to avoid 
+# accidental overwriting of data files
+# make_UMR_convergence_plots(u0, bc1, bc2)
 
 
 ###########
@@ -101,22 +104,23 @@ plt.show()
 
 
 def make_AMR_convergence_plots(u0, bc1, bc2):
-    N = 100
-    outpath=f"{OUT_DIR}2b_AMR_BE_discrete_err.dat"
+    N = 10000
+    t_end = 1
+    outpath=f"{OUT_DIR}2b_AMR_BE_discrete_err_N{N}_tend{t_end}.dat"
     AMR_discrete_convergence_plot(
-        error_func, analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        error_func, analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_AMR_CN_discrete_err.dat"
+    outpath=f"{OUT_DIR}2b_AMR_CN_discrete_err_N{N}_tend{t_end}.dat"
     AMR_discrete_convergence_plot(
-        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_AMR_BE_continous_err.dat"
+    outpath=f"{OUT_DIR}2b_AMR_BE_continous_err_N{N}_tend{t_end}.dat"
     AMR_continous_convergence_plot(
-        error_func, analytical, backward_euler, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        error_func, analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_AMR_CN_continous_err.dat"
+    outpath=f"{OUT_DIR}2b_AMR_CN_continous_err_N{N}_tend{t_end}.dat"
     AMR_continous_convergence_plot(
-        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, 1, plot=True, outpath=outpath
+        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
 
 
