@@ -3,9 +3,14 @@
         title={2b Convergence plot L2 discrete rel err},
         xlabel={$M$},
         ylabel={Relative error},
+        legend pos=south west,
         ]
         \addplot[color=blue,mark=x] table[x={M}, y={err}] {exercise2/data_ka/2b_UMR_BE_discrete_err_N1000_tend1.dat};
         \addplot[color=red,mark=*] table[x={M}, y={err}] {exercise2/data_ka/2b_UMR_CN_discrete_err_N1000_tend1.dat};
-        \legend{Backward Euler, Crank-Nicolson};
+        \addplot[color=black,mark=diamond] table[x={M}, y={err}] {exercise2/data_ka/2b_UMR_BE_discrete_err_N10000_tend1.dat};
+        \addplot[color=gray,mark=triangle] table[x={M}, y={err}] {exercise2/data_ka/2b_UMR_CN_discrete_err_N10000_tend1.dat};
+
+
+        \legend{Backward Euler N=1000, Crank-Nicolson N=1000, Backward Euler N=10000, Crank-Nicolson N=10000};
     \end{loglogaxis}
 \end{tikzpicture}
