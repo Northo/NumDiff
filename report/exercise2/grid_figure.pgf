@@ -1,0 +1,95 @@
+\begin{tikzpicture}
+%% X-axis, courtesy of task force 1:
+\draw (0,0) -- (3,0);
+\draw[dashed] (3,0) -- (6,0);
+\draw (6,0) -- (9,0);
+\filldraw (0.0,0) circle (2pt) node[anchor=north] {$x_0 = 0$};
+\filldraw (1.5,0) circle (2pt) node[anchor=north] {$x_1$};
+\filldraw (3.0,0) circle (2pt) node[anchor=north] {$x_2$};
+\filldraw (4.5,0) circle (2pt) node[anchor=north] {$x_m$};
+\filldraw (6.0,0) circle (2pt) node[anchor=north] {$x_{M-1}$};
+\filldraw (7.5,0) circle (2pt) node[anchor=north] {$x_{M}$};
+\filldraw (9.0,0) circle (2pt) node[anchor=north] {$x_{M+1} = 1$};
+\node[anchor=south] at (0.75, 0) {$h$};
+\node[anchor=south] at (2.25, 0) {$h$};
+\node[anchor=south] at (6.75, 0) {$h$};
+\node[anchor=south] at (8.25, 0) {$h$};
+
+% Y-axis
+\draw (0,0) -- (0,3);
+\draw[dashed] (0,3) -- (0,6);
+\draw (0,6) -- (0,9);
+%\filldraw (0.0,0) circle (2pt) node[anchor=west] {$x_0 = 0$};
+\filldraw (0,1.5) circle (2pt) node[anchor=east] {$t_1$};
+\filldraw (0,3) circle (2pt) node[anchor=east] {$t_2$};
+\filldraw (0,4.5) circle (2pt) node[anchor=east] {$t_n$};
+\filldraw (0,6) circle (2pt) node[anchor=east] {$t_{N-2}$};
+\filldraw (0,7.5) circle (2pt) node[anchor=east] {$t_{N-1}$};
+\filldraw (0,9) circle (2pt) node[anchor=east] {$t_{N} = t_{end}$};
+
+% Y-axis on right side
+\draw (9.0,0) -- (9.0,3);
+\draw[dashed] (9.0,3) -- (9.0,6);
+\draw (9.0,6) -- (9.0,9.0);
+% Labels on the right side might be unneessary.
+\filldraw (9.0,1.5) circle (2pt) node[anchor=west] {$t_1$};
+\filldraw (9.0,3.0) circle (2pt) node[anchor=west] {$t_2$};
+\filldraw (9.0,4.5) circle (2pt) node[anchor=west] {$t_n$};
+\filldraw (9.0,6.0) circle (2pt) node[anchor=west] {$t_{N-2}$};
+\filldraw (9.0,7.5) circle (2pt) node[anchor=west] {$t_{N-1}$};
+\filldraw (9.0,9.0) circle (2pt) node[anchor=west] {$t_{N} = t_{end}$};
+
+% Grid
+\draw[dotted] (1.5,0) -- (1.5,9.0);
+\draw[dotted] (3.0,0) -- (3.0,9.0);
+\draw[dotted] (4.5,0) -- (4.5,9.0);
+\draw[dotted] (6.0,0) -- (6.0,9.0);
+\draw[dotted] (7.5,0) -- (7.5,9.0);
+\draw[dotted] (9.0,0) -- (9.0,9.0);
+
+\draw[dotted] (0,1.5) -- (9.0,1.5);
+\draw[dotted] (0,3.0) -- (9.0,3.0);
+\draw[dotted] (0,4.5) -- (9.0,4.5);
+\draw[dotted] (0,6.0) -- (9.0,6.0);
+\draw[dotted] (0,7.5) -- (9.0,7.5);
+\draw[dotted] (0,9.0) -- (9.0,9.0);
+
+% Unknown nodes in the grid
+\draw (1.5,1.5) circle (2pt);
+\draw (1.5,3.0) circle (2pt);
+\draw (1.5,4.5) circle (2pt);
+\draw (1.5,6.0) circle (2pt);
+\draw (1.5,7.5) circle (2pt);
+\draw (1.5,9.0) circle (2pt);
+\draw (3.0,1.5) circle (2pt);
+\draw (3.0,3.0) circle (2pt);
+\draw (3.0,4.5) circle (2pt);
+\draw (3.0,6.0) circle (2pt);
+\draw (3.0,7.5) circle (2pt);
+\draw (3.0,9.0) circle (2pt);
+\draw (4.5,1.5) circle (2pt);
+\draw (4.5,3.0) circle (2pt);
+\draw (4.5,4.5) circle (2pt);
+\draw (4.5,6.0) circle (2pt);
+\draw (4.5,7.5) circle (2pt);
+\draw (4.5,9.0) circle (2pt);
+\draw (6.0,1.5) circle (2pt);
+\draw (6.0,3.0) circle (2pt);
+\draw (6.0,4.5) circle (2pt);
+\draw (6.0,6.0) circle (2pt);
+\draw (6.0,7.5) circle (2pt);
+\draw (6.0,9.0) circle (2pt);
+\draw (7.5,1.5) circle (2pt);
+\draw (7.5,3.0) circle (2pt);
+\draw (7.5,4.5) circle (2pt);
+\draw (7.5,6.0) circle (2pt);
+\draw (7.5,7.5) circle (2pt);
+\draw (7.5,9.0) circle (2pt);
+\draw (9.0,1.5) circle (2pt);
+\draw (9.0,3.0) circle (2pt);
+\draw (9.0,4.5) circle (2pt);
+\draw (9.0,6.0) circle (2pt);
+\draw (9.0,7.5) circle (2pt);
+\draw (9.0,9.0) circle (2pt);
+
+\end{tikzpicture}
