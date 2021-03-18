@@ -98,7 +98,7 @@ def animate_solution(x, t, u1, u2=None):
             graph2.set_label(f"u2(t={t[i]:.2f})")
         ax.legend(loc="upper right")
 
-    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=10, frames=len(t))
+    ani = matplotlib.animation.FuncAnimation(fig, animate, interval=100, frames=len(t))
     plt.show()
 
 def norm_evolution():
@@ -121,7 +121,7 @@ def norm_evolution():
             U = solve_numerical(x, t, U0=U0, method=method)
             # plt.plot(x, U0)
             # plt.show()
-            # animate_solution(x, t, U)
+            animate_solution(x, t, U)
 
             L2 = np.linalg.norm(U, 2, axis=1) / np.sqrt(run["M"])
             run["L2"].append(L2)
@@ -153,24 +153,28 @@ def norm_evolution():
 
     # plt.ylim(-0.01, +0.01) # relative error always [-1, +1]
 
-def main(animate=True, write=False, time_samples=5):
-    N = 800
-    x = np.linspace(-1, +1, N)
-    t = np.linspace(0, 1, 100)
+def timeevol(animate=True, path=None, time_samples=5, U0=None, N=100, M=800):
+    x = np.linspace(-1, +1, M)
+    t = np.linspace(0, 1, N)
 
-    u = solve_analytical(x, t)
-    U = solve_numerical(x, t)
+    if U0 is None:
+        u = solve_analytical(x, t)
+        U = solve_numerical(x, t)
+    else:
+        u = None
+        U0 = np.array([U0(x) for x in x])
+        U = solve_numerical(x, t, U0=U0)
 
     if animate:
         animate_solution(x, t, U, u)
 
-    if write:
+    if path is not None:
         inds = np.round(np.linspace(0, len(t)-1, time_samples)).astype(int)
 
-        cols = [x] + [u[i,:] for i in inds] + [U[i,:] for i in inds]
+        cols = [x] + ([] if u is None else [u[i,:] for i in inds]) + [U[i,:] for i in inds]
         headers = ["x "] + [f"{t[i]}" for i in inds]
         table = np.transpose(np.array(cols))
-        write_table_to_file("../report/exercise4/timeevol.dat", table, headers)
+        write_table_to_file(path, table, headers)
 
 def write_results(x, t, U, path):
     x, y = np.meshgrid(x, t)
@@ -244,7 +248,9 @@ def snapshots():
                 # plt.plot(x, u[-1], color="black")
             # plt.show()
 
-# main(animate=True, write=True, time_samples=5)
+timeevol(animate=True, path="../report/exercise4/timeevol_sin.dat", U0=lambda x: np.sin(np.pi*x), time_samples=5)
+# timeevol(animate=True, time_samples=12, U0=lambda x: np.exp(-10*x**2), N=100, M=800, path="../report/exercise4/timeevol_exp.dat")
+
 # convergence_plots()
 # snapshots()
-norm_evolution()
+# norm_evolution()
