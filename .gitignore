@@ -9,3 +9,4 @@ __pycache__
 *.fls
 *.synctex.gz
 *.auxlock
+*.out
