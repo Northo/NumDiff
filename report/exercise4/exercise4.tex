@@ -277,6 +277,7 @@ The Crank-Nicholson method is far superior, as it remains stable while allowing 
 % TODO: one figure with Euler, small M large N
 % TODO: one figure with CN, 
 
+\iffalse
 \begin{figure}
 \centering
 % https://tex.stackexchange.com/questions/232690/color-coded-plots-with-colorbar-in-pgfplots
@@ -299,6 +300,7 @@ The Crank-Nicholson method is far superior, as it remains stable while allowing 
 \end{axis}
 \end{tikzpicture}
 \end{figure}
+\fi
 
 \iffalse
 \begin{figure}
@@ -327,16 +329,45 @@ To understand why it is constant in time, insert the Fourier expansion \cref{fou
 \begin{equation*}
 \int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
 \end{equation*}
-Since the Fourier coefficients \cref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
-Note in retrospect how the odd number of spatial derivatives in \cref{kdv_equation} ensures that the exponential in \cref{fourier_coefficients} has a purely imaginary argument and thus constant magnitude.
+Since the Fourier coefficients \eqref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
+Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument and preserves the amplitude of each Fourier mode.
 
 We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( x^2 / 0.1 \right)$.
 The time evolution illustrated in \cref{gaussian_evolution} shows how multiple Fourier modes are activated.
 In \cref{norm_evolution}, we show how the norm of the numerical solution evolves over time.
-Note how the Euler methods diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
+The Euler method diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
 In contrast, the Crank-Nicholson metohd is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_nicholson_amplification_factor}.
 
-The stability and norm preservation of the Crank-Nicholson method makes it the method of choice for problems like this, where the analytical solution is known to have the same property.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+	group style={group size=6 by 2, horizontal sep=0.1cm, vertical sep=0.1cm},
+	width=4.1cm, height=4.1cm,
+	xmin=-1,xmax=+1,ymin=-1.1,ymax=+1.1,
+	grid=major,xtick=\empty,ytick={0},yticklabels={,,},xticklabels={,,},
+]
+	\pgfplotsinvokeforeach{0,1,...,11} {
+		\ifthenelse{\equal{#1}{0}}{
+		\nextgroupplot[ylabel={$u(x,t)$}];
+		}{
+			\ifthenelse{\equal{#1}{6}}{
+				\nextgroupplot[ylabel={$u(x,t)$},xlabel=$x$];
+			}{
+				\ifthenelse{#1>6}{
+					\nextgroupplot[xlabel=$x$];
+				}{
+					\nextgroupplot[];
+				}
+			}
+		}
+		\addplot [black] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1}] {exercise4/timeevol_exp.dat};
+		\draw (0.0,-0.8) node {$t=#1/11$};
+	};
+\end{groupplot}
+\end{tikzpicture}
+\caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(x^2/0.1)$ computed from the Crank-Nicholson method on a grid with $M=800$ points in space and $N=100$ points in time.}
+\end{figure}
 
 \begin{figure}
 \centering
@@ -383,7 +414,9 @@ The stability and norm preservation of the Crank-Nicholson method makes it the m
 	\pgfplotscreateplotcyclelist{mycyclee}{
 	};
 
-	\nextgroupplot[title={Crank-Nicholson}, xlabel=$t$,yticklabels={,,},cycle list={{red,line width=6pt},{blue,line width=4pt},{green,line width=2pt}}];
+	\nextgroupplot[title={Crank-Nicholson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={{red,line width=6pt},{blue,line width=4pt},{green,line width=2pt}},
+	legend entries={$N=100$,$N=200$,$N=300$},
+	];
 	\pgfplotsinvokeforeach{800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};
@@ -392,36 +425,7 @@ The stability and norm preservation of the Crank-Nicholson method makes it the m
 % \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{norm_evolution}Norm evolution}
+\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(x^2/0.1)$ computed from the Crank-Nicholson method and the Euler-method on different grids.}
 \end{figure}
 
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\begin{groupplot}[
-	group style={group size=6 by 2, horizontal sep=0.1cm, vertical sep=0.1cm},
-	width=4.1cm, height=4.1cm,
-	xmin=-1,xmax=+1,ymin=-1.1,ymax=+1.1,
-	grid=major,xtick=\empty,ytick={0},yticklabels={,,},xticklabels={,,},
-]
-	\pgfplotsinvokeforeach{0,1,...,11} {
-		\ifthenelse{\equal{#1}{0}}{
-		\nextgroupplot[ylabel={$u(x,t)$}];
-		}{
-			\ifthenelse{\equal{#1}{6}}{
-				\nextgroupplot[ylabel={$u(x,t)$},xlabel=$x$];
-			}{
-				\ifthenelse{#1>6}{
-					\nextgroupplot[xlabel=$x$];
-				}{
-					\nextgroupplot[];
-				}
-			}
-		}
-		\addplot [black] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1}] {exercise4/timeevol_exp.dat};
-		\draw (0.0,-0.8) node {$t=#1/11$};
-	};
-\end{groupplot}
-\end{tikzpicture}
-\caption{\label{gaussian_evolution}Gaussian}
-\end{figure}
+The stability and norm preservation of the Crank-Nicholson method makes it the method of choice for problems like this, where the analytical solution is known to have the same property.
