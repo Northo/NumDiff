@@ -332,7 +332,7 @@ To understand why it is constant in time, insert the Fourier expansion \cref{fou
 Since the Fourier coefficients \eqref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
 Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument and preserves the amplitude of each Fourier mode.
 
-We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( x^2 / 0.1 \right)$.
+We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( -x^2 / 0.1 \right)$.
 The time evolution illustrated in \cref{gaussian_evolution} shows how multiple Fourier modes are activated.
 In \cref{norm_evolution}, we show how the norm of the numerical solution evolves over time.
 The Euler method diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
@@ -366,7 +366,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(x^2/0.1)$ computed from the Crank-Nicholson method on a grid with $M=800$ points in space and $N=100$ points in time.}
+\caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(-x^2/0.1)$ computed from the Crank-Nicholson method on a grid with $M=800$ points in space and $N=100$ points in time.}
 \end{figure}
 
 \begin{figure}
@@ -425,7 +425,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 % \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(x^2/0.1)$ computed from the Crank-Nicholson method and the Euler-method on different grids.}
+\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Crank-Nicholson method and the Euler-method on different grids.}
 \end{figure}
 
 The stability and norm preservation of the Crank-Nicholson method makes it the method of choice for problems like this, where the analytical solution is known to have the same property.
