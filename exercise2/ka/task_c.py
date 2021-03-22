@@ -56,7 +56,7 @@ def difference_norm_plot(solutions, t):
     plt.show()
 
 
-def find_breaking_time(solutions):
+def find_breaking_time(solutions, t):
     """
     Find time of breakdown
 
@@ -78,6 +78,26 @@ def find_breaking_time(solutions):
         return 0
 
 
+def M_sweep_breakdown_times():
+    Ms = np.arange(100, 10000, 100)
+    breakdown_times = np.empty(len(Ms))
+    for (i, Mi) in enumerate(Ms):
+        x, h = np.linspace(0, 1, Mi, retstep=True)
+        t0 = 0
+        tf = 1
+
+        # Solve ivp/bvp
+        sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.001)
+        t, ut = sol.t, sol.y.T
+
+        # Find and print time of breaking
+        t_breaking, i_break = find_breaking_time(ut, t)
+        breakdown_times[i] = t_breaking
+    plt.plot(Ms, breakdown_times, ".")
+    plt.show()
+    return breakdown_times, Ms
+
+
 if __name__ == "__main__":
     ######################
     ### System of ODEs ###
@@ -92,7 +112,7 @@ if __name__ == "__main__":
     t, ut = sol.t, sol.y.T
 
     # Find and print time of breaking
-    t_breaking, i_break = find_breaking_time(ut)
+    t_breaking, i_break = find_breaking_time(ut, t)
     print(f"Time of breaking: {t_breaking}")
 
     # Save solutions
@@ -101,7 +121,7 @@ if __name__ == "__main__":
     for ti in t:
         header += f" {ti}"
     outpath = OUT_DIR + f"2c_sols_M{M}_tf{tf}_tbreak{t_breaking}.dat"
-    np.savetxt(outpath, table, header=header, comments="")
+    #np.savetxt(outpath, table, header=header, comments="")
 
     # Plot solutions at all times in [0, tf]
     for (i, ti) in enumerate(t):
@@ -109,15 +129,11 @@ if __name__ == "__main__":
     #plt.legend()
     plt.show()
 
-    # Plot at breaking time
-    plt.plot(x, ut[i_break-1], label=f"t={t[i_break-1]}")
-    plt.plot(x, ut[i_break], label=f"t={t_breaking}")
-    plt.plot(x, ut[-1], label=f"t={tf}")
-    plt.legend()
-    plt.show()
 
     # Difference between subsequent solutions
     difference_norm_plot(ut, t)
+
+    bts, Ms = M_sweep_breakdown_times()
 
     # Animation
     animation = animate_time_development(x, ut)
