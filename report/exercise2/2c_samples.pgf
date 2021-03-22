@@ -1,0 +1,29 @@
+\begin{tikzpicture}
+    \begin{groupplot}
+        [
+            group style={group size=2 by 2, horizontal sep=1cm},
+            height=6cm,
+            width=0.48\textwidth,
+        ]
+        \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
+        \addplot[color=blue] table[x={x}, y={0.05400000000000004}] 
+            {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
+        \legend{one timestep before t break}
+
+        \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
+        \addplot[color=blue] table[x={x}, y={0.05500000000000004}] 
+            {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
+        \legend{t break}
+
+        \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
+        \addplot[color=blue] table[x={x}, y={0.05600000000000004}] 
+            {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
+        \legend{one timestep after t break}
+
+        \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
+        \addplot[color=blue] table[x={x}, y={0.06}] 
+            {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
+        \legend{t final, 0.06}
+
+    \end{groupplot}
+\end{tikzpicture}
