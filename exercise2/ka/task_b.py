@@ -104,7 +104,7 @@ plt.show()
 
 
 def make_AMR_convergence_plots(u0, bc1, bc2):
-    N = 1000
+    N = 10000
     t_end = 1
     outpath=f"{OUT_DIR}2b_AMR_BE_discrete_err_N{N}_tend{t_end}.dat"
     AMR_discrete_convergence_plot(

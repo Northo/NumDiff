@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+    \begin{groupplot}
+        [
+            group style={group size=2 by 1, horizontal sep=2cm},
+            height=7cm,
+            width=0.48\textwidth,
+        ]
+        \nextgroupplot[title=2b AMR discrete, xmode=log, ymode=log, legend pos=south west]
+        \addplot[color=blue,mark=x] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_AMR_BE_discrete_err_N10000_tend1.dat};
+        \addplot[color=red,mark=*] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_AMR_CN_discrete_err_N10000_tend1.dat};
+        \addplot[color=black,mark=diamond] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_UMR_BE_discrete_err_N10000_tend1.dat};
+        \addplot[color=gray,mark=triangle] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_UMR_CN_discrete_err_N10000_tend1.dat};
+        \legend{BE AMR, CN AMR, BE UMR, CN UMR};
+
+        \nextgroupplot[title=2b AMR continous, xmode=log, ymode=log, legend pos=south west]
+        \addplot[color=blue,mark=x] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_AMR_BE_continous_err_N10000_tend1.dat};
+        \addplot[color=red,mark=*] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_AMR_CN_continous_err_N10000_tend1.dat};
+        \addplot[color=black,mark=diamond] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_UMR_BE_continous_err_N10000_tend1.dat};
+        \addplot[color=gray,mark=triangle] table[x={M}, y={err}] 
+            {exercise2/data_ka/2b_UMR_CN_continous_err_N10000_tend1.dat};
+        \legend{BE AMR, CN AMR, BE UMR, CN UMR};
+    \end{groupplot}
+\end{tikzpicture}
