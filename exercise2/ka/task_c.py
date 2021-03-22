@@ -13,6 +13,11 @@ def u0(x):
     return np.exp(-400 * (x - 1 / 2) ** 2)
 
 
+def ddx_u0(x):
+    """ derivative of initial condition """
+    return -400 * np.exp(-100 * (1 - 2 * x) ** 2) * (2 * x - 1)
+
+
 def Fm(t, v):
     """ RHS of system of ODEs """
     M = len(v)
@@ -25,7 +30,7 @@ def Fm(t, v):
     return Fm
 
 
-#def lax_friedrich(u0, N, M, t_end, log=True):
+# def lax_friedrich(u0, N, M, t_end, log=True):
 #    """ Probably not quite right, don't use this """
 #    x, h = np.linspace(0, 1, M, retstep=True)
 #    t, k = np.linspace(0, t_end, retstep=True)
@@ -111,9 +116,13 @@ if __name__ == "__main__":
     sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.001)
     t, ut = sol.t, sol.y.T
 
+    # Time of breaking analytical
+    t_breaking_analyt = -1 / np.min(ddx_u0(x))
+    print(f"Time of breaking analytical: {t_breaking_analyt}")
+
     # Find and print time of breaking
     t_breaking, i_break = find_breaking_time(ut, t)
-    print(f"Time of breaking: {t_breaking}")
+    print(f"Time of breaking (numerical): {t_breaking}")
 
     # Save solutions
     table = np.column_stack((x, ut.T))
@@ -121,24 +130,22 @@ if __name__ == "__main__":
     for ti in t:
         header += f" {ti}"
     outpath = OUT_DIR + f"2c_sols_M{M}_tf{tf}_tbreak{t_breaking}.dat"
-    #np.savetxt(outpath, table, header=header, comments="")
+    # np.savetxt(outpath, table, header=header, comments="")
 
     # Plot solutions at all times in [0, tf]
     for (i, ti) in enumerate(t):
         plt.plot(x, ut[i], label=f"t={ti}")
-    #plt.legend()
+    # plt.legend()
     plt.show()
-
 
     # Difference between subsequent solutions
     difference_norm_plot(ut, t)
 
-    bts, Ms = M_sweep_breakdown_times()
+    # bts, Ms = M_sweep_breakdown_times()
 
     # Animation
     animation = animate_time_development(x, ut)
     plt.show()
-
 
     ########################################
     ### Lax-Friedrich (1st order method) ###

@@ -23,7 +23,7 @@ bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
 
 def analytical(x, t):
     """ Analytical solution of manufactured dirchlet problem """
-    return np.sin(np.pi * x) * np.exp(-np.pi**2 * t)
+    return np.sin(np.pi * x) * np.exp(-np.pi ** 2 * t)
 
 
 ##########################
@@ -32,9 +32,9 @@ def analytical(x, t):
 
 
 # Setup grid and stuff
-unigrid = Grid(Grid.UNIFORM, np.linspace(0, 1, 100)) # spatial uniform grid
-N = 100 # Number of timesteps
-t_end = 0.5 # Final/end time
+unigrid = Grid(Grid.UNIFORM, np.linspace(0, 1, 100))  # spatial uniform grid
+N = 100  # Number of timesteps
+t_end = 0.5  # Final/end time
 
 # Solve equation numerically
 t, U_final, sols = crank_nicolson(unigrid, bc1, bc2, u0, N, t_end)
@@ -58,25 +58,26 @@ if PLOT_SAMPLES:
 def make_UMR_convergence_plots(u0, bc1, bc2):
     N = 10000
     t_end = 1
-    outpath=f"{OUT_DIR}2b_UMR_BE_discrete_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_UMR_BE_discrete_err_N{N}_tend{t_end}.dat"
     discrete_convergence_plot(
         analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_CN_discrete_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_UMR_CN_discrete_err_N{N}_tend{t_end}.dat"
     discrete_convergence_plot(
         analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_BE_continous_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_UMR_BE_continous_err_N{N}_tend{t_end}.dat"
     continous_convergence_plot(
         analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
-    outpath=f"{OUT_DIR}2b_UMR_CN_continous_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_UMR_CN_continous_err_N{N}_tend{t_end}.dat"
     continous_convergence_plot(
         analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
     )
 
+
 # I think UMR plots are pretty good now
-# Commenting out this function call to avoid 
+# Commenting out this function call to avoid
 # accidental overwriting of data files
 # make_UMR_convergence_plots(u0, bc1, bc2)
 
@@ -106,21 +107,57 @@ plt.show()
 def make_AMR_convergence_plots(u0, bc1, bc2):
     N = 10000
     t_end = 1
-    outpath=f"{OUT_DIR}2b_AMR_BE_discrete_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_AMR_BE_discrete_err_N{N}_tend{t_end}.dat"
     AMR_discrete_convergence_plot(
-        error_func, analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
+        error_func,
+        analytical,
+        backward_euler,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
     )
-    outpath=f"{OUT_DIR}2b_AMR_CN_discrete_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_AMR_CN_discrete_err_N{N}_tend{t_end}.dat"
     AMR_discrete_convergence_plot(
-        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
+        error_func,
+        analytical,
+        crank_nicolson,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
     )
-    outpath=f"{OUT_DIR}2b_AMR_BE_continous_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_AMR_BE_continous_err_N{N}_tend{t_end}.dat"
     AMR_continous_convergence_plot(
-        error_func, analytical, backward_euler, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
+        error_func,
+        analytical,
+        backward_euler,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
     )
-    outpath=f"{OUT_DIR}2b_AMR_CN_continous_err_N{N}_tend{t_end}.dat"
+    outpath = f"{OUT_DIR}2b_AMR_CN_continous_err_N{N}_tend{t_end}.dat"
     AMR_continous_convergence_plot(
-        error_func, analytical, crank_nicolson, bc1, bc2, u0, N, t_end, plot=True, outpath=outpath
+        error_func,
+        analytical,
+        crank_nicolson,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
     )
 
 
