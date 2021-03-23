@@ -192,7 +192,7 @@ def subdivide_interval(x1, x3, should_subdivide, tol):
 def manufactured_solution_mesh_refinement(maxM=1000):
     # symbolic manufactured solution
     # eps = 1e-3
-    eps = 1e-3
+    eps = 1e-1
     xsym = sympy.symbols("x")
     usym = sympy.exp(-1/eps*(xsym-1/2)**2)
     fsym = sympy.diff(sympy.diff(usym, xsym), xsym)
@@ -204,6 +204,9 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     ffunc = sympy.lambdify(xsym, fsym, "numpy")
     absffunc = sympy.lambdify(xsym, absfsym, "numpy")
     fsqfunc = sympy.lambdify(xsym, fsqsym, "numpy")
+
+    bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
+    bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
 
     """
     def should_subdivide_umr(x1, x2, tol):
@@ -259,6 +262,12 @@ def manufactured_solution_mesh_refinement(maxM=1000):
                 plot_solution(x, u, U, ffunc, grid=True)
     """
 
+    def find_interval(x, x0):
+        for m in range(0, len(x)-1):
+            if x0 >= x[m] and x0 <= x[m+1]:
+                return m
+        raise f"Did not find interval for x0={x0}"
+
     def find_interval_with_maximum(x, quantity_function):
         i1_max = 0
         quantity_max = 0
@@ -271,6 +280,11 @@ def manufactured_solution_mesh_refinement(maxM=1000):
                 i1_max = i1
         i2_max = i1_max + 1
         return i1_max, i2_max
+
+    def insert_point(x, x0):
+        m = find_interval(x, x0)
+        x.insert(m+1, x0)
+        return x
 
     def pointadder_umr(x):
         M = len(x) + 1
@@ -294,7 +308,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return scipy.integrate.quad(absffunc, x1, x2)[0]
 
     def pointadder_source_absf(x):
-        i1, i2 = find_interval_with_maximum(x, source_measurer_absf)
+        i1, i2 = find_interval_with_maximum(x, source_measurer_absf_integral)
         x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
         return x
 
@@ -327,12 +341,39 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         # print("  ", x1, x2, xsplit)
         return x
 
+    def pointadder_error(x):
+        # solve numerically
+        xx = np.array(x)
+        U = num(xx, bc1, bc2, f=ffunc)
+
+        # construct linearly interpolated numerical solution
+        def lininterp(x):
+            # TODO: find current interval
+            m = find_interval(xx, x)
+            return U[m] + (U[m+1]-U[m])*(x-xx[m])/(xx[m+1]-xx[m])
+
+        # find interval with highest error, use find_interval_with_maximum(x, quantity_function):
+        def absdiff(x):
+            return np.abs(lininterp(x) - ufunc(x))
+        def error(x1, x2):
+            return scipy.integrate.quad(absdiff, x1, x2)[0]
+        i1, i2 = find_interval_with_maximum(x, error)
+
+        # split interval
+        x0 = (x[i1] + x[i2]) / 2
+        x = insert_point(x, x0)
+        if not np.abs(x0 - 0.5) < 1e-8:
+            x = insert_point(x, 1-x0)
+        #x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
+        return x
+
     strategies = [
         {"label": "UMR", "pointadder": pointadder_umr},
-        {"label": "AMR-source-f", "pointadder": pointadder_source_f},
+        {"label": "AMR-error", "pointadder": pointadder_error},
+        #{"label": "AMR-source-f", "pointadder": pointadder_source_f},
         {"label": "AMR-source-absf", "pointadder": pointadder_source_absf},
         {"label": "AMR-trunc", "pointadder": pointadder_trunc},
-        {"label": "AMR-source-balance", "pointadder": pointadder_source_balance},
+        #{"label": "AMR-source-balance", "pointadder": pointadder_source_balance},
     ]
 
     for strategy in strategies:
@@ -342,13 +383,11 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         pointadder = strategy["pointadder"]
         label = strategy["label"]
 
-        x = [0, 1]
+        x = list(np.linspace(0, 1, 2))
         while len(x) < 100:
             x = pointadder(x)
             xx = np.array(x)
             u = ufunc(xx) # analytic solution
-            bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
-            bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
             U = num(xx, bc1, bc2, f=ffunc) # numerical solution
             err_disc = l2_disc(u-U) / l2_disc(u)
             err_cont = l2_cont(u-U, xx) / l2_cont(u, xx)
@@ -361,11 +400,15 @@ def manufactured_solution_mesh_refinement(maxM=1000):
                 # plot_solution(xx, u, U, ffunc, grid=True)
             # if strategy["label"] == "AMR-source-balance":
                 # plot_solution(xx, u, U, ffunc, grid=True)
+            # if strategy["label"] == "AMR-error":
+                # plot_solution(xx, u, U, ffunc, grid=True)
+            # if strategy["label"] == "AMR-source-absf":
+                # plot_solution(xx, u, U, ffunc, grid=True)
 
 
     for i, strategy in enumerate(strategies):
-        plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="x", label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
-        plt.loglog(strategy["npoints"], strategy["errs_cont"], marker="x", label=strategy["label"]+" (cont)", color=f"C{i}", linestyle="solid")
+        plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="o", markersize=2, label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
+        plt.loglog(strategy["npoints"], strategy["errs_cont"], marker="o", markersize=2, label=strategy["label"]+" (cont)", color=f"C{i}", linestyle="solid")
     plt.legend()
     plt.show()
 
