@@ -2,24 +2,39 @@
 \label{task_1}
 
 In this section, we will solve the one-dimensional Poisson equation
-\begin{equation*}
+\begin{equation}
 u_{xx} = f(x) \qquad (0 < x < 1)
-\end{equation*}
+\label{poisson_equation}
+\end{equation}
 subject to a source term $f(x)$ and different boundary conditions at $x = 0$ and $x = 1$.
 First, we will solve it with finite difference methods of first and second order on a uniform grid.
 Finally, we solve it on a non-uniform grid and investigate how adaptive mesh refinement (AMR) can be used to obtain accurate solutions by distributing fewer points more cleverly along the grid.
-a
 
-First, consider Dirichlet and Neumann boundary conditions at opposite ends and the source given by
+\subsection{Analytical solution}
+
+One way to express the analytical solution is to simply integrate \cref{poisson_equation} twice to get
+\begin{equation}
+\begin{split}
+u(x) &= C_1 + \int^x \dif x' u_x(x') \\
+     &= C_1 + \int^x \dif x' \left(C_2 + \int^{x'} \dif x'' u_{xx}(x'')\right) \\
+     &= C_1 + C_2 x + \int^x \dif x' \int^{x'} \dif x'' f(x''),
+\label{poisson_analytical_solution}
+\end{split}
+\end{equation}
+where the constants $C_1$ and $C_2$ are determined from two boundary conditions and the integrals can be done from any lower limit.
+Note that this is equivalent to saying that the solution is a sum of the solution to the homogenuous equation $u_{xx} = 0$ and a solution to the inhomogenuous equation $u_{xx} = f(x)$.
+
+Note that if \emph{two} Neumann boundary conditions $u_x(0) = a$ and $u_x(1) = b$ are imposed, then the solution $u(x)$ is unique only up to a constant.
+If $u(x)$ is a solution to the boundary value problem defined by \cref{poisson_equation} and $u_x(0) = a$ subject to $u_x(1) = b$, then also $(u+C)_{xx} = u_{xx}$ in the interior and $(u+C)_x(0) = u_x(0) = a$ on the left boundary, and similarly on the right boundary $x=1$.
+It can also be seen by observing that $C_1$ is undetermined when \ref{poisson_analytical_solution} is differentiated.
+
+\subsection{Numerical solution on a uniform grid}
+
+First, consider the boundary value problem defined by \cref{poisson_equation}, subject to the boundary conditions
 \begin{equation*}
-u_{xx} = x + \cos(2 \pi x) \qquad (0 < x < 1), \qquad u(0) = a, \qquad u_x(1) = b.
+u(0) = a \quad \text{or} \quad u_x(0) = a \qquad \text{and} \qquad u(0) = b \quad \text{or} \quad u_x(1) = b.
 \end{equation*}
-The analytical solution is
-\begin{equation*}
-u(x) = C_1 + C_2 x + \frac{1}{6}x^3 - \frac{1}{4 \pi^2}\cos(2 \pi x)),
-\end{equation*}
-where the constants $C_1$ and $C_2$ are determined from the boundary conditions.
-To solve the equation numerically, we impose a uniform grid of $M+2$ points and step length $h$ defined by
+To solve the equation numerically, we divide the interval $[0, 1]$ into the uniform grid 
 \begin{center}
 \begin{tikzpicture}
 \draw (0,0) -- (3,0);
@@ -37,29 +52,22 @@ To solve the equation numerically, we impose a uniform grid of $M+2$ points and 
 \node[anchor=north] at (10.75, 0) {$h$};
 \node[anchor=north] at (12.25, 0) {$h$};
 \end{tikzpicture}
-.
 \end{center}
-To generate finite difference methods of both first and second order, we approximate the second derivative at interior points using the forward difference and central difference
+of $M+2$ points and step length $h$.
+We approximate the second derivative at interior points with the central difference
 \begin{equation*}
-\begin{aligned}
-u_{xx}(x_m) & = \frac{u_m-2u_{m+1}+u_{m+2}}{h^2} + O(h^1) \qquad && (1 \leq m \leq M) \\
-u_{xx}(x_m) & = \frac{u_{m-1}-2u_m+u_{m+1}}{h^2} + O(h^2) \qquad && (1 \leq m \leq M-1).
-% TODO: how to use forward difference at point M-1 ???
-\end{aligned}
+\pd{u}{x}(x_m) = \frac{u_{m-1}-2u_{m}+u_{m+1}}{h^2} + O(h^2) \qquad (1 \leq m \leq M-1).
 \end{equation*}
-To handle the Dirichlet boundary condition $u(0) = a$ at the left edge, we insert the trivial equation
+To handle the Dirichlet boundary condition $u(0) = a$ at the left edge or $u(1) = b$ at the right edge, we insert the trivial equation
 \begin{equation*}
-1 \cdot u_0 = a.
+1 \cdot u_0 = a \qquad \text{or} \qquad 1 \cdot u_{M+1} = b.
 \end{equation*}
-To handle the Neumann boundary condition $u_x(1) = b$ at the right edge to first or second order, we use
+To handle the Neumann boundary condition $u_x(0) = a$ at the left edge or $u_x(1) = b$ at the right edge to second order, we use approximate the first derivative to second order with forward or backward differences to get
 \begin{equation*}
-\begin{aligned}
-u_x(1) & = \frac{u_{M+1}-u_M}{h} & + & O(h^1) & = b\\
-u_x(1) & = \frac{\frac{1}{2}u_{M-1}-2u_M+\frac{3}{2}u_{M+1}}{h} & + & O(h^2) & = b.
-\end{aligned}
+u_x(0) = \frac{-\frac{3}{2}u_{0}-2u_1-\frac{1}{2}u_{2}}{h} + O(h^2) = b \qquad \text{or} \qquad u_x(1) = \frac{\frac{1}{2}u_{M-1}-2u_M+\frac{3}{2}u_{M+1}}{h} + O(h^2) = b.
 \end{equation*}
-By writing all these equations in $(M+2) \times (M+2)$-matrix form $AU=b$, we obtain for example to second order
-\begin{equation*}
+Writing all these equations in $(M+2) \times (M+2)$-matrix form $AU=b$, we obtain for example with $u(0) = a$ and $u_x(1) = b$
+\begin{equation}
 \renewcommand{\arraystretch}{1.5} % stretch matrix vertically to make it square
 \begin{bmatrix}
 1 \\
@@ -75,22 +83,14 @@ U_0 \\ U_1 \\ \vdots \\ U_M \\ U_{M+1} \\
 \begin{bmatrix}
 a \\ f(x_1) \\ \vdots \\ f(x_M) \\ b \\
 \end{bmatrix}
-\end{equation*}
+,
+\label{matrix_system}
+\end{equation}
+where the first and last rows of the matrix in general vary depending on the boundary conditions.
 
-Some remarks:
-\begin{itemize}
-\item We could handle the Dirichlet boundary condition $u(0) = a$ differently by treating $U_0 = a$ as a known variable.
-The system of equations is equivalent if we remove the first row and column of $A$ and the first entries in $U$ and $b$, but simultaneously modify the entry $f(x_1) \rightarrow f(x_1) - a/h^2$.
-This approach is more consistent with treating $U_0$ as a known variable, since its precise value is defined by the Dirichlet boundary condition.
-However, our approach of inserting a trivial equation $1 \cdot U_0 = a$ keeps the matrix dimensions independent of boundary conditions and makes it easier to reason with how the discretized differential operator represented by $A$ operates on the grid point $U_0$ in the same way it operates on all other grid points.
-\item To handle different combinations of Dirichlet and Neumann boundary conditions at the ends, we simply replace the first or last rows of the matrix with the same type of equation.
-Note that if the Neumann boundary condition is imposed at the left boundary, the last row of the matrix above would have to be both reversed and negated.
-\item When Neumann boundary conditions are imposed at both ends, the solution is determined only up to a constant.
-To see this for a general Poisson boundary value problem, note that if $u_{xx} = f(x)$, $u_x(0) = a$ and $u_x(1) = b$, then also $(u+C)_{xx} = f(x)$, $(u+C)_x(0) = a$ and $(u+C)_x(1) = b$ if $C$ is only a constant.
-It can also be seen from the general solution for this particular source term that the constant $C_1$ is undetermined when the solution is subject to boundary conditions that involve derivatives only.
-In this case, an additional constraint like $u(0) = 0$ must be imposed to define a unique solution.
-\end{itemize}
-With this in mind, it is now straightforward to solve the Poisson equation subject to any combination of Dirichlet and Neumann boundary conditions at the ends to both first and second order.
+Note that if the numerical solution is subject to two Neumann boundary conditions, the matrix becomes singular and the solution non-unique.
+In this case, we impose the additional constraint $U_0 = 0$ by setting all entries in the first column of $A$ to zero.
+To handle the singular matrix, we solve the system with a least-squares method instead of a gesv LU factorization method.
 
 \begin{figure}
 	\centering
@@ -119,69 +119,99 @@ With this in mind, it is now straightforward to solve the Poisson equation subje
 			\addplot [color=red, mark=*] table [x=h,y=disc] {exercise1/neu_neu_err.dat};
 		\end{groupplot}
 	\end{tikzpicture}
-	\caption{\label{fig3}
+	\caption{\label{poisson_numerical_solutions}
 		Analytical and numerical solutions (left) and convergence plots (right) for solutions to the Poisson equation subject to three different boundary conditions.
 	}
 \end{figure}
 
-\iffalse
+We now apply our method to the boundary value problem with the source function 
 \begin{equation*}
-\renewcommand{\arraystretch}{2.8} % stretch matrix vertically to make it square
-\begin{bmatrix}
--2/h^2 & +1/h^2  & 0 & \cdots & 0 \\
-+1/h^2  & -2/h^2 & +1/h^2  & \ddots & \vdots \\
-0 & \ddots & \ddots & \ddots & 0 \\
-\vdots & \ddots & +1/h^2 & -2/h^2 & +1/h^2\\
-0 & \cdots & +1/2h & -2/h & +3/2h  \\
-\end{bmatrix}
-\begin{bmatrix}
-U_1 \\ U_2 \\ \vdots \\ U_M \\ U_{M+1} \\
-\end{bmatrix}
-=
-\begin{bmatrix}
-f(x_1) - \alpha/h^2 \\ f(x_2) \\ \vdots \\ f(x_M) \\ \sigma \\
-\end{bmatrix}
+f(x) = x + \cos(2 \pi x).
 \end{equation*}
-
-
-
-
-
-
-Note that when Neumann-Neumann boundary conditions are imposed, $C_1$ is undetermined and so the solution is determined only up to a constant.
-To obtain a first order approximation of the second derivative at 
-
-
-
-
-
-with the source term $f(x) = x + \cos(2 \pi x)$, subject to different kinds of boundary conditions
+Inserting it into \cref{poisson_analytical_solution} and doing the integrals, we get the exact solution
 \begin{equation*}
-\begin{aligned}
-u(0) &= a, &\quad u(1) &= b &\qquad& \text{(Dirichlet-Dirichlet)} \\
-u_x(0) &= a, &\quad u_x(1) &= b &\qquad& \text{(Neumann-Neumann)} \\
-u(0) &= a, &\quad u_x(1) &= b &\qquad& \text{(Dirichlet-Neumann)}. \\
-\end{aligned}
+u(x) = C_1 + C_2 x + \frac{1}{3!}x^3 - \frac{1}{4 \pi^2}\cos(2 \pi x)).
 \end{equation*}
+In \cref{poisson_numerical_solutions}, we present numerical solutions for three different combinations of boundary conditions.
 
+Our approach to handling the boundary conditions is not the only possible approach.
+The system of equations is equivalent if we remove the first row and column of $A$ and the first entries in $U$ and $b$, but simultaneously modify the entry $f(x_1) \rightarrow f(x_1) - a/h^2$.
+This approach is more consistent with treating $U_0$ as a known variable, since its precise value is defined by the Dirichlet boundary condition.
+However, our approach of inserting a trivial equation $1 \cdot U_0 = a$ keeps the matrix dimensions independent of boundary conditions and makes it easier to reason with how the discretized differential operator represented by $A$ operates on the grid point $U_0$ in the same way it operates on all other grid points.
 
-Inner points:
-\begin{equation*}
-\frac{U_{m+1} - 2 U_m + U_{m-1}}{h^2} = f(x_m)
-\end{equation*}
-Dirichlet, left:
-\begin{equation*}
-u(0) = U_0
-\end{equation*}
-Von-Neumann, left, 2nd order:
-\begin{equation*}
-u_x(0) \approx -\frac{(3/2)U_0 -2U_1 + (1/2)U_2}{h}
-\end{equation*}
-\fi
-
+Neumann boundary conditions can also be handled differently.
+Instead of approximating the second derivative only on actual grid points, we could approximate it with a fictuous point $x_{-1}$ and a central difference $u_x(0) \approx (U_1 - U_{-1}) / (2 h)$.
+Then we could use this together with the central difference $(U_{-1} - 2 U_0 + U_1) / h^2 = f(x_0)$ to eliminate $U_{-1}$.
+Eliminating $U_{-1}$, the first equation becomes $(U_1 - U_0) / h = a + h f(x_0) / 2$, so the boundary condition could be handled by setting the first row to $[-1/h, +1/h, 0, \dots]$ and modifying the first entry in $b$ to $a \rightarrow a + h f(x_0) / 2$.
+This would also be second order and allows us to use the same stencil also at $x_0$, but we must pay the price of modifying the right side of the matrix equation in an unnatural way.
 
 \begin{figure}
   \centering
   \input{exercise1/a_error.pgf}
   \caption{Nice fig}
 \end{figure}
+
+\subsection{Adaptive numerical solution on a non-uniform grid}
+
+We will now demonstrate how the numerical solution can be generalized to a non-uniform grid with $x_i - x_{i-1} \neq \text{const}$.
+Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing them in a smart way.
+
+\newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
+\begin{equation*}
+\begin{split}
+%\dpd[2]{u}{x}(x_m) &\approx \frac{u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2})}{(x_m + \frac{x_{m+1}-x_m}{2}) - (x_m - \frac{x_m-x_{m-1}}{2})} \\
+%                   &=       \frac{2}{x_{m+1} - x_{m-1}} \left( u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2}) \right) \\
+%                   &\approx \frac{2}{x_{m+1} - x_{m-1}} \left( \frac{u(x_{m+1})-u(x_m)}{x_{m+1}-x_m} - \frac{u(x_m)-u(x_{m-1})}{x_m-x_{m-1}} \right) \\
+u''_m &\approx \frac{u'_{m+1/2} - u'_{m-1/2}}{x_{m+1/2}-x_{m-1/2}} \\
+      &=       \frac{2}{x_{m+1}-x_{m-1}} \left( u'_{m+1/2} - u'_{m-1/2} \right) \\
+      %&\approx \frac{2}{x_{m+1}-x_{m-1}} \left( \frac{u_{m+1}-u_m}{x_{m+1}-x_m} - \frac{u_m-u_{m-1}}{x_m-x_{m-1}} \right) \\
+	  &= \nonuniformstencil{u} \\
+\end{split}
+\end{equation*}
+
+\newcommand\hleft{x_m-x_{m-1}}
+\newcommand\hright{x_{m+1}-x_m}
+\newcommand\hfull{x_{m+1}-x_{m-1}}
+Assuming Dirichlet boundary conditions, we then write the nonzero entries of the matrix $A$ (indexed from zero) as
+\begin{equation*}
+\begin{split}
+A_{00} = A_{MM} &= 1 \\
+A_{m,m-1}       &= \frac{2}{\hfull} \frac{1}{\hleft} \\
+A_{m,m  }       &= \frac{-2}{\hfull} \left( \frac{1}{\hleft} + \frac{1}{\hright} \right) \\
+A_{m,m+1}       &= \frac{2}{\hfull} \frac{1}{\hright}.
+\end{split}
+\end{equation*}
+The job is then again to solve the system $A U = b$.
+Note that the stencil reduces to the one in \cref{matrix_system} when $\hleft = \hright = h$.
+
+To do adaptive mesh refinement, we will
+\begin{enumerate}
+\item Start with a coarse grid with uniform spacing, like with $x_0 = 0$ and $x_1 = 0$ only.
+\item Wisely choose \emph{one} grid interval $[x_m, x_{m+1}]$ based on some strategy.
+\item Split the interval in half by inserting a new point at $(x_m + x_{m+1}) / 2$.
+\item Repeat step 2 and 3 until the grid has the desired resolution.
+\end{enumerate}
+We will compare three different strategies for selecting the grid interval:
+\begin{enumerate}
+\item \textbf{The error strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest error
+\begin{equation*}
+\int_{x_m}^{x_{m+1}} \dif x |u(x) - U(x)|, \qquad \text{where} \,\, U(x) = U_m + \frac{x - x_m}{x_{m+1} - x_m} \left( U_{m+1} - U_m \right)
+\end{equation*}
+is a linearly interpolated numerical solution on the \emph{current} grid and $u(x)$ is the exact solution.
+This strategy requires knowledge of the exact solution $u(x)$ and solving the system numerically before each splitting.
+
+\item \textbf{The truncation error strategy:} Select the interval with the largest absolute truncation error
+\begin{equation*}
+\left| \nonuniformstencil{u} - f(x_m) \right|, \qquad \text{TODO fix interval indexes (m+1/2)}
+\end{equation*}
+where $u(x)$ is the exact solution.
+This strategy also requires knowledge of the exact solution $u(x)$, but does not rely on intermediate computations of the numerical solution $U_m$.
+
+\item \textbf{The source strategy:} Select the interval with the largest ``absolute source''
+\begin{equation*}
+\int_{x_m}^{x_{m+1}} \dif x |f(x)|.
+\end{equation*}
+In physical applications, $f(x)$ is typically mass density or charge density. 
+The idea is to refine intervals on which there is much mass or charge, as the solution is expected to vary faster there.
+This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$.
+\end{enumerate}
