@@ -156,7 +156,8 @@ This would also be second order and allows us to use the same stencil also at $x
 We will now demonstrate how the numerical solution can be generalized to a non-uniform grid with $x_i - x_{i-1} \neq \text{const}$.
 Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing them in a smart way.
 
-\newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
+%\newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
+\newcommand\nonuniformstencil[4]{\frac{2}{x_{#4}-x_{#2}} \left( \frac{#1_{#4}-#1_{#3}}{x_{#4}-x_{#3}} - \frac{#1_{#3}-#1_{#2}}{x_{#3}-x_{#2}} \right)}
 \begin{equation}
 \begin{split}
 %\dpd[2]{u}{x}(x_m) &\approx \frac{u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2})}{(x_m + \frac{x_{m+1}-x_m}{2}) - (x_m - \frac{x_m-x_{m-1}}{2})} \\
@@ -165,7 +166,7 @@ Then we will attempt to make the numerical solution as good as possible using as
 u''_m &\approx \frac{u'_{m+1/2} - u'_{m-1/2}}{x_{m+1/2}-x_{m-1/2}} \\
       &=       \frac{2}{x_{m+1}-x_{m-1}} \left( u'_{m+1/2} - u'_{m-1/2} \right) \\
       %&\approx \frac{2}{x_{m+1}-x_{m-1}} \left( \frac{u_{m+1}-u_m}{x_{m+1}-x_m} - \frac{u_m-u_{m-1}}{x_m-x_{m-1}} \right) \\
-	  &= \nonuniformstencil{u} \\
+	  &= \nonuniformstencil{u}{m-1}{m}{m+1} \\
 \end{split}
 \label{amr_stencil}
 \end{equation}
@@ -194,27 +195,27 @@ To do adaptive mesh refinement, we will
 \end{enumerate}
 We will compare three different strategies for selecting the grid interval:
 \begin{enumerate}
-\item \textbf{The error strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest error
+\item \textbf{Error strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest error
 \begin{equation*}
 \int_{x_m}^{x_{m+1}} \dif x |u(x) - U(x)|, \qquad \text{where} \,\, U(x) = U_m + \frac{x - x_m}{x_{m+1} - x_m} \left( U_{m+1} - U_m \right)
 \end{equation*}
 is a linearly interpolated numerical solution on the \emph{current} grid and $u(x)$ is the exact solution.
 This strategy requires knowledge of the exact solution $u(x)$ and solving the system numerically before each splitting.
 
-\item \textbf{The truncation error strategy:} Select the interval with the largest absolute truncation error
+\item \textbf{Truncation error strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest absolute truncation error
 \begin{equation*}
-\left| \nonuniformstencil{u} - f(x_m) \right|, \qquad \text{TODO fix interval indexes (m+1/2)}
+\left| \nonuniformstencil{u}{m}{m+1/2}{m+1} - f(x_m) \right|, \qquad \text{TODO fix interval indexes (m+1/2)}
 \end{equation*}
-where $u(x)$ is the exact solution.
+upon insertion of a middle point $x_{m+1/2} = (x_m + x_{m+1})/2$, where $u(x)$ is the exact solution.
 This strategy also requires knowledge of the exact solution $u(x)$, but does not rely on intermediate computations of the numerical solution $U_m$.
 
-\item \textbf{The source strategy:} Select the interval with the largest ``absolute source''
+\item \textbf{Source strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest ``absolute source''
 \begin{equation*}
 \int_{x_m}^{x_{m+1}} \dif x |f(x)|.
 \end{equation*}
 In physical applications, $f(x)$ is typically mass density or charge density. 
 The idea is to refine intervals on which there is much mass or charge, as the solution is expected to vary faster there.
-This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$.
+This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$, which is the most realistic scenario.
 \end{enumerate}
 
 In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
@@ -270,6 +271,7 @@ TODO discuss ``potential'' of AMR
 	width=16.5cm, height=12cm,
 	xlabel=$M$, ylabel=$\Vert u - U \Vert_2$,
 	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
+	grid=major,
 	legend style={at={(0.5,+1.13)},anchor=north}, legend cell align=left,
 	transpose legend, legend columns=2, legend entries={
 		{UMR (disc.)},
