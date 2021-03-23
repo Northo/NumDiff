@@ -346,15 +346,9 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         xx = np.array(x)
         U = num(xx, bc1, bc2, f=ffunc)
 
-        # construct linearly interpolated numerical solution
-        def lininterp(x):
-            # TODO: find current interval
-            m = find_interval(xx, x)
-            return U[m] + (U[m+1]-U[m])*(x-xx[m])/(xx[m+1]-xx[m])
-
         # find interval with highest error, use find_interval_with_maximum(x, quantity_function):
         def absdiff(x):
-            return np.abs(lininterp(x) - ufunc(x))
+            return np.abs(np.interp(x, xx, U) - ufunc(x))
         def error(x1, x2):
             return scipy.integrate.quad(absdiff, x1, x2)[0]
         i1, i2 = find_interval_with_maximum(x, error)
@@ -363,16 +357,15 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         x0 = (x[i1] + x[i2]) / 2
         x = insert_point(x, x0)
         if not np.abs(x0 - 0.5) < 1e-8:
-            x = insert_point(x, 1-x0)
-        #x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
+            x = insert_point(x, 1-x0) # preserve symmetry unless inserting at x=0.5
         return x
 
     strategies = [
         {"label": "UMR", "pointadder": pointadder_umr},
         {"label": "AMR-error", "pointadder": pointadder_error},
-        #{"label": "AMR-source-f", "pointadder": pointadder_source_f},
         {"label": "AMR-source-absf", "pointadder": pointadder_source_absf},
         {"label": "AMR-trunc", "pointadder": pointadder_trunc},
+        #{"label": "AMR-source-f", "pointadder": pointadder_source_f},
         #{"label": "AMR-source-balance", "pointadder": pointadder_source_balance},
     ]
 
