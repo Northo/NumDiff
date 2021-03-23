@@ -317,11 +317,14 @@ def manufactured_solution_mesh_refinement(maxM=250, plot=False, write=False):
                 # plot_solution(xx, u, U, ffunc, grid=True)
             # if strategy["label"] == "AMR-source-balance":
                 # plot_solution(xx, u, U, ffunc, grid=True)
-            # if strategy["label"] == "AMR-error":
+            # if strategy["label"] == "AMRE":
                 # plot_solution(xx, u, U, ffunc, grid=True)
             # if strategy["label"] == "AMR-source-absf":
                 # plot_solution(xx, u, U, ffunc, grid=True)
 
+            if strategy["label"] == "AMRE" and write and len(x) <= 25:
+                path = f"../report/exercise1/amre_M{len(x)}.dat"
+                write_columns_to_file(path, [xx, U], ["x", "U"])
 
     # Plot convergence plot
     if plot:
