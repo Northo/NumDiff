@@ -65,7 +65,7 @@ def discrete_convergence_plot_M_ref(
     )  # reference sol, piece wise constant callable function
 
     # Different M values (for parameter sweep)
-    M_array = [8,16,32,64,128,256,512,1024]
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, Mi) in enumerate(M_array):
@@ -103,7 +103,7 @@ def continous_convergence_plot_M_ref(
     )  # reference sol, callable function
 
     # Different M values (for parameter sweep)
-    M_array = [8,16,32,64,128,256,512,1024]
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, Mi) in enumerate(M_array):
@@ -134,9 +134,9 @@ def discrete_convergence_plot(
     analyt, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
 ):
     """ Make convergence (plot relative error asf. of M) """
-    u_analy = lambda x: analyt(x, t_end) # Analytical solution at t_end
+    u_analy = lambda x: analyt(x, t_end)  # Analytical solution at t_end
     # Different M values (for parameter sweep)
-    M_array = [8,16,32,64,128,256,512,1024]
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, Mi) in enumerate(M_array):
@@ -145,9 +145,7 @@ def discrete_convergence_plot(
             grid_Mi, bc1, bc2, u0, N, t_end, log=False
         )  # solution with current M
         U_ref = u_analy(grid_Mi.x)
-        error_array[i] = l2_discrete_relative_error(
-            U_ref, U
-        )  # discrete relative error
+        error_array[i] = l2_discrete_relative_error(U_ref, U)  # discrete relative error
     if outpath != "":
         table = np.column_stack((M_array, error_array))
         np.savetxt(outpath, table, header="M err", comments="")
@@ -167,9 +165,9 @@ def continous_convergence_plot(
     analyt, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
 ):
     """ Make convergence (plot relative error asf. of M) """
-    U_ref = lambda x: analyt(x, t_end) # Analytical solution at t_end
+    U_ref = lambda x: analyt(x, t_end)  # Analytical solution at t_end
     # Different M values (for parameter sweep)
-    M_array = [8,16,32,64,128,256,512,1024]
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
 
     for (i, Mi) in enumerate(M_array):
@@ -227,11 +225,13 @@ def partition_interval(
     return np.array([a, *x, b])
 
 
-def AMR_discrete_convergence_plot(error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""):
-    M_array = [8,16,32,64,128,256,512,1024] # Ms from UMR
+def AMR_discrete_convergence_plot(
+    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+):
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
     error_array = np.empty(len(M_array))
     tols = np.geomspace(0.0000046, 0.1, len(M_array))
-    u_analy = lambda x: analy(x, t_end) # analytical sol at t_end
+    u_analy = lambda x: analy(x, t_end)  # analytical sol at t_end
     actual_M = []
     for (i, tol) in enumerate(tols):
         x = partition_interval(0, 1, error_function, tol)
@@ -257,11 +257,13 @@ def AMR_discrete_convergence_plot(error_function, analy, method, bc1, bc2, u0, N
     return error_array, M_array
 
 
-def AMR_continous_convergence_plot(error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""):
-    M_array = [8,16,32,64,128,256,512,1024] # Ms from UMR
+def AMR_continous_convergence_plot(
+    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+):
+    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
     error_array = np.empty(len(M_array))
     tols = np.geomspace(0.0000046, 0.1, len(M_array))
-    U_ref = lambda x: analy(x, t_end) # analytical sol at t_end
+    U_ref = lambda x: analy(x, t_end)  # analytical sol at t_end
     actual_M = []
     for (i, tol) in enumerate(tols):
         x = partition_interval(0, 1, error_function, tol)
