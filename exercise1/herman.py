@@ -5,6 +5,19 @@ import numpy as np
 import sympy
 import scipy.integrate
 
+def write_table_to_file(path, table, headers):
+    np.savetxt(path, table, header=" ".join(headers), comments="")
+    print(f"Wrote to {path}")
+
+def write_columns_to_file(path, columns, headers):
+    max_length = np.max([len(column) for column in columns])
+    for i in range(0, len(columns)):
+        length = len(columns[i])
+        column = np.full(max_length, np.nan)
+        column[0:length] = columns[i]
+        columns[i] = column
+    write_table_to_file(path, np.transpose(columns), headers)
+
 class BoundaryCondition:
     DIRICHLET = 1
     NEUMANN = 2
@@ -189,7 +202,7 @@ def subdivide_interval(x1, x3, should_subdivide, tol):
     x.append(x3) # append right point (only point missing)
     return np.array(x)
 
-def manufactured_solution_mesh_refinement(maxM=1000):
+def manufactured_solution_mesh_refinement(maxM=250, plot=False, write=False):
     # symbolic manufactured solution
     # eps = 1e-3
     eps = 1e-1
@@ -261,12 +274,11 @@ def manufactured_solution_mesh_refinement(maxM=1000):
 
         # find interval with highest error, use find_interval_with_maximum(x, quantity_function):
         def absdiff(x):
-            return np.abs(np.interp(x, xx, U) - ufunc(x))
+            return np.abs(np.interp(x, xx, U) - ufunc(x))**1
         def error(x1, x2):
             return scipy.integrate.quad(absdiff, x1, x2)[0]
         i1, i2 = find_interval_with_maximum(x, error)
 
-        # split interval
         x0 = (x[i1] + x[i2]) / 2
         x = insert_point(x, x0)
         if not np.abs(x0 - 0.5) < 1e-8:
@@ -274,10 +286,10 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return x
 
     strategies = [
-        {"label": "UMR", "pointadder": pointadder_umr},
-        {"label": "AMR-error", "pointadder": pointadder_error},
-        {"label": "AMR-source", "pointadder": pointadder_source},
-        {"label": "AMR-truncerr", "pointadder": pointadder_truncerr},
+        {"label": "UMR",  "pointadder": pointadder_umr},
+        {"label": "AMRE", "pointadder": pointadder_error},
+        {"label": "AMRS", "pointadder": pointadder_source},
+        {"label": "AMRT", "pointadder": pointadder_truncerr},
     ]
 
     for strategy in strategies:
@@ -288,7 +300,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         label = strategy["label"]
 
         x = list(np.linspace(0, 1, 2))
-        while len(x) < 100:
+        while len(x) < maxM:
             x = pointadder(x)
             xx = np.array(x)
             u = ufunc(xx) # analytic solution
@@ -311,12 +323,27 @@ def manufactured_solution_mesh_refinement(maxM=1000):
                 # plot_solution(xx, u, U, ffunc, grid=True)
 
 
-    for i, strategy in enumerate(strategies):
-        plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="o", markersize=2, label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
-        plt.loglog(strategy["npoints"], strategy["errs_cont"], marker="o", markersize=2, label=strategy["label"]+" (cont)", color=f"C{i}", linestyle="solid")
-    plt.legend()
-    plt.show()
+    # Plot convergence plot
+    if plot:
+        for i, strategy in enumerate(strategies):
+            plt.loglog(strategy["npoints"], strategy["errs_disc"], marker="o", markersize=2, label=strategy["label"]+" (disc)", color=f"C{i}", linestyle="dashed")
+            plt.loglog(strategy["npoints"], strategy["errs_cont"], marker="o", markersize=2, label=strategy["label"]+" (cont)", color=f"C{i}", linestyle="solid")
+        plt.legend()
+        plt.show()
 
+    # Write data to file
+    if write:
+        headers = []
+        columns = []
+        for i, strategy in enumerate(strategies):
+            headers += [strategy["label"] + "-M"]
+            columns += [strategy["npoints"]]
+            headers += [strategy["label"] + "-ED"]
+            columns += [strategy["errs_disc"]]
+            headers += [strategy["label"] + "-EC"]
+            columns += [strategy["errs_cont"]]
+        write_columns_to_file("../report/exercise1/amr_errors.dat", columns, headers)
+        
 # Task 1a
 bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 0)
 bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
@@ -335,4 +362,4 @@ bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1/2)
 # compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu.dat")
 # convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu_err.dat")
 
-manufactured_solution_mesh_refinement()
+manufactured_solution_mesh_refinement(maxM=250, plot=False, write=True)
