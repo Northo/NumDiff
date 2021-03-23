@@ -157,7 +157,7 @@ We will now demonstrate how the numerical solution can be generalized to a non-u
 Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing them in a smart way.
 
 \newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
-\begin{equation*}
+\begin{equation}
 \begin{split}
 %\dpd[2]{u}{x}(x_m) &\approx \frac{u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2})}{(x_m + \frac{x_{m+1}-x_m}{2}) - (x_m - \frac{x_m-x_{m-1}}{2})} \\
 %                   &=       \frac{2}{x_{m+1} - x_{m-1}} \left( u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2}) \right) \\
@@ -167,7 +167,8 @@ u''_m &\approx \frac{u'_{m+1/2} - u'_{m-1/2}}{x_{m+1/2}-x_{m-1/2}} \\
       %&\approx \frac{2}{x_{m+1}-x_{m-1}} \left( \frac{u_{m+1}-u_m}{x_{m+1}-x_m} - \frac{u_m-u_{m-1}}{x_m-x_{m-1}} \right) \\
 	  &= \nonuniformstencil{u} \\
 \end{split}
-\end{equation*}
+\label{amr_stencil}
+\end{equation}
 
 \newcommand\hleft{x_m-x_{m-1}}
 \newcommand\hright{x_{m+1}-x_m}
@@ -216,6 +217,52 @@ The idea is to refine intervals on which there is much mass or charge, as the so
 This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$.
 \end{enumerate}
 
+In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
+In \cref{amr_convergence_plot}, we show how the convergence of the three different AMR strategies compares to the second order UMR method.
+The error strategy and truncation error strategy makes AMR comparable to second order UMR, even though \ref{amr_stencil} has lower order!
+Moreover, the error-based AMR even produces a lower error than the UMR solution for select grids, and seems to do so in a periodic manner as the grid size $M$ increases!
+
+TODO discuss pros/cons of each strategy
+
+TODO discuss ``potential'' of AMR
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[
+	group style={group size=3 by 4,horizontal sep=0.25cm,vertical sep=0.25cm},
+	height=5.9cm, width=5.9cm,
+	xmin=0, xmax=1, ymin=0, ymax=1.2, 
+	xtick={0, 0.5, 1},
+	legend style={at={(0.5,+1.2)},anchor=north}, legend columns=-1,
+]
+\pgfplotsinvokeforeach{3,5,7,9,11,13,15,17,19,21,23,25} {
+\ifthenelse{#1>21}{
+	\nextgroupplot[xlabel=$x$,yticklabels={,,},xtick=data,xticklabels={,,}, extra x ticks={0, 1}];
+}{\ifthenelse{\equal{#1}{21}}{
+	\nextgroupplot[xlabel=$x$,xtick=data,xticklabels={,,}, extra x ticks={0, 1}];
+}{\ifthenelse{\equal{#1}{3} \OR \equal{#1}{9} \OR \equal{#1}{15}}{
+	\nextgroupplot[xticklabels={,,},xtick=data];
+}{\ifthenelse{\equal{#1}{5}}{
+	\nextgroupplot[xticklabels={,,},yticklabels={,,},xtick=data,legend entries={,{$u(x) = \exp(-(x-1/2)^2/0.1)$},$U(x)$}];
+}{
+	\nextgroupplot[xticklabels={,,},yticklabels={,,},xtick=data];
+}}}}
+\addplot table [x=x, y expr=-1] {exercise1/amre_M#1.dat}; % hidden dummy plot, just go get the ticks
+\addplot [line width=5pt, black, mark=none, domain=0:1   ] {exp(-(x-0.5)^2/0.1)};
+\addplot [line width=1pt, red  , mark=*   , mark size=1pt] table [x=x, y=U] {exercise1/amre_M#1.dat};
+\node at (0.5, 0.5) {$M=#1$};
+}
+\end{groupplot}
+\end{tikzpicture}
+\caption{
+	\label{amr_error_evolution}
+	During adaptive mesh refinement (AMR) with the error strategy, the interval with the largest error $\int \dif x |u(x) - U(x)|$ is split in half.
+	Here, $u(x) = \exp(-(x-1/2)^2/0.1)$ is the symmetric solution to whichever Poisson equation has $f(x) = u_{xx}$ on $x \in [0, 1]$.
+	Symmetry is imposed numerically by also adding the point $1 - x$ to the grid whenever a point $x \neq 1/2$ is added.
+}
+\end{figure}
+
 \begin{figure}
 \centering
 \begin{tikzpicture}
@@ -255,42 +302,5 @@ This splitting strategy requires neither knowlege of the exact solution or the n
 	Comparison between the convergence of the numerical solution $U(x)$ with uniform mesh refinement (UMR) and adaptive mesh refinement (AMR) on the problem $u_{xx} = f(x)$ on $x \in [0,1]$ with analytical solution $u(x) = \exp(-(x-1/2)^2/0.1)$.
 	The adaptive refinement is done using three different strategies that subdivide the interval with the largest absolute error $|u-U|$, largest truncation error $Lu - f(x)$ (where $L \approx \partial^2 / \partial x^2$ is the discretized differentiation operator) or largest amount of source $\int \dif x |f(x)|$.
 	Errors $\Vert u - U \Vert_2$ are measured with the continuous and discrete $L_2$-norm.
-}
-\end{figure}
-
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\begin{groupplot}[
-	group style={group size=3 by 4,horizontal sep=0.3cm,vertical sep=0.3cm},
-	height=5.9cm, width=5.9cm,
-	xmin=0, xmax=1, ymin=0, ymax=1.2, 
-	xtick={0, 0.5, 1},
-	legend style={at={(0.5,+1.2)},anchor=north}, legend columns=-1,
-]
-\pgfplotsinvokeforeach{3,5,7,9,11,13,15,17,19,21,23,25} {
-\ifthenelse{#1>21}{
-	\nextgroupplot[xlabel=$x$,yticklabels={,,},xtick=data,xticklabels={,,}, extra x ticks={0, 1}];
-}{\ifthenelse{\equal{#1}{21}}{
-	\nextgroupplot[xlabel=$x$,xtick=data,xticklabels={,,}, extra x ticks={0, 1}];
-}{\ifthenelse{\equal{#1}{3} \OR \equal{#1}{9} \OR \equal{#1}{15}}{
-	\nextgroupplot[xticklabels={,,},xtick=data];
-}{\ifthenelse{\equal{#1}{5}}{
-	\nextgroupplot[xticklabels={,,},yticklabels={,,},xtick=data,legend entries={,{$u(x) = \exp(-(x-1/2)^2/0.1)$},$U(x)$}];
-}{
-	\nextgroupplot[xticklabels={,,},yticklabels={,,},xtick=data];
-}}}}
-\addplot table [x=x, y expr=-1] {exercise1/amre_M#1.dat}; % hidden dummy plot, just go get the ticks
-\addplot [line width=5pt, black, mark=none, domain=0:1   ] {exp(-(x-0.5)^2/0.1)};
-\addplot [line width=1pt, red  , mark=*   , mark size=1pt] table [x=x, y=U] {exercise1/amre_M#1.dat};
-\node at (0.5, 0.5) {$M=#1$};
-}
-\end{groupplot}
-\end{tikzpicture}
-\caption{
-	\label{amr_error_evolution}
-	During adaptive mesh refinement (AMR) with the error strategy, the interval with the largest error $\int |u(x) - U(x)|$ is split in half.
-	Here, $u(x) = \exp(-(x-1/2)^2/0.1)$ is the symmetric solution to $u_{xx} = f(x)$.
-	Symmetry is imposed numerically by adding the point $1 - x$ to the grid whenever $x$ is added, unless $x = 1/2$.
 }
 \end{figure}
