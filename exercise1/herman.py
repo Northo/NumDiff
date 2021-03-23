@@ -208,60 +208,6 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
     bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
 
-    """
-    def should_subdivide_umr(x1, x2, tol):
-        return x2 - x1 > tol
-
-    def should_subdivide_amr1(x1, x2, tol):
-        if x2 - x1 > 0.05:
-            return True
-        cell_charge = scipy.integrate.quad(absffunc, x1, x2, epsabs=1e-0)[0]
-        return cell_charge > tol
-
-    def should_subdivide_amr2(x1, x2, tol):
-        if x2 - x1 > 0.05:
-            return True
-        x = np.arange(x1, x2, 0.01)
-        cell_charge = np.trapz(np.abs(ffunc(x)), x)
-        return cell_charge > tol
-
-    def should_subdivide_amr3(x1, x2, tol):
-        x2, x3 = (x1+x2)/2, x2
-        h1 = x2 - x1
-        h2 = x3 - x2
-        u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
-        f2 = ffunc(x2)
-        truncerr = np.abs(2/(h1+h2) * ((u3-u2) / h2 - (u2-u1) / h1) - f2)
-        return truncerr > tol
-
-    strategies = [
-        {"label": "UMR", "plot": False, "decider": should_subdivide_umr,  "tols": [1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024]},
-        {"label": "AMR, const charge per cell", "plot": False, "decider": should_subdivide_amr1, "tols": [5,4,3,2,1,0.5,0.1]},
-        {"label": "AMR2, const charge per cell", "plot": False, "decider": should_subdivide_amr2, "tols": [5,4,3,2,1,0.5,0.1, 0.05, 0.01, 0.005, 0.001]},
-        {"label": "AMR, truncerr using exact sol", "plot": False, "decider": should_subdivide_amr3, "tols": [1, 1e-1, 1e-2]}
-    ]
-
-    for strategy in strategies:
-        strategy["npoints"] = []
-        strategy["errs_disc"] = []
-        strategy["errs_cont"] = []
-
-        for tol in strategy["tols"]:
-            x = subdivide_interval(0, 1, strategy["decider"], tol)
-            u = ufunc(x) # analytic solution
-            bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(0))
-            bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, ufunc(1))
-            U = num(x, bc1, bc2, f=ffunc) # numerical solution
-            err_disc = l2_disc(u-U) / l2_disc(u)
-            err_cont = l2_cont(u-U, x) / l2_cont(u, x)
-            strategy["npoints"].append(np.size(x))
-            strategy["errs_disc"].append(err_disc)
-            strategy["errs_cont"].append(err_cont)
-
-            if strategy["plot"]:
-                plot_solution(x, u, U, ffunc, grid=True)
-    """
-
     def find_interval(x, x0):
         for m in range(0, len(x)-1):
             if x0 >= x[m] and x0 <= x[m+1]:
@@ -287,58 +233,25 @@ def manufactured_solution_mesh_refinement(maxM=1000):
         return x
 
     def pointadder_umr(x):
-        M = len(x) + 1
-        return np.linspace(0, 1, M) # must create completely new grid to create a uniform grid with one additional point
+        M = len(x) + 1 # increase number of points by one
+        return np.linspace(0, 1, M)
 
-    def source_measurer_f(x1, x2):
-        return np.abs(ffunc(x1) + ffunc(x2)) / 2 * (x2 - x1) # TODO: bad when f varies rapidly on (x1,x2)
-
-    def source_measurer_f_integral(x1, x2):
-        return scipy.integrate.quad(ffunc, x1, x2)[0]
-
-    def pointadder_source_f(x):
-        i1, i2 = find_interval_with_maximum(x, source_measurer_f)
+    def pointadder_source(x):
+        def total_source(x1, x2):
+            return scipy.integrate.quad(absffunc, x1, x2)[0]
+        i1, i2 = find_interval_with_maximum(x, total_source)
         x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
         return x
 
-    def source_measurer_absf(x1, x2):
-        return (np.abs(ffunc(x1)) + np.abs(ffunc(x2))) / 2 * (x2 - x1) # TODO: bad when f varies rapidly on (x1,x2)
-
-    def source_measurer_absf_integral(x1, x2):
-        return scipy.integrate.quad(absffunc, x1, x2)[0]
-
-    def pointadder_source_absf(x):
-        i1, i2 = find_interval_with_maximum(x, source_measurer_absf_integral)
+    def pointadder_truncerr(x):
+        def truncerr(x1, x2):
+            x1, x2, x3 = x1, (x1 + x2) / 2, x2 # swap, so x1 < x2 < x3
+            h1, h2 = x2 - x1, x3 - x2
+            u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
+            f2 = ffunc(x2)
+            return np.abs(2/(h1+h2) * ((u3-u2) / h2 - (u2-u1) / h1) - f2)
+        i1, i2 = find_interval_with_maximum(x, truncerr)
         x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
-        return x
-
-    def truncerr_measurer(x1, x2):
-        x1, x2, x3 = x1, (x1 + x2) / 2, x2 # swap, so x1 < x2 < x3
-        h1, h2 = x2 - x1, x3 - x2
-        u1, u2, u3 = ufunc(x1), ufunc(x2), ufunc(x3)
-        f2 = ffunc(x2)
-        return np.abs(2/(h1+h2) * ((u3-u2) / h2 - (u2-u1) / h1) - f2)
-
-    def pointadder_trunc(x):
-        i1, i2 = find_interval_with_maximum(x, truncerr_measurer)
-        x.insert(i2, (x[i1] + x[i2]) / 2) # split most critical interval
-        return x
-
-    def pointadder_source_balance(x):
-        i1, i2 = find_interval_with_maximum(x, source_measurer_f)
-        x1, x2 = x[i1], x[i2]
-
-        def optim(xx):
-            # want to make this 0
-            # I1 = scipy.integrate.quad(absffunc, x1, xx)[0] 
-            # I2 = scipy.integrate.quad(absffunc, xx, x2)[0]
-            # return I1 - I2
-            return source_measurer_f(x1, xx) - source_measurer_f(xx, x2)
-            # print("     ", I1, I2)
-
-        xsplit = scipy.optimize.root_scalar(optim, method="bisect", bracket=[x1, x2], x0=(x1+x2)/2).root
-        x.insert(i2, xsplit)
-        # print("  ", x1, x2, xsplit)
         return x
 
     def pointadder_error(x):
@@ -363,10 +276,8 @@ def manufactured_solution_mesh_refinement(maxM=1000):
     strategies = [
         {"label": "UMR", "pointadder": pointadder_umr},
         {"label": "AMR-error", "pointadder": pointadder_error},
-        {"label": "AMR-source-absf", "pointadder": pointadder_source_absf},
-        {"label": "AMR-trunc", "pointadder": pointadder_trunc},
-        #{"label": "AMR-source-f", "pointadder": pointadder_source_f},
-        #{"label": "AMR-source-balance", "pointadder": pointadder_source_balance},
+        {"label": "AMR-source", "pointadder": pointadder_source},
+        {"label": "AMR-truncerr", "pointadder": pointadder_truncerr},
     ]
 
     for strategy in strategies:
@@ -389,6 +300,7 @@ def manufactured_solution_mesh_refinement(maxM=1000):
             strategy["errs_cont"].append(err_cont)
             print(len(x), err_disc)
 
+            # Uncomment to plot while you go
             # if len(x) == 27 and label == "AMR-source-f":
                 # plot_solution(xx, u, U, ffunc, grid=True)
             # if strategy["label"] == "AMR-source-balance":
