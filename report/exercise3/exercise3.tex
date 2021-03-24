@@ -1,1 +1,62 @@
 \section{Laplace equation in two dimensions}
+In this section, we will solve the two-dimensional Laplace equation on a quadratic domain
+\begin{equation}
+    u_{xx} + u_{yy} = 0, \, (x,y) \in \Omega := [0,1]^2,
+    \label{ex3:eq:laplace}
+\end{equation}
+with boundary conditions on the edges of $\Omega$
+\begin{equation*}
+    \begin{split}
+        u(0,y) &= 0,\\
+        u(1,y) &= 0,\\
+        u(x,0) &= 0,\\
+        u(x,1) &= \sin(2\pi x).\\
+    \end{split}
+\end{equation*}
+We will solve this equation numerically using a five point stencil, but first, we solve it analytically to provide a reference solution which can be compared with the numerical one.
+
+The solution of equation \ref{ex3:eq:laplace} can be found by separation of variables.
+First, asssume that we can write
+\begin{equation*}
+    % I used these names, but I think it's more common with capital X and Y or something.
+    % I'm open for discussions of this.
+    u(x,y) = \alpha(x) \beta(y),
+\end{equation*}
+which implies that
+\begin{equation*}
+    u_{xx} + u_{yy} =  \alpha''(x) \beta(y) + \alpha(x) \beta''(y) = 0,
+\end{equation*}
+where the prime markers $'$ denote differentiation of the single variable functions $\alpha(x)$ and $\beta(y)$.
+Rearranging, we get that
+\begin{equation*}
+    \frac{\alpha''(x)}{\alpha(x) = \frac{\beta''(y)}{\beta(y)}} = c
+\end{equation*}
+must be constant, since $\alpha$ and $\beta$ are independent functions.
+Thus, we have two second order differential equations
+\begin{equation*}
+    \begin{split}
+        \alpha''(x) - c\alpha(x) &= 0, \\
+        \beta''(x) - c\beta(x) &= 0,
+    \end{split}
+\end{equation*}
+with boundary conditions
+\begin{equation*}
+    \begin{split}
+    \alpha(0) = \alpha(1) = \beta(0) = 0,\\
+    \alpha(x)\beta(1) = \sin(2\pi x).
+    \end{split}
+\end{equation*}
+
+Setting $\beta(1)$ to $1$ yields $\alpha(x) = \sin(2\pi x)$, so that $\alpha''(x) = -4\pi^2\alpha(x)$ where $y = 1$, we find that $c = -4\pi^2$.
+Solving the equation for $\beta(y)$, we find that
+\begin{equation*}
+    \beta(y) = b_1 e^{\sqrt{c} y} + b_2 e^{-\sqrt{c} y}.
+\end{equation*}
+Inserting $c = 4\pi$ and the boundary condtitions $\beta(0) = 0$ and $\beta(1) = 1$, we get
+\begin{equation*}
+    \beta(y) = \frac{\sinh(2\pi y)}{\sinh(2\pi)},
+\end{equation*}
+and finally
+\begin{equation*}
+    u(x,y) = \frac{\sin(2\pi x) \sinh(2\pi y)}{\sinh(2\pi)}.
+\end{equation*}
