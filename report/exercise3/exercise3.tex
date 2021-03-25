@@ -3,8 +3,7 @@ In this section, we will solve the two-dimensional Laplace equation on a quadrat
 \begin{equation}
     u_{xx} + u_{yy} = 0, \, (x,y) \in \Omega := [0,1]^2,
     \label{ex3:eq:laplace}
-\end{equation}
-with boundary conditions on the edges of $\Omega$
+\end{equation} with boundary conditions on the edges of $\Omega$
 \begin{equation*}
     \begin{split}
         u(0,y) &= 0,\\
@@ -29,9 +28,9 @@ which implies that
 where the prime markers $'$ denote differentiation of the single variable functions $\alpha(x)$ and $\beta(y)$.
 Rearranging, we get that
 \begin{equation*}
-    \frac{\alpha''(x)}{\alpha(x) = \frac{\beta''(y)}{\beta(y)}} = c
+    \frac{\alpha''(x)}{\alpha(x)} = \frac{\beta''(y)}{\beta(y)} = c
 \end{equation*}
-must be constant, since $\alpha$ and $\beta$ are independent functions.
+must be constant, since $\alpha$ and $\beta$ are functions of indepentent variables.
 Thus, we have two second order differential equations
 \begin{equation*}
     \begin{split}
@@ -58,5 +57,40 @@ Inserting $c = 4\pi$ and the boundary condtitions $\beta(0) = 0$ and $\beta(1) =
 \end{equation*}
 and finally
 \begin{equation*}
-    u(x,y) = \frac{\sin(2\pi x) \sinh(2\pi y)}{\sinh(2\pi)}.
+    u(x,y) = \frac{\sin(2\pi x) \cdot \sinh(2\pi y)}{\sinh(2\pi)}.
 \end{equation*}
+
+Numerically, we can solve this equation by dividing the domain $\Omega$ into a grid.
+That is, we divide the interval $x \in [0,1]$ and $y \in [0,1]$ into $M$ and $N$ parts, respectively, so that the domain contains $M * N$ points, in which we will approximate the solution to equation \ref{ex3:eq:laplace}.
+
+Rewriting Laplace's equation using central differences, we get
+\begin{equation*}
+    \begin{split}
+    % This notation is indonsistent with task 1, but it is explicit 
+    % regarding in which points we evaluate the function.
+    % TODO: What do you people think?
+    \partial^2_x u(x_m, y_n) 
+        &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + O(h^2)\\
+        &= \frac{1}{h^2}\delta^2_x u(x_m,y_n),\\
+    \end{split}
+\end{equation*}
+\begin{equation*}
+    \begin{split}
+    \partial^2_y u(x_m, y_n) 
+        &= \frac{1}{k^2}[u(x_{m},y_{n-1}) + 2u(x_m,y_n) + u(x_{m},y_{n+1})] + O(k^2)\\
+        &= \frac{1}{h^2}\delta^2_y u(x_m,y_n),\\
+    \end{split}
+\end{equation*}
+where $(x_m, y_n)$ denote the point $(m,n)$ in the grid. 
+%$i = 0,\ldots M_x$, and $j = 0,\ldots, M_y$.
+Adding these expressions, and naming our approximated solution $U(m,n) := u(x_m,y_n)$, we find that the function $u_{xx} + u_{yy}$ can be approximated 
+\begin{equation*}
+    0 = u_{xx}(x_m,y_n) + u_{yy}(x_m,y_n)
+    \approx \frac{1}{h^2}\delta^2_x U(m,n) + \frac{1}{k^2}\delta^2_y U(m,n),
+\end{equation*}
+or, simplifying the notation as shown in figure % TODO: \ref{ex3:fig:stencil}
+,
+\begin{equation*}
+    U_{above} + U_{below} + U_{left} + U_{right} - 4_{center} = 0.
+\end{equation*}
+This stencil can be used to approximate the value of $U(x_m, y_n) = U_{center}$ for all points $(x_m, y_n)$ in the grid.
