@@ -1,0 +1,60 @@
+\section{Poisson equation in one dimension finite element method}
+
+In this section, we will again solve the Poisson equation
+\begin{equation}
+	-\pd[2]{u}{x} = f(x), \quad u(a) = \alpha, \quad u(b) = \beta, \quad (a \leq x \leq b)
+\end{equation}
+subject to Dirichlet conditions, but this time with finite elements instead of finite differences.
+
+Divide the interval $[a, b]$ into
+\begin{equation*}
+	a = x_0 < x_1 < \dots < x_M < x_{M+1} = b.
+\end{equation*}
+Basis function
+\begin{equation*}
+	\varphi_i(x) = 
+	\begin{cases}
+		(x - x_{i-1})/(x_i - x_{i-1}) & \text{if}        \,\, x_{i-1} \leq x \leq x_i     \\
+		(x_{i+1} - x)/(x_{i+1} - x_i) & \text{if}        \,\, x_i     \leq x \leq x_{i+1} \\
+		0                             & \text{otherwise} \\
+	\end{cases}
+	\label{basisfunction}
+\end{equation*}
+
+\begin{tikzpicture}
+\begin{axis}[xmin=-3, xmax=+3]
+\addplot [domain=-2:0] {(x - -2) / (0 - -2)};
+\addplot [domain=0:+1] {(1 -  x) / (1 -  0)};
+\end{axis}
+\end{tikzpicture}
+
+\newcommand\basisexpand[2]{$#1(#2) = \sum_{i=0}^{M+1} #1_i \varphi_i(#2)$}
+\newcommand\integral[4]{\int_#3^#4 \dif #2 \, #1}
+
+Expand \basisexpand{u}{x} and \basisexpand{v}{x}
+\begin{equation}
+	\sum_{i, j} u_i v_j \int_a^b \dif x \varphi'_i(x) \varphi'_j(x) = \sum_j v_j \int_a^b \dif x \phi_j(x) f(x)
+\end{equation}
+or
+\begin{equation}
+	v^T A u = v^T f
+\end{equation}
+where
+\begin{equation}
+	A_{ij} = \integral{\varphi'_i(x) \varphi'_j(x)}{x}{a}{b} 
+	\quad \text{and} \quad
+	F_j = \integral{\varphi_j(x)}{x}{a}{b}
+\end{equation}
+then
+\begin{equation}
+	A u = f
+\end{equation}
+The A integrals are straightforward to differentiate \ref{basisfunction}:
+\begin{equation}
+\begin{split}
+	A_{00} = \frac{1}{x_1 - x_0} \\
+	A_{ii} = \frac{1}{x_i - x_{i-1}} + \frac{1}{x_{i+1}-x_i} \\
+	A_{M+1 \, M+1} = \frac{1}{x_{M+1}-x_M} \\
+	A_{i i+1} = A_{i+1 i} = \frac{-1}{x_{i+1} - x_i}
+\end{split}
+\end{equation}
