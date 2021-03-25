@@ -74,14 +74,14 @@ Rewriting Laplace's equation using central differences, we get
     % regarding in which points we evaluate the function.
     % TODO: What do you people think?
     \partial^2_x u(x_m, y_n) 
-        &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + O(h^2)\\
+        &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + \Oh(h^2)\\
         &= \frac{1}{h^2}\delta^2_x u(x_m,y_n),\\
     \end{split}
 \end{equation*}
 \begin{equation*}
     \begin{split}
     \partial^2_y u(x_m, y_n) 
-        &= \frac{1}{k^2}[u(x_{m},y_{n-1}) + 2u(x_m,y_n) + u(x_{m},y_{n+1})] + O(k^2)\\
+        &= \frac{1}{k^2}[u(x_{m},y_{n-1}) + 2u(x_m,y_n) + u(x_{m},y_{n+1})] + \Oh(k^2)\\
         &= \frac{1}{h^2}\delta^2_y u(x_m,y_n),\\
     \end{split}
 \end{equation*}
