@@ -1,29 +1,47 @@
 \section{Heat equation in one dimension}
-In this section, we will solve one-dimensional differential equations with time evolution. 
-Firstly, we will solve the one-dimensional heat equation with Neumann boundary conditions, using both the Backward Euler method and Crank-Nicolson's method.
-We will then analyse the error of our methods using a manufactured solution to which the analytical solution is known.
-For this, we will use both uniform and adaptive mesh refinement, and the different methods will be discussed.
-Finally, we will solve the inviscid Burgers' equation and evaluate the breaking which this equation exhibits.
+In this section, we consider the one-dimensional heat equation, 
+and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
+These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
+and we will analyze and compare the convergence of the two methods using mesh refinement as we did in section \ref{task_1}. 
 
-Firstly, we consider the one-dimensional heat equation with Neumann boundary conditions
+We start by considering the heat equation with the following Neumann boundary conditions and initial condition, 
 \begin{equation*}
     u_t = u_{xx}, \quad u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
+    \label{eq:2a}
 \end{equation*}
 valid for $x \in [0,1] := \Omega$ and $t > 0$.
-The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ parts, as described in section \ref{task_1}.
-We also divide the time interval $t \in [0,t_{end}]$ into parts, so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$.
-For $t = 0$, the solution is the given initial condition.
+The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ discrete points, 
+as described in section \ref{task_1}.
+We also discretize the time interval $t \in [0,t_{end}]$ in the same way, so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \input{exercise2/grid_figure.pgf}
 \end{figure}
 
+Q: Should we explain the BE and CN (ev. the $\theta$-method, or does it suffice to referece them?
+
+For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
+so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
+which we use in place of the analytical solution when computing the error. 
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_UMR_discrete.pgf}
 \end{figure}
+
+In order to analyze the convergence further, 
+we now consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
+Specifically we consider 
+\begin{equation}
+    u_t = u_{xx}, \quad u(0,t) = u(1,t) = 0, \quad u(x,0) = \sin(\pi x), 
+\end{equation}
+on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
+Note that we now have Dirchlet boundary conditions, 
+and the analytical solution is readily available as
+\begin{equation}
+    u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
+\end{equation}
 
 \begin{figure}[ht]
     \centering
@@ -57,6 +75,10 @@ For $t = 0$, the solution is the given initial condition.
     \centering
     \input{exercise2/2b_AMR_combined.pgf}
 \end{figure}
+
+\section{Invicid Burgers's equation}
+
+Finally, we will solve the inviscid Burgers' equation and evaluate the breaking which this equation exhibits. 
 
 \begin{figure}[ht]
     \centering
