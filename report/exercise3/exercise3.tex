@@ -14,6 +14,8 @@ In this section, we will solve the two-dimensional Laplace equation on a quadrat
 \end{equation*}
 We will solve this equation numerically using a five point stencil, but first, we solve it analytically to provide a reference solution which can be compared with the numerical one.
 
+\subsection{Analytical solution}
+
 The solution of equation \ref{ex3:eq:laplace} can be found by separation of variables.
 First, asssume that we can write
 \begin{equation*}
@@ -60,6 +62,8 @@ and finally
     u(x,y) = \frac{\sin(2\pi x) \cdot \sinh(2\pi y)}{\sinh(2\pi)}.
 \end{equation*}
 
+\subsection{Numerical solution}
+
 Numerically, we can solve this equation by dividing the domain $\Omega$ into a grid.
 That is, we divide the interval $x \in [0,1]$ and $y \in [0,1]$ into $M$ and $N$ parts, respectively, so that the domain contains $M * N$ points, in which we will approximate the solution to equation \ref{ex3:eq:laplace}.
 
@@ -83,14 +87,72 @@ Rewriting Laplace's equation using central differences, we get
 \end{equation*}
 where $(x_m, y_n)$ denote the point $(m,n)$ in the grid. 
 %$i = 0,\ldots M_x$, and $j = 0,\ldots, M_y$.
-Adding these expressions, and naming our approximated solution $U(m,n) := u(x_m,y_n)$, we find that the function $u_{xx} + u_{yy}$ can be approximated 
+Adding these expressions, and naming our approximated solution $U_{m,n} := u(x_m,y_n)$, we find that the Laplace equation can be approximated 
 \begin{equation*}
-    0 = u_{xx}(x_m,y_n) + u_{yy}(x_m,y_n)
-    \approx \frac{1}{h^2}\delta^2_x U(m,n) + \frac{1}{k^2}\delta^2_y U(m,n),
+    0 = \partial^2_x u(x_m,y_n) + \partial^2_y u(x_m,y_n)
+    \approx \frac{1}{h^2}\delta^2_x U_{m,n} + \frac{1}{k^2}\delta^2_y U_{m,n},
 \end{equation*}
 or, simplifying the notation as shown in figure % TODO: \ref{ex3:fig:stencil}
 ,
 \begin{equation*}
-    U_{above} + U_{below} + U_{left} + U_{right} - 4_{center} = 0.
+    \frac{1}{k^2}(U_{above} + U_{below} - 2U_{center}) + \frac{1}{h^2}(U_{left} + U_{right} - 2U_{center}) = 0.
 \end{equation*}
 This stencil can be used to approximate the value of $U(x_m, y_n) = U_{center}$ for all points $(x_m, y_n)$ in the grid.
+Ignoring firstly the above and below nodes of the stencil, we can easily set up a matrix $A'$ in the same way as in Section \ref{task_1}.
+Note that this is done only in order to clarify the derivation -- the matrix $A'$ is merely a "stepping stone" -- not a useful result.
+\begin{equation*}
+    %\renewcommand{\arraystretch}{2.5} % stretch matrix vertically to make it square
+    A'U = \frac{1}{h^2}
+    \begin{bmatrix}
+    -2& 1 \\
+    1 & -2 & 1 &   \\
+      & \ddots & \ddots & \ddots & \\
+      %&   & 1 & -2 & 1 \\
+      &   & 1 & -2 & 1 \\
+      &   &  & 1 & -2 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{0n} \\ U_{1n} \\ \vdots \\ U_{M,n} \\ U_{M+1,n} \\
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    0 \\ 0 \\ \vdots \\ 0 \\ 0 \\
+    \end{bmatrix}
+    ,
+    \label{ex3:eq:simple_matrix}
+\end{equation*}
+Note also that this equation only considers one particular $n$.
+In order to actually solve our entire system, we must include the nodes above and below as well.
+This can be done by considering a much larger matrix $A$ and a much longer vector $U$.
+The latter being a stacked vector containing all $M+1$ elements $U_{0n}, \ldots, U_{Mn}$, followed by $U_{01}, \ldots U_{M1}$ and so on.
+The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
+Now, we are able to inclute the nodes $U_{above}$ and $U_{below}$ from the stencil.
+These two nodes are now -- instead of being above and below $U_{center}$ -- to the sides, $M$ nodes away. See figure % TODO: \ref{ex3:fig:flat_stencil}.
+.
+
+We thus write
+\begin{equation*}
+    \renewcommand{\arraystretch}{2.5} % stretch matrix vertically to make it square
+    % This matrix doesn't look good. We could divide it, or give the elements names (e.g. a, b, c),
+    % or keep things like this. I don't know what's best.
+    AU = 
+    \begin{bmatrix}
+        \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} &&\frac{1}{k^2}\\
+        \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} &&\frac{1}{k^2}\\
+        & \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} &&\frac{1}{k^2}\\
+        &  \quad \ddots & \quad \ddots  & \quad \ddots \\
+        \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
+        & \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} \\
+        && \frac{1}{k^2} && \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{0,0} \\ \vdots \\ U_{m,0} \\ \vdots \\ U_{0,N} \\ \vdots \\ U_{M,N} \\
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ \vdots \\ 0 \\ 0 \\ 0 \\
+    \end{bmatrix}
+    = 0,
+    \label{ex3:eq:solution_equation}
+\end{equation*}
+which can be solved, given initial conditions on the boundary of $\Omega$.
