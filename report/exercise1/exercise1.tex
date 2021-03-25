@@ -56,7 +56,7 @@ To solve the equation numerically, we divide the interval $[0, 1]$ into the unif
 of $M+2$ points and step length $h$.
 We approximate the second derivative at interior points with the central difference
 \begin{equation*}
-\pd{u}{x}(x_m) = \frac{u_{m-1}-2u_{m}+u_{m+1}}{h^2} + O(h^2) \qquad (1 \leq m \leq M-1).
+\pd{u}{x}(x_m) = \frac{u_{m-1}-2u_{m}+u_{m+1}}{h^2} + \Oh(h^2) \qquad (1 \leq m \leq M-1).
 \end{equation*}
 To handle the Dirichlet boundary condition $u(0) = a$ at the left edge or $u(1) = b$ at the right edge, we insert the trivial equation
 \begin{equation*}
@@ -64,7 +64,7 @@ To handle the Dirichlet boundary condition $u(0) = a$ at the left edge or $u(1) 
 \end{equation*}
 To handle the Neumann boundary condition $u_x(0) = a$ at the left edge or $u_x(1) = b$ at the right edge to second order, we use approximate the first derivative to second order with forward or backward differences to get
 \begin{equation*}
-u_x(0) = \frac{-\frac{3}{2}u_{0}-2u_1-\frac{1}{2}u_{2}}{h} + O(h^2) = b \qquad \text{or} \qquad u_x(1) = \frac{\frac{1}{2}u_{M-1}-2u_M+\frac{3}{2}u_{M+1}}{h} + O(h^2) = b.
+u_x(0) = \frac{-\frac{3}{2}u_{0}-2u_1-\frac{1}{2}u_{2}}{h} + \Oh(h^2) = b \qquad \text{or} \qquad u_x(1) = \frac{\frac{1}{2}u_{M-1}-2u_M+\frac{3}{2}u_{M+1}}{h} + \Oh(h^2) = b.
 \end{equation*}
 Writing all these equations in $(M+2) \times (M+2)$-matrix form $AU=b$, we obtain for example with $u(0) = a$ and $u_x(1) = b$
 \begin{equation}
