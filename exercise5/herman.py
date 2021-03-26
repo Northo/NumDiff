@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm
 import scipy.integrate
 import sympy
 
@@ -28,7 +29,14 @@ class Problem:
         x = np.linspace(self.x1, self.x2, M+2)
         self.U = self.solve(x)
 
-    def plot(self):
+    def plot_analytic(self):
+        x = np.linspace(self.x1, self.x2, 500)
+        plt.plot(x, self.u(x), color="black", linewidth=5, label="analytic", alpha=0.25)
+
+    def plot_numeric(self):
+        plt.plot(self.x, self.U, marker=None, color="red", linewidth=1, markersize=3, label="numerical")
+
+    def plot(self, show=False):
         fig, (ax1, ax2) = plt.subplots(2, 1)
 
         errors = self.get_errors()
@@ -40,7 +48,8 @@ class Problem:
         ax2.plot(self.x, self.U, marker="o", color="red", linewidth=1, markersize=3, label="numerical")
         ax2.legend()
 
-        plt.show()
+        if show:
+            plt.show()
 
     def solve(self, x):
         M = len(x) - 2 # [0, 1, ..., M, M+1]
@@ -62,10 +71,10 @@ class Problem:
         for i in range(0, M+2):
             if i > 0:
                 integrand = lambda y: (y-x[i-1])/(x[i]-x[i-1]) * self.f(y)
-                F[i] += scipy.integrate.quad(integrand, x[i-1], x[i])[0]
+                F[i] += scipy.integrate.quad(integrand, x[i-1], x[i], limit=5)[0]
             if i < M+1:
                 integrand = lambda y: (x[i+1]-y)/(x[i+1]-x[i]) * self.f(y)
-                F[i] += scipy.integrate.quad(integrand, x[i], x[i+1])[0]
+                F[i] += scipy.integrate.quad(integrand, x[i], x[i+1], limit=5)[0]
 
         # Boundary conditions
         F = F - A @ np.concatenate(([self.u1], np.zeros(M), [self.u2]))
@@ -83,29 +92,53 @@ class Problem:
             integrand = lambda y: (self.u(y) - np.interp(y, self.x, self.U))**2
             return scipy.integrate.quad(integrand, x1, x2)[0]
         errors = [error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]
+        errors = np.array(errors)
         return errors
 
-    def refine_adaptively(self, maxM=20):
-        x = np.linspace(self.x1, self.x2, 2)
-
-        while len(x) <= maxM:
+    def refine(self, M0, refiner, steps):
+        x = np.linspace(self.x1, self.x2, M0) # initial uniform grid
+        for step in range(0, steps):
             self.solve(x)
+            self.plot(show=True)
+            x = refiner(x)
+
+    def refine_uniformly(self):
+        def refiner(x):
+            return np.linspace(self.x1, self.x2, 2*(len(x)-1)+1)
+        self.refine(2, refiner, 10)
+
+    def refine_adaptively(self, strategy, M0=2, steps=4):
+        def refiner(x):
             errors = self.get_errors()
-            intervalindex = np.argmax(errors)
 
-            self.plot()
+            referror = None
+            if strategy == "avgerror":
+                referror = 0.99 * np.mean(errors)
+            elif strategy == "maxerror":
+                referror = 0.7 * np.max(errors)
+            else:
+                raise "Unknown refinement strategy"
 
-            x = np.insert(x, intervalindex + 1, (x[intervalindex]+x[intervalindex+1])/2)
+            newx = np.array([])
+            for i in range(0, len(x)-1):
+                newx = np.append(newx, x[i])
+                if errors[i] >= referror:
+                    newx = np.append(newx, (x[i] + x[i+1]) / 2)
+            newx = np.append(newx, x[-1])
+            return newx
+        
+        self.refine(M0, refiner, steps)
 
 x = sympy.var("x")
 
-# f, (x1, x2), (u1, u2) = -2, (0, 1), (0, 1)
+f, (x1, x2), (u1, u2) = -2, (0, 1), (0, 1)
 # f, (x1, x2), (u1, u2) = (40000*x**2 - 200) * sympy.exp(-100*x**2), (-1, +1), (np.exp(-100), np.exp(-100))
 # f, (x1, x2), (u1, u2) = (4000000*x**2 - 2000) * sympy.exp(-1000*x**2), (-1, +1), (np.exp(-1000), np.exp(-1000))
-f, (x1, x2), (u1, u2) = 2/9*x**(-4/3), (0, 1), (0, 1) # TODO: how to deal with singularity at f(0)?
+# f, (x1, x2), (u1, u2) = 2/9*x**(-4/3), (0, 1), (0, 1) # TODO: how to deal with singularity at f(0)?
 
 prob = Problem(f, (x1, x2), (u1, u2))
-# prob.solve_uniform(80)
-# prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))
-prob.refine_adaptively()
-prob.plot()
+#prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))
+prob.refine_adaptively("avgerror", M0=20, steps=3)
+#prob.refine_uniformly()
+#prob.solve_uniform(80)
+#prob.plot(show=True)
