@@ -1,51 +1,73 @@
 \section{Heat equation in one dimension}
 In this section, we consider the one-dimensional heat equation, 
+\begin{equation*}
+    u_t = u_{xx},   \quad x \in [0,1] := \Omega, 
+    \label{eq:heat-eq}
+\end{equation*}
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
 and we will analyze and compare the convergence of the two methods using mesh refinement as we did in section \ref{task_1}. 
 
+\subsection{Numerical solution method}
 We start by considering the heat equation with the following Neumann boundary conditions and initial condition, 
 \begin{equation*}
-    u_t = u_{xx}, \quad u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
+    u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
     \label{eq:2a}
 \end{equation*}
-valid for $x \in [0,1] := \Omega$ and $t > 0$.
-The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ discrete points, 
+valid for $x \in [0,1] := \Omega$ and $t > 0$. 
+The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ equidistant points with sepparation $h=1/(M-1)$, 
 as described in section \ref{task_1}.
-We also discretize the time interval $t \in [0,t_{end}]$ in the same way, so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$.
+We also discretize the time interval $t \in [0,t_{end}]$ in the same way, 
+so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$, 
+\quad $k = 1/(N-1)$.
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/grid_figure.pgf}
 \end{figure}
 
-Q: Should we explain the BE and CN (ev. the $\theta$-method, or does it suffice to referece them?
+Derivation of theta-method/BE+CN here.
 
+\subsection{Convergence and mesh refinement}
 For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
 so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
 which we use in place of the analytical solution when computing the error. 
-
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/2a_UMR_discrete.pgf}
-\end{figure}
 
 In order to analyze the convergence further, 
 we now consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
 Specifically we consider 
 \begin{equation}
     u_t = u_{xx}, \quad u(0,t) = u(1,t) = 0, \quad u(x,0) = \sin(\pi x), 
+    \label{eq:2b-manufactured}
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
 and the analytical solution is readily available as
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
+    % Necessary to derive this? Just sepparation of variables
 \end{equation}
+
+When doing mesh refinement of the spatial grid we keep the number of time steps $N$ fixed, 
+and solve the equation for the same point in time $t=t_{end}$. 
+We vary the number of spatial grid points $M$, 
+and compute both the $L_2$ discrete relative error. 
+For equation \eqref{eq:2b-manufactured} we also compute the $l_2$ continous relative error, 
+and the resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
+
+Both methods are second order in the spatial step $h$, 
+but Crank-Nicolson is one order higher in time step $k$. 
+
+\begin{figure}[ht]
+    \centering
+    \input{exercise2/2a_UMR_discrete.pgf}
+    \label{fig:2a-convergence}
+\end{figure}
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2b_UMR_combined.pgf}
+    \label{fig:2b-convergence}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,13 +92,12 @@ and the analytical solution is readily available as
 % |  ;   ```  ;{                             ))         []
 % | /``-.____/ `~~~[]~~~~~~~~~~~~~~~~~~~~~~~'-'         []
 % `'              (__)                                 (__)
+%\begin{figure}[ht]
+%    \centering
+%    \input{exercise2/2b_AMR_combined.pgf}
+%\end{figure}
 
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/2b_AMR_combined.pgf}
-\end{figure}
-
-\subsection{Invicid Burgers's equation}
+\section{Invicid Burgers's equation}
 
 Finally, we will solve the inviscid Burgers' equation and evaluate the breaking which this equation exhibits. 
 
