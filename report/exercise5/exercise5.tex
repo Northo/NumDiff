@@ -1,16 +1,48 @@
 \section{Poisson equation in one dimension finite element method}
 
+\newcommand\basisexpand[2]{\sum_{i=0}^{M+1} #1_i \varphi_i(#2)}
+\newcommand\integral[4]{\int_#3^#4 \dif #2 \, #1}
+
 In this section, we will again solve the Poisson equation
 \begin{equation}
 	-\pd[2]{u}{x} = f(x), \quad u(a) = \alpha, \quad u(b) = \beta, \quad (a \leq x \leq b)
+	\label{poisson_equation2}
 \end{equation}
 subject to Dirichlet conditions, but this time with finite elements instead of finite differences.
 
-Divide the interval $[a, b]$ into
+\subsection{Analytical solution}
+
+Same as in \cref{poisson_analytical_solution}, but with $f(x) \rightarrow -f(x)$.
+
+\subsection{Numerical solution using finite element method}
+
+Write
+\begin{equation}
+	u(x) = \hat{u}(x) + r(x), \quad \text{with} \quad \hat{u}(a) = \hat{u}(b) = 0 \quad \text{and} \quad \quad r(x) = \alpha \frac{x-b}{a-b} + \beta \frac{x-a}{b-a}
+\end{equation}
+Now multiply \cref{poisson_equation2} by a function $v(x)$, integrate both sides from $a$ to $b$ and use integration by parts on the left and $\hat{u}(a) = \hat{u}(b) = 0$ to drop the boundary term.
+This gives the \textbf{weak formulation} of the problem: find $\hat{u}$ such that for all $v$
+\newcommand{\weakform}[3]{\integral{\hat{#1}'(x) #2'(x)}{x}{a}{b} = \integral{f(x) #2(x)}{x}{a}{b} - \integral{#3'(x) #2'(x)}{x}{a}{b}}
+\begin{equation}
+	\weakform{u}{v}{r}
+	% \integral{\hat{u}'(x) v'(x)}{x}{a}{b} = \integral{f(x) v(x)}{x}{a}{b} - \integral{R'(x) v'(x)}{x}{a}{b}
+	\label{weak_form_exact}
+\end{equation}
+\Cref{weak_form_exact} is fully equivalent to \cref{poisson_equation2}.
+
+The approximation lies in seeking a solution $U(x) = \hat{U}(x) + R(x) \approx u(x)$ belonging to the space of piecewise linear functions.
+Divide the interval $[a, b]$ into the finite elements
 \begin{equation*}
 	a = x_0 < x_1 < \dots < x_M < x_{M+1} = b.
 \end{equation*}
-Basis function
+and let $U(x)$ be piecewise linear between these points.
+This leads to the weak formulation
+\begin{equation}
+	\weakform{U}{V}{R}
+	% \integral{\hat{u}'(x) v'(x)}{x}{a}{b} = \integral{f(x) v(x)}{x}{a}{b} - \integral{R'(x) v'(x)}{x}{a}{b}
+	\label{weak_form_approximate}
+\end{equation}
+Expand $U(x) = \basisexpand{U}{x}$ and $V(x) = \basisexpand{V}{x}$ in
 \begin{equation*}
 	\varphi_i(x) = 
 	\begin{cases}
@@ -18,36 +50,35 @@ Basis function
 		(x_{i+1} - x)/(x_{i+1} - x_i) & \text{if}        \,\, x_i     \leq x \leq x_{i+1} \\
 		0                             & \text{otherwise} \\
 	\end{cases}
+	=
+	%\begin{tikzpicture}
+	\begin{tikzpicture}[baseline={([yshift=-.5ex]current bounding box.center)}]
+	\begin{axis}[width=6cm,height=4cm,xmin=-3, xmax=+3]
+	\addplot [color=red, domain=-4:-2] {0};
+	\addplot [color=red, domain=-2: 0] {(x - -2) / (0 - -2)};
+	\addplot [color=red, domain= 0:+1] {(1 -  x) / (1 -  0)};
+	\addplot [color=red, domain=+1:+3] {0};
+	\node (0.5, 0.5) {hey};
+	\end{axis}
+	\end{tikzpicture}
 	\label{basisfunction}
 \end{equation*}
-
-\begin{tikzpicture}
-\begin{axis}[xmin=-3, xmax=+3]
-\addplot [domain=-2:0] {(x - -2) / (0 - -2)};
-\addplot [domain=0:+1] {(1 -  x) / (1 -  0)};
-\end{axis}
-\end{tikzpicture}
-
-\newcommand\basisexpand[2]{$#1(#2) = \sum_{i=0}^{M+1} #1_i \varphi_i(#2)$}
-\newcommand\integral[4]{\int_#3^#4 \dif #2 \, #1}
-
-Expand \basisexpand{u}{x} and \basisexpand{v}{x}
+and insert back to get
+\begin{equation*}
+\begin{split}
+	\sum_{i, j} \hat{U}_i V_j \integral{\varphi'_i(x) \varphi'_j(x)}{x}{a}{b}
+	&= \sum_j V_j \integral{\varphi_j(x) f(x)}{x}{a}{b} \\
+	&- a \sum_j V_j \integral{\varphi'_0(x) \varphi'_j(x)}{x}{a}{b}
+	- b \sum_j V_j \integral{\varphi'_{M+1}(x) \varphi'_j(x)}{x}{a}{b} \\
+\end{split}
+\end{equation*}
+or $V^T A \hat{U} = V^T F$ where then
 \begin{equation}
-	\sum_{i, j} u_i v_j \int_a^b \dif x \varphi'_i(x) \varphi'_j(x) = \sum_j v_j \int_a^b \dif x \phi_j(x) f(x)
-\end{equation}
-or
-\begin{equation}
-	v^T A u = v^T f
-\end{equation}
-where
-\begin{equation}
+	A \hat{U} = F
+	\quad \text{with} \quad
 	A_{ij} = \integral{\varphi'_i(x) \varphi'_j(x)}{x}{a}{b} 
 	\quad \text{and} \quad
 	F_j = \integral{\varphi_j(x)}{x}{a}{b}
-\end{equation}
-then
-\begin{equation}
-	A u = f
 \end{equation}
 The A integrals are straightforward to differentiate \ref{basisfunction}:
 \begin{equation}
@@ -58,3 +89,8 @@ The A integrals are straightforward to differentiate \ref{basisfunction}:
 	A_{i i+1} = A_{i+1 i} = \frac{-1}{x_{i+1} - x_i}
 \end{split}
 \end{equation}
+
+We now impose $\hat{U}(a) = \hat{U}(b) = 0$ by removing the first and last entries in the matrix equation \emph{after} calculating the right side.
+This gives a $M \times M$ equation.
+Then we reconstruct the full solution by adding $\alpha$ and $\beta$ as the first and last entries to get $M+2$ points.
+From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
