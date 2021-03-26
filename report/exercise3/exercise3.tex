@@ -100,6 +100,7 @@ or, simplifying the notation with the notation visualized in figure \ref{ex3:fig
     \centering
     \input{./exercise3/stencil.pgf}
     \label{ex3:fig:stencil}
+    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.} % TODO: Write.
 \end{figure}
 
 This stencil can be used to approximate the value of $U(x_m, y_n) = U_{center}$ for all points $(x_m, y_n)$ in the grid.
@@ -133,12 +134,17 @@ The latter being a stacked vector containing all $M+1$ elements $U_{0n}, \ldots,
 The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
 Now, we are able to inclute the nodes $U_{above}$ and $U_{below}$ from the stencil.
 These two nodes are now -- instead of being above and below $U_{center}$ -- to the sides, $M$ nodes away. See figure \ref{ex3:fig:flat_stencil}.
+<<<<<<< HEAD
 
+=======
+>>>>>>> b93db62 (Slightly refines the stencil figures, and fixes captions and references to them.)
 \begin{figure}[htb]
     \centering
     \input{./exercise3/flat_stencil.pgf}
     \label{ex3:fig:flat_stencil}
+    \caption{By flattening the five-point stencil, we can write the system of equations, which is now on the form $AU = 0$.} % TODO: Write.
 \end{figure}
+
 We thus write
 \begin{equation*}
     \renewcommand{\arraystretch}{2.5} % stretch matrix vertically to make it square
@@ -155,7 +161,7 @@ We thus write
         && \frac{1}{k^2} && \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_{0,0} \\ \vdots \\ U_{m,0} \\ \vdots \\ U_{0,N} \\ \vdots \\ U_{M,N} \\
+    U_{0} \\ \vdots \\ U_{m} \\ \vdots \\ U_{N \cdot m} \\ \vdots \\ U_{N \cdot M} \\
     \end{bmatrix}
     =
     \begin{bmatrix}
