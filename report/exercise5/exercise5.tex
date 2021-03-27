@@ -94,3 +94,65 @@ We now impose $\hat{U}(a) = \hat{U}(b) = 0$ by removing the first and last entri
 This gives a $M \times M$ equation.
 Then we reconstruct the full solution by adding $\alpha$ and $\beta$ as the first and last entries to get $M+2$ points.
 From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
+
+\newcommand{\amrplot}[5]{
+\begin{tikzpicture}
+\begin{groupplot}[
+	group style={group size=1 by 2, vertical sep=0.1cm}, width=8.5cm,
+]
+\nextgroupplot[
+	height=4cm,
+	xticklabels={,,}, xtick={0,1}, minor xtick=data,
+	ylabel={norm. error}, ymin=0, ymax=1.2, ytick={0, 1}, minor ytick={0.5},
+	title={#5},
+];
+\addplot [ybar interval, fill=red] table [x=x, y=E] {#1}; % errors
+\addplot [black, dashed] table [y=refE] {#1}; % reference error line
+
+\nextgroupplot[
+	height=6cm,
+	minor xtick=data, xtick={0,1},
+	xlabel=$x$, 
+];
+\addplot [draw=none] table [x=x, y=U] {#1}; % hidden dummy plot (just for ticks)
+\addplot [blue, domain=#3:#4, samples=300, line width=1pt, black] {#2}; % analytical
+\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1}; % numerical
+\end{groupplot}
+\end{tikzpicture}
+}
+
+\begin{figure}
+\centering
+\amrplot{exercise5/data/AMR/f1-M20.dat}{x^2}{0}{1}{$M=20$}
+\amrplot{exercise5/data/AMR/f1-M39.dat}{x^2}{0}{1}{$M=39$}
+\amrplot{exercise5/data/AMR/f1-M77.dat}{x^2}{0}{1}{$M=77$}
+\amrplot{exercise5/data/AMR/f1-M153.dat}{x^2}{0}{1}{$M=153$}
+\caption{AMR, $f(x) = -2$}
+\end{figure}
+
+\begin{figure}
+\centering
+\amrplot{exercise5/data/AMR/f2-M20.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=20$}
+\amrplot{exercise5/data/AMR/f2-M23.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=23$}
+\amrplot{exercise5/data/AMR/f2-M29.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=29$}
+\amrplot{exercise5/data/AMR/f2-M37.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=37$}
+\caption{AMR, $f(x) = (40000 x^2 - 200) \exp(-100x^2)$}
+\end{figure}
+
+\begin{figure}
+\centering
+\amrplot{exercise5/data/AMR/f3-M20.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=20$}
+\amrplot{exercise5/data/AMR/f3-M21.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=21$}
+\amrplot{exercise5/data/AMR/f3-M25.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=25$}
+\amrplot{exercise5/data/AMR/f3-M31.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=31$}
+\caption{AMR, $f(x) = (4000000 x^2 - 2000) \exp(-1000x^2)$}
+\end{figure}
+
+\begin{figure}
+\centering
+\amrplot{exercise5/data/AMR/f4-M20.dat}{2/3*x}{0}{1}{$M=20$}
+\amrplot{exercise5/data/AMR/f4-M21.dat}{2/3*x}{0}{1}{$M=21$}
+\amrplot{exercise5/data/AMR/f4-M23.dat}{2/3*x}{0}{1}{$M=23$}
+\amrplot{exercise5/data/AMR/f4-M26.dat}{2/3*x}{0}{1}{$M=26$}
+\caption{AMR, $f(x) = 2 x^{-4/3} / 9$}
+\end{figure}
