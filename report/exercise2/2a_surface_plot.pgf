@@ -5,6 +5,6 @@
         ylabel={$x$},
         zlabel={$U$},
         ]
-        \addplot3[mesh/cols=100] table[x={t}, y={x}, z={U}] {exercise2/data_ka/2a_surface.dat};
+        \addplot3[surf, mesh/cols=100] table[x={t}, y={x}, z={U}] {exercise2/data_ka/2a_surface.dat};
     \end{axis}
 \end{tikzpicture}
