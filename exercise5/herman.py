@@ -68,9 +68,11 @@ class Problem:
         if show:
             plt.show()
 
-    def error_measure(self, x1, x2):
+    def error_measure(self, i1=0, i2=None):
+        if i2 == None:
+            i2 = len(self.x) - 1 # by default give error on whole domain
         integrand = lambda y: (self.u(y) - np.interp(y, self.x, self.U))**2
-        return scipy.integrate.quad(integrand, x1, x2)[0]
+        return np.sqrt(sum(scipy.integrate.quad(integrand, self.x[i], self.x[i+1])[0] for i in range(i1, i2)))
 
     def solve(self, x):
         M = len(x) - 2 # [0, 1, ..., M, M+1]
@@ -108,7 +110,7 @@ class Problem:
         self.U = U
 
         # Collect errors
-        self.errors = [self.error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]
+        self.errors = [self.error_measure(i, i+1) for i in range(0, len(self.x)-1)]
         self.errors = np.array(self.errors)
 
         if self.strategy == "avgerror":
@@ -153,7 +155,7 @@ class Problem:
 
         def callback():
             Ms.append(len(self.x) - 2)
-            err = sum([self.error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]) # TODO: sqrt?
+            err = self.error_measure()
             errors.append(err)
 
         self.refine_uniformly(callback, plot=False)
