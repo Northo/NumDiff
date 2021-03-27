@@ -123,6 +123,35 @@ From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
 
 \begin{figure}
 \centering
+\begin{tikzpicture}
+\begin{groupplot}[
+	group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=2.5cm},
+	xmode=log, ymode=log,
+	width=8cm, height=7cm, 
+	legend entries={uniform, adaptive (avg.), adaptive (max)},
+	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
+]
+\pgfplotsinvokeforeach {1,2,3,4} {
+	\ifthenelse{\equal{#1}{1}}{
+		\nextgroupplot[ylabel=error,title={$f(x) = -2$}];
+	}{\ifthenelse{\equal{#1}{2}}{
+		\nextgroupplot[title={$f(x) = (40000x^2 - 200) \exp(-100x^2)$}];
+	}{\ifthenelse{\equal{#1}{3}}{
+		\nextgroupplot[xlabel=$M+1$, ylabel=error, title={$f(x) = (4000000x^2 - 2000) \exp(-1000x^2)$}];
+	}{
+		\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
+	}}}
+	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f#1-convergence.dat};
+	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f#1-convergence.dat};
+	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f#1-convergence.dat};
+}
+
+\end{groupplot}
+\end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+\centering
 \amrplot{exercise5/data/AMR/f1-M20.dat}{x^2}{0}{1}{$M=20$}
 \amrplot{exercise5/data/AMR/f1-M39.dat}{x^2}{0}{1}{$M=39$}
 \amrplot{exercise5/data/AMR/f1-M77.dat}{x^2}{0}{1}{$M=77$}

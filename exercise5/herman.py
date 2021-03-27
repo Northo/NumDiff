@@ -163,11 +163,11 @@ class Problem:
         plt.loglog(Ms[i], Es[i], marker="o", label="uniform")
 
         i = 1
-        self.refine_adaptively("avgerror", callback, M0=2, steps=steps)
+        self.refine_adaptively("avgerror", callback, M0=2, steps=steps) # TODO: start at 2 or 20?
         plt.loglog(Ms[i], Es[i], marker="o", label="avgerror")
 
         i = 2
-        self.refine_adaptively("maxerror", callback, M0=2, steps=steps)
+        self.refine_adaptively("maxerror", callback, M0=2, steps=steps) # TODO: start at 2 or 20?
         plt.loglog(Ms[i], Es[i], marker="o", label="maxerror")
 
         columns = [Ms[0], Es[0], Ms[1], Es[1], Ms[2], Es[2]]
