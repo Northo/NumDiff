@@ -70,9 +70,8 @@ That is, we divide the interval $x \in [0,1]$ and $y \in [0,1]$ into $M$ and $N$
 Rewriting Laplace's equation using central differences, we get
 \begin{equation*}
     \begin{split}
-    % This notation is indonsistent with task 1, but it is explicit 
-    % regarding in which points we evaluate the function.
-    % TODO: What do you people think?
+    % TODO: What do you people think about this notation?
+    % I think the equations are a bit long, but relatively clear in return.
     \partial^2_x u(x_m, y_n) 
         &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + \Oh(h^2)\\
         &= \frac{1}{h^2}\delta^2_x u(x_m,y_n),\\
@@ -92,11 +91,18 @@ Adding these expressions, and naming our approximated solution $U_{m,n} := u(x_m
     0 = \partial^2_x u(x_m,y_n) + \partial^2_y u(x_m,y_n)
     \approx \frac{1}{h^2}\delta^2_x U_{m,n} + \frac{1}{k^2}\delta^2_y U_{m,n},
 \end{equation*}
-or, simplifying the notation as shown in figure % TODO: \ref{ex3:fig:stencil}
-,
+or, simplifying the notation with the notation visualized in figure \ref{ex3:fig:stencil},
 \begin{equation*}
     \frac{1}{k^2}(U_{above} + U_{below} - 2U_{center}) + \frac{1}{h^2}(U_{left} + U_{right} - 2U_{center}) = 0.
 \end{equation*}
+
+\begin{figure}[hb]
+    \centering
+    \input{./exercise3/stencil.pgf}
+    \label{ex3:fig:stencil}
+    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.} 
+\end{figure}
+
 This stencil can be used to approximate the value of $U(x_m, y_n) = U_{center}$ for all points $(x_m, y_n)$ in the grid.
 Ignoring firstly the above and below nodes of the stencil, we can easily set up a matrix $A'$ in the same way as in Section \ref{task_1}.
 Note that this is done only in order to clarify the derivation -- the matrix $A'$ is merely a "stepping stone" -- not a useful result.
@@ -127,8 +133,14 @@ This can be done by considering a much larger matrix $A$ and a much longer vecto
 The latter being a stacked vector containing all $M+1$ elements $U_{0n}, \ldots, U_{Mn}$, followed by $U_{01}, \ldots U_{M1}$ and so on.
 The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
 Now, we are able to inclute the nodes $U_{above}$ and $U_{below}$ from the stencil.
-These two nodes are now -- instead of being above and below $U_{center}$ -- to the sides, $M$ nodes away. See figure % TODO: \ref{ex3:fig:flat_stencil}.
-.
+These two nodes are now -- instead of being above and below $U_{center}$ -- to the sides, $M$ nodes away. See figure \ref{ex3:fig:flat_stencil}.
+
+\begin{figure}[htb]
+    \centering
+    \input{./exercise3/flat_stencil.pgf}
+    \label{ex3:fig:flat_stencil}
+    \caption{By flattening the five-point stencil, we can write the system of equations, which is now on the form $AU = 0$.} 
+\end{figure}
 
 We thus write
 \begin{equation*}
@@ -146,7 +158,7 @@ We thus write
         && \frac{1}{k^2} && \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_{0,0} \\ \vdots \\ U_{m,0} \\ \vdots \\ U_{0,N} \\ \vdots \\ U_{M,N} \\
+    U_{0} \\ \vdots \\ U_{m} \\ \vdots \\ U_{N \cdot m} \\ \vdots \\ U_{N \cdot M} \\
     \end{bmatrix}
     =
     \begin{bmatrix}

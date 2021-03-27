@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+    %% X-axis, courtesy of task force 1:
+    \draw[dashed] (0,2) -- (4,2);
+    \draw[dashed](2,0) -- (2,4);
+    \filldraw (0,2) circle (2pt) node[anchor=north] {$U_{left}$};
+    \filldraw (4,2) circle (2pt) node[anchor=north] {$U_{right}$};
+    \filldraw (2,0) circle (2pt) node[anchor=north] {$U_{below}$};
+    \filldraw (2,4) circle (2pt) node[anchor=south] {$U_{above}$};
+    \filldraw (2,2) circle (2pt) node[anchor=south west] {$U_{center}$};
+
+\end{tikzpicture}

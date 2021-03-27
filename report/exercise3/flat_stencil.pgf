@@ -1,0 +1,20 @@
+\begin{tikzpicture}
+    \draw[dashed] (0.0,1.5) -- (3,1.5);
+    \draw[dashed](1.5, 0.0) -- (1.5,3);
+    \filldraw (0,1.5) circle (2pt) node[anchor=north] {$U_{m-1,n}$};
+    \filldraw (3,1.5) circle (2pt) node[anchor=north] {$U_{m+1,n}$};
+    \filldraw (1.5,0) circle (2pt) node[anchor=north] {$U_{m,n+1}$};
+    \filldraw (1.5,3) circle (2pt) node[anchor=south] {$U_{m,n-1}$};
+    \filldraw (1.5,1.5) circle (2pt) node[anchor=south west] {$U_{m,n}$};
+
+    \draw[->] (4,1.5) -- (6,1.5);
+
+    \draw[dotted] (7, 1.5) -- (9, 1.5);
+    \draw[dashed] (9, 1.5) -- (12,1.5);
+    \draw[dotted] (12,1.5) -- (14,1.5);
+    \filldraw (10.5,1.5) circle (2pt) node[anchor=north] {$U_{m \cdot n}$};
+    \filldraw (9.00,1.5) circle (2pt) node[anchor=north] {$U_{m \cdot n - 1}$};
+    \filldraw (12.0,1.5) circle (2pt) node[anchor=north] {$U_{m \cdot n + 1}$};
+    \filldraw (7.00,1.5) circle (2pt) node[anchor=north] {$U_{m \cdot n - M}$};
+    \filldraw (14.0,1.5) circle (2pt) node[anchor=north] {$U_{m \cdot n + M}$};
+\end{tikzpicture}
