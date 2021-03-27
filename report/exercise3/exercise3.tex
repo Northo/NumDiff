@@ -168,3 +168,26 @@ We thus write
     \label{ex3:eq:solution_equation}
 \end{equation*}
 which can be solved, given initial conditions on the boundary of $\Omega$.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            colorbar,
+            view={0}{90},
+            colormap/jet,
+            mesh/ordering=x varies,
+            mesh/cols=100,
+            mesh/rows=100,
+        ]
+            \addplot[
+                surf,
+                shader=flat,
+                point meta=explicit,
+            ] 
+            table[meta=U]{./exercise3/laplace.dat};
+        \end{axis}
+    \end{tikzpicture}
+    \label{ex3:fig:heat_map}
+    \caption{The numerically computed solution to the Laplace equation.}
+\end{figure}
