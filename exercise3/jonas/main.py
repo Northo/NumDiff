@@ -45,7 +45,7 @@ A = csr_matrix(diags([
 # xy contains all coordinates
 x = np.linspace(0, 1, Nx)
 y = np.linspace(0, 1, Ny)
-xy = np.meshgrid(x, y, sparse=True)
+xy = np.array(np.meshgrid(x, y))
 
 # Define boundary functions:
 def g_0(x):
@@ -79,10 +79,52 @@ print(b)
 # This means that we will solve the equation 
 # Au = b.
 U = spsolve(A, b)
-U = U.reshape((Ny,Nx))
+U_arr = U.reshape((Ny,Nx))
+# Flip U because in our original array, x = 0 lies at the top.
+U_arr = np.flip(U_arr, axis=1)
 
 plt.figure()
 plt.title("Numerical solution")
-# Flip U because in our original array, x = 0 lies at the top.
-plt.imshow(np.flip(U, axis=1), extent=[0,1,0,1])
+plt.imshow(U_arr, extent=[0,1,0,1])
 plt.show()
+
+
+def write_to_file(path, U, x, y):
+    n = len(x)
+    m = len(y)
+    assert(len(U) == n*m)
+    
+    # Create an array of size (3,n*m), so that we get something like
+    #####################
+    # x     y       U
+    # 0     0       U_00
+    # 0.1   0       U_10
+    # ...   ...     ...
+    # 0     0.1     U_01
+    # ...   ...     ...
+    #####################
+
+    data = np.array([np.tile(x,m), np.sort(np.tile(y,n)), U])
+    print(data.shape)
+    headers = "x y U"
+    print(np.transpose(data).shape)
+    np.savetxt(path, np.transpose(data), header=headers, comments="", fmt="%1.3f")
+    print(f"Wrote to {path}")
+            
+
+
+def write_table_to_file(path, table, headers):
+    np.savetxt(path, table, header=" ".join(headers), comments="")
+    print(f"Wrote to {path}")
+
+def write_columns_to_file(path, columns, headers):
+    max_length = np.max([len(column) for column in columns])
+    for i in range(0, len(columns)):
+        length = len(columns[i])
+        column = np.full(max_length, np.nan)
+        column[0:length] = columns[i]
+        columns[i] = column
+    write_table_to_file(path, np.transpose(columns), headers)
+
+path = f"../../report/exercise3/laplace.dat"
+write_to_file(path, U, x, y)

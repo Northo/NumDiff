@@ -168,3 +168,21 @@ We thus write
     \label{ex3:eq:solution_equation}
 \end{equation*}
 which can be solved, given initial conditions on the boundary of $\Omega$.
+
+\begin{figure}
+    \begin{tikzpicture}
+        \begin{axis}[
+            colorbar,
+            view={0}{90},
+            %colormap/jet
+            %mesh/ordering=x varies,
+            %mesh/cols=100,
+        ]
+            \addplot3[
+                surf,
+                %shader=interp,
+            ] 
+            table{./exercise3/laplace.dat};
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
