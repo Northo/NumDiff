@@ -124,17 +124,17 @@ class Problem:
         x = np.linspace(self.x1, self.x2, M0) # initial uniform grid
         for step in range(0, steps):
             self.solve(x)
-            callback()
+            callback(step)
             if write:
                 self.write("AMR")
             if plot:
                 self.plot(show=True)
             x = refiner(x)
 
-    def refine_uniformly(self, callback, plot=False, write=False):
+    def refine_uniformly(self, callback, steps=12, plot=False, write=False):
         def refiner(x):
             return np.linspace(self.x1, self.x2, 2*(len(x)-1)+1)
-        self.refine(2, refiner, 12, callback, plot, write)
+        self.refine(2, refiner, steps, callback, plot, write)
 
     def refine_adaptively(self, strategy, callback, M0=2, steps=4, plot=False, write=False):
         self.strategy = strategy
@@ -150,27 +150,33 @@ class Problem:
         
         self.refine(M0, refiner, steps, callback, plot, write)
 
-    def convergence_plot(self):
-        Ms, errors = [], []
+    def convergence_plot(self, plot=False):
+        i = 0
+        steps = 12
+        Ms, Es = np.empty((3, steps)), np.empty((3, steps))
 
-        def callback():
-            Ms.append(len(self.x) - 2)
-            err = self.error_measure()
-            errors.append(err)
+        def callback(step):
+            Ms[i,step] = len(self.x) - 2
+            Es[i,step] = self.error_measure()
 
-        self.refine_uniformly(callback, plot=False)
-        plt.loglog(Ms, errors, marker="o", label="uniform")
+        self.refine_uniformly(callback, steps=steps)
+        plt.loglog(Ms[i], Es[i], marker="o", label="uniform")
 
-        Ms, errors = [], []
-        self.refine_adaptively("avgerror", callback, M0=2, steps=10)
-        plt.loglog(Ms, errors, marker="o", label="avgerror")
+        i = 1
+        self.refine_adaptively("avgerror", callback, M0=2, steps=steps)
+        plt.loglog(Ms[i], Es[i], marker="o", label="avgerror")
 
-        Ms, errors = [], []
-        self.refine_adaptively("maxerror", callback, M0=2, steps=10)
-        plt.loglog(Ms, errors, marker="o", label="maxerror")
+        i = 2
+        self.refine_adaptively("maxerror", callback, M0=2, steps=steps)
+        plt.loglog(Ms[i], Es[i], marker="o", label="maxerror")
 
-        plt.legend()
-        plt.show()
+        columns = [Ms[0], Es[0], Ms[1], Es[1], Ms[2], Es[2]]
+        headers = [ "M1",  "E1",  "M2",  "E2",  "M3",  "E3"]
+        write_columns_to_file(f"../report/exercise5/data/convergence/{self.label}-convergence.dat", columns, headers)
+
+        if plot:
+            plt.legend()
+            plt.show()
 
     def write(self, dir, normalize_errors=True):
         M = len(self.x)
@@ -201,7 +207,7 @@ params = [
 probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
     # prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False)
-    prob.convergence_plot()
+    prob.convergence_plot(plot=False)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))
