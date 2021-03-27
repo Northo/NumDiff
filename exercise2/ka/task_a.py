@@ -50,8 +50,17 @@ if __name__ == "__main__":
     # make_continous_convergence_plots(u0, bc1, bc2)
 
     grid = Grid(Grid.UNIFORM, np.linspace(0, 1, 100))
-    #    t, U_final, sols = crank_nicolson(grid, bc1, bc2, u0, 100, 0.5)
-    t, U_final, sols = backward_euler(grid, bc1, bc2, u0, 100, 0.5)
+    t, U_final, sols = crank_nicolson(grid, bc1, bc2, u0, 100, 0.5)
+    #t, U_final, sols = backward_euler(grid, bc1, bc2, u0, 100, 0.5)
+
+    #u_table = [sols[i] for i in t]
+    U_table = np.resize(sols, sols.size)
+    x_table = np.tile(grid.x, len(t))
+    t_table = np.repeat(t, len(grid.x))
+    table = np.column_stack((x_table, t_table, U_table))
+    outpath = f"{OUT_DIR}2a_surface.dat"
+    np.savetxt(outpath, table, header="x t U", comments="")
+
 
     # Animation
     animation = animate_time_development(grid.x, sols)
