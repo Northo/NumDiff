@@ -68,6 +68,10 @@ class Problem:
         if show:
             plt.show()
 
+    def error_measure(self, x1, x2):
+        integrand = lambda y: (self.u(y) - np.interp(y, self.x, self.U))**2
+        return scipy.integrate.quad(integrand, x1, x2)[0]
+
     def solve(self, x):
         M = len(x) - 2 # [0, 1, ..., M, M+1]
         A = np.zeros((M+2, M+2)) # will later chop off ends
@@ -104,10 +108,7 @@ class Problem:
         self.U = U
 
         # Collect errors
-        def error_measure(x1, x2):
-            integrand = lambda y: (self.u(y) - np.interp(y, self.x, self.U))**2
-            return scipy.integrate.quad(integrand, x1, x2)[0]
-        self.errors = [error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]
+        self.errors = [self.error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]
         self.errors = np.array(self.errors)
 
         if self.strategy == "avgerror":
@@ -117,21 +118,23 @@ class Problem:
 
         return U
 
-    def refine(self, M0, refiner, steps, plot):
+    def refine(self, M0, refiner, steps, callback, plot, write):
         x = np.linspace(self.x1, self.x2, M0) # initial uniform grid
         for step in range(0, steps):
             self.solve(x)
-            self.write("AMR")
+            callback()
+            if write:
+                self.write("AMR")
             if plot:
                 self.plot(show=True)
             x = refiner(x)
 
-    def refine_uniformly(self, plot=False):
+    def refine_uniformly(self, callback, plot=False, write=False):
         def refiner(x):
             return np.linspace(self.x1, self.x2, 2*(len(x)-1)+1)
-        self.refine(2, refiner, 10, plot)
+        self.refine(2, refiner, 12, callback, plot, write)
 
-    def refine_adaptively(self, strategy, M0=2, steps=4, plot=False):
+    def refine_adaptively(self, strategy, callback, M0=2, steps=4, plot=False, write=False):
         self.strategy = strategy
 
         def refiner(x):
@@ -143,7 +146,29 @@ class Problem:
             newx = np.append(newx, x[-1])
             return newx
         
-        self.refine(M0, refiner, steps, plot)
+        self.refine(M0, refiner, steps, callback, plot, write)
+
+    def convergence_plot(self):
+        Ms, errors = [], []
+
+        def callback():
+            Ms.append(len(self.x) - 2)
+            err = sum([self.error_measure(self.x[i], self.x[i+1]) for i in range(0, len(self.x)-1)]) # TODO: sqrt?
+            errors.append(err)
+
+        self.refine_uniformly(callback, plot=False)
+        plt.loglog(Ms, errors, marker="o", label="uniform")
+
+        Ms, errors = [], []
+        self.refine_adaptively("avgerror", callback, M0=2, steps=10)
+        plt.loglog(Ms, errors, marker="o", label="avgerror")
+
+        Ms, errors = [], []
+        self.refine_adaptively("maxerror", callback, M0=2, steps=10)
+        plt.loglog(Ms, errors, marker="o", label="maxerror")
+
+        plt.legend()
+        plt.show()
 
     def write(self, dir, normalize_errors=True):
         M = len(self.x)
@@ -156,7 +181,6 @@ class Problem:
             columns.append(np.full(len(self.x), referror))
             headers.append("refE")
         write_columns_to_file(path, columns, headers)
-        
 
 x = sympy.var("x")
 
@@ -172,9 +196,10 @@ params = [
     ("f4", 2/9*x**(-4/3), (0, 1), (0, 1)), # TODO: how to deal with singularity at f(0)?
 ]
 
-probs = (Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params)
+probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
-    prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False)
+    # prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False)
+    prob.convergence_plot()
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))
