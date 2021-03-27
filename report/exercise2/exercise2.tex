@@ -28,6 +28,12 @@ so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, 
 
 Derivation of theta-method/BE+CN here.
 
+\begin{figure}[ht]
+    \centering
+    \input{exercise2/2a_surface_plot.pgf}
+    \caption{I am a surface plot, Hooray :)}
+\end{figure}
+
 \subsection{Convergence and mesh refinement}
 For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
 so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
@@ -48,9 +54,10 @@ and the analytical solution is readily available as
     % Necessary to derive this? Just sepparation of variables
 \end{equation}
 
-When doing mesh refinement of the spatial grid we keep the number of time steps $N$ fixed, 
-and solve the equation for the same point in time $t=t_{end}$. 
-We vary the number of spatial grid points $M$, 
+When doing mesh refinement of the spatial grid, 
+we vary the number of spatial grid points $M$, 
+and compute the numerical solution at the same point in time $t=t_{end}$. 
+The number of time steps $N$ is kept fixed, 
 and compute both the $L_2$ discrete relative error. 
 For equation \eqref{eq:2b-manufactured} we also compute the $l_2$ continous relative error, 
 and the resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
