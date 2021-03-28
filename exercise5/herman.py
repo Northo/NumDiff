@@ -120,23 +120,24 @@ class Problem:
 
         return U
 
-    def refine(self, M0, refiner, steps, callback, plot, write):
+    def refine(self, M0, refiner, steps, callback, plot, write, label):
         x = np.linspace(self.x1, self.x2, M0) # initial uniform grid
         for step in range(0, steps):
             self.solve(x)
-            callback(step)
+            if callback:
+                callback(step)
             if write:
-                self.write("AMR")
+                self.write(label)
             if plot:
                 self.plot(show=True)
             x = refiner(x)
 
-    def refine_uniformly(self, callback, steps=12, plot=False, write=False):
+    def refine_uniformly(self, callback=None, M0=2, steps=12, plot=False, write=False):
         def refiner(x):
             return np.linspace(self.x1, self.x2, 2*(len(x)-1)+1)
-        self.refine(2, refiner, steps, callback, plot, write)
+        self.refine(M0, refiner, steps, callback, plot, write, "UMR")
 
-    def refine_adaptively(self, strategy, callback, M0=2, steps=4, plot=False, write=False):
+    def refine_adaptively(self, strategy, callback=None, M0=2, steps=4, plot=False, write=False):
         self.strategy = strategy
 
         def refiner(x):
@@ -148,7 +149,7 @@ class Problem:
             newx = np.append(newx, x[-1])
             return newx
         
-        self.refine(M0, refiner, steps, callback, plot, write)
+        self.refine(M0, refiner, steps, callback, plot, write, "AMR")
 
     def convergence_plot(self, plot=False):
         i = 0
@@ -206,8 +207,9 @@ params = [
 
 probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
+    prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
     # prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False)
-    prob.convergence_plot(plot=False)
+    # prob.convergence_plot(plot=False)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))
