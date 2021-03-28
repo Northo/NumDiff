@@ -13,6 +13,10 @@ subject to Dirichlet conditions, but this time with finite elements instead of f
 \subsection{Analytical solution}
 
 Same as in \cref{poisson_analytical_solution}, but with $f(x) \rightarrow -f(x)$.
+\begin{equation}
+u(x) = C_1 + C_2 x - \int^x \dif x' \int^{x'} \dif x'' f(x''),
+\label{poisson_analytical_solution2}
+\end{equation}
 
 \subsection{Numerical solution using finite element method}
 
@@ -138,7 +142,7 @@ From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
 \end{tikzpicture}
 }
 
-\newcommand\figureseries[2]{
+\newcommand\figureseries[3]{
 \begin{figure}
 \centering
 $f(x) = -2$
@@ -159,13 +163,50 @@ $f(x) = (4000000x^2 - 2000) \exp(-1000x^2)$
 $f(x) = 2x^{-4/3}/9$
 \medskip \medskip
 \plotseries{#1/f4}{x^(2/3)}{}{0}{1}
-\caption{#2}
+\caption{\label{#2}#3}
 \end{figure}
 }
 
-\figureseries{exercise5/data/UMR}{Uniform refinement}
+\subsubsection{Uniform refinement}
 
-\figureseries{exercise5/data/AMR}{Adaptive refinement, average strategy}
+We now test our finite element method on four problems in \cref{femumr} with uniformly sized elements.
+Except on the first problem, errors are distributed non-evenly across the elements.
+By using uniform elements, we therefore waste a lot of space by using many elements in regions where the solution is already well known.
+
+\figureseries{exercise5/data/UMR}{femumr}{Uniform refinement}
+
+\subsubsection{Adaptive refinement}
+
+This is the motivation for doing adaptive refinement of the elements.
+This time, we will do it a little differently than in ONE.
+Instead of splitting only one element between each iteration of the numerical solution, we now present two strategies that splits a dynamic number of elements so that all errors reduce below some given level in every iteration.
+\begin{enumerate}
+\item \textbf{Average error strategy:} Split the interval $[x_m, x_{m+1}]$ with error 
+\begin{equation*}
+\Ltwoerror{u(x)-U(x)} > 0.99 \, \dfrac{\Ltwoerror{u(x)-U(x)}}{N},
+\end{equation*}
+where $N$ is the number of intervals.
+The prefactor ensures that intervals are split also when all errors are equal up to machine precision, so the refinement does not halt.
+\item \textbf{Maximum error strategy:} Split the interval $[x_m, x_{m+1}]$ with error
+\begin{equation*}
+\Ltwoerror{u(x)-U(x)} > 0.70 \, \max{\Ltwoerror{u(x)-U(x)}},
+\end{equation*}
+where $N$ is the number of intervals.
+\end{enumerate}
+
+In \cref{femamr}, we show how the errors distribute on the same problems using the average error strategy.
+Finally, in \cref{femconvergence}, we compare the convergence of uniform refinement and the two adaptive refinement strategies.
+Note that the adaptive refinement always yields a better result, unlike in ONE!
+
+Related to the fact that the basis functions ``cover the whole domain''?
+
+Comment on uniform = adaptive in 1st problem?
+
+Comment on which numerical integration procedure to use?
+
+Comment on how to handle diverging $f$ in 4th problem?
+
+\figureseries{exercise5/data/AMR}{femamr}{Adaptive refinement, average strategy}
 
 \begin{figure}
 \centering
@@ -194,4 +235,5 @@ $f(x) = 2x^{-4/3}/9$
 
 \end{groupplot}
 \end{tikzpicture}
+\caption{\label{femconvergence}Convergence plot, comparision of three strategies}
 \end{figure}
