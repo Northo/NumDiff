@@ -127,7 +127,7 @@ class Problem:
             if callback:
                 callback(step)
             if write:
-                self.write(label)
+                self.write(label, step)
             if plot:
                 self.plot(show=True)
             x = refiner(x)
@@ -179,16 +179,20 @@ class Problem:
             plt.legend()
             plt.show()
 
-    def write(self, dir, normalize_errors=True):
+    def write(self, dir, step, normalize_errors=True):
         M = len(self.x)
-        path = f"../report/exercise5/data/{dir}/{self.label}-M{M}.dat"
+
         errors = self.errors / np.max(self.errors) if normalize_errors else self.errors
-        columns = [self.x, self.U, np.concatenate((errors, [0]))]
-        headers = [   "x",    "U",                           "E"]
-        if self.strategy is not None:
-            referror = self.referror / np.max(self.errors) if normalize_errors else self.referror
-            columns.append(np.full(len(self.x), referror))
-            headers.append("refE")
+        if self.strategy is not None and normalize_errors:
+            referror = self.referror / np.max(self.errors)
+        elif self.strategy is not None and not normalize_errors:
+            referror = self.referror
+        else:
+            referror = -1 # dummy, hide from plots
+
+        path = f"../report/exercise5/data/{dir}/{self.label}-step{step}.dat"
+        columns = [self.x, self.U, np.concatenate((errors, [0])), np.full(len(self.x), referror)]
+        headers = [   "x",    "U",                           "E",   "refE"]
         write_columns_to_file(path, columns, headers)
 
 x = sympy.var("x")
@@ -207,8 +211,8 @@ params = [
 
 probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
-    prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
-    # prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False)
+    # prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
+    prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False, write=True)
     # prob.convergence_plot(plot=False)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)

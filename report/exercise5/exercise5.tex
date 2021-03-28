@@ -95,53 +95,77 @@ This gives a $M \times M$ equation.
 Then we reconstruct the full solution by adding $\alpha$ and $\beta$ as the first and last entries to get $M+2$ points.
 From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
 
-\newcommand{\amrplot}[9]{
+\newcommand\plotseries[5]{
+\pgfplotstablegetrowsof{#1-step0.dat}
+\pgfmathsetmacro{\MA}{\pgfplotsretval}
+\pgfplotstablegetrowsof{#1-step1.dat}
+\pgfmathsetmacro{\MB}{\pgfplotsretval}
+\pgfplotstablegetrowsof{#1-step2.dat}
+\pgfmathsetmacro{\MC}{\pgfplotsretval}
+
 \begin{tikzpicture}
 \begin{groupplot}[
-	group style={group size=1 by 2, vertical sep=0.1cm}, width=#6,
+	group style={group size=3 by 2, horizontal sep=0.1cm, vertical sep=0.1cm},
+	width=6.4cm,
+	xtick={#4, #5}, minor xtick=data,
 ]
-\nextgroupplot[
-	height=#8,
-	xticklabels={,,}, xtick={#3, #4}, minor xtick=data,
-	ylabel={#9}, ymin=0, ymax=1.2, ytick={0, 1}, minor ytick={0.5}, yticklabels={,,},
-	title={#5},
-];
-\addplot [ybar interval, fill=red] table [x=x, y=E] {#1}; % errors
-% TODO: make optional depending on refining or not?
-% \addplot [black, dashed] table [y=refE] {#1}; % reference error line
 
-\nextgroupplot[
-	height=#7,
-	minor xtick=data, xtick={#3,#4}, xlabel=$x$, 
-	yticklabels={,,},
-];
-\addplot [draw=none] table [x=x, y=U] {#1}; % hidden dummy plot (just for ticks)
-\addplot [blue, domain=#3:#4, samples=300, line width=1pt, black] {#2}; % analytical
-\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1}; % numerical
+\nextgroupplot[height=3cm, xticklabels={,,}, xtick={#4, #5}, minor xtick=data, ymin=0, ymax=1.2, ytick={0, 1}, minor ytick={0.5}, title={$M=\MA$}, ylabel={$E/E_{\text{max}}$}];
+\addplot [ybar interval, fill=red] table [x=x, y=E] {#1-step0.dat}; % errors
+\addplot [black, dashed] table [y=refE] {#1-step0.dat}; % reference error line
+\nextgroupplot[height=3cm, xticklabels={,,}, xtick={#4, #5}, minor xtick=data, ymin=0, ymax=1.2, ytick={0, 1}, minor ytick={0.5}, title={$M=\MB$}, yticklabels={,,}];
+\addplot [ybar interval, fill=red] table [x=x, y=E] {#1-step1.dat}; % errors
+\addplot [black, dashed] table [y=refE] {#1-step1.dat}; % reference error line
+\nextgroupplot[height=3cm, xticklabels={,,}, xtick={#4, #5}, minor xtick=data, ymin=0, ymax=1.2, ytick={0, 1}, minor ytick={0.5}, title={$M=\MC$}, yticklabels={,,}];
+\addplot [ybar interval, fill=red] table [x=x, y=E] {#1-step2.dat}; % errors
+\addplot [black, dashed] table [y=refE] {#1-step2.dat}; % reference error line
+
+\nextgroupplot[xlabel=$x$];
+\addplot [draw=none] table [x=x, y=U] {#1-step0.dat}; % hidden dummy plot (just for ticks)
+\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
+\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step0.dat}; % numerical
+
+\nextgroupplot[xlabel=$x$, yticklabels={,,}];
+\addplot [draw=none] table [x=x, y=U] {#1-step1.dat}; % hidden dummy plot (just for ticks)
+\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
+\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step1.dat}; % numerical
+
+\nextgroupplot[xlabel=$x$, yticklabels={,,}];
+\addplot [draw=none] table [x=x, y=U] {#1-step2.dat}; % hidden dummy plot (just for ticks)
+\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
+\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step2.dat}; % numerical
 \end{groupplot}
 \end{tikzpicture}
 }
 
+\newcommand\figureseries[2]{
 \begin{figure}
-	\centering
-	\amrplot{exercise5/data/UMR/f1-M8.dat}{x^2}{0}{1}{$M=8$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f1-M15.dat}{x^2}{0}{1}{$M=15$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f1-M29.dat}{x^2}{0}{1}{$M=29$}{5.9cm}{5cm}{3.0cm}{}
-
-	\amrplot{exercise5/data/UMR/f2-M8.dat}{exp(-100) - exp(-100*x^2)}{-1}{1}{$M=8$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f2-M15.dat}{exp(-100) - exp(-100*x^2)}{-1}{1}{$M=15$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f2-M29.dat}{exp(-100) - exp(-100*x^2)}{-1}{1}{$M=29$}{5.9cm}{5cm}{3.0cm}{}
+\centering
+$f(x) = -2$
+\medskip \medskip
+\plotseries{#1/f1}{x^2}{}{0}{1} \\
+\medskip \medskip \medskip \medskip
+$f(x) = (40000x^2 - 200) \exp(-100x^2)$
+\medskip \medskip 
+\plotseries{#1/f2}{exp(-100) - exp(-100*x^2)}{}{-1}{1} \\
 \end{figure}
 \begin{figure}
-	\centering
-	\amrplot{exercise5/data/UMR/f3-M8.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{1}{$M=8$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f3-M15.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{1}{$M=15$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f3-M29.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{1}{$M=29$}{5.9cm}{5cm}{3.0cm}{}
-
-	\amrplot{exercise5/data/UMR/f4-M8.dat}{x^(2/3)}{0}{1}{$M=8$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f4-M15.dat}{x^(2/3)}{0}{1}{$M=15$}{5.9cm}{5cm}{3.0cm}{}
-	\amrplot{exercise5/data/UMR/f4-M29.dat}{x^(2/3)}{0}{1}{$M=29$}{5.9cm}{5cm}{3.0cm}{}
+\ContinuedFloat % split over two pages
+\centering
+$f(x) = (4000000x^2 - 2000) \exp(-1000x^2)$
+\medskip \medskip
+\plotseries{#1/f3}{exp(-1000) - exp(-1000*x^2)}{}{-1}{1} \\
+\medskip \medskip \medskip \medskip
+$f(x) = 2x^{-4/3}/9$
+\medskip \medskip
+\plotseries{#1/f4}{x^(2/3)}{}{0}{1}
+\caption{#2}
 \end{figure}
+}
+
+\figureseries{exercise5/data/UMR}{Uniform refinement}
+
+\figureseries{exercise5/data/AMR}{Adaptive refinement, average strategy}
 
 \begin{figure}
 \centering
@@ -170,40 +194,4 @@ From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
 
 \end{groupplot}
 \end{tikzpicture}
-\end{figure}
-
-\begin{figure}
-\centering
-\amrplot{exercise5/data/AMR/f1-M20.dat}{x^2}{0}{1}{$M=20$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f1-M39.dat}{x^2}{0}{1}{$M=39$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f1-M77.dat}{x^2}{0}{1}{$M=77$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f1-M153.dat}{x^2}{0}{1}{$M=153$}{8.5cm}{6cm}{3cm}{}
-\caption{AMR, $f(x) = -2$}
-\end{figure}
-
-\begin{figure}
-\centering
-\amrplot{exercise5/data/AMR/f2-M20.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=20$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f2-M23.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=23$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f2-M29.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=29$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f2-M37.dat}{exp(-100) - exp(-100*x^2)}{-1}{+1}{$M=37$}{8.5cm}{6cm}{3cm}{}
-\caption{AMR, $f(x) = (40000 x^2 - 200) \exp(-100x^2)$}
-\end{figure}
-
-\begin{figure}
-\centering
-\amrplot{exercise5/data/AMR/f3-M20.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=20$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f3-M21.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=21$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f3-M25.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=25$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f3-M31.dat}{exp(-1000) - exp(-1000*x^2)}{-1}{+1}{$M=31$}{8.5cm}{6cm}{3cm}{}
-\caption{AMR, $f(x) = (4000000 x^2 - 2000) \exp(-1000x^2)$}
-\end{figure}
-
-\begin{figure}
-\centering
-\amrplot{exercise5/data/AMR/f4-M20.dat}{x^(2/3)}{0}{1}{$M=20$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f4-M21.dat}{x^(2/3)}{0}{1}{$M=21$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f4-M23.dat}{x^(2/3)}{0}{1}{$M=23$}{8.5cm}{6cm}{3cm}{}
-\amrplot{exercise5/data/AMR/f4-M26.dat}{x^(2/3)}{0}{1}{$M=26$}{8.5cm}{6cm}{3cm}{}
-\caption{AMR, $f(x) = 2 x^{-4/3} / 9$}
 \end{figure}
