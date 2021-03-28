@@ -111,7 +111,7 @@ From $U$, we reconstruct $U(x) = \basisexpand{U}{x}$.
 
 \nextgroupplot[
 	height=6cm,
-	minor xtick=data, xtick={0,1},
+	minor xtick=data, xtick={#3,#4},
 	xlabel=$x$, 
 ];
 \addplot [draw=none] table [x=x, y=U] {#1}; % hidden dummy plot (just for ticks)
