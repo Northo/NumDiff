@@ -1,32 +1,67 @@
 \section{Heat equation in one dimension}
-In this section, we consider the one-dimensional heat equation, 
+In this section, we consider the one-dimensional heat equation for $u = u(x, t)$, 
 \begin{equation*}
-    u_t = u_{xx},   \quad x \in [0,1] := \Omega, 
+    u_t = u_{xx}, \quad u(x, 0) = f(x), \quad x \in [0,1] := \Omega, 
     \label{eq:heat-eq}
 \end{equation*}
+with either Neumann or Dirchelet boundaryconditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
 and we will analyze and compare the convergence of the two methods using mesh refinement as we did in section \ref{task_1}. 
 
 \subsection{Numerical solution method}
-We start by considering the heat equation with the following Neumann boundary conditions and initial condition, 
+To solve the heat equation numerically we first perform semi-discretization, 
+i.e. we do spatial discretization and keep the time continous. 
+The interval $\Omega$ is divided into $M$ equidistant points with sepparation $h=1/(M-1)$, 
+as described in section \ref{task_1}, 
+and we approximate the spatial derivative with central finite differences. 
+Introducing $v_m(t), m = 0, ..., M$ as approximations to $u(x_m, t)$, 
+the result is now that we have gone from a PDE to a system of ODEs, 
 \begin{equation*}
-    u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
-    \label{eq:2a}
+    \frac{dv_m(t)}{dt} = \frac{1}{h^2} \delta_x^2 v_m(t), 
+    \quad v_m(0) = f(x_m). 
 \end{equation*}
-valid for $x \in [0,1] := \Omega$ and $t > 0$. 
-The equation can be solved numeriacally by dividing the interval $\Omega$ in $M$ equidistant points with sepparation $h=1/(M-1)$, 
-as described in section \ref{task_1}.
-We also discretize the time interval $t \in [0,t_{end}]$ in the same way, 
+
+The problem is then generally solved by imposing the boundary conditions, 
+and numerically integrating the equations in time, 
+using e.g. Euler's method. 
+For convenience we employ the $\theta$-method, 
+\begin{equation*}
+    General theta method, 
+\end{equation*}
+and obtain 
+\begin{equation}
+    theta method for heat equation.
+    \label{eq:theta-heat}
+\end{equation}
+Integrating with constant time step $k$ results in a uniform grid for the time interval as well. 
+As for the spatial grid, we divide the time interval into $N$ equidistant points, 
 so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$, 
-\quad $k = 1/(N-1)$.
+\quad $k = 1/(N-1)$. 
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/grid_figure.pgf}
 \end{figure}
 
-Derivation of theta-method/BE+CN here.
+Setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme, 
+we have
+\begin{equation*}
+\begin{split}
+    \text{Forward Euler} \quad \theta = 0 \\
+    \text{Backward Euler} \quad \theta = 1 \\
+    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}, \\
+\end{split}
+\end{equation*}
+and we will as mentioned consider the Bacward-Euler and Crank-Nicolson methods. 
+
+Imposing boundary conditions and some matrix equations here I guess.
+
+We start by considering the heat equation with the following Neumann boundary conditions and initial condition, 
+\begin{equation}
+    u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
+    \label{eq:2a}
+\end{equation}
 
 \begin{figure}[ht]
     \centering
@@ -104,9 +139,14 @@ but Crank-Nicolson is one order higher in time step $k$.
 %    \input{exercise2/2b_AMR_combined.pgf}
 %\end{figure}
 
-\section{Invicid Burgers's equation}
+\section{Invicid Burgers' equation}
 
-Finally, we will solve the inviscid Burgers' equation and evaluate the breaking which this equation exhibits. 
+In this section we briefly inspect and solve the inviscid Burgers' equation, 
+and evaluate the breaking which this equation exhibits. 
+
+Notes:
+    -Also semi-discretization, but integrate using off-shelf routine
+    -Breaking/shock formation: Numerical vs theoretical
 
 \begin{figure}[ht]
     \centering
