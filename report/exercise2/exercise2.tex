@@ -7,45 +7,48 @@ In this section, we consider the one-dimensional heat equation for $u = u(x, t)$
 with either Neumann or Dirchelet boundaryconditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
-and we will analyze and compare the convergence of the two methods using mesh refinement as we did in section \ref{task_1}. 
+and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. However we will here restrict our attention to uniform grids only. 
 
 \subsection{Numerical solution method}
 To solve the heat equation numerically we first perform semi-discretization, 
 i.e. we do spatial discretization and keep the time continous. 
-The interval $\Omega$ is divided into $M$ equidistant points with sepparation $h=1/(M-1)$, 
+The interval $\Omega$ is divided into $M$ equidistant points with separation $h=1/(M-1)$, 
 as described in section \ref{task_1}, 
-and we approximate the spatial derivative with central finite differences. 
-Introducing $v_m(t), m = 0, ..., M$ as approximations to $u(x_m, t)$, 
-the result is now that we have gone from a PDE to a system of ODEs, 
+and we express the spatial derivative using the central finite difference to get %Maybe reference the equation for central diff in section 1?
+\begin{equation*}
+    u_t(x_m, t) = \frac{1}{h^2} \delta_x^2 u(x_m, t) + \mathcal{O}(h^2), 
+    \quad m = 1,...,M.
+\end{equation*}
+We now introduce the single variate functions $v_m(t)$ as the approximation to $u(x_m, t)$, 
+at each $x_m$, 
+turning the PDE into a set of ODEs 
 \begin{equation*}
     \frac{dv_m(t)}{dt} = \frac{1}{h^2} \delta_x^2 v_m(t), 
     \quad v_m(0) = f(x_m). 
 \end{equation*}
 
 The problem is then generally solved by imposing the boundary conditions, 
-and numerically integrating the equations in time, 
-using e.g. Euler's method. 
-For convenience we employ the $\theta$-method, 
+and numerically integrating the equations in time. 
+The integration can be done by using one of the many off-shelf routines for ODEs, 
+e.g. Euler's method,  
+and for convenience we employ the $\theta$-method, 
+which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
-    General theta method, 
+    y^{n+1} = y^n + \Delta t ((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})). 
 \end{equation*}
-and obtain 
+Using a constant time step $\Delta t = k$ leads to uniform discretization of the time interval, 
+which we divide into $N$ equidistant points, 
+and the final discrete grid for space and time is illustrated in figure \ref{fig:2-uniform-grid}.
+This gives the approximate solution of $v_m(t)$ at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$, 
+\quad $k = 1/(N-1)$, 
+and we finally denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
+The $\theta$-method for the 1D heat equation is then written out as
 \begin{equation}
-    theta method for heat equation.
+    theta method for heat equation, 
     \label{eq:theta-heat}
 \end{equation}
-Integrating with constant time step $k$ results in a uniform grid for the time interval as well. 
-As for the spatial grid, we divide the time interval into $N$ equidistant points, 
-so that we approximate the solution at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$, 
-\quad $k = 1/(N-1)$. 
-
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/grid_figure.pgf}
-\end{figure}
-
-Setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme, 
-we have
+and setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme. 
+We have
 \begin{equation*}
 \begin{split}
     \text{Forward Euler} \quad \theta = 0 \\
@@ -55,18 +58,30 @@ we have
 \end{equation*}
 and we will as mentioned consider the Bacward-Euler and Crank-Nicolson methods. 
 
-Imposing boundary conditions and some matrix equations here I guess.
+\begin{figure}[ht]
+    \centering
+    \input{exercise2/grid_figure.pgf}
+    \caption{Discrete uniform grid}
+    \label{fig:2-uniform-grid}
+\end{figure}
 
-We start by considering the heat equation with the following Neumann boundary conditions and initial condition, 
+Imposing boundary conditions and some matrix form/equations here I guess.
+
+With the numerical schemes in hand we now solve the heat equation with the following Neumann boundary conditions and initial condition, 
 \begin{equation}
-    u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x),
+    u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x). 
     \label{eq:2a}
 \end{equation}
+The computed solutions for $t \in [0, 0.5]$ is plotted in figure \ref{fig:2a-surface}, 
+and qualitatively the solution behaves in accordance to what one should expect for the heat equation. 
+To quantify and compare the accuracy of the numerical schemes we will now proceed to analyze convergence using mesh refinement, 
+similar to what we did in section \ref{task_1}. 
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_surface_plot.pgf}
     \caption{I am a surface plot, Hooray :)}
+    \label{fig:2a-surface}
 \end{figure}
 
 \subsection{Convergence and mesh refinement}
@@ -75,18 +90,21 @@ so in order to analyze convergence we compute a reference solution using a suffi
 which we use in place of the analytical solution when computing the error. 
 
 In order to analyze the convergence further, 
-we now consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
+we also consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
 Specifically we consider 
 \begin{equation}
-    u_t = u_{xx}, \quad u(0,t) = u(1,t) = 0, \quad u(x,0) = \sin(\pi x), 
+    u(0,t) = u(1,t) = 0, \quad u(x,0) = \sin(\pi x), 
     \label{eq:2b-manufactured}
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
-and the analytical solution is readily available as
+and the analytical solution is readily available as 
+\footnote{The analytical solution can be computed using e.g. separation of variables.}
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
-    % Necessary to derive this? Just sepparation of variables
+    % Necessary to derive this? Just separation of variables,
+    % and it is like the most basic example of the heat equation, 
+    % probably included in any introductory text on PDEs
 \end{equation}
 
 When doing mesh refinement of the spatial grid, 
