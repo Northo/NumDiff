@@ -1,0 +1,243 @@
+\section{Biharmonic equation}
+\label{sec:PDE}
+
+Consider teh inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
+\begin{subequations}\label{eq:PDE}
+  \begin{equation}
+    \nabla^4 u = f \quad, (x, y) \in \Omega,
+  \end{equation}
+  \begin{equation}
+    u = 0, \nabla^2u = 0 \quad, (x, y) \in \partial\Omega.
+  \end{equation}
+\end{subequations}
+
+We will begin by showing that the solution can be written as a double Fourier sine series
+\begin{equation}\label{eq:sin-series}
+  u(x, y) =
+  \sum_{m=1}^\infty
+  \sum_{n=1}^\infty
+  F_{mn} \sin(m\pi x)\sin(n\pi y).
+\end{equation}
+
+Take \eqref{eq:sin-series} as an Ansatz.
+Then it follow that
+\begin{align}
+  \nabla^4 u &=
+  \sum_{m=1}^\infty
+  \sum_{n=1}^\infty
+  F_{mn}
+  \nabla^4
+  \sin(m\pi x)\sin(n\pi y)\\
+  &=
+  \sum_{m=1}^\infty
+  \sum_{n=1}^\infty
+  F_{mn}
+  \left(
+  (m\pi)^4 + (n\pi)^4 + 2n^2m^2\pi^4
+  \right)
+  \sin(m\pi x)\sin(n\pi y)
+  &= f.
+\end{align}
+
+%% b)
+
+We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$,
+\begin{align}\label{eq:PDE-poisson}
+  \nabla^2g &= f,\\
+  \nabla^2u &= g.
+\end{align}
+
+
+%% c)
+We will consider here two approximations of $\nabla^2 u = f$, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
+
+\newcommand{\crossStencil}[5]{%
+  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}]
+    \draw node[below]{$#1$} (0,0) -- (0,2) node[above]{$#2$};
+    \draw (-1, 1) node[left]{$#3$} -- (1, 1) node[right]{$#4$};
+    \node[above right] at (0,1) {$#5$};
+  \end{tikzpicture}
+}
+
+\newcommand{\xStencil}[4]{%
+  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}]
+    \draw node[below left]{$#1$} (0,0) -- (1.41, 1.41) node[above right]{$#2$};
+    \draw (0, 1.41) node[above left]{$#3$} -- (1.41, 0) node[below right]{$#4$};
+  \end{tikzpicture}
+}
+
+Written in stencil diagrams, the five point stencil is given as
+$$
+u
+\left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
+$$
+while the nine point stencil is given by
+$$
+u
+\left(
+\xStencil{\frac16}{\frac16}{\frac16}{\frac16}
++
+\crossStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}
+\right)
+=
+h^2
+f
+\left(
+\crossStencil{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac23}
+\right).
+$$
+
+Using one of these stencils will give a system of equations which we can write as a matrix equation,
+$$
+AU = BF,
+$$
+where $A$ and $B$ are matricies, $U$ is the solution that we seek, and $F$ is the inhomogeneity.
+More precisely $U$ is a flattened array which represents the solution $u$;
+the flattening is such that the rows of two-dimensional version of $U$ are conserved.
+Thus, the next element of a column at position $n$, is at position $n+N$ in the flattened array, where $N$ is the number of elements in a row.
+We will now consider the structure of the matrix $A$ in more detail.
+
+We start with the simpler five point stencil.
+blablabla
+
+We can compactley write this as
+$$
+K2D =
+\begin{bmatrix}
+  K & 0 \\
+  0 & K & 0\\
+  0 & 0 & K \\
+  &&&\ddots
+\end{bmatrix}
++
+\begin{bmatrix}
+  -2I & I & 0 &  \\
+  I & -2I & I & 0 \\
+  0 & I & -2I & I & 0 \dots\\
+  \vdots&&&\ddots
+\end{bmatrix}.
+$$
+where $I$ is the identity matrix and $K$ is the one dimensional central finite difference matrix,
+$$
+K =
+\begin{bmatrix}
+  -2 & 1 & 0 &  \\
+  1 & -2 & 1 & 0 \\
+  0 & 1 & -2 & 1 & 0 \dots\\
+  \vdots&&&\ddots
+\end{bmatrix}.
+$$
+Using the Kronecker product, this may be written as
+$$
+K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
+$$
+
+The nine point stencil has a slightly more complicated structure.
+The block structure of the nine point stencil is as follows:
+$$
+\begin{bmatrix}
+  4Q - 36 I & Q \\
+  Q & 4Q - 36 I & 4Q \\
+  0 & Q & 4Q - 36 I & Q \\
+  & & & \ddots
+\end{bmatrix}
+=
+\begin{bmatrix}
+  4Q & Q \\
+  Q & 4Q & 4Q \\
+  0 & Q & 4Q & Q \\
+  & & & \ddots
+\end{bmatrix}
+-
+36
+\begin{bmatrix}
+  I & 0 \\
+  0 & I & 0 \\
+  0 & 0 & I & 0 \\
+  & & & \ddots
+\end{bmatrix}
+$$
+
+Notice the interesting recursive structure.
+
+We can also write the nine point stencil as a sum of a five point stencil, where we simply change the weights, another matrix taking care of the NE, NW, etc. points.
+
+Let
+\begin{equation}
+  \Sigma =
+  \frac{1}{\sqrt{6}}
+  \begin{bmatrix}
+    0 & 1  \\
+    1 & 0 & 1 \\
+      & 1 & 0 & 1 \\
+      &   & 1 & 0 & \ddots\\
+      &   &   & \ddots  & \ddots
+  \end{bmatrix}
+\end{equation}
+be the TST matrix with ones on its off-diagonals and zero on the diagonal.
+The nine point stencil is then
+\begin{equation}
+  K2D^{(9)} + \Sigma \otimes \Sigma.
+\end{equation}
+
+We find the eigenvalues of $K2D^{(9)}$ directly by substituting in the appropriate weights in our previous expression from the five point stencil.
+The $\Sigma$ matrix must by its structure obviously have the same eigenvectors as $K$, and by substituting in the formula, interpreting the zero diagonal as a zero weight, we find that the eigenvalues of $\Sigma$ are
+$$
+\frac{2}{\sqrt{6}} \cos(\frac{k \pi}{N+1}).
+$$
+The eigenvalues of the Kronecker product $A \otimes B$ is the product of the eigenvalues of $A$ and $B$.
+Thus, the eigenvalues of $\Sigma \otimes \Sigma$ are
+$$
+\frac46
+\cos(\frac{k \pi}{N+1})
+\cos(\frac{l \pi}{N+1}).
+$$
+The eigenvalues of the nine point stencil are thus
+\begin{equation}
+  -\frac{10}{3}
+  + \frac43
+  \left(
+  \cos(\frac{k \pi}{N+1})
+  + \cos(\frac{l \pi}{N+1})
+  \right)
+  +
+  \frac46
+  \cos(\frac{k \pi}{N+1})
+  \cos(\frac{l \pi}{N+1}).
+\end{equation}
+
+\subsection{The Fast Poisson Solver}
+We are to solve the equation
+$$
+A U = F.
+$$
+Assuming that the eigenvectors of $A$ are a complete set, we may write
+$$
+F = a_1 y_1 + a_2 y_2 + ...,
+$$
+where $y_1, y_2, \dots$ are the eigenvectors of $A$.
+The solution $U$ is the of course
+$$
+U =
+\frac{a_1}{\lambda_1} y_1
++ \frac{a_2}{\lambda_2} y_2
++ \dots,
+$$
+where $\lambda_i$ is the eigenvalue corresponding to $y_i$.
+In general, however, this is not a viable way to solve the problem, as it requires knowing all the eigenvalues and eigenvectors, as well as finding the coefficients $a_i$.
+However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
+We also have simple analytical expressions for the eigenvalues.
+
+Written as matrix expressions
+\begin{align}
+  A U &= F\\
+  S\Lambda S U &= F\\
+  &\Rightarrow\\
+  U &= S\Lambda^{-1} S F,
+\end{align}
+where we used the fact that $S^{-1} = S$.
+Moreover, formulated more directly with regards to implementing the solver, we have that the solutin is
+$$
+U = IFST(FST(F) / \Lambda),
+$$
+where $IFST, FST$ are the inverse and normal fast sine tranform.
