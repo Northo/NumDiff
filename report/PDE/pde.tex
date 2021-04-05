@@ -11,16 +11,22 @@ Consider teh inhomogeneous Biharmonic equation with clamped boundary conditions 
   \end{equation}
 \end{subequations}
 
-We will begin by showing that the solution can be written as a double Fourier sine series
-\begin{equation}\label{eq:sin-series}
-  u(x, y) =
-  \sum_{m=1}^\infty
-  \sum_{n=1}^\infty
-  F_{mn} \sin(m\pi x)\sin(n\pi y).
-\end{equation}
-
-Take \eqref{eq:sin-series} as an Ansatz.
-Then it follow that
+Firstly, note that the functions
+$$
+\sin(m \pi x) \sin(n \pi y), \quad m,n = 1, 2, \dots
+$$
+represent a complete basis for functions on $\Omega = [0, 1]^2$ with a boundary value of 0.
+(Which is easily seen from the fact that the fourier series consist of such a set, and that for the given boundary condition, the coefficients of terms involving cosines and constant functions must be zero)
+Thus, for any function $u$ that has $u = 0$ on $\del\Omega$, we must be able to write
+$$
+u(x, y) =
+\sum_{m=1}^\infty
+\sum_{n=1}^\infty
+F_{mn}
+\sin(m\pi x)
+\sin(n\pi y).
+$$
+Inserting the expression into the Biharmonic equation, we get, after acting on the expression with $\nabla^4$
 \begin{align}
   \nabla^4 u &=
   \sum_{m=1}^\infty
@@ -38,6 +44,28 @@ Then it follow that
   \sin(m\pi x)\sin(n\pi y)
   &= f.
 \end{align}
+
+Thus, with
+$$
+f(x, y)
+=
+\sum_{m=1}^\infty
+\sum_{n=1}^\infty
+G_{mn}
+\sin(m\pi x)\sin(n\pi y),
+$$
+we must have that
+$$
+F_{mn} =
+\frac{
+  G_{mn}
+}{
+  \left(
+  (m\pi)^4 + (n\pi)^4 + 2n^2m^2\pi^4
+  \right)
+}
+$$
+Observe that choosing $f$ such that the series is finite, ie. only a finite number of $G_{mn}$ are non-zero, the expression collapses into a finite expression.
 
 %% b)
 
@@ -68,8 +96,7 @@ We will consider here two approximations of $\nabla^2 u = f$, the five point ste
 
 Written in stencil diagrams, the five point stencil is given as
 $$
-u
-\left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
+u \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
 while the nine point stencil is given by
 $$
@@ -97,9 +124,32 @@ the flattening is such that the rows of two-dimensional version of $U$ are conse
 Thus, the next element of a column at position $n$, is at position $n+N$ in the flattened array, where $N$ is the number of elements in a row.
 We will now consider the structure of the matrix $A$ in more detail.
 
-We start with the simpler five point stencil.
-blablabla
+Thus, with our 2D $U$ begin 
+$$
+\tilde{U} =
+\begin{bmatrix}
+  u_{11} & u_{12} & u_{13}\\
+  u_{21} & u_{22} & u_{23}\\
+  & \vdots
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \vec{u_1}\\
+  \vec{u_2}\\
+  \vdots
+\end{bmatrix}
+$$
+we have our flattened vector
+$$
+U =
+\begin{bmatrix}
+  u_{11} & u_{12} & u_{13} & \dots & u_{21} & u_{22} & \dots
+\end{bmatrix}^T
+$$
 
+We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
+We recognize that in $U$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
+Thus, writing out the five point stencil $K2D$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
 We can compactley write this as
 $$
 K2D =
@@ -205,6 +255,80 @@ The eigenvalues of the nine point stencil are thus
   \cos(\frac{k \pi}{N+1})
   \cos(\frac{l \pi}{N+1}).
 \end{equation}
+
+%% Let us defne an infinity norm for convenience
+\newcommand{\inorm}[1]{
+\lVert #1 \rVert_\infty
+}
+
+\subsection{Stability and order of the five point stencil}
+We will here prove that the five point stencil is of order 2, following the outline provided in the exercise.
+\emph{TODO: stability?}
+
+We will here use the five point stencil defined as
+$$
+U \left(\crossStencil{1}{1}{1}{1}{-4}\right)
+$$
+so that the poisson equation reads
+$$
+- U \left(\crossStencil{1}{1}{1}{1}{-4}\right) = f.
+$$
+We do this simply for convenience.\\
+
+%% 1
+Firstly, if $\nabla_5^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
+$$
+\max(f)_\Omega \leq \max(f)_{\partial \Omega}.
+$$
+
+\emph{Proof:}\\
+Suppose the opposite is true,
+$$
+\max(f)_\Omega \geq \max(f)_{\partial \Omega}.
+$$
+Then, there is an internal grid point on which $f$ attains it maximal value.
+We denote this point by $x_0$, and label its neighbouring points $x_i,\quad i = 1,2,3,4$.
+Then
+$$
+4f(x_0) = \sum_{i=1}^4 f(x_i) - \nabla_5^2 f(x_0) \leq \sum_{i=1}^4 f(x_i) \leq 4 f(x_0),
+$$
+where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
+As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
+Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
+
+%% 2
+If $v$ is a discrete function that equals zero on $\partial \Omega$, then
+$$
+\inorm{v} \leq \frac18 \inorm{\nabla_5^2 v}.
+$$
+
+\emph{Proof:}\\
+Consider the function
+$$
+\phi = \frac14 [ (x-\frac12)^2 + (y-\frac12)^2 ],
+$$
+It has the properties that $0 \leq \phi \leq \frac1/8$ and $\nabla_5^2 \phi = 1$.
+Let $\inorm{\nabla_5^2 v} = M$.
+Then
+$$
+\nabla_5^2 (v + \phi M) = \nabla_5^2 v +  M \geq 0.
+$$
+By the previous lemma (TODO: insert ref, format lemma) we have then that $\nabla_5^2 (v + \phi M)$ attains its maximum value on $\partial \Omega$.
+Thus
+$$
+\inorm{v}
+\leq \inorm{v + \phi M}
+\leq \max_{\partial \Omega}(v + \phi M)
+= \max_{\partial\Omega} (\phi M)
+\leq \frac18 \inorm{\nabla_5^2 v}.
+$$
+
+%% 3
+
+
+
+\subsection{Stability and order of the nine point stencil}
+
 
 \subsection{The Fast Poisson Solver}
 We are to solve the equation

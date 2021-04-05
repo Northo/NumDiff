@@ -99,16 +99,19 @@ def test_order():
             **kwargs
         )
         # U5 = scipy.sparse.linalg.spsolve(five_point_stencil(N), h**2 * F.flatten()).reshape(N, N)
-        U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N), h**2 * (F_stencil @ F.flatten())).reshape(N, N)
+        # U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N), h**2 * (F_stencil @ F.flatten())).reshape(N, N)
         anal = F / -(2 * np.pi ** 2)
         diff5 = U5 - anal
         diff9 = U9 - anal
+        order = np.inf
         errors_five.append(
-            np.linalg.norm(diff5) / np.linalg.norm(anal)
+            np.linalg.norm(diff5, ord=order)
+            / np.linalg.norm(anal, ord=order)
         )
 
         errors_nine.append(
-            np.linalg.norm(diff9) / np.linalg.norm(anal)
+            np.linalg.norm(diff9, ord=order)
+            / np.linalg.norm(anal, ord=order)
         )
     plt.loglog(Ns, errors_five, '-x', label="five")
     # plt.loglog([1e1, 1e2], [1e-1, 1e-2])
@@ -119,5 +122,33 @@ def test_order():
     plt.show()
 
 
+def exercise_h():
+    def f(x, y):
+        return (
+            (np.sin(np.pi*x) * np.sin(np.pi*y))**4
+            *
+            np.exp(-(x-0.5)**2 - (y-0.5)**2)
+        )
+    N = 100
+    F = f(*get_mesh(N))
+    h = 1 / (N - 1)
+    G = fps(
+        h**2 * F,
+        get_eigval_array(N, five_point_eigenval),
+    )
+    U5 = fps(
+        h**2 * G,
+        get_eigval_array(N, five_point_eigenval),
+    )
+
+    plt.subplot(121)
+    plt.imshow(U5)
+    plt.colorbar()
+    plt.subplot(122)
+    plt.imshow(-G)
+    plt.colorbar()
+    plt.show()
+
 if __name__=="__main__":
-    test_order()
+    # test_order()
+    exercise_h()
