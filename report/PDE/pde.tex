@@ -1,6 +1,9 @@
 \section{Biharmonic equation}
 \label{sec:PDE}
 
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
 Consider teh inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
 \begin{subequations}\label{eq:PDE}
   \begin{equation}
@@ -287,12 +290,13 @@ $$
 We do this simply for convenience.\\
 
 %% 1
-Firstly, if $\nabla_5^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
+\begin{lemma}\label{pde:lemma:max}
+If $\nabla_5^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
 $$
 \max(f)_\Omega \leq \max(f)_{\partial \Omega}.
 $$
-
-\emph{Proof:}\\
+\end{lemma}
+\begin{proof}
 Suppose the opposite is true,
 $$
 \max(f)_\Omega \geq \max(f)_{\partial \Omega}.
@@ -306,25 +310,27 @@ $$
 where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
 As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
 Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
+\end{proof}
 
 %% 2
+\begin{lemma}\label{pde:lemma:bound}
 If $v$ is a discrete function that equals zero on $\partial \Omega$, then
 $$
 \inorm{v} \leq \frac18 \inorm{\nabla_5^2 v}.
 $$
-
-\emph{Proof:}\\
+\end{lemma}
+\begin{proof}
 Consider the function
 $$
 \phi = \frac14 [ (x-\frac12)^2 + (y-\frac12)^2 ],
 $$
-It has the properties that $0 \leq \phi \leq \frac1/8$ and $\nabla_5^2 \phi = 1$.
+It has the properties that $0 \leq \phi \leq \frac18$ and $\nabla_5^2 \phi = 1$.
 Let $\inorm{\nabla_5^2 v} = M$.
 Then
 $$
 \nabla_5^2 (v + \phi M) = \nabla_5^2 v +  M \geq 0.
 $$
-By the previous lemma (TODO: insert ref, format lemma) we have then that $\nabla_5^2 (v + \phi M)$ attains its maximum value on $\partial \Omega$.
+By lemma \ref{pde:lemma:max} we have then that $\nabla_5^2 (v + \phi M)$ attains its maximum value on $\partial \Omega$.
 Thus
 $$
 \inorm{v}
@@ -333,12 +339,46 @@ $$
 = \max_{\partial\Omega} (\phi M)
 \leq \frac18 \inorm{\nabla_5^2 v}.
 $$
+\end{proof}
 
 %% 3
+\begin{theorem}
+If $\nabla^2 u = f$ and $\nabla_5^2 v = f$, then
+$$
+\inorm{u - v} \leq Ch^4 \lvert D^4 v\rvert_\infty.
+$$
+\end{theorem}
+\begin{proof}
+By our previous lemma \ref{pde:lemma:bound}
+$$
+\inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
+$$
+By Taylor expanding $u(x + h, y)$ and $u(x - h, y)$ we get
+$$
+\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + C h^2 \partial_x^4,
+$$
+and similarly for $y$.
+Therefore
+\begin{align*}
+  - \nabla_5^2 u
+  &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
+  &= (\partial_x^2 + \partial_y^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
+  &= (\nabla^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
+  &\leq \nabla^2 u + 2 \max(C_x h^2 \partial_x^4 u, C_y h^2 \partial_y^4 u)\\
+  &= \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u).
+\end{align*}
 
+We then have
+$$
+\inorm{\nabla_5^2 (u  - v)} = C h^2 \inorm{D^4 u},
+$$
+where we by $\inorm{D^4 u}$ mean $\inorm{\max(\partial_x^4 u, \partial_y^4 u)}$. TODO: is it supposed to be $v$?
+\end{proof}
 
 
 \subsection{Stability and order of the nine point stencil}
+Our proof for the nine point stencil will follow the same structure as for the five point stencil.
+
 
 
 \subsection{The Fast Poisson Solver}
