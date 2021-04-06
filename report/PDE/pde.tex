@@ -17,6 +17,7 @@ $$
 $$
 represent a complete basis for functions on $\Omega = [0, 1]^2$ with a boundary value of 0.
 (Which is easily seen from the fact that the fourier series consist of such a set, and that for the given boundary condition, the coefficients of terms involving cosines and constant functions must be zero)
+(TODO: comment on how to obtain this with separation of variables?)
 Thus, for any function $u$ that has $u = 0$ on $\del\Omega$, we must be able to write
 $$
 u(x, y) =
@@ -44,6 +45,7 @@ Inserting the expression into the Biharmonic equation, we get, after acting on t
   \sin(m\pi x)\sin(n\pi y)
   &= f.
 \end{align}
+(TODO: write as $((m\pi)^2+(n\pi)^2)^2$?)
 
 Thus, with
 $$
@@ -65,6 +67,7 @@ F_{mn} =
   \right)
 }
 $$
+(TODO: comment on orthogonal sine functions?)
 Observe that choosing $f$ such that the series is finite, ie. only a finite number of $G_{mn}$ are non-zero, the expression collapses into a finite expression.
 
 %% b)
@@ -94,7 +97,7 @@ We will consider here two approximations of $\nabla^2 u = f$, the five point ste
   \end{tikzpicture}
 }
 
-Written in stencil diagrams, the five point stencil is given as
+Written in stencil diagrams, the five point stencil is given as (TODO: $f$ or $g$ here?)
 $$
 u \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
@@ -181,6 +184,7 @@ Using the Kronecker product, this may be written as
 $$
 K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
 $$
+(TODO: note how boundary conditions are incorporated with this matrix structure?)
 
 The nine point stencil has a slightly more complicated structure.
 The block structure of the nine point stencil is as follows:
@@ -207,8 +211,13 @@ $$
   & & & \ddots
 \end{bmatrix}
 $$
-
 Notice the interesting recursive structure.
+(TODO: should it be $-36$ or $-6$?)
+
+TODO: write/use somewhere the general result for tridiag matrix ($a$ on diag)
+\begin{equation*}
+	\lambda_k = a - 2 \sqrt{bc} \cos(\frac{k \pi}{N + 1})
+\end{equation*}
 
 We can also write the nine point stencil as a sum of a five point stencil, where we simply change the weights, another matrix taking care of the NE, NW, etc. points.
 
@@ -227,15 +236,17 @@ Let
 be the TST matrix with ones on its off-diagonals and zero on the diagonal.
 The nine point stencil is then
 \begin{equation}
-  K2D^{(9)} + \Sigma \otimes \Sigma.
+  K2D^{(9)} + \Sigma \otimes \Sigma. \quad \text{TODO: should it be} K2D^{(5)}?
 \end{equation}
 
 We find the eigenvalues of $K2D^{(9)}$ directly by substituting in the appropriate weights in our previous expression from the five point stencil.
 The $\Sigma$ matrix must by its structure obviously have the same eigenvectors as $K$, and by substituting in the formula, interpreting the zero diagonal as a zero weight, we find that the eigenvalues of $\Sigma$ are
 $$
 \frac{2}{\sqrt{6}} \cos(\frac{k \pi}{N+1}).
+\quad \text{TODO: minus?}
 $$
 The eigenvalues of the Kronecker product $A \otimes B$ is the product of the eigenvalues of $A$ and $B$.
+(TODO: also use property that eigenvalue of Kronecker sum is the sum of eigenvalues?)
 Thus, the eigenvalues of $\Sigma \otimes \Sigma$ are
 $$
 \frac46
