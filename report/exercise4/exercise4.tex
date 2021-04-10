@@ -12,7 +12,7 @@ u(x+L, t) = u(x, t).
 
 \subsection{Analytical solution}
 
-As the solution is periodic in space at every time $t$, it can be expressed as a Fourier-series
+As the solution is periodic in space at every time $t$, it can be expressed as a Fourier series
 \begin{equation}
 u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i k_n x)}
 \label{fourier_series}
@@ -52,7 +52,7 @@ Inserting these approximations into \cref{kdv_equation}, we get the intermediate
 \begin{equation*}
 	\dpd{u_m^n}{t} \approx F(u^n) = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 \Delta x} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 \Delta x^3}.
 \end{equation*}
-For later convenience, we write the Euler method and Crank-Nicholson method collectively with the theta method.
+For later convenience, we write the Euler method and Crank-Nicholson method collectively with the $\theta$-method.
 This gives the final system of difference equations for the numerical solution
 \begin{equation}\label{theta_method_discretized}
 	\frac{U_m^{n+1} - U_m^n}{\Delta t} = (1-\theta) F(U^n) + \theta F(U^{n+1}),
@@ -272,7 +272,7 @@ Then $\abs{G_l} = \sqrt{1 + O(\Delta t^2 / \Delta x^6)}$.
 % TODO: cite von neumann stability criterion
 The Von Neumann stability criterion $\abs{G_l} \leq 1 + O(\Delta t)$ \cite{owren} is attained only with $\Delta t \leq O(\Delta x^6)$, corresponding to \emph{extremely small} time steps.
 Thus, while the Euler method in theory is \textbf{conditionally stable}, it is unstable for all practical time steps.
-The Crank-Nicholson method is far superior, as it remains stable while allowing much greater spatial resolution and larger time steps.
+The Crank-Nicholson method is far superior, as it remains stable while allowing much coarser spatial resolution and larger time steps.
 
 % TODO: one figure with Euler, small M large N
 % TODO: one figure with CN, 
@@ -332,7 +332,7 @@ To understand why it is constant in time, insert the Fourier expansion \cref{fou
 \int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
 \end{equation*}
 Since the Fourier coefficients \eqref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
-Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument and preserves the amplitude of each Fourier mode.
+Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument, and preserves the amplitude of each Fourier mode.
 
 We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( -x^2 / 0.1 \right)$.
 The time evolution illustrated in \cref{gaussian_evolution} shows how multiple Fourier modes are activated.
@@ -427,7 +427,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 % \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Crank-Nicholson method and the Euler-method on different grids.}
+\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Euler and the Crank-Nicholson method, on different grids.}
 \end{figure}
 
 The stability and norm preservation of the Crank-Nicholson method makes it the method of choice for problems like this, where the analytical solution is known to have the same property.

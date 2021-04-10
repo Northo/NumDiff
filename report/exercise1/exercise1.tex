@@ -62,7 +62,7 @@ To handle the Dirichlet boundary condition $u(0) = a$ at the left edge or $u(1) 
 \begin{equation*}
 1 \cdot u_0 = a \qquad \text{or} \qquad 1 \cdot u_{M+1} = b.
 \end{equation*}
-To handle the Neumann boundary condition $u_x(0) = a$ at the left edge or $u_x(1) = b$ at the right edge to second order, we use approximate the first derivative to second order with forward or backward differences to get
+To handle the Neumann boundary condition $u_x(0) = a$ at the left edge or $u_x(1) = b$ at the right edge to second order, we approximate the first derivative to second order with forward or backward differences to get
 \begin{equation*}
 u_x(0) = \frac{-\frac{3}{2}u_{0}-2u_1-\frac{1}{2}u_{2}}{h} + \Oh(h^2) = b \qquad \text{or} \qquad u_x(1) = \frac{\frac{1}{2}u_{M-1}-2u_M+\frac{3}{2}u_{M+1}}{h} + \Oh(h^2) = b.
 \end{equation*}
@@ -86,11 +86,11 @@ a \\ f(x_1) \\ \vdots \\ f(x_M) \\ b \\
 ,
 \label{matrix_system}
 \end{equation}
-where the first and last rows of the matrix in general vary depending on the boundary conditions.
+where the first and last rows of the matrix generally vary depending on the boundary conditions.
 
 Note that if the numerical solution is subject to two Neumann boundary conditions, the matrix becomes singular and the solution non-unique.
 In this case, we impose the additional constraint $U_0 = 0$ by setting all entries in the first column of $A$ to zero.
-To handle the singular matrix, we solve the system with a least-squares method instead of a gesv LU factorization method.
+To handle the singular matrix, we solve the system with a least-squares method instead of a GESV LU factorization method.
 
 \begin{figure}
 	\centering
@@ -143,7 +143,7 @@ Neumann boundary conditions can also be handled differently.
 Instead of approximating the second derivative only on actual grid points, we could approximate it with a fictuous point $x_{-1}$ and a central difference $u_x(0) \approx (U_1 - U_{-1}) / (2 h)$.
 Then we could use this together with the central difference $(U_{-1} - 2 U_0 + U_1) / h^2 = f(x_0)$ to eliminate $U_{-1}$.
 Eliminating $U_{-1}$, the first equation becomes $(U_1 - U_0) / h = a + h f(x_0) / 2$, so the boundary condition could be handled by setting the first row to $[-1/h, +1/h, 0, \dots]$ and modifying the first entry in $b$ to $a \rightarrow a + h f(x_0) / 2$.
-This would also be second order and allows us to use the same stencil also at $x_0$, but we must pay the price of modifying the right side of the matrix equation in an unnatural way.
+This would also be second order, and would allow us to use the same stencil also at $x_0$, but we would then have to pay the price of modifying the right side of the matrix equation in an unnatural way.
 
 \begin{figure}
   \centering
@@ -188,7 +188,7 @@ Note that the stencil reduces to the one in \cref{matrix_system} when $\hleft = 
 
 To do adaptive mesh refinement, we will
 \begin{enumerate}
-\item Start with a coarse grid with uniform spacing, like with $x_0 = 0$ and $x_1 = 0$ only.
+\item Start with a coarse grid with uniform spacing, such as $x_0 = 0$ and $x_1 = 0$ only.
 \item Wisely choose \emph{one} grid interval $[x_m, x_{m+1}]$ based on some strategy.
 \item Split the interval in half by inserting a new point at $(x_m + x_{m+1}) / 2$.
 \item Repeat step 2 and 3 until the grid has the desired resolution.
@@ -215,7 +215,7 @@ This strategy also requires knowledge of the exact solution $u(x)$, but does not
 \end{equation*}
 In physical applications, $f(x)$ is typically mass density or charge density. 
 The idea is to refine intervals on which there is much mass or charge, as the solution is expected to vary faster there.
-This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$, which is the most realistic scenario.
+This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$, which is far more likely than the others to be known in actual applications.
 \end{enumerate}
 
 In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
@@ -258,7 +258,7 @@ TODO discuss ``potential'' of AMR
 \end{tikzpicture}
 \caption{
 	\label{amr_error_evolution}
-	During adaptive mesh refinement (AMR) with the error strategy, the interval with the largest error $\int \dif x |u(x) - U(x)|$ is split in half.
+	During adaptive mesh refinement (AMR) with the error strategy (strategy number 1), the interval with the largest error $\int \dif x |u(x) - U(x)|$ is split in half.
 	Here, $u(x) = \exp(-(x-1/2)^2/0.1)$ is the symmetric solution to whichever Poisson equation has $f(x) = u_{xx}$ on $x \in [0, 1]$.
 	Symmetry is imposed numerically by also adding the point $1 - x$ to the grid whenever a point $x \neq 1/2$ is added.
 }
