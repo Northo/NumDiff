@@ -127,6 +127,7 @@ To handle the singular matrix, we solve the system with a least-squares method i
 	\caption{\label{poisson_numerical_solutions}
 		The left plots show analytical solutions $u(x)$ and numerical solutions $U(x)$ with $M=30$ grid points for $u_{xx} = x + \cos{2 \pi x}$ subject to three different boundary conditions.
 		The right plots show convergence plots corresponding to the same boundary conditions, where the error is measured with both the a continuous and discrete $L_2$-norm.
+		TODO: add triangle with slope in convergence plot
 	}
 \end{figure}
 
@@ -151,18 +152,12 @@ Then we could use this together with the central difference $(U_{-1} - 2 U_0 + U
 Eliminating $U_{-1}$, the first equation becomes $(U_1 - U_0) / h = a + h f(x_0) / 2$, so the boundary condition could be handled by setting the first row to $[-1/h, +1/h, 0, \dots]$ and modifying the first entry in $b$ to $a \rightarrow a + h f(x_0) / 2$.
 This would also be second order, and would allow us to use the same stencil also at $x_0$, but we would then have to pay the price of modifying the right side of the matrix equation in an unnatural way.
 
-\begin{figure}
-  \centering
-  \input{exercise1/a_error.pgf}
-  \caption{Nice fig}
-\end{figure}
-
 \subsection{Adaptive numerical solution on a non-uniform grid}
 
 \label{ex1_amr_section}
 
 We will now demonstrate how the numerical solution can be generalized to a non-uniform grid with $x_i - x_{i-1} \neq \text{const}$.
-Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing them in a smart way.
+Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing points tighter where the solution varies rapidly.
 
 %\newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
 \newcommand\nonuniformstencil[4]{\frac{2}{x_{#4}-x_{#2}} \left( \frac{#1_{#4}-#1_{#3}}{x_{#4}-x_{#3}} - \frac{#1_{#3}-#1_{#2}}{x_{#3}-x_{#2}} \right)}
