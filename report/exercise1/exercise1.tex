@@ -153,6 +153,8 @@ This would also be second order, and would allow us to use the same stencil also
 
 \subsection{Adaptive numerical solution on a non-uniform grid}
 
+\label{ex1_amr_section}
+
 We will now demonstrate how the numerical solution can be generalized to a non-uniform grid with $x_i - x_{i-1} \neq \text{const}$.
 Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing them in a smart way.
 
@@ -188,7 +190,7 @@ Note that the stencil reduces to the one in \cref{matrix_system} when $\hleft = 
 
 To do adaptive mesh refinement, we will
 \begin{enumerate}
-\item Start with a coarse grid with uniform spacing, such as $x_0 = 0$ and $x_1 = 0$ only.
+\item Start with a coarse grid with uniform spacing, such as $[x_0, x_1] = [0, 1]$.
 \item Wisely choose \emph{one} grid interval $[x_m, x_{m+1}]$ based on some strategy.
 \item Split the interval in half by inserting a new point at $(x_m + x_{m+1}) / 2$.
 \item Repeat step 2 and 3 until the grid has the desired resolution.
@@ -215,7 +217,7 @@ This strategy also requires knowledge of the exact solution $u(x)$, but does not
 \end{equation*}
 In physical applications, $f(x)$ is typically mass density or charge density. 
 The idea is to refine intervals on which there is much mass or charge, as the solution is expected to vary faster there.
-This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the given source function $f(x)$, which is far more likely than the others to be known in actual applications.
+This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the source function $f(x)$, as is typically the case in practice.
 \end{enumerate}
 
 In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
