@@ -14,20 +14,20 @@ u(x+L, t) = u(x, t).
 
 As the solution is periodic in space at every time $t$, it can be expressed as a Fourier series
 \begin{equation}
-u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i k_n x)}
+u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i q_n x)}
 \label{fourier_series}
 \end{equation}
-with wavenumbers $k_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
+with wavenumbers $q_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
 This can be derived formally by separation of variables.
 Inserting the Fourier series into \cref{kdv_equation} gives the condition
 \begin{equation*}
-	\sum_n \left( \dot{c}_n(t) + i \left( \left( 1+\pi^2 \right) k_n - k_n^3 \right) c_n(t) \right) \exp{(i k_n x)} = 0
+	\sum_n \left( \dot{c}_n(t) + i \left( \left( 1+\pi^2 \right) q_n - q_n^3 \right) c_n(t) \right) \exp{(i q_n x)} = 0
 \end{equation*}
 on the coefficients.
-Due to orthogonality of the Fourier basis functions $\exp(i k_n x)$, the sum can vanish only if all prefactors vanish separately.
+Due to orthogonality of the Fourier basis functions $\exp(i q_n x)$, the sum can vanish only if all prefactors vanish separately.
 This gives a first-order differential equation for each coefficient with the solution
 \begin{equation}
-	c_n(t) = c_n(0) \exp{\left( -i \left (\left(1+\pi^2\right)k_n - k_n^3\right) t \right) }.
+	c_n(t) = c_n(0) \exp{\left( -i \left (\left(1+\pi^2\right)q_n - q_n^3\right) t \right) }.
 	\label{fourier_coefficients}
 \end{equation}
 
@@ -42,25 +42,25 @@ This gives a first-order differential equation for each coefficient with the sol
 To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Euler method and the Crank-Nicholson method.
 For the first order spatial derivative, we use the central difference
 \begin{equation*}
-	\dpd{u_m^n}{x}    \approx \frac{\delta u_m^n}{2 \Delta x}       = \frac{u_{m+1}^n-u_{m-1}^n}{2 \Delta x}.
+	\dpd{u_m^n}{x}    \approx \frac{\delta u_m^n}{2 h}       = \frac{u_{m+1}^n-u_{m-1}^n}{2 h}.
 \end{equation*}
 We repeat the same finite difference three times to approximate the third order spatial derivative as 
 \begin{equation*}
-	\dpd[3]{u_m^n}{x} \approx \frac{\delta^3 u_m^n}{(2 \Delta x)^3} = \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 \Delta x^3}.
+	\dpd[3]{u_m^n}{x} \approx \frac{\delta^3 u_m^n}{(2 h)^3} = \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3}.
 \end{equation*}
 Inserting these approximations into \cref{kdv_equation}, we get the intermediate result
 \begin{equation*}
-	\dpd{u_m^n}{t} \approx F(u^n) = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 \Delta x} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 \Delta x^3}.
+	\dpd{u_m^n}{t} \approx F(u^n) = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3}.
 \end{equation*}
 For later convenience, we write the Euler method and Crank-Nicholson method collectively with the $\theta$-method.
 This gives the final system of difference equations for the numerical solution
 \begin{equation}\label{theta_method_discretized}
-	\frac{U_m^{n+1} - U_m^n}{\Delta t} = (1-\theta) F(U^n) + \theta F(U^{n+1}),
+	\frac{U_m^{n+1} - U_m^n}{k} = (1-\theta) F(U^n) + \theta F(U^{n+1}),
 \end{equation}
 where the Euler method or the Crank-Nicholson method is obtained by inserting $\theta = 0$ or $\theta = 1/2$, respectively.
 In matrix form, the system can be written
 \begin{equation}
-	\left(I - \theta \Delta t A\right) U^{n+1} = \left(I - \left(1-\theta\right) \Delta t A\right) U^n,
+	\left(I - \theta k A\right) U^{n+1} = \left(I - \left(1-\theta\right) k A\right) U^n,
 	\label{matrixeq}
 \end{equation}
 where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A = $
@@ -73,7 +73,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 \renewcommand{\arraystretch}{1.25} % stretch matrix vertically to make it square
 \renewcommand{\arraycolsep}{4.5pt} % juuuust make matrix fill page width
 % TODO: fix signs
-\frac{-1}{2 \Delta x}
+\frac{-1}{2 h}
 \begin{bmatrix}
 0           & \ca +1   &             &             &             &             &             &             & \cb -1      \\
 \cb -1      & 0        & \ca +1      &             &             &             &             &             &             \\
@@ -85,7 +85,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
             &          &             &             &             &             & \cb -1      & 0           & \ca +1      \\
 \ca +1      &          &             &             &             &             &             & \cb -1      & 0           \\
 \end{bmatrix}
--\frac{1+\pi^2}{\Delta x^3}
+-\frac{1+\pi^2}{h^3}
 \begin{bmatrix}
 % 0      & +1/2h  &        &        & -1/2h  \\
 % -1/2h  & 0      & +1/2h  &        &        \\
@@ -107,7 +107,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 where we have imposed periodic boundary conditions $U_m^n = U_{m+M}^n$ by simply wrapping the spatial derivative stencils around the matrix.
 
 We then solve the system by preparing $U^0$ from the initial condition $u(x, 0)$ and solve \cref{matrixeq} repeatedly to step forward in time.
-Note that with the constant time step $\Delta t$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
+Note that with the constant time step $k$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
 
 \iffalse
 \begin{figure}
@@ -181,11 +181,11 @@ zticklabel={\pgfmathparse{\tick-1}$\pgfmathprintnumber{\pgfmathresult}$} % hack 
 \node at ($(group c3r1) + (0,-2.5cm)$) {\pgfplotslegendfromname{thelegend}};
 \end{tikzpicture}
 %\caption{\label{sine_evolution}Time evolution of the numerical solution from the Crank-Nicholson method compared with the exact solution $\sin(\pi(x-t))$. The numerical solution is calculated using $M=800$ spatial grid points and $N=100$ temporal grid points.}
-\caption{\label{sine_evolution}Comparison between the time evolution of the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicholson method with $\Delta x=1/799$ and $\Delta t=1/99$.}
+\caption{\label{sine_evolution}Comparison between the time evolution of the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicholson method with $h=1/799$ and $k=1/99$.}
 \end{figure}
 
 Next, we test our numerical solution on the problem defined by the initial condition $u(x, 0) = \sin(\pi x)$ on $x \in [-1, +1]$ with $L = 2$.
-The Fourier series of the analytical solution then has nonzero coefficients $c_{\pm1}(0) = \pm 1/2i$ and wavenumbers $k_{\pm 1} = \pm \pi$, which give rise to the analytical solution $u(x, t) = \sin(\pi(x-t))$ when inserted into \cref{fourier_series}.
+The Fourier series of the analytical solution then has nonzero coefficients $c_{\pm1}(0) = \pm 1/2i$ and wavenumbers $q_{\pm 1} = \pm \pi$, which give rise to the analytical solution $u(x, t) = \sin(\pi(x-t))$ when inserted into \cref{fourier_series}.
 As shown in \cref{sine_evolution}, the solution represents a sine wave traveling with velocity $1$ to the right.
 
 In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Euler method and the Crank-Nicholson method.
@@ -240,37 +240,37 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 Motivated by the examples of the Euler method and the Crank-Nicholson method, we perform a Von Neumann analysis of their stability.
 Just like the exact solution, the numerical solution is subject to periodic boundary conditions in space and can therefore be expanded in a Fourier series
 \begin{equation}
-	U_m^n = U(x_m, t_n) = \sum_l C_l^n \exp \left(i k_l x_m\right).
+	U_m^n = U(x_m, t_n) = \sum_l C_l^n \exp \left(i q_l x_m\right).
 \end{equation}
-Consider now a single Fourier mode $C_l^n \exp (i k_l x_m)$ in this series.
-Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i k_l x_m)$ and expanding exponentials using Euler's identity gives
+Consider now a single Fourier mode $C_l^n \exp (i q_l x_m)$ in this series.
+Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i q_l x_m)$ and expanding exponentials using Euler's identity gives
 % TODO: need a cleaner version of the discretized equation
 \begin{equation*}
-% \frac{C_l^{n+1}-C_l^n}{\Delta t} = \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{e^{i k_l h}-e^{-i k_l h}}{2h} - \frac{e^{3i k_l h}-e^{-3i k_l h}-3(e^{i k_l h}-e^{-i k_l h})}{8h^3}\right)
-% \frac{C_l^{n+1}-C_l^n}{\Delta t} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}\right)
-\frac{C_l^{n+1}-C_l^n}{\Delta t} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) f(k_l) , \quad \text{where} \,\, f(k_l) = \left(-\left(1+\pi^2\right) \frac{\sin(k_l h)}{h} - \frac{\sin^3(k_l h)}{h^3}\right).
+% \frac{C_l^{n+1}-C_l^n}{k} = \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{e^{i q_l h}-e^{-i q_l h}}{2h} - \frac{e^{3i q_l h}-e^{-3i q_l h}-3(e^{i q_l h}-e^{-i q_l h})}{8h^3}\right)
+% \frac{C_l^{n+1}-C_l^n}{k} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{\sin(qh)}{h} - \frac{\sin^3(qh)}{h^3}\right)
+\frac{C_l^{n+1}-C_l^n}{k} = i \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) f(q_l) , \quad \text{where} \,\, f(q_l) = \left(-\left(1+\pi^2\right) \frac{\sin(q_l h)}{h} - \frac{\sin^3(q_l h)}{h^3}\right).
 \end{equation*}
 
 Now look at the amplification factor $G_l = C_l^{n+1} / C_l^n$ of Fourier mode $l$ over one time step. 
 With $\theta = 1/2$, the Crank-Nicholson method gives 
 \begin{equation}
-	G_l = \frac{1 + i \Delta t f(x) / 2}{1 - i \Delta t f(x) / 2} \quad \implies \quad \abs{G_l} = 1.
+	G_l = \frac{1 + i k f(x) / 2}{1 - i k f(x) / 2} \quad \implies \quad \abs{G_l} = 1.
 	\label{crank_nicholson_amplification_factor}
 \end{equation}
-The amplitude of all Fourier modes is thus preserved over time independently of $\Delta t$ and $\Delta x$, and we say the Crank-Nicholson method is \textbf{unconditionally stable}.
+The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicholson method is \textbf{unconditionally stable}.
 
 The Euler method has $\theta = 0$ and gives
 \begin{equation}
-	G_l = 1 + i \Delta t f(x) \quad \implies \quad \abs{G_l} = \sqrt{1 + \Delta t^2 f(k_l)^2}.
+	G_l = 1 + i k f(x) \quad \implies \quad \abs{G_l} = \sqrt{1 + k^2 f(q_l)^2}.
 	\label{euler_amplification_factor}
 \end{equation}
-Since $\abs{\sin(k_l h)} \leq 1$ for all $k_l$, we can bound $f(k_l)$ by
+Since $\abs{\sin(q_l h)} \leq 1$ for all $q_l$, we can bound $f(q_l)$ by
 \begin{equation*}
-	\abs{f(k_l)} \leq \frac{(1+\pi^2)}{\Delta x} + \frac{1}{\Delta x^3} = \frac{1}{\Delta x^3} \left( (1+\pi^2) \Delta x^2 + 1 \right) \leq \frac{1}{\Delta x^3} \left( (1+\pi^2) L^2 + 1 \right).
+	\abs{f(q_l)} \leq \frac{(1+\pi^2)}{h} + \frac{1}{h^3} = \frac{1}{h^3} \left( (1+\pi^2) h^2 + 1 \right) \leq \frac{1}{h^3} \left( (1+\pi^2) L^2 + 1 \right).
 \end{equation*}
-Then $\abs{G_l} = \sqrt{1 + O(\Delta t^2 / \Delta x^6)}$.
+Then $\abs{G_l} = \sqrt{1 + O(k^2 / h^6)}$.
 % TODO: cite von neumann stability criterion
-The Von Neumann stability criterion $\abs{G_l} \leq 1 + O(\Delta t)$ \cite{owren} is attained only with $\Delta t \leq O(\Delta x^6)$, corresponding to \emph{extremely small} time steps.
+The Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} is attained only with $k \leq O(h^6)$, corresponding to \emph{extremely small} time steps.
 Thus, while the Euler method in theory is \textbf{conditionally stable}, it is unstable for all practical time steps.
 The Crank-Nicholson method is far superior, as it remains stable while allowing much coarser spatial resolution and larger time steps.
 
@@ -329,7 +329,7 @@ The $L_2$-norm of the analytical solution is defined as
 \end{equation*}
 To understand why it is constant in time, insert the Fourier expansion \cref{fourier_series} for $u(x,t)$ to get
 \begin{equation*}
-\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(k_m-k_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
+\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(q_m-q_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
 \end{equation*}
 Since the Fourier coefficients \eqref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
 Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument, and preserves the amplitude of each Fourier mode.
