@@ -241,10 +241,10 @@ This is the motivation for turning to adaptive refinement and non-uniform grids.
 
 \subsubsection{Adaptive refinement}
 
-Motivated by the uneven error distribution by using uniform elements, we will now do adaptive refinement, similarly to what we did in EX1.
+Motivated by the uneven error distribution from using uniform elements, we will now do adaptive refinement, similarly to what we did in \cref{ex1_amr_section}.
 We start with a uniform grid and successively split those elements on which the error is largest.
-Contrary to EX1, we will not split only \emph{one} element between each iteration of the numerical solution, but split \emph{all} elements on which the error is greater than some reference error.
-This leaves us with less control over the number of elements, but in return we will see that the error strictly decreases in each iteration, eliminating the oscillating error in EX1.
+Contrary to what we did in \cref{ex1_amr_section}, we will not split only \emph{one} element between each iteration of the numerical solution, but split \emph{all} elements on which the error is greater than some reference error.
+This leaves us with less control over the number of elements, but in return we will see that the error strictly decreases in each iteration, eliminating the oscillating error in \cref{amr_convergence_plot}.
 
 This time, we use two strategies that both involve the exact error:
 \begin{enumerate}
