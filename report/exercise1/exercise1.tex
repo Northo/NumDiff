@@ -206,7 +206,7 @@ This strategy requires knowledge of the exact solution $u(x)$ and solving the s
 
 \item \textbf{Truncation error strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest absolute truncation error
 \begin{equation*}
-\left| \nonuniformstencil{u}{m}{m+1/2}{m+1} - f(x_m) \right|, \qquad \text{TODO fix interval indexes (m+1/2)}
+\left| \nonuniformstencil{u}{m}{m+1/2}{m+1} - f(x_m) \right|,
 \end{equation*}
 upon insertion of a middle point $x_{m+1/2} = (x_m + x_{m+1})/2$, where $u(x)$ is the exact solution.
 This strategy also requires knowledge of the exact solution $u(x)$, but does not rely on intermediate computations of the numerical solution $U_m$.
@@ -220,14 +220,27 @@ The idea is to refine intervals on which there is much mass or charge, as the so
 This splitting strategy requires neither knowlege of the exact solution or the numerical solution, only on the source function $f(x)$, as is typically the case in practice.
 \end{enumerate}
 
-In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
-In \cref{amr_convergence_plot}, we show how the convergence of the three different AMR strategies compares to the second order UMR method.
-The error strategy and truncation error strategy makes AMR comparable to second order UMR, even though \ref{amr_stencil} has lower order!
-Moreover, the error-based AMR even produces a lower error than the UMR solution for select grids, and seems to do so in a periodic manner as the grid size $M$ increases!
+% In \cref{amr_error_evolution}, we demonstrate how the grid and the numerical solution evolves as the grid $[0, 1/2, 1]$ with $M = 3$ is refined to $M = 25$.
+% In \cref{amr_convergence_plot}, we show how the convergence of the three different AMR strategies compares to the second order UMR method.
+% The error strategy and truncation error strategy makes AMR comparable to second order UMR, even though \ref{amr_stencil} has lower order!
+% Moreover, the error-based AMR even produces a lower error than the UMR solution for select grids, and seems to do so in a periodic manner as the grid size $M$ increases!
 
-TODO discuss pros/cons of each strategy
+In \cref{amr_error_evolution}, we demonstrate how the initial grid $[0, 0.5, 1]$ and the numerical solution $U(x)$ evolves through adaptive refinement with the error strategy.
+Observe how the refinement concentrates on resolving critical areas of the solution near the peak and the inflection points.
 
-TODO discuss ``potential'' of AMR
+In \cref{amr_convergence_plot}, we compare the convergence of the three adaptive refinement strategies to the $\Oh(h^2)$-convergence of uniform refinement on the same problem.
+The error strategy requires knowledge of the exact solution and intermediate computations, but in return it is the most effective strategy.
+The source strategy requires neither, but is also the least effective strategy.
+We can say that the more knowledge of the exact solution and intermediate computations, the greater the accuracy.
+
+Note that the errors are not strictly decreasing with each refinement $M \rightarrow M+2$.
+In particular, the error from the error strategy exhibits an oscillating pattern for $M \geq 32$.
+This is a weakness of refining only \emph{exactly} two symmetric intervals for each refinement.
+An alternative method is to refine \emph{multiple} intervals at every refinement step using a criterion that splits not only the interval with the largest error, but all intervals with error above some reference error.
+This procedure removes our control over the exact number of intervals, but in return gives us control over the maximal acceptable error on any interval.
+In \cref{fem_amr_section}, we will improve our AMR strategy exactly in this way.
+The effect is that the oscillating pattern is eliminated and that the error decreases strictly with each refinement step.
+This will be equivalent to jumping directly from one local minimum in the oscillation to the next.
 
 \begin{figure}
 \centering
