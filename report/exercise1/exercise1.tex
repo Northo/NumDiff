@@ -159,39 +159,45 @@ This would also be second order, and would allow us to use the same stencil also
 We will now demonstrate how the numerical solution can be generalized to a non-uniform grid with $x_i - x_{i-1} \neq \text{const}$.
 Then we will attempt to make the numerical solution as good as possible using as few grid points as possible, by placing points tighter where the solution varies rapidly.
 
-%\newcommand\nonuniformstencil[1]{\frac{2}{x_{m+1}-x_{m-1}} \left( \frac{#1_{m+1}-#1_m}{x_{m+1}-x_m} - \frac{#1_m-#1_{m-1}}{x_m-x_{m-1}} \right)}
+To derive a nonuniform stencil for the second derivative at $x_m$, we proceed similarly to the uniform stencil.
+First approximate one derivative by stepping halfway left and right, landing at $x_{m-1/2}$ and $x_{m+1/2}$.
+Then we approximate another derivative by stepping halfway to the sides again, landing at $x_{m-1}$, $x_{m}$ and $x_{m+1}$.
+This yields
 \newcommand\nonuniformstencil[4]{\frac{2}{x_{#4}-x_{#2}} \left( \frac{#1_{#4}-#1_{#3}}{x_{#4}-x_{#3}} - \frac{#1_{#3}-#1_{#2}}{x_{#3}-x_{#2}} \right)}
-\begin{equation}
+\begin{equation*}
 \begin{split}
 %\dpd[2]{u}{x}(x_m) &\approx \frac{u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2})}{(x_m + \frac{x_{m+1}-x_m}{2}) - (x_m - \frac{x_m-x_{m-1}}{2})} \\
 %                   &=       \frac{2}{x_{m+1} - x_{m-1}} \left( u_x(x_m+\frac{x_{m+1}-x_m}{2}) - u_x(x_m-\frac{x_m-x_{m-1}}{2}) \right) \\
 %                   &\approx \frac{2}{x_{m+1} - x_{m-1}} \left( \frac{u(x_{m+1})-u(x_m)}{x_{m+1}-x_m} - \frac{u(x_m)-u(x_{m-1})}{x_m-x_{m-1}} \right) \\
-u''_m &\approx \frac{u'_{m+1/2} - u'_{m-1/2}}{x_{m+1/2}-x_{m-1/2}} \\
-      &=       \frac{2}{x_{m+1}-x_{m-1}} \left( u'_{m+1/2} - u'_{m-1/2} \right) \\
+u''_m &\approx \frac{u'_{m+1/2} - u'_{m-1/2}}{x_{m+1/2}-x_{m-1/2}}
+      % \approx \frac{1}{x_{m+1/2}-x_{m-1/2}} \left( \frac{u_{m+1}-u_m}{x_{m+1}-x_m} - \frac{u_m-u_{m-1}}{x_m-x_{m-1}} \right) \\
+      %&=       \frac{2}{x_{m+1}-x_{m-1}} \left( u'_{m+1/2} - u'_{m-1/2} \right) \\
       %&\approx \frac{2}{x_{m+1}-x_{m-1}} \left( \frac{u_{m+1}-u_m}{x_{m+1}-x_m} - \frac{u_m-u_{m-1}}{x_m-x_{m-1}} \right) \\
-	  &= \nonuniformstencil{u}{m-1}{m}{m+1} \\
+	  \approx \nonuniformstencil{u}{m-1}{m}{m+1}.\\
 \end{split}
 \label{amr_stencil}
-\end{equation}
+\end{equation*}
 
 \newcommand\hleft{x_m-x_{m-1}}
 \newcommand\hright{x_{m+1}-x_m}
 \newcommand\hfull{x_{m+1}-x_{m-1}}
-Assuming Dirichlet boundary conditions, we then write the nonzero entries of the matrix $A$ (indexed from zero) as
+Assuming Dirichlet boundary conditions, the nonzero entries of $A$ (indexed from zero) becomes
 \begin{equation*}
-\begin{split}
-A_{00} = A_{MM} &= 1 \\
-A_{m,m-1}       &= \frac{2}{\hfull} \frac{1}{\hleft} \\
-A_{m,m  }       &= \frac{-2}{\hfull} \left( \frac{1}{\hleft} + \frac{1}{\hright} \right) \\
-A_{m,m+1}       &= \frac{2}{\hfull} \frac{1}{\hright}.
-\end{split}
+\begin{aligned}
+A_{0,0} &= A_{M+1, M+1} = 1
+\qquad
+&A_{m,m-1}       &= \frac{2}{\hfull} \frac{1}{\hleft} \\
+A_{m,m  }       &= \frac{-2}{\hfull} \left( \frac{1}{\hleft} + \frac{1}{\hright} \right)
+\qquad
+&A_{m,m+1}       &= \frac{2}{\hfull} \frac{1}{\hright}.\\
+\end{aligned}
 \end{equation*}
-The job is then again to solve the system $A U = b$.
-Note that the stencil reduces to the one in \cref{matrix_system} when $\hleft = \hright = h$.
+The job is then once again to solve the system $A U = b$.
+Note that the stencil reduces to the one in \cref{matrix_system} when $\hleft = \hright = h$, as it should.
 
 To do adaptive mesh refinement, we will
 \begin{enumerate}
-\item Start with a coarse grid with uniform spacing, such as $[x_0, x_1] = [0, 1]$.
+\item Start with a coarse uniform grid, such as $[x_0, x_1] = [0, 1]$.
 \item Wisely choose \emph{one} grid interval $[x_m, x_{m+1}]$ based on some strategy.
 \item Split the interval in half by inserting a new point at $(x_m + x_{m+1}) / 2$.
 \item Repeat step 2 and 3 until the grid has the desired resolution.
@@ -210,7 +216,7 @@ This strategy requires knowledge of the exact solution $u(x)$ and solving the s
 \left| \nonuniformstencil{u}{m}{m+1/2}{m+1} - f(x_m) \right|,
 \end{equation*}
 upon insertion of a middle point $x_{m+1/2} = (x_m + x_{m+1})/2$, where $u(x)$ is the exact solution.
-This strategy also requires knowledge of the exact solution $u(x)$, but does not rely on intermediate computations of the numerical solution $U_m$.
+This strategy also requires knowledge of the exact solution $u(x)$, but does not rely on intermediate computations of the numerical solution.
 
 \item \textbf{Source strategy:} Select the interval $[x_m, x_{m+1}]$ with the largest ``absolute source''
 \begin{equation*}
