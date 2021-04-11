@@ -1,10 +1,11 @@
 \section{Heat equation in one dimension}
+\label{heat-equation}
 In this section, we consider the one-dimensional heat equation for $u = u(x, t)$, 
 \begin{equation*}
     u_t = u_{xx}, \quad u(x, 0) = f(x), \quad x \in [0,1] := \Omega, 
     \label{eq:heat-eq}
 \end{equation*}
-with either Neumann or Dirchelet boundaryconditions, 
+with either Neumann or Dirchlet boundary conditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
 and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. However we will here restrict our attention to uniform grids only. 
@@ -85,6 +86,8 @@ similar to what we did in section \ref{task_1}.
 \end{figure}
 
 \subsection{Convergence and mesh refinement}
+As in section \ref{task_1} we now analyze the convergence of the numerical solution methods, 
+by doing mesh refinement of the spatial grid $x_m$. 
 For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
 so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
 which we use in place of the analytical solution when computing the error. 
@@ -110,13 +113,17 @@ and the analytical solution is readily available as
 When doing mesh refinement of the spatial grid, 
 we vary the number of spatial grid points $M$, 
 and compute the numerical solution at the same point in time $t=t_{end}$. 
-The number of time steps $N$ is kept fixed, 
-and compute both the $L_2$ discrete relative error. 
+We keep the number of time steps $N$ is kept fixed, 
+so that the error from the time discretization does not vary, 
+and compute the $L_2$ discrete relative error with respect to the reference solution. 
 For equation \eqref{eq:2b-manufactured} we also compute the $l_2$ continous relative error, 
-and the resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
+and compute errors with respect to the analytical solution. 
+The resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
 
 Both methods are second order in the spatial step $h$, 
 but Crank-Nicolson is one order higher in time step $k$. 
+% Sorry guys, didn't have time to complete this as I announced I would. 
+% Will here just present the results 
 
 \begin{figure}[ht]
     \centering
@@ -159,14 +166,49 @@ but Crank-Nicolson is one order higher in time step $k$.
 
 \section{Invicid Burgers' equation}
 
-In this section we briefly inspect and solve the inviscid Burgers' equation, 
-and evaluate the breaking which this equation exhibits. 
+In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
+\begin{equation}
+    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = exp(-400(x-1/2)^2).
+    \label{eq:burger}
+\end{equation}
+This equation exhibits breaking; 
+after some point in time $t_b$ the solution breaks, 
+and the unique solution does not exist, 
+leading to the formation of a \textit{shock wave}.\cite{burgers} 
+The time $t_b$ before this can happen is given by
+\begin{equation}
+% I am not sure if this is the exact time of breaking or just the earliest possible breaking time. 
+    t_b = \frac{-1}{min f'(x)}, 
+    \label{eq:t_break}
+\end{equation}
+where $f(x)$ is the given initial condition $u(x, 0) = f(x)$.\cite{burgers} 
 
-Notes:
-    -Also semi-discretization, but integrate using off-shelf routine
-    -Breaking/shock formation: Numerical vs theoretical
+\subsection*{Numerical solution method}
+To solve \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 
+also on a uniform spatial grid as described in section \ref{task_1}. 
+The resulting system of ODEs is
+\begin{equation*}
+    burgers discretized, 
+\end{equation*}
+which we integrate using \textit{solve\_ivp} from the SciPy library, 
+with the default explicit Runge-Kutta method of order 4(5)\cite{solve_ivp}. \\
+\textbf{Comment/question:} Is it fine to use scipy.integrate.solve\_ivp, 
+or should it be all home cooking? 
+
+\subsection{Time of breaking}
+Insertion of $u(x, 0)$ for $f$ in \eqref{eq:t_break}, 
+gives $t_b \approx 0.058$. 
+To get a criterion for when the numerical solution has broken down, 
+we use that the stable solution should be strictly increasing from $x=0$ to towards the apex, 
+and then strictly decreasing from the apex towards the right boundary at $x=1$. 
+When this is no longer the case we say that the solution has broken, 
+and the time for which this happened for our solution was at $t* \approx 0.055$. 
+Figure \ref{fig:burgers-samples} shows the solution sampled around the time of breaking. 
+% Not sure what to make of this result, also varying M seems to affect 
+% the breaking time. I made a function wich calculates the :
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2c_samples.pgf}
+    \label{fig:burgers-samples}
 \end{figure}

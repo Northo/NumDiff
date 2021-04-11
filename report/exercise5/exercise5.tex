@@ -8,11 +8,11 @@ In this section, we will again solve the Poisson equation
 	-\pd[2]{u}{x} = f(x), \quad u(a) = \alpha, \quad u(b) = \beta, \quad (a \leq x \leq b)
 	\label{poisson_equation2}
 \end{equation}
-subject to Dirichlet conditions, but this time with finite elements instead of finite differences.
+subject to Dirichlet conditions, but this time using finite elements instead of finite differences.
 
 \subsection{Analytical solution}
 
-The solution to the Poisson equation is the same as in \ref{poisson_analytical_solution}, but with $f(x) \rightarrow -f(x)$:
+The solution to the Poisson equation is the same as in \ref{poisson_analytical_solution}, but with $f(x) \rightarrow -f(x)$, so that
 \begin{equation}
 u(x) = C_1 + C_2 x - \int^x \dif x' \int^{x'} \dif x'' f(x'').
 \label{poisson_analytical_solution2}
@@ -153,6 +153,7 @@ This integral must be approximated numerically and should be split from $x_{i-1}
 (TODO: comment on numerical integration procedure, Gaussian integration)
 
 We now impose $\hat{U}(a) = \hat{U}(b) = 0$ by removing the first and last entries in the matrix equation \emph{after} calculating the entire $(M+2) \times (M+2)$ system described above.
+This gives an $M \times M$ equation.
 Then we construct $U$ by appending $\alpha$ and $\beta$ at the beginning and end of the $M$-vector $\hat{U}$.
 
 \newcommand\plotseries[5]{
@@ -225,13 +226,13 @@ $f(x) = 2x^{-4/3}/9$
 
 \subsubsection{Uniform refinement}
 
-We test our method on four problems in \cref{femumr} with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
+We test our method on four problems, shown in \cref{femumr}, with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
 
 The approximate solutions resembles the exact solution with few points.
 For the symmetric Gaussian problems, it is vital to choose an odd number of grid points to capture the spike in the center.
 In the final problem, the source function diverges at the left boundary, but the numerical integration is still able to find a good numerical solution.
 
-Except on the first problem, errors distribute non-evenly across the elements.
+In all but the first problem, errors distribute non-evenly across the elements.
 Computational resources are wasted by using many points in areas where the solution varies slowly.
 These resources would be better spent by increasing the grid resolution in the areas where the error is large.
 This is the motivation for turning to adaptive refinement and non-uniform grids.
