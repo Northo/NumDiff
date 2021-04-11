@@ -173,13 +173,13 @@ def convergence_plot(bc1, bc2, showplot=False, outpath=""):
         plt.show()
 
     if outpath != "":
-        table = np.column_stack((hs, errs_disc, errs_cont))
-        np.savetxt(outpath, table, header="h disc cont", comments="")
+        table = np.column_stack((Ms, errs_disc, errs_cont))
+        np.savetxt(outpath, table, header="M disc cont", comments="")
 
 def l2_cont(y, x):
-    # interpolate integration with trapezoid rule
-    # TODO: interpolate with higher accuracy?
-    return np.sqrt(np.trapz(y**2, x))
+    # piecewise linear interpolate between each point
+    integrand = lambda xx: np.interp(xx, x, y)**2
+    return np.sqrt(sum(scipy.integrate.quad(integrand, x[i], x[i+1])[0] for i in range(0, len(x)-1)))
 
 def l2_disc(y):
     N = np.size(y)
@@ -350,19 +350,19 @@ def manufactured_solution_mesh_refinement(maxM=250, plot=False, write=False):
 # Task 1a
 bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 0)
 bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-# compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_neu.dat")
+compare_num_anal(bc1, bc2, M=30, showplot=True, outpath="../report/exercise1/dir_neu.dat")
 # convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_neu_err.dat")
 
 # Task 1b
 bc1 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
 bc2 = BoundaryCondition(BoundaryCondition.DIRICHLET, 1)
-# compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_dir.dat")
+compare_num_anal(bc1, bc2, M=30, showplot=True, outpath="../report/exercise1/dir_dir.dat")
 # convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/dir_dir_err.dat")
 
 # Task 1c
 bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 1/2)
-# compare_num_anal(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu.dat")
+compare_num_anal(bc1, bc2, M=30, showplot=True, outpath="../report/exercise1/neu_neu.dat")
 # convergence_plot(bc1, bc2, showplot=True, outpath="../report/exercise1/neu_neu_err.dat")
 
-manufactured_solution_mesh_refinement(maxM=250, plot=False, write=True)
+# manufactured_solution_mesh_refinement(maxM=250, plot=False, write=True)

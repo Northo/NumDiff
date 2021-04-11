@@ -96,31 +96,37 @@ To handle the singular matrix, we solve the system with a least-squares method i
 	\centering
 	\begin{tikzpicture}
 		\begin{groupplot}[
-			group style={group size=2 by 3,horizontal sep=2cm,vertical sep=2cm},
+			group style={group size=2 by 3,horizontal sep=2cm,vertical sep=2.2cm},
 			height=6cm,
 			width=0.48\textwidth,
+			clip marker paths=true
 			]
-			\nextgroupplot[title={$u(0)=0, \quad u_x(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$];
-			\addplot [color=red] table [x=x,y=u] {exercise1/dir_neu.dat};
-			\addplot [color=black, only marks, mark=x, each nth point=20] table [x=x,y=U] {exercise1/dir_neu.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$h$,ylabel=relative error];
-			\addplot [color=red, mark=*] table [x=h,y=disc] {exercise1/dir_neu_err.dat};
+			\nextgroupplot[title={$u(0)=0, \quad u_x(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$}];
+			heloooo
+			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_neu.dat};
+			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_neu.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={continuous norm,discrete norm}];
+			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/dir_neu_err.dat};
+			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/dir_neu_err.dat};
 
-			\nextgroupplot[title={$u(0)=1, \quad u(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$];
-			\addplot [color=red] table [x=x,y=u] {exercise1/dir_dir.dat};
-			\addplot [color=black, only marks, mark=x, each nth point=20] table [x=x,y=U] {exercise1/dir_dir.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$h$,ylabel=relative error];
-			\addplot [color=red, mark=*] table [x=h,y=disc] {exercise1/dir_dir_err.dat};
+			\nextgroupplot[title={$u(0)=1, \quad u(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$}];
+			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_dir.dat};
+			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_dir.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={continuous norm,discrete norm}];
+			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/dir_dir_err.dat};
+			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/dir_dir_err.dat};
 
-			\nextgroupplot[title={$u_x(0)=0, \quad u_x(1)=1/2$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,scaled ticks=false, tick label style={/pgf/number format/fixed}];
-			\addplot [color=red] table [x=x,y=u] {exercise1/neu_neu.dat};
-			\addplot [color=black, only marks, mark=x, each nth point=20] table [x=x,y=U] {exercise1/neu_neu.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$h$,ylabel=relative error];
-			\addplot [color=red, mark=*] table [x=h,y=disc] {exercise1/neu_neu_err.dat};
+			\nextgroupplot[title={$u_x(0)=0, \quad u_x(1)=1/2$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$},scaled ticks=false, tick label style={/pgf/number format/fixed}];
+			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/neu_neu.dat};
+			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/neu_neu.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={continuous norm,discrete norm}];
+			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/neu_neu_err.dat};
+			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/neu_neu_err.dat};
 		\end{groupplot}
 	\end{tikzpicture}
 	\caption{\label{poisson_numerical_solutions}
-		Analytical and numerical solutions (left) and convergence plots (right) for solutions to the Poisson equation subject to three different boundary conditions.
+		The left plots show analytical solutions $u(x)$ and numerical solutions $U(x)$ with $M=30$ grid points for $u_{xx} = x + \cos{2 \pi x}$ subject to three different boundary conditions.
+		The right plots show convergence plots corresponding to the same boundary conditions, where the error is measured with both the a continuous and discrete $L_2$-norm.
 	}
 \end{figure}
 
