@@ -93,16 +93,20 @@ def test_order():
         )
 
         F_stencil = five_point_stencil(N, a=1/3, b=1/12)
+        RHS9 = (F_stencil @ F.flatten()).reshape(N, N)
+        RHS9 = F + h**2 * (five_point_stencil(N)/12 @ F.flatten()).reshape(N, N)
         U9 = fps(
-            h**2  * (F_stencil @ F.flatten()).reshape(N, N),
-            get_eigval_array(N, nine_point_eigenval),
+            RHS9,
+            h**-2 * get_eigval_array(N, nine_point_eigenval),
             **kwargs
         )
-        # U5 = scipy.sparse.linalg.spsolve(five_point_stencil(N), h**2 * F.flatten()).reshape(N, N)
-        # U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N), h**2 * (F_stencil @ F.flatten())).reshape(N, N)
+        U9 = U9
+        # U5 = scipy.sparse.linalg.spsolve(five_point_stencil(N) / h**2, F.flatten()).reshape(N, N)
+        U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N)/h**2, RHS9.flatten()).reshape(N, N)
+
         anal = F / -(2 * np.pi ** 2)
-        diff5 = U5 - anal
-        diff9 = U9 - anal
+        diff5 = (U5 - anal).flatten()
+        diff9 = (U9 - anal).flatten()
         order = np.inf
         errors_five.append(
             np.linalg.norm(diff5, ord=order)
@@ -114,8 +118,9 @@ def test_order():
             / np.linalg.norm(anal, ord=order)
         )
     plt.loglog(Ns, errors_five, '-x', label="five")
-    # plt.loglog([1e1, 1e2], [1e-1, 1e-2])
+    #plt.loglog([1e1, 1e2], [1e-1, 1e-2])
     plt.loglog(Ns, errors_nine, '-x', label="nine")
+    plt.loglog(Ns, (1/(Ns - 1))**2 * errors_nine[0] / (1/(Ns[0] - 1))**2, label="h^2")
     plt.gca().set_aspect("equal")
     plt.legend()
     plt.grid()
@@ -150,5 +155,5 @@ def exercise_h():
     plt.show()
 
 if __name__=="__main__":
-    # test_order()
-    exercise_h()
+    test_order()
+    # exercise_h()
