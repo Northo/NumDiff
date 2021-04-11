@@ -1,4 +1,4 @@
-\section{Biharmonic equation}
+v\section{Biharmonic equation}
 \label{sec:PDE}
 
 \newtheorem{theorem}{Theorem}
@@ -30,7 +30,7 @@ F_{mn}
 \sin(m\pi x)
 \sin(n\pi y).
 $$
-Inserting the expression into the Biharmonic equation, we get, after acting on the expression with $\nabla^4$
+Inserting the expression into the Biharmonic equation, we get, after acting on the expression with the biharmonic operator $\nabla^4$
 \begin{align}
   \nabla^4 u &=
   \sum_{m=1}^\infty
@@ -45,10 +45,17 @@ Inserting the expression into the Biharmonic equation, we get, after acting on t
   \left(
   (m\pi)^4 + (n\pi)^4 + 2n^2m^2\pi^4
   \right)
-  \sin(m\pi x)\sin(n\pi y)
+  \sin(m\pi x)\sin(n\pi y)\\
+  &=
+  \sum_{m=1}^\infty
+  \sum_{n=1}^\infty
+  F_{mn}
+  \left(
+  (m\pi)^2 + (n\pi)^2
+  \right)^2
+  \sin(m\pi x)\sin(n\pi y)\\
   &= f.
 \end{align}
-(TODO: write as $((m\pi)^2+(n\pi)^2)^2$?)
 
 Thus, with
 $$
@@ -66,8 +73,8 @@ F_{mn} =
   G_{mn}
 }{
   \left(
-  (m\pi)^4 + (n\pi)^4 + 2n^2m^2\pi^4
-  \right)
+  (m\pi)^2 + (n\pi)^2
+  \right)^2
 }
 $$
 (TODO: comment on orthogonal sine functions?)
@@ -78,29 +85,30 @@ Observe that choosing $f$ such that the series is finite, ie. only a finite numb
 We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$,
 \begin{align}\label{eq:PDE-poisson}
   \nabla^2g &= f,\\
-  \nabla^2u &= g.
+  \nabla^2u &= g,\\
+  g = u &= 0,\quad \text{ on } \partial \Omega.
 \end{align}
 
 
 %% c)
-We will consider here two approximations of $\nabla^2 u = f$, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
+In solving the poisson equation $\nabla^2 u = f$ will consider here two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
 
 \newcommand{\crossStencil}[5]{%
-  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}]
+  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}, nodes={draw, circle}]
     \draw node[below]{$#1$} (0,0) -- (0,2) node[above]{$#2$};
     \draw (-1, 1) node[left]{$#3$} -- (1, 1) node[right]{$#4$};
-    \node[above right] at (0,1) {$#5$};
+    \node[above right, draw=none] at (0,1) {$#5$};
   \end{tikzpicture}
 }
 
 \newcommand{\xStencil}[4]{%
-  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}]
+  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}, nodes={draw, circle}]
     \draw node[below left]{$#1$} (0,0) -- (1.41, 1.41) node[above right]{$#2$};
     \draw (0, 1.41) node[above left]{$#3$} -- (1.41, 0) node[below right]{$#4$};
   \end{tikzpicture}
 }
 
-Written in stencil diagrams, the five point stencil is given as (TODO: $f$ or $g$ here?)
+Written in stencil diagrams, the five point stencil is given as 
 $$
 u \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
@@ -120,40 +128,9 @@ f
 \right).
 $$
 
-Using one of these stencils will give a system of equations which we can write as a matrix equation,
-$$
-AU = BF,
-$$
-where $A$ and $B$ are matricies, $U$ is the solution that we seek, and $F$ is the inhomogeneity.
-More precisely $U$ is a flattened array which represents the solution $u$;
-the flattening is such that the rows of two-dimensional version of $U$ are conserved.
-Thus, the next element of a column at position $n$, is at position $n+N$ in the flattened array, where $N$ is the number of elements in a row.
-We will now consider the structure of the matrix $A$ in more detail.
-
-Thus, with our 2D $U$ begin 
-$$
-\tilde{U} =
-\begin{bmatrix}
-  u_{11} & u_{12} & u_{13}\\
-  u_{21} & u_{22} & u_{23}\\
-  & \vdots
-\end{bmatrix}
-=
-\begin{bmatrix}
-  \vec{u_1}\\
-  \vec{u_2}\\
-  \vdots
-\end{bmatrix}
-$$
-we have our flattened vector
-$$
-U =
-\begin{bmatrix}
-  u_{11} & u_{12} & u_{13} & \dots & u_{21} & u_{22} & \dots
-\end{bmatrix}^T
-$$
 
 We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
+We will use the same flattening for the 2D discrete function $u$ as described in section \ref{sec:exc3:numerical}.
 We recognize that in $U$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
 Thus, writing out the five point stencil $K2D$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
 We can compactley write this as
@@ -173,56 +150,28 @@ K2D =
   \vdots&&&\ddots
 \end{bmatrix}.
 $$
-where $I$ is the identity matrix and $K$ is the one dimensional central finite difference matrix,
+where $I$ is the identity matrix and $K$ is the one dimensional central finite difference matrix of order 2,
 $$
 K =
 \begin{bmatrix}
-  -2 & 1 & 0 &  \\
-  1 & -2 & 1 & 0 \\
-  0 & 1 & -2 & 1 & 0 \dots\\
-  \vdots&&&\ddots
+  -2 & 1 &   \\
+  1 & -2 & 1 &  \\
+  & 1 & -2 & 1 & \\
+  &&&\ddots\\
+  && 1 & -2 & 1\\
+  &&& 1 & -2
 \end{bmatrix}.
 $$
 Using the Kronecker product, this may be written as
 $$
 K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
 $$
-(TODO: note how boundary conditions are incorporated with this matrix structure?)
+which is useful when working with sparse matricies.
 
-The nine point stencil has a slightly more complicated structure.
-The block structure of the nine point stencil is as follows:
-$$
-\begin{bmatrix}
-  4Q - 36 I & Q \\
-  Q & 4Q - 36 I & 4Q \\
-  0 & Q & 4Q - 36 I & Q \\
-  & & & \ddots
-\end{bmatrix}
-=
-\begin{bmatrix}
-  4Q & Q \\
-  Q & 4Q & 4Q \\
-  0 & Q & 4Q & Q \\
-  & & & \ddots
-\end{bmatrix}
--
-36
-\begin{bmatrix}
-  I & 0 \\
-  0 & I & 0 \\
-  0 & 0 & I & 0 \\
-  & & & \ddots
-\end{bmatrix}
-$$
-Notice the interesting recursive structure.
-(TODO: should it be $-36$ or $-6$?)
-
-TODO: write/use somewhere the general result for tridiag matrix ($a$ on diag)
-\begin{equation*}
-	\lambda_k = a - 2 \sqrt{bc} \cos(\frac{k \pi}{N + 1})
-\end{equation*}
-
-We can also write the nine point stencil as a sum of a five point stencil, where we simply change the weights, another matrix taking care of the NE, NW, etc. points.
+We will split the nine point stencil matrix into two, according to the stencil diagram above.
+One matrix represents a five point stencil with weights altered to $\frac{-10}{3}, \frac23$ instead of $-4, 1$, we denote this matrix by $K2D^{(9)}$.
+The other is the ``X''-stencil taking care of the NE, NW, SE, and SW points, each with a weight of $\frac16$, as shown in the diagram.
+We will denote this matrix by $\Sigma 2D$.
 
 Let
 \begin{equation}
@@ -237,24 +186,45 @@ Let
   \end{bmatrix}
 \end{equation}
 be the TST matrix with ones on its off-diagonals and zero on the diagonal.
+Then we have $\Sigma 2D = \Sigma \otimes \Sigma$.
 The nine point stencil is then
 \begin{equation}
-  K2D^{(9)} + \Sigma \otimes \Sigma. \quad \text{TODO: should it be} K2D^{(5)}?
+  somename9stencil = K2D^{(9)} + \Sigma 2D
 \end{equation}
 
-We find the eigenvalues of $K2D^{(9)}$ directly by substituting in the appropriate weights in our previous expression from the five point stencil.
-The $\Sigma$ matrix must by its structure obviously have the same eigenvectors as $K$, and by substituting in the formula, interpreting the zero diagonal as a zero weight, we find that the eigenvalues of $\Sigma$ are
-$$
-\frac{2}{\sqrt{6}} \cos(\frac{k \pi}{N+1}).
-\quad \text{TODO: minus?}
-$$
 The eigenvalues of the Kronecker product $A \otimes B$ is the product of the eigenvalues of $A$ and $B$.
-(TODO: also use property that eigenvalue of Kronecker sum is the sum of eigenvalues?)
-Thus, the eigenvalues of $\Sigma \otimes \Sigma$ are
+The eigenvalue of the Kronecker sum $A\oplus B = A \otimes I + I \otimes B$ is the sum of eigenvalues of $A$ and $B$.
+In general the eigenvalues of a TST matrix are
+\begin{equation*}
+	\lambda_k = a + 2 b \cos\left(\frac{k \pi}{N + 1}\right)
+\end{equation*}
+where $a$ is the main diagonal and $b$ is the off diagonal.
+%% Thus the eigenvalues of $K$ are
+%% $$
+%% \lambda_k = -2
+%% \left(1 - \cos\left(\frac{k \pi}{N + 1}\right)\right)
+%% $$
+%% and the eigevalues of $\Sigma$ are
+%% $$
+%% \gamma_k = -\frac{2}{\sqrt{6}}\cos\left(\frac{k \pi}{N + 1}\right).
+%% $$
+Thus, the eigenvalues of $K2D$ are
+$$
+\left(-2 + 2\cos\left(\frac{k \pi}{N + 1}\right)\right)
++
+\left(-2 + 2\cos\left(\frac{l \pi}{N + 1}\right)\right).
+$$
+The eigenvalues of $K2D^{(9)}$ are
+$$
+\frac13\left(-10 + 4\cos\left(\frac{k \pi}{N + 1}\right)\right)
++
+\frac13\left(-10 + 4\cos\left(\frac{l \pi}{N + 1}\right)\right)
+$$
+and the eigenvalues of $\Sigma \otimes \Sigma$ are
 $$
 \frac46
-\cos(\frac{k \pi}{N+1})
-\cos(\frac{l \pi}{N+1}).
+\cos\left(\frac{k \pi}{N+1}\right)
+\cos\left(\frac{l \pi}{N+1}\right).
 $$
 The eigenvalues of the nine point stencil are thus
 \begin{equation}
@@ -279,16 +249,6 @@ The eigenvalues of the nine point stencil are thus
 We will here prove that the five point stencil is of order 2, following the outline provided in the exercise.
 \emph{TODO: stability?}
 
-We will here use the five point stencil defined as
-$$
-U \left(\crossStencil{1}{1}{1}{1}{-4}\right)
-$$
-so that the poisson equation reads
-$$
-- U \left(\crossStencil{1}{1}{1}{1}{-4}\right) = f.
-$$
-We do this simply for convenience.\\
-
 %% 1
 \begin{lemma}\label{pde:lemma:max}
 If $\nabla_5^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
@@ -299,16 +259,16 @@ $$
 \begin{proof}
 Suppose the opposite is true,
 $$
-\max(f)_\Omega \geq \max(f)_{\partial \Omega}.
+\max(f)_\Omega > \max(f)_{\partial \Omega}.
 $$
 Then, there is an internal grid point on which $f$ attains it maximal value.
-We denote this point by $x_0$, and label its neighbouring points $x_i,\quad i = 1,2,3,4$.
+We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2,3,4$.
 Then
 $$
 4f(x_0) = \sum_{i=1}^4 f(x_i) - \nabla_5^2 f(x_0) \leq \sum_{i=1}^4 f(x_i) \leq 4 f(x_0),
 $$
 where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
-As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
+As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
 Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
 \end{proof}
 
@@ -337,7 +297,7 @@ $$
 \leq \inorm{v + \phi M}
 \leq \max_{\partial \Omega}(v + \phi M)
 = \max_{\partial\Omega} (\phi M)
-\leq \frac18 \inorm{\nabla_5^2 v}.
+= \frac18 \inorm{\nabla_5^2 v}.
 $$
 \end{proof}
 
@@ -349,7 +309,7 @@ $$
 $$
 \end{theorem}
 \begin{proof}
-By our previous lemma \ref{pde:lemma:bound}
+By lemma \ref{pde:lemma:bound}
 $$
 \inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
 $$
@@ -360,24 +320,77 @@ $$
 and similarly for $y$.
 Therefore
 \begin{align*}
-  - \nabla_5^2 u
+  \nabla_5^2 u
   &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
   &= (\partial_x^2 + \partial_y^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
   &= (\nabla^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
-  &\leq \nabla^2 u + 2 \max(C_x h^2 \partial_x^4 u, C_y h^2 \partial_y^4 u)\\
-  &= \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u).
+  &\leq \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u)\\
+  &\leq \nabla^2 u + C h^2 \lvert D^4 u \rvert_\infty.
 \end{align*}
-
-We then have
-$$
-\inorm{\nabla_5^2 (u  - v)} = C h^2 \inorm{D^4 u},
-$$
-where we by $\inorm{D^4 u}$ mean $\inorm{\max(\partial_x^4 u, \partial_y^4 u)}$. TODO: is it supposed to be $v$?
+Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
+For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$.
 \end{proof}
 
 
 \subsection{Stability and order of the nine point stencil}
 Our proof for the nine point stencil will follow the same structure as for the five point stencil.
+
+%% 1
+\begin{lemma}\label{pde:lemma:max9}
+If $\nabla_9^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
+$$
+\max(f)_\Omega \leq \max(f)_{\partial \Omega}.
+$$
+\end{lemma}
+\begin{proof}
+Notice that the nine point stencil may be written as a sum of two five point stencils --
+one defined normally and the other defined on the ``diagonal grid'' of our grid.
+With this we mean the grid of grid constant $\sqrt{2}h$, consiting of every other point of the original grid -- ie. we reduce our grid into the black and white subgrids, following the chess analogy.
+Specifically, we have $\nabla_9^2 = \frac23 \nabla_5^2 + \frac16 \tilde{\nabla_5^2}$, where tilde indicates the operator on the aformentioned subgrid.
+As $\nabla_9^2 f \geq 0$, at least one of the five point stencils must also be positive.
+Thus, by lemma \ref{pde:lemma:max} the proof is completed.
+\end{proof}
+
+%% 2
+\begin{lemma}\label{pde:lemma:bound9}
+  If $v$ is a discrete function that equals zero on $\partial \Omega$,
+  $$
+  \inorm{v} \leq \frac{3}{40} \inorm{\nabla_9^2 v}.
+  $$
+\end{lemma}
+\begin{proof}
+  Fuck, this was harder....
+\end{proof}
+
+%% 3
+\begin{theorem}
+If $\nabla^2 u = f$ and $\nabla_9^2 v = f$, then
+$$
+\inorm{u - v} \leq Ch^2 \lvert D^6 v\rvert_\infty.
+$$
+\end{theorem}
+\begin{proof}
+By lemma \ref{pde:lemma:bound9}
+$$
+\inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_5^2 (u  - v)}.
+$$
+By Taylor expanding $u(x + h, y)$ and $u(x - h, y)$ we get
+$$
+\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + C h^2 \partial_x^4,
+$$
+and similarly for $y$.
+Therefore
+\begin{align*}
+  \nabla_5^2 u
+  &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
+  &= (\partial_x^2 + \partial_y^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
+  &= (\nabla^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
+  &\leq \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u)\\
+  &\leq \nabla^2 u + C h^2 \lvert D^4 u \rvert_\infty.
+\end{align*}
+Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
+For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$.
+\end{proof}
 
 
 
