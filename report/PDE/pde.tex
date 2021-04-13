@@ -315,16 +315,15 @@ $$
 $$
 By Taylor expanding $u(x + h, y)$ and $u(x - h, y)$ we get
 $$
-\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + C h^2 \partial_x^4,
+\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + \frac{h^2}{12} \partial_x^4 + \mathcal{O}(h^4),
 $$
 and similarly for $y$.
-Therefore
+Therefore we get, to order $h^2$
 \begin{align*}
   \nabla_5^2 u
   &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
-  &= (\partial_x^2 + \partial_y^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
-  &= (\nabla^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
-  &\leq \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u)\\
+  &= (\partial_x^2 + \partial_y^2 + \frac{h^2}{12} \partial_x^4 + \frac{h^2}{12} \partial_y^4) u\\
+  &\leq \nabla^2 u + \frac{h^2}{12} \max(\partial_x^4 u, \partial_y^4 u)\\
   &\leq \nabla^2 u + C h^2 \lvert D^4 u \rvert_\infty.
 \end{align*}
 Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
@@ -343,12 +342,25 @@ $$
 $$
 \end{lemma}
 \begin{proof}
-Notice that the nine point stencil may be written as a sum of two five point stencils --
-one defined normally and the other defined on the ``diagonal grid'' of our grid.
-With this we mean the grid of grid constant $\sqrt{2}h$, consiting of every other point of the original grid -- ie. we reduce our grid into the black and white subgrids, following the chess analogy.
-Specifically, we have $\nabla_9^2 = \frac23 \nabla_5^2 + \frac16 \tilde{\nabla_5^2}$, where tilde indicates the operator on the aformentioned subgrid.
-As $\nabla_9^2 f \geq 0$, at least one of the five point stencils must also be positive.
-Thus, by lemma \ref{pde:lemma:max} the proof is completed.
+Suppose the opposite is true,
+$$
+\max(f)_\Omega > \max(f)_{\partial \Omega}.
+$$
+Then, there is an internal grid point on which $f$ attains it maximal value.
+We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2, \dots, 7, 8$, where the first four are the cardinal points and the latter four the NE, NW, SE, SW points.
+Then
+\begin{align*}
+\frac{10}{3} f(x_0)
+&= \frac{1}{6} \sum_{i=1}^4 f(x_i)
++ \frac{2}{3} \sum_{i=5}^8 f(x_i)
+- \nabla_9^2 f(x_0)\\
+&\leq \frac{1}{6} \sum_{i=1}^4 f(x_i)
++ \frac{2}{3} \sum_{i=5}^8 f(x_i)\\
+&\leq
+\left( 4\frac16 + 4\frac23 \right) u(x_0)\\
+&= \frac{10}{3} u(x_0).
+\end{align*}
+By the same reasoning as in lemma \ref{pde:lemma:max} this leads to a contradiction.
 \end{proof}
 
 %% 2
@@ -364,7 +376,8 @@ Thus, by lemma \ref{pde:lemma:max} the proof is completed.
 
 %% 3
 \begin{theorem}
-If $\nabla^2 u = f$ and $\nabla_9^2 v = f$, then
+TODO verify it should be $F f$ not $f$.
+If $\nabla^2 u = f$ and $\nabla_9^2 v = F f = f + \frac{h^2}{12} \nabla_5^2 f$, then
 $$
 \inorm{u - v} \leq Ch^2 \lvert D^6 v\rvert_\infty.
 $$
@@ -372,24 +385,33 @@ $$
 \begin{proof}
 By lemma \ref{pde:lemma:bound9}
 $$
-\inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_5^2 (u  - v)}.
+\inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
 $$
-By Taylor expanding $u(x + h, y)$ and $u(x - h, y)$ we get
-$$
-\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + C h^2 \partial_x^4,
-$$
-and similarly for $y$.
-Therefore
+Taylor expanding $\nabla_9^2 u$, similarly to what was done in the five point stencil case, we get
 \begin{align*}
-  \nabla_5^2 u
-  &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
-  &= (\partial_x^2 + \partial_y^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
-  &= (\nabla^2 + C_x h^2 \partial_x^4 + C_y h^2 \partial_y^4) u\\
-  &\leq \nabla^2 u + C h^2 \max(\partial_x^4 u, \partial_y^4 u)\\
-  &\leq \nabla^2 u + C h^2 \lvert D^4 u \rvert_\infty.
+  \nabla_9^2 u
+  &= (\nabla^2
+  + \frac{h^2}{12} \partial_x^4
+  + \frac{h^2}{12} \partial_y^4
+  + \frac{h^2}{6} \partial_x^2 \partial_y^2
+  ) u + h^4 C \mathcal{O}(D^6 u)\\
+  &= \nabla^2 u + \frac{h^2}{12} \nabla^2 f + C h^4 \mathcal{O}(D^6 u).
 \end{align*}
-Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
-For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$.
+Here $\mathcal{O}(D^n u)$ is to be understood as terms involving $n$-index derivatives of $u$.
+Notice that
+$$
+\nabla^2 f = \nabla_5^2 f + C h^2 \mathcal{O}(D^4 f),
+$$
+and that $\mathcal{O}(D^4 f)
+= \mathcal{O}(D^4 \nabla^2 u)
+= \mathcal{O}(D^6 u)$.
+
+Thus
+\begin{align}
+  \inorm{\nabla_9^2 (u  - v)}
+  &= \inorm{Ch^4 \mathcal{O}(D^6u)}\\
+  &\leq Ch^4 \inorm{D^6u}
+\end{align}
 \end{proof}
 
 
@@ -424,8 +446,33 @@ Written as matrix expressions
   U &= S\Lambda^{-1} S F,
 \end{align}
 where we used the fact that $S^{-1} = S$.
-Moreover, formulated more directly with regards to implementing the solver, we have that the solutin is
+Moreover, formulated more directly with regards to implementing the solver, we have that the solution is
 $$
 U = IFST(FST(F) / \Lambda),
 $$
 where $IFST, FST$ are the inverse and normal fast sine tranform.
+
+\subsection{Demonstration of order}
+\begin{figure}[h]
+  \centering
+  \input{./PDE/order.pgf}
+  \caption{Error as a function discretization points $N$
+    TODO: figure is to be updated with prettier figure
+    TODO: Most appropriate with function of h or N?}
+\end{figure}
+
+
+\subsection{Solving the Biharmonic equation}
+Consider the equation
+\begin{align*}
+  \nabla^4 u &= f(x, y) &(x, y) &\in \phantom{\partial}\Omega\\
+  u = \nabla^2u &= 0  &(x, y) &\in \partial\Omega
+\end{align*}
+where $f(x, y) =
+\left(
+\sin \pi x
+\sin \pi y
+\right)^4
+e^{-(x-0.5)^2 - (y-0.5)^2}
+$.
+

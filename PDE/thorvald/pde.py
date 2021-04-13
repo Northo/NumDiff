@@ -4,6 +4,8 @@ import scipy.sparse
 import scipy.sparse.linalg
 from scipy.fft import dst, idst
 from functools import partial
+from scipy.interpolate import NearestNDInterpolator
+import time
 
 def dst2D(x, **kwargs):
     """Discrete sine transform in 2D.
@@ -25,9 +27,9 @@ def TST(N, a=-2, b=1):
     )
 
 
-def five_point_stencil(N, a=-2, b=1):
+def five_point_stencil(N, a=-4, b=1):
     """Generate a five point stencil"""
-    K = TST(N, a=a, b=b)
+    K = TST(N, a=a/2, b=b)
     I = scipy.sparse.eye(N)
     return scipy.sparse.kron(I, K) + scipy.sparse.kron(K, I)
 
@@ -39,7 +41,7 @@ def five_point_eigenval(N, k, l):
 
 def nine_point_stencil(N):
     """Generate a nine point stencil"""
-    five_point = five_point_stencil(N, a=-5/3, b=2/3)
+    five_point = five_point_stencil(N, a=-10/3, b=2/3)
     SIGMA = scipy.sparse.diags([np.ones(N - 1), np.ones(N - 1)], [-1, 1])
     diagonal_points = scipy.sparse.kron(SIGMA, SIGMA) / 6
 
@@ -52,6 +54,27 @@ def nine_point_eigenval(N, k, l):
         + 4 / 6 * (np.cos(k * np.pi / (N + 1)) * np.cos(l * np.pi / (N + 1)))
         + 4 / 3 * (np.cos(k * np.pi / (N + 1)) + np.cos(l * np.pi / (N + 1)))
     )
+
+
+def nine_point_solve(F, use_fps=True, **fps_kwargs):
+    N = F.shape[0]
+    h = 1 / (N + 2 - 1)
+    F_stencil = five_point_stencil(N, a=2/3, b=1/12)
+    F9 = (F_stencil @ F.flatten()).reshape(N, N)
+    if not fps_kwargs:
+        fps_kwargs = fps_kwargs = {"type": 1, "norm": "ortho"}
+    if use_fps:
+        U9 = fps(
+            h**2  * F9,
+            get_eigval_array(N, nine_point_eigenval),
+            **fps_kwargs
+        )
+    else:
+        U9 = scipy.sparse.linalg.spsolve(
+            nine_point_stencil(N),
+            h**2 * F9.flatten(),
+        ).reshape(N, N)
+    return U9
 
 
 
@@ -68,24 +91,85 @@ def get_eigval_array(N, eigval_func):
     return eigval_func(N, kk, ll)
 
 
-def get_mesh(N):
+def get_mesh(N, reth=False):
     x = y = np.linspace(0, 1, N + 2)[1:-1]
     xx, yy = np.meshgrid(x, y)
-    return xx, yy
+    if reth:
+        h = 1 / (N+2 -1)  # N + 2 points in total, N internal
+        return xx, yy, h
+    else:
+        return xx, yy
 
+
+def plot_errors(Ns, errors):
+    hs = 1 / (Ns + 2 - 1)  # N are internal points, N + 2 in total
+    for i in [1, 2, 4]:
+        plt.loglog(Ns, hs**i, label=f"$h^{i}$")
+    for error in errors:
+        plt.loglog(Ns, errors[error],  '-x', label=error)
+    plt.legend()
+    plt.show()
+
+
+def demonstrate_order(plot=False):
+    def errfunc(approx, anal):
+        order = np.inf
+        return np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
+
+    def f(x, y, k=1, l=1):
+        """Manufactured solution"""
+        return np.sin(x * k * np.pi) * np.sin(y * l * np.pi)
+    Ns = np.geomspace(8, 256, num=6, dtype=int)
+    k = 3
+    l = 4
+    errors = {
+        "Ns": Ns,
+        "five": [],
+        "nine": [],
+    }
+    fps_kwargs = {"type": 1, "norm": "ortho"}
+    for N in Ns:
+        xx, yy, h = get_mesh(N, reth=True)
+        F = f(xx, yy, k, l)
+        U_anal = F / (-np.pi**2 * (k**2 + l**2))
+        ### Five point stencil ###
+        U5 = fps(
+            h**2  * F,
+            get_eigval_array(N, five_point_eigenval),
+            **fps_kwargs
+        )
+        ### Nine point stecnil ###
+        F_stencil = five_point_stencil(N, a=2/3, b=1/12)
+        F9 = (F_stencil @ F.flatten()).reshape(N, N)
+        U9 = fps(
+            h**2  * F9,
+            get_eigval_array(N, nine_point_eigenval),
+            **fps_kwargs
+        )
+
+        errors["five"].append(errfunc(U5, U_anal))
+        errors["nine"].append(errfunc(U9, U_anal))
+
+    if plot:
+        plot_errors(Ns, errors)
+
+    return errors
 
 
 def test_order():
-    def f(x, y):
-        return np.sin(x * np.pi) * np.sin(y * np.pi)
+    def f(x, y, k=1, l=1):
+        return np.sin(x * k * np.pi) * np.sin(y * l * np.pi)
     # Ns = np.geomspace(20, 1000, 40, dtype=int)
     Ns = np.geomspace(8, 256, num=6, dtype=int)
     errors_five = []
     errors_nine = []
+    five_nine_diff = []
+    k = 3
+    l = 7
     kwargs = {"type": 1, "norm": "ortho"}
     for N in Ns:
-        h = 1 / (N - 1)
-        F = f(*get_mesh(N))
+        h = 1 / (N + 2 - 1)
+        F = f(*get_mesh(N), k, l)
         U5 = fps(
             h**2  * F,
             get_eigval_array(N, five_point_eigenval),
@@ -94,19 +178,27 @@ def test_order():
 
         F_stencil = five_point_stencil(N, a=1/3, b=1/12)
         RHS9 = (F_stencil @ F.flatten()).reshape(N, N)
-        RHS9 = F + h**2 * (five_point_stencil(N)/12 @ F.flatten()).reshape(N, N)
+        # RHS9 = F + h**2 * (five_point_stencil(N)/12 @ F.flatten()).reshape(N, N)
+        # RHS9 = F + (five_point_stencil(N)/12 @ F.flatten()).reshape(N, N)
+        # RHS9 = F + 1/12 * h**2 * (-np.pi**2 * 2) * F
         U9 = fps(
-            RHS9,
-            h**-2 * get_eigval_array(N, nine_point_eigenval),
+            h**2 * RHS9,
+            get_eigval_array(N, nine_point_eigenval),
             **kwargs
         )
-        U9 = U9
         # U5 = scipy.sparse.linalg.spsolve(five_point_stencil(N) / h**2, F.flatten()).reshape(N, N)
-        U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N)/h**2, RHS9.flatten()).reshape(N, N)
+        # U9 = scipy.sparse.linalg.spsolve(nine_point_stencil(N), h**2 * RHS9.flatten()).reshape(N, N)
 
-        anal = F / -(2 * np.pi ** 2)
+        five_nine_diff.append(U5 - U9)
+        anal = F / -((k*np.pi)**2 + (l*np.pi)**2)
         diff5 = (U5 - anal).flatten()
         diff9 = (U9 - anal).flatten()
+
+        # See diff laplace
+        # diff5 = five_point_stencil(N)/h**2 @ anal.flatten() - F.flatten()
+        #diff9 = nine_point_stencil(N)/h**2 @ anal.flatten() - F.flatten() - 1/12 * five_point_stencil(N) @ F.flatten()# five_point_stencil(N, 1/3, 1/12) @ F.flatten()
+        #anal = F.flatten()
+
         order = np.inf
         errors_five.append(
             np.linalg.norm(diff5, ord=order)
@@ -120,12 +212,32 @@ def test_order():
     plt.loglog(Ns, errors_five, '-x', label="five")
     #plt.loglog([1e1, 1e2], [1e-1, 1e-2])
     plt.loglog(Ns, errors_nine, '-x', label="nine")
+    plt.loglog(Ns, (1/(Ns - 1))**1 * errors_nine[0] / (1/(Ns[0] - 1))**2, label="h^1")
     plt.loglog(Ns, (1/(Ns - 1))**2 * errors_nine[0] / (1/(Ns[0] - 1))**2, label="h^2")
-    plt.gca().set_aspect("equal")
+    plt.loglog(Ns, (1/(Ns - 1))**4 * errors_nine[0] / (1/(Ns[0] - 1))**2, label="h^4")
+    # plt.gca().set_aspect("equal")
     plt.legend()
     plt.grid()
     plt.show()
 
+    x = np.linspace(0, 1, 2+Ns[-1])[1:-1]
+    y = np.linspace(0, 1, 2+Ns[-1])[1:-1]
+    plt.plot(x, U5[0, :], label="u5")
+    plt.plot(x, U9[0, :], label="u9")
+    plt.plot(x, f(x, y[0], k, l) / (-np.pi**2 * (k**2 + l**2 )), label="f")
+    plt.legend()
+    plt.show()
+
+    plt.subplot(121)
+    plt.imshow(U9)
+    plt.colorbar()
+    plt.subplot(122)
+    plt.imshow(F / (-np.pi**2 * (k**2 + l**2)))
+    plt.colorbar()
+    plt.show()
+
+    plt.loglog(Ns, [np.linalg.norm(x, ord=np.inf) for x in five_nine_diff])
+    plt.show()
 
 def exercise_h():
     def f(x, y):
@@ -134,26 +246,42 @@ def exercise_h():
             *
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
-    N = 100
-    F = f(*get_mesh(N))
-    h = 1 / (N - 1)
-    G = fps(
-        h**2 * F,
-        get_eigval_array(N, five_point_eigenval),
-    )
-    U5 = fps(
-        h**2 * G,
-        get_eigval_array(N, five_point_eigenval),
-    )
-
-    plt.subplot(121)
-    plt.imshow(U5)
-    plt.colorbar()
-    plt.subplot(122)
-    plt.imshow(-G)
-    plt.colorbar()
+    N = 10000
+    xx, yy, h = get_mesh(N, reth=True)
+    F = f(xx, yy)
+    G_anal = nine_point_solve(F)
+    U9_anal = nine_point_solve(G_anal)
+    U9_anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
+    print("Solve the 'analytical' solution")
+    errors = []
+    comp_time = []
+    Ns = np.geomspace(8, 256, 8, dtype=int)
+    use_fps = True
+    for N in Ns:
+        xx, yy, h = get_mesh(N, reth=True)
+        F = f(xx, yy)
+        start_time = time.time()
+        G = nine_point_solve(F, use_fps=use_fps)
+        U9 = nine_point_solve(G, use_fps=use_fps)
+        comp_time.append(time.time() - start_time)
+        errors.append(np.linalg.norm(
+            U9.flatten() - U9_anal(xx, yy).flatten(),
+            ord=np.inf,
+        ))
+    plt.loglog(Ns, errors, '-x')
+    plt.show()
+    plt.loglog(Ns, comp_time, '-x')
     plt.show()
 
 if __name__=="__main__":
-    test_order()
-    # exercise_h()
+    # errors = demonstrate_order(True)
+    # Ns = errors["Ns"]
+    # e_5 = errors["five"]
+    # e_9 = errors["nine"]
+    # np.savetxt(
+    #     "order.dat",
+    #     np.vstack([Ns, e_5, e_9]).T,
+    #     header="N E5 E9",
+    # )
+    # test_order()
+    exercise_h()
