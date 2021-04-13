@@ -4,6 +4,8 @@ import scipy.sparse
 import scipy.sparse.linalg
 from scipy.fft import dst, idst
 from functools import partial
+from scipy.interpolate import NearestNDInterpolator
+import time
 
 def dst2D(x, **kwargs):
     """Discrete sine transform in 2D.
@@ -54,6 +56,27 @@ def nine_point_eigenval(N, k, l):
     )
 
 
+def nine_point_solve(F, use_fps=True, **fps_kwargs):
+    N = F.shape[0]
+    h = 1 / (N + 2 - 1)
+    F_stencil = five_point_stencil(N, a=2/3, b=1/12)
+    F9 = (F_stencil @ F.flatten()).reshape(N, N)
+    if not fps_kwargs:
+        fps_kwargs = fps_kwargs = {"type": 1, "norm": "ortho"}
+    if use_fps:
+        U9 = fps(
+            h**2  * F9,
+            get_eigval_array(N, nine_point_eigenval),
+            **fps_kwargs
+        )
+    else:
+        U9 = scipy.sparse.linalg.spsolve(
+            nine_point_stencil(N),
+            h**2 * F9.flatten(),
+        ).reshape(N, N)
+    return U9
+
+
 
 def fps(F, eigval_array, **kwargs):
     """Fast poisson solver.
@@ -90,7 +113,8 @@ def plot_errors(Ns, errors):
 
 def demonstrate_order(plot=False):
     def errfunc(approx, anal):
-        return np.linalg.norm(anal.flatten() - approx.flatten(), ord=np.inf)
+        order = np.inf
+        return np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
 
     def f(x, y, k=1, l=1):
         """Manufactured solution"""
@@ -99,6 +123,7 @@ def demonstrate_order(plot=False):
     k = 3
     l = 4
     errors = {
+        "Ns": Ns,
         "five": [],
         "nine": [],
     }
@@ -221,27 +246,42 @@ def exercise_h():
             *
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
-    N = 100
-    F = f(*get_mesh(N))
-    h = 1 / (N + 2- 1)
-    G = fps(
-        h**2 * F,
-        get_eigval_array(N, five_point_eigenval),
-    )
-    U5 = fps(
-        h**2 * G,
-        get_eigval_array(N, five_point_eigenval),
-    )
-
-    plt.subplot(121)
-    plt.imshow(U5)
-    plt.colorbar()
-    plt.subplot(122)
-    plt.imshow(-G)
-    plt.colorbar()
+    N = 10000
+    xx, yy, h = get_mesh(N, reth=True)
+    F = f(xx, yy)
+    G_anal = nine_point_solve(F)
+    U9_anal = nine_point_solve(G_anal)
+    U9_anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
+    print("Solve the 'analytical' solution")
+    errors = []
+    comp_time = []
+    Ns = np.geomspace(8, 256, 8, dtype=int)
+    use_fps = True
+    for N in Ns:
+        xx, yy, h = get_mesh(N, reth=True)
+        F = f(xx, yy)
+        start_time = time.time()
+        G = nine_point_solve(F, use_fps=use_fps)
+        U9 = nine_point_solve(G, use_fps=use_fps)
+        comp_time.append(time.time() - start_time)
+        errors.append(np.linalg.norm(
+            U9.flatten() - U9_anal(xx, yy).flatten(),
+            ord=np.inf,
+        ))
+    plt.loglog(Ns, errors, '-x')
+    plt.show()
+    plt.loglog(Ns, comp_time, '-x')
     plt.show()
 
 if __name__=="__main__":
-    demonstrate_order(plot=True)
+    # errors = demonstrate_order(True)
+    # Ns = errors["Ns"]
+    # e_5 = errors["five"]
+    # e_9 = errors["nine"]
+    # np.savetxt(
+    #     "order.dat",
+    #     np.vstack([Ns, e_5, e_9]).T,
+    #     header="N E5 E9",
+    # )
     # test_order()
-    # exercise_h()
+    exercise_h()

@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+    \begin{loglogaxis}[
+        title={Demonstration of order of five and nine point stencil},
+        xlabel={$N$},
+        ylabel={Relative error},
+        ]
+        \addplot table[x={N}, y={E5}] {PDE/order.dat};
+        \addlegendentry{Five point};
+
+        \addplot table[x={N}, y={E9}] {PDE/order.dat};
+        \addlegendentry{Nine point};
+    \end{loglogaxis}
+\end{tikzpicture}
