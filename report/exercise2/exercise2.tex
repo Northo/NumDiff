@@ -13,15 +13,16 @@ and we will analyze and compare their convergence using mesh refinement as we di
 \subsection{Numerical solution method}
 To solve the heat equation numerically we first perform semi-discretization, 
 i.e. we do spatial discretization and keep the time continous. 
-The interval $\Omega$ is divided into $M$ equidistant points with separation $h=1/(M-1)$, 
-as described in section \ref{task_1}, 
-and we express the spatial derivative using the central finite difference to get %Maybe reference the equation for central diff in section 1?
+As in section \ref{task_1}, 
+we divide the interval $\Omega$ into $M+2$ equidistant nodes with separation $h=1/(M+1)$, 
+so that we get a uniform grid with $M$ internal nodes and two boundary nodes. 
+We then express the spatial derivative using the central finite difference to get 
 \begin{equation*}
     u_t(x_m, t) = \frac{1}{h^2} \delta_x^2 u(x_m, t) + \mathcal{O}(h^2), 
-    \quad m = 1,...,M.
+    \quad m = 0,...,M+1.
 \end{equation*}
 We now introduce the single variate functions $v_m(t)$ as the approximation to $u(x_m, t)$, 
-at each $x_m$, 
+at each node $x_m$, 
 turning the PDE into a set of ODEs 
 \begin{equation*}
     \frac{dv_m(t)}{dt} = \frac{1}{h^2} \delta_x^2 v_m(t), 
@@ -40,15 +41,18 @@ which for general ODEs $y' = g(y, t)$ is given as
 Using a constant time step $\Delta t = k$ leads to uniform discretization of the time interval, 
 which we divide into $N$ equidistant points, 
 and the final discrete grid for space and time is illustrated in figure \ref{fig:2-uniform-grid}.
-This gives the approximate solution of $v_m(t)$ at $N$ finite times $t_n = nk, \quad n = 1, \ldots N$, 
-\quad $k = 1/(N-1)$, 
-and we finally denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
-The $\theta$-method for the 1D heat equation is then written out as
+This gives the approximate solution of $v_m(t)$ at $N$ finite times $t_n = nk, 
+\: n = 0, \ldots N-1, 
+\: k = 1/(N-1)$, 
+and we denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
+After organizing the terms, 
+the $\theta$-method for the 1D heat equation is then written out as
 \begin{equation}
-    theta method for heat equation, 
+    (1 - \theta r \delta_x^2)U_m^{n+1} = (1 + (1-\theta)r\delta_x^2)U_m^n, 
     \label{eq:theta-heat}
 \end{equation}
-and setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme. 
+where we have defined $r=k/h^2$. 
+Setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme. 
 We have
 \begin{equation*}
 \begin{split}
@@ -66,7 +70,98 @@ and we will as mentioned consider the Bacward-Euler and Crank-Nicolson methods.
     \label{fig:2-uniform-grid}
 \end{figure}
 
-Imposing boundary conditions and some matrix form/equations here I guess.
+\subsubsection{Boundary conditions}
+For Dirchlet boundary conditions $u(0, t) = \sigma, \: u(1, t) = \beta$, 
+we substitute $U_0^{n+1} = \sigma$ and $U_M^{n+1} = \beta$ in \eqref{eq:theta-heat} for $m=0$ and $m=M+1$. 
+In matrix form, 
+the equation for the remaining inner nodes is then written as
+\begin{multline}
+    \begin{bmatrix}
+    1+2\theta r & -\theta r \\
+    -\theta r & 1+2\theta r & -\theta r & \\
+      & \ddots & \ddots & \ddots & \\
+      &   & -\theta r & 1+2\theta r & -\theta r \\
+      &   &  & -\theta r & 1+2\theta r \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{1}^{n+1} \\ U_{2}^{n+1} \\ \vdots \\ U_{M-1}^{n+1} \\ U_{M}^{n+1} \\
+    \end{bmatrix}
+    \\
+    = 
+    \begin{bmatrix}
+    1-2r(1 - \theta) & r(1-\theta) \\
+    r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) & \\
+      & \ddots & \ddots & \ddots & \\
+      &   & r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) \\
+      &   &  & r(1-\theta) & 1-2r(1 - \theta) \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{1}^{n} \\ U_{2}^{n} \\ \vdots \\ U_{M-1}^{n} \\ U_{M}^{n}
+    \end{bmatrix}
+    + 
+    \begin{bmatrix}
+    \theta r \sigma \\ 0 \\ \vdots \\ 0 \\ \theta r \beta
+    \end{bmatrix}
+    .
+    \label{eq:theta-heat-matrix-dirchlet}
+\end{multline}
+
+For Neumann boundary conditions, $u_x(0, t) = \sigma, \: u_x(1, t) = \beta$, 
+we introduce fictitious nodes to the left and right of the spatial grid, 
+and approximate the first derivatives at the boundaries by
+\begin{equation*}
+    \frac{U_1 - U_{-1}}{2h} = \sigma
+    \quad and \quad
+    \frac{U_{M+2} - U_{M}}{2h} = \beta. 
+\end{equation*}
+Inserting this into \eqref{eq:theta-heat} for $m=0$ and $m=M+1$, 
+and eliminating the fictitious nodes we get 
+\begin{equation*}
+\begin{split}
+    (1+r\theta)U_0^{n+1} - r\theta U_1^{n+1} = (1-2r(1-\theta))U_0^n + r(1-\theta)U_1^n - 2hr\sigma
+    \quad (for \: m=0) \\
+    (1+r\theta)U_{M+1}^{n+1} - r\theta U_M^{n+1} = (1-2r(1-\theta))U_{M+1}^n + r(1-\theta)U_M^n - 2hr\beta
+    \quad (for \: m=M+1), 
+\end{split}
+\end{equation*}
+which we combine with \eqref{eq:theta-heat} for the inner nodes, $1 \leq m \leq M$, 
+to get the equation as a $(M+2)\times (M+2)$ linear system
+\begin{multline}
+    \begin{bmatrix}
+    1+\theta r & -\theta r \\
+    -\theta r & 1+2\theta r & -\theta r & \\
+      & \ddots & \ddots & \ddots & \\
+      &   & -\theta r & 1+2\theta r & -\theta r \\
+      &   &  & -\theta r & 1+\theta r \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{0}^{n+1} \\ U_{1}^{n+1} \\ \vdots \\ U_{M}^{n+1} \\ U_{M+1}^{n+1} \\
+    \end{bmatrix}
+    \\
+    = 
+    \begin{bmatrix}
+    1-2r(1 - \theta) & r(1-\theta) \\
+    r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) & \\
+      & \ddots & \ddots & \ddots & \\
+      &   & r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) \\
+      &   &  & r(1-\theta) & 1-2r(1 - \theta) \\
+    \end{bmatrix}
+    \begin{bmatrix}
+    U_{0}^{n} \\ U_{1}^{n} \\ \vdots \\ U_{M}^{n} \\ U_{M+1}^{n}
+    \end{bmatrix}
+    + 
+    \begin{bmatrix}
+    -2hr\sigma \\ 0 \\ \vdots \\ 0 \\ -2hr\beta
+    \end{bmatrix}
+    .
+    \label{eq:theta-heat-matrix-neumann}
+\end{multline}
+All quantities on the right hand sides in \eqref{eq:theta-heat-matrix-dirchlet} and \eqref{eq:theta-heat-matrix-neumann} are known, 
+i.e. the equations are on the form $A\vec{x}=\vec{b}$, 
+and the known $\vec{b}$ is just written via a matrix-vector product for notational convenience. 
+The system of equation is then solved at each time step using "scipy.sparse.linalg.spsolve", 
+and the left hand side matrix is stored as a compressed sparse row/column % Må finne ut hvilken som er lur(est). 
+matrix. 
 
 With the numerical schemes in hand we now solve the heat equation with the following Neumann boundary conditions and initial condition, 
 \begin{equation}
@@ -113,7 +208,7 @@ and the analytical solution is readily available as
 When doing mesh refinement of the spatial grid, 
 we vary the number of spatial grid points $M$, 
 and compute the numerical solution at the same point in time $t=t_{end}$. 
-We keep the number of time steps $N$ is kept fixed, 
+We keep the number of time steps $N$ fixed, 
 so that the error from the time discretization does not vary, 
 and compute the $L_2$ discrete relative error with respect to the reference solution. 
 For equation \eqref{eq:2b-manufactured} we also compute the $l_2$ continous relative error, 
@@ -121,19 +216,41 @@ and compute errors with respect to the analytical solution.
 The resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
 
 Both methods are second order in the spatial step $h$, 
-but Crank-Nicolson is one order higher in time step $k$. 
-% Sorry guys, didn't have time to complete this as I announced I would. 
-% Will here just present the results 
+and are unconditionally stable, 
+unlike e.g. the explicit Forward Euler method ($\theta=0$). 
+Despite this, 
+the solution with the Neumann boundary conditions \ref{eq:2a} seems to break down for sufficiently low $M$ using Backward Euler, 
+and the error blows up as seen in figure \ref{fig:2a-convergence}. 
+\textbf{Comment from KA: I dont really know why.}
+
+Crank-Nicolson is however one order higher in the time step $k$, 
+so that the total error is lower for Crank-Nicolson than Backward-Euler when $M$ and $N$ are the same. 
+This is seen when refining the spatial step $h$; 
+at large $h$ (low $M$), 
+the error is dominated by the spatial error, 
+and as we decrease $h$ (increase $M$) we should see the expected second order convergence in the spatial step. 
+At some point, 
+when the spatial error has become sufficiently small, 
+the total error will be dominated by the error in the time step $k$, 
+and we expect this to happen earlier for the Backward-Euler method. 
+In figure \ref{fig:2b-convergence} we see exactly this. 
+The error of the Crank-Nicolson solution with $N=10000$ exhibits second order convergence throughout the entire refinement, 
+but when lowering the number of time steps to $N=1000$, 
+the time step error starts to dominate towards the end of the refinement and the error curve flattens. 
+For the solution computed with the Backward-Euler method we see the flattening happening much earlier, 
+which is due to this method being less accurate in time. 
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_UMR_discrete.pgf}
+    \caption{Convergence plot, h refinement (2a)}
     \label{fig:2a-convergence}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2b_UMR_combined.pgf}
+    \caption{Convergence plot, h refinement (2b)}
     \label{fig:2b-convergence}
 \end{figure}
 
@@ -188,9 +305,9 @@ To solve \eqref{eq:burger} numerically we perform semidiscretization in the same
 also on a uniform spatial grid as described in section \ref{task_1}. 
 The resulting system of ODEs is
 \begin{equation*}
-    burgers discretized, 
+    \frac{\partial v_m}{\partial t} = -v_m \frac{1}{2h} (v_{m+1} - v_{m-1}). 
 \end{equation*}
-which we integrate using \textit{solve\_ivp} from the SciPy library, 
+We impose the Dirchlet boundary conditions and integrate the ODEs using \textit{solve\_ivp} from the SciPy library, 
 with the default explicit Runge-Kutta method of order 4(5)\cite{solve_ivp}. \\
 \textbf{Comment/question:} Is it fine to use scipy.integrate.solve\_ivp, 
 or should it be all home cooking? 
@@ -202,7 +319,7 @@ To get a criterion for when the numerical solution has broken down,
 we use that the stable solution should be strictly increasing from $x=0$ to towards the apex, 
 and then strictly decreasing from the apex towards the right boundary at $x=1$. 
 When this is no longer the case we say that the solution has broken, 
-and the time for which this happened for our solution was at $t* \approx 0.055$. 
+and the time for which this happened for our solution was at $t^* \approx 0.055$. 
 Figure \ref{fig:burgers-samples} shows the solution sampled around the time of breaking. 
 % Not sure what to make of this result, also varying M seems to affect 
 % the breaking time. I made a function wich calculates the :
@@ -210,5 +327,6 @@ Figure \ref{fig:burgers-samples} shows the solution sampled around the time of b
 \begin{figure}[ht]
     \centering
     \input{exercise2/2c_samples.pgf}
+    \caption{Numerically computed solution to the Invicid Burgers' equation around the time of breaking.}
     \label{fig:burgers-samples}
 \end{figure}
