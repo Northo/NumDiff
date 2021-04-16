@@ -4,7 +4,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
-Consider teh inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
+Consider the inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
 \begin{subequations}\label{eq:PDE}
   \begin{equation}
     \nabla^4 u = f \quad, (x, y) \in \Omega,
@@ -14,71 +14,60 @@ Consider teh inhomogeneous Biharmonic equation with clamped boundary conditions 
   \end{equation}
 \end{subequations}
 
-Firstly, note that the functions
-$$
-\sin(m \pi x) \sin(n \pi y), \quad m,n = 1, 2, \dots
-$$
-represent a complete basis for functions on $\Omega = [0, 1]^2$ with a boundary value of 0.
-(Which is easily seen from the fact that the fourier series consist of such a set, and that for the given boundary condition, the coefficients of terms involving cosines and constant functions must be zero)
-(TODO: comment on how to obtain this with separation of variables?)
-Thus, for any function $u$ that has $u = 0$ on $\del\Omega$, we must be able to write
-$$
-u(x, y) =
-\sum_{m=1}^\infty
-\sum_{n=1}^\infty
-F_{mn}
-\sin(m\pi x)
-\sin(n\pi y).
-$$
-Inserting the expression into the Biharmonic equation, we get, after acting on the expression with the biharmonic operator $\nabla^4$
-\begin{align}
-  \nabla^4 u &=
-  \sum_{m=1}^\infty
-  \sum_{n=1}^\infty
-  F_{mn}
-  \nabla^4
-  \sin(m\pi x)\sin(n\pi y)\\
-  &=
-  \sum_{m=1}^\infty
-  \sum_{n=1}^\infty
-  F_{mn}
-  \left(
-  (m\pi)^4 + (n\pi)^4 + 2n^2m^2\pi^4
-  \right)
-  \sin(m\pi x)\sin(n\pi y)\\
-  &=
-  \sum_{m=1}^\infty
-  \sum_{n=1}^\infty
-  F_{mn}
-  \left(
-  (m\pi)^2 + (n\pi)^2
-  \right)^2
-  \sin(m\pi x)\sin(n\pi y)\\
-  &= f.
-\end{align}
+\subsection{Analytical solution}
 
-Thus, with
-$$
-f(x, y)
-=
-\sum_{m=1}^\infty
-\sum_{n=1}^\infty
-G_{mn}
-\sin(m\pi x)\sin(n\pi y),
-$$
-we must have that
-$$
-F_{mn} =
-\frac{
-  G_{mn}
-}{
-  \left(
-  (m\pi)^2 + (n\pi)^2
-  \right)^2
+% Due to the zero-valued boundary conditions, the solution $u(x,y)$ is periodic on $[0,1]\times[0,1]$.
+% Assuming it is well-behaved, it can be represented by a Fourier series
+% $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$
+
+
+Assuming the (real) solution $u(x,y)$ is well-behaved and periodic on $[0,1]$, it may be expressed as a Fourier series $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$.
+It is the zero-valued boundary conditions that ensure periodicity, and they also require that constants and cosines drop out of the Fourier series.
+By making the same assumptions about $f(x,y)$, in particular \textbf{restricting ourselves to $f(x,y)$ that also vanish at the boundary}, we can expand both in double sine-only Fourier series (after redefining $\hat{u}_{mn}$)
+\newcommand{\fourierexpand}[1]{
+\sum_{m=1}^\infty \sum_{n=1}^\infty \hat{#1}_{mn} \sin(2m\pi x) \sin(2n\pi y)
 }
-$$
-(TODO: comment on orthogonal sine functions?)
-Observe that choosing $f$ such that the series is finite, ie. only a finite number of $G_{mn}$ are non-zero, the expression collapses into a finite expression.
+\begin{equation}
+u(x,y) = \fourierexpand{u}
+\quad \text{and} \quad
+f(x,y) = \fourierexpand{f}.
+\label{pde:equation:fourierexpansions}
+\end{equation}
+The coefficients are found by multiplying the left sides of \cref{pde:equation:fourierexpansions} by $\sin(2 m' \pi x) \sin(2 n' \pi y)$, integrating over the domain $\Omega$ and exploiting the orthogonality of the sine functions.
+This gives, for example,
+\begin{equation*}
+\begin{split}
+  & \,\, \integraltwo{f(x,y) \sin(2 m' \pi x) \sin(2 n' \pi y)}{x}{y}{0}{1}{0}{1} \\
+= & \,\, \sum_{m=1}^{\infty} \sum_{n=1}^{\infty} \hat{f}_{mn} \underbrace{\integral{\sin(2m\pi x)\sin(2m'\pi x)}{x}{0}{1}}_{\delta_{mm'}/2} \underbrace{\integral{\sin(2n\pi y)\sin(2n'\pi y)}{y}{0}{1}}_{\delta_{nn'}/2} \\
+= & \,\, \hat{f}_{m'n'} / 4.
+\end{split}
+\end{equation*}
+This equation is most insightful when read from top to bottom, but most practical when read from bottom to top.
+Given a source function $f(x,y)$, we will instead calculate and work with its Fourier coefficients
+\begin{equation}
+\hat{f}_{mn} = 4 \integraltwo{f(x,y) \sin(2 m \pi x) \sin(2 n \pi y)}{x}{y}{0}{1}{0}{1}.
+\end{equation}
+
+To solve the biharmonic equation with these Fourier series, plug them both into \cref{eq:PDE} and act with the biharmonic operator to get $\nabla^4(\sin(2m\pi x) \sin(2n\pi y)) = ((2m\pi)^2+(2n\pi)^2)^2 \sin(2m\pi x) \sin(2n\pi y)$
+\newcommand{\fourierseries}[3]{
+	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(2 #2 \pi x) \sin(2 #2 \pi y)
+}
+\begin{equation*}
+\fourierseries{((2m\pi)^2+(2n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = \fourierexpand{f}.
+\end{equation*}
+Using again the orthogonality of the sine functions, these two Fourier series can be equal only if their coefficients are equal.
+Thus, given the source coefficients $\hat{f}_{mn}$, the coefficients of the solution must be
+\begin{equation}
+	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((2m\pi)^2+(2n\pi)^2)^2}
+\end{equation}
+and we can calculate the solution $u(x,y)$ from its Fourier series.
+
+Note that a general source $f(x,y)$ may need an infinite number of terms in its Fourier series.
+To make this solution method viable, we must cut off the Fourier series to include only a finite number of coefficients.
+In such a case, we should analyze the source $f(x,y)$ to make sure that we exclude only Fourier modes that contribute insignificantly to the solution.
+However, we can also avoid this problem altogether by defining a source $f(x,y)$ in terms of a finite number of nonzero Fourier coefficients.
+
+TODO: this is not the case for the $f$ in the last task
 
 %% b)
 
