@@ -3,6 +3,8 @@
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
@@ -243,9 +245,7 @@ The eigenvalues of the nine point stencil are thus
 \lVert #1 \rVert_\infty
 }
 
-\subsection{Stability and order of the five point stencil}
-We will here prove that the five point stencil is of order 2, following the outline provided in the exercise.
-%% 1
+\subsection{Stability and order of the five and nine point stencils}
 \begin{definition}
   The $n$-point stencil $\nabla_n^2 f(x_0) = \sum_{i=0}^{n-1} a_i f(x_i)$,
   where $x_i$ are the neighbouring points of $x_0$.
@@ -280,35 +280,48 @@ Since $f(x_i) \leq f(x_0)$ all points of the stencil must be equal, $f(x_1) = f(
 Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
 \end{proof}
 
-%% 2
 \begin{lemma}\label{pde:lemma:bound}
-If $v$ is a discrete function that equals zero on $\partial \Omega$, then
-$$
-\inorm{v} \leq \frac18 \inorm{\nabla_5^2 v}.
-$$
+  If $\exists ~ \phi_n > 0$ such that the proper stencil $\nabla_n^2 \phi_n = 1$ on $\Omega$, and $v$ is a descrete function that equals zero on $\partial \Omega$, then
+  \begin{equation}
+    \inorm{v} \leq \max_{\partial\Omega}(\lvert \phi_n \rvert)
+    \inorm{\nabla_n^2 v}.
+  \end{equation}
 \end{lemma}
 \begin{proof}
-Consider the function
-\begin{equation}
-\phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right).
-\label{pde:equation:phi5}
-\end{equation}
-It has the property $\nabla_5^2 \phi_5(x,y) = 1$, takes the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attains the maximum on $\partial \Omega$, as shown in \cref{pde:figure:phi}.
-Let $\inorm{\nabla_5^2 v} = M$.
+
+Let $\inorm{\nabla_n^2 v} = M$.
 Then
 $$
-\nabla_5^2 (v + \phi_5 M) = \nabla_5^2 v +  M \geq 0.
+\nabla_n^2 (v + \phi_n M) = \nabla_n^2 v +  M \geq 0.
 $$
-$\nabla_5^2$ is a proper stencil, so by lemma \ref{pde:lemma:max} $\nabla_5^2 (v + \phi_5 M)$ attains its maximum value on $\partial \Omega$.
+$\nabla_n^2$ is a proper stencil, so by lemma \ref{pde:lemma:max} $\nabla_n^2 (v + \phi_n M)$ attains its maximum value on $\partial \Omega$.
 Thus
 $$
 \inorm{v}
-\leq \inorm{v + \phi_5 M}
-\leq \max_{\partial \Omega}(v + \phi_5 M)
-= \max_{\partial\Omega} (\phi_5 M)
-= \frac18 \inorm{\nabla_5^2 v}.
+\leq \inorm{v + \phi_n M}
+\leq \max_{\partial \Omega}(\lvert v + \phi_n M\rvert)
+= \max_{\partial\Omega} (\lvert \phi_n \rvert) M
+= \max_{\partial\Omega} (\lvert \phi_n \rvert) \inorm{\nabla_n^2 v}.
 $$
 \end{proof}
+
+\begin{remark}
+  For the five and nine point stencil, such functions exist.
+  \begin{equation}
+    \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right)
+    \label{pde:equation:phi5}
+  \end{equation}
+  has the property $\nabla_5^2 \phi_5(x,y) = 1$, takes the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attains the maximum on $\partial \Omega$.
+    
+  \newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
+  Similarly, the function
+  \begin{equation}
+  \phi_9(x,y) = \phinine
+  \label{pde:equation:phi9}
+  \end{equation}
+  is such that $\nabla_9^2 \phi_9(x,y) = 1$, takes the values $0 \leq \phi_9(x,y) \leq 3/40$ on $\Omega$ and attains the maximum on $\partial \Omega$.
+  Both are shown in \cref{pde:figure:phi}.
+\end{remark}
 
 \newcommand{\phidisplay}[3]{
 \begin{tikzpicture}
@@ -338,7 +351,7 @@ $$
 \end{figure}
 
 %% 3
-\begin{theorem}
+\begin{theorem}[Five point stencil stability]
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$, then
 $$
 \inorm{u - v} \leq Ch^4 \lvert D^4 v\rvert_\infty.
@@ -367,35 +380,8 @@ For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$
 \end{proof}
 
 
-\subsection{Stability and order of the nine point stencil}
-Our proof for the nine point stencil will follow the same structure as for the five point stencil.
-
-%% 1
-%% 2
-\begin{lemma}\label{pde:lemma:bound9}
-  If $v$ is a discrete function that equals zero on $\partial \Omega$,
-  $$
-  \inorm{v} \leq \frac{3}{40} \inorm{\nabla_9^2 v}.
-  $$
-\end{lemma}
-\newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
-\begin{proof}
-  Consider the function
-  \begin{equation}
-  \phi_9(x,y) = \phinine
-  \label{pde:equation:phi9}
-  \end{equation}
-  It has the property $\nabla_9^2 \phi_9(x,y) = 1$, takes the values $0 \leq \phi_9(x,y) \leq 3/40$ on $\Omega$ and attains the maximum on $\partial \Omega$, as shown in \cref{pde:figure:phi}.
-  Also note that $\nabla_9^2$ is a proper stencil.
-  Repeating the proof of \cref{pde:lemma:bound} with $\phi_5(x,y) \rightarrow \phi_9(x,y)$ and $\nabla_5 \rightarrow \nabla_9$ shows that
-  $$
-  \inorm{v}
-  \leq \frac{3}{40} \inorm{\nabla_9^2 v}.
-  $$
-\end{proof}
-
 %% 3
-\begin{theorem}
+\begin{theorem}[Nine point stencil stability]
 TODO verify it should be $F f$ not $f$.
 If $\nabla^2 u = f$ and $\nabla_9^2 v = F f = f + \frac{h^2}{12} \nabla_5^2 f$, then
 $$
@@ -403,7 +389,7 @@ $$
 $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound9}
+By lemma \ref{pde:lemma:bound}
 $$
 \inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
 $$
