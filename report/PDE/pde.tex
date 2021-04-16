@@ -4,6 +4,9 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
 Consider the inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
 \begin{subequations}\label{eq:PDE}
   \begin{equation}
@@ -242,43 +245,39 @@ The eigenvalues of the nine point stencil are thus
 
 \subsection{Stability and order of the five point stencil}
 We will here prove that the five point stencil is of order 2, following the outline provided in the exercise.
-\emph{TODO: stability?}
-
 %% 1
+\begin{definition}
+  The $n$-point stencil $\nabla_n^2 f(x_0) = \sum_{i=0}^{n-1} a_i f(x_i)$,
+  where $x_i$ are the neighbouring points of $x_0$.
+\end{definition}
+
+\begin{definition}
+  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^n a_i = -a_0$.
+\end{definition}
+
 \begin{lemma}\label{pde:lemma:max}
-If $\nabla_5^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
+If $\nabla_n^2 f \geq 0$ on $\Omega$, and $\nabla_n^2$ is a proper stencil, the maximum value of $f$ is attained on $\partial \Omega$, that is
 $$
 \max(f)_\Omega \leq \max(f)_{\partial \Omega}.
 $$
 \end{lemma}
 \begin{proof}
-  \footnote{The proof is slightly more general than required, in order to reuse the proof for the nine point stencil.}
 Suppose the opposite is true,
 $$
 \max(f)_\Omega > \max(f)_{\partial \Omega}.
 $$
-Then, there is an internal grid point on which $f$ attains it maximal value.
-We denote this point by $x_0$, and label the other points involved in the stencil $x_i$, $i = 1, 2, \dots, n$ for a general stencil.
-Denote by $a_i$ the coefficient of each point in the stencil, so that the stencil is $\sum_{i=0}^n a_i f(x_i)$, where we restric ourselves to stencils where $a_i > 0$ for $i\neq 0$.
-For the five point stencil $n=4$.
+Then, there is an internal grid point $x_0$ on which $f$ attains it maximal value.
 Then
 \begin{equation}
   -a_0 f(x_0)
-  = \sum_{i=1}^n a_i f(x_i) - \nabla_5^2 f(x_0)
-  \leq f(x_0) \sum_{i=1}^n a_i 
+  = \sum_{i=1}^{n-1} a_i f(x_i) - \nabla_n^2 f(x_0)
+  \leq \sum_{i=1}^{n-1} a_i f(x_i)
+  \leq \sum_{i=1}^{n-1} a_i f(x_0)
+  = -a_0 f(x_0).
 \end{equation}
-For the five point stencil the sum over $a_i, i>0$ equals $-a_0$, and as the RHS is equal to the LHS, the equality must hold throughout.
-Since $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = \dots = f(x_0)$.
-Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
-
-%% We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2,3,4$.
-%% Then
-%% $$
-%% 4f(x_0) = \sum_{i=1}^4 f(x_i) - \nabla_5^2 f(x_0) \leq \sum_{i=1}^4 f(x_i) \leq 4 f(x_0),
-%% $$
-%% where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
-%% As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
-%% Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
+As the RHS is equal to the LHS, the equality must hold throughout.
+Since $f(x_i) \leq f(x_0)$ all points of the stencil must be equal, $f(x_1) = f(x_2) = \dots = f(x_n) = f(x_0)$.
+Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
 \end{proof}
 
 %% 2
@@ -300,7 +299,7 @@ Then
 $$
 \nabla_5^2 (v + \phi_5 M) = \nabla_5^2 v +  M \geq 0.
 $$
-By lemma \ref{pde:lemma:max} we have then that $\nabla_5^2 (v + \phi_5 M)$ attains its maximum value on $\partial \Omega$.
+$\nabla_5^2$ is a proper stencil, so by lemma \ref{pde:lemma:max} $\nabla_5^2 (v + \phi_5 M)$ attains its maximum value on $\partial \Omega$.
 Thus
 $$
 \inorm{v}
@@ -372,20 +371,6 @@ For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$
 Our proof for the nine point stencil will follow the same structure as for the five point stencil.
 
 %% 1
-\begin{lemma}\label{pde:lemma:max9}
-If $\nabla_9^2 f \geq 0$ on $\Omega$, then the maximum value of $f$ is attained on $\partial \Omega$, that is
-$$
-\max(f)_\Omega \leq \max(f)_{\partial \Omega}.
-$$
-\end{lemma}
-\begin{proof}
-  Using the notation introduced in the proof of lemma \ref{pde:lemma:max}, we have for the nine point stencil that
-  $$
-  \sum_{i=1}^9 a_i = -a_0,
-  $$
-  and thus by the exact same proof as for lemma \ref{pde:lemma:max} this proof is completed.
-\end{proof}
-
 %% 2
 \begin{lemma}\label{pde:lemma:bound9}
   If $v$ is a discrete function that equals zero on $\partial \Omega$,
@@ -401,6 +386,7 @@ $$
   \label{pde:equation:phi9}
   \end{equation}
   It has the property $\nabla_9^2 \phi_9(x,y) = 1$, takes the values $0 \leq \phi_9(x,y) \leq 3/40$ on $\Omega$ and attains the maximum on $\partial \Omega$, as shown in \cref{pde:figure:phi}.
+  Also note that $\nabla_9^2$ is a proper stencil.
   Repeating the proof of \cref{pde:lemma:bound} with $\phi_5(x,y) \rightarrow \phi_9(x,y)$ and $\nabla_5 \rightarrow \nabla_9$ shows that
   $$
   \inorm{v}
