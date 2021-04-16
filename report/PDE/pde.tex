@@ -16,25 +16,44 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 
 \subsection{Analytical solution}
 
-% Due to the zero-valued boundary conditions, the solution $u(x,y)$ is periodic on $[0,1]\times[0,1]$.
-% Assuming it is well-behaved, it can be represented by a Fourier series
-% $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$
-
-
-Assuming the (real) solution $u(x,y)$ is well-behaved and periodic on $[0,1]$, it may be expressed as a Fourier series $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$.
-It is the zero-valued boundary conditions that ensure periodicity, and they also require that constants and cosines drop out of the Fourier series.
-By making the same assumptions about $f(x,y)$, in particular \textbf{restricting ourselves to $f(x,y)$ that also vanish at the boundary}, we can expand both in double sine-only Fourier series (after redefining $\hat{u}_{mn}$)
+Due to the single-valued Dirichlet boundary conditions, the solution $u(x,y)$ is periodic on $[0,1]\times[0,1]$ and can therefore be represented by a Fourier series $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$.
+In particular, $u = 0$ at the boundary, so constants and cosines must drop out of the Fourier series.
+It can therefore be represented by a double sine-only Fourier series (after rescaling $\hat{u}_{mn}$)
+\newcommand{\fourierseries}[3]{
+	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(2 #2 \pi x) \sin(2 #2 \pi y)
+}
 \newcommand{\fourierexpand}[1]{
-\sum_{m=1}^\infty \sum_{n=1}^\infty \hat{#1}_{mn} \sin(2m\pi x) \sin(2n\pi y)
+	\fourierseries{\hat{#1}_{mn}}{m}{n}
 }
 \begin{equation}
-u(x,y) = \fourierexpand{u}
-\quad \text{and} \quad
-f(x,y) = \fourierexpand{f}.
-\label{pde:equation:fourierexpansions}
+u(x,y) = \fourierexpand{u}.
+\label{pde:equation:fourierexpansion}
 \end{equation}
-The coefficients are found by multiplying the left sides of \cref{pde:equation:fourierexpansions} by $\sin(2 m' \pi x) \sin(2 n' \pi y)$, integrating over the domain $\Omega$ and exploiting the orthogonality of the sine functions.
-This gives, for example,
+
+Plug the Fourier series into \cref{eq:PDE} and act with the biharmonic operator to get
+\begin{equation*}
+\nabla^4 u(x,y) = \fourierseries{((2m\pi)^2+(2n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = f.
+\end{equation*}
+For simplicity, we \textbf{restrict ourselves to sources $f(x,y)$ that also vanish at the boundary}.
+Then the source can also be written
+\begin{equation}
+	f(x,y) = \fourierexpand{f}.
+\end{equation}
+
+The Fourier series for $\nabla^4 u(x,y)$ and $f(x,y)$ can be equal only if their coefficients are equal.
+This can be seen formally by multiplying both by $\sin(2m'\pi x) \sin(2n'\pi y)$, integrating over $x$ and $y$ and using the orthogonality of the sine functions,
+\begin{equation*}
+	\integral{\sin(2m\pi x) \sin(2m' \pi x)}{x}{0}{1} = \frac{1}{2} \delta_{mm'}.
+\end{equation*}
+Therefore, the coefficients of the solution are
+\begin{equation}
+	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((2m\pi)^2+(2n\pi)^2)^2},
+\end{equation}
+and the solution $u(x,y)$ is available by summing its Fourier series.
+
+If we know $\hat{f}_{mn}$, it is straightforward to compute $\hat{u}_{mn}$ and thus the solution $u(x,y)$ itself from its Fourier series.
+If we only know $f(x,y)$, we can find the coefficients by using the orthogonality of the sine functions again.
+Multiply the Fourier series by $\sin(2 m' \pi x) \sin(2 n' \pi y)$ and integrate over $x$ and $y$ to get
 \begin{equation*}
 \begin{split}
   & \,\, \integraltwo{f(x,y) \sin(2 m' \pi x) \sin(2 n' \pi y)}{x}{y}{0}{1}{0}{1} \\
@@ -42,34 +61,19 @@ This gives, for example,
 = & \,\, \hat{f}_{m'n'} / 4.
 \end{split}
 \end{equation*}
-This equation is most insightful when read from top to bottom, but most practical when read from bottom to top.
-Given a source function $f(x,y)$, we will instead calculate and work with its Fourier coefficients
+Read from bottom to top,
 \begin{equation}
 \hat{f}_{mn} = 4 \integraltwo{f(x,y) \sin(2 m \pi x) \sin(2 n \pi y)}{x}{y}{0}{1}{0}{1}.
 \end{equation}
 
-To solve the biharmonic equation with these Fourier series, plug them both into \cref{eq:PDE} and act with the biharmonic operator to get $\nabla^4(\sin(2m\pi x) \sin(2n\pi y)) = ((2m\pi)^2+(2n\pi)^2)^2 \sin(2m\pi x) \sin(2n\pi y)$
-\newcommand{\fourierseries}[3]{
-	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(2 #2 \pi x) \sin(2 #2 \pi y)
-}
-\begin{equation*}
-\fourierseries{((2m\pi)^2+(2n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = \fourierexpand{f}.
-\end{equation*}
-Using again the orthogonality of the sine functions, these two Fourier series can be equal only if their coefficients are equal.
-Thus, given the source coefficients $\hat{f}_{mn}$, the coefficients of the solution must be
-\begin{equation}
-	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((2m\pi)^2+(2n\pi)^2)^2}
-\end{equation}
-and we can calculate the solution $u(x,y)$ from its Fourier series.
-
-Note that a general source $f(x,y)$ may need an infinite number of terms in its Fourier series.
-To make this solution method viable, we must cut off the Fourier series to include only a finite number of coefficients.
-In such a case, we should analyze the source $f(x,y)$ to make sure that we exclude only Fourier modes that contribute insignificantly to the solution.
-However, we can also avoid this problem altogether by defining a source $f(x,y)$ in terms of a finite number of nonzero Fourier coefficients.
-
-TODO: this is not the case for the $f$ in the last task
+Note that a general source $f(x,y)$ may only be represented exactly by an infinite Fourier series.
+To make the Fourier series solution viable, we must cut it off to include only a finite number of terms.
+In this case, we should analyze $f(x,y)$ to make sure that we exclude only Fourier modes that contribute insignificantly to the solution.
+However, we can also construct problems with a finite number of terms in the \emph{exact} solution by simply defining the source $f(x,y)$ in terms of a finite number of nonzero Fourier coefficients.
 
 %% b)
+
+\subsection{Numerical solution method}
 
 We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$,
 \begin{align}\label{eq:PDE-poisson}
