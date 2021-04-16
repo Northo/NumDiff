@@ -16,7 +16,7 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 
 \subsection{Analytical solution}
 
-TODO: Herman: periodic on $[0,1]$ $\rightarrow$ periodic on $[-1,1]$, $2m\pi \rightarrow $m\pi$, ...
+TODO: Herman: periodic on $[0,1]$ $\rightarrow$ periodic on $[-1,1]$, $2m\pi \rightarrow m\pi$, ...
 
 Due to the single-valued Dirichlet boundary conditions, the solution $u(x,y)$ is periodic on $[0,1]\times[0,1]$ and can therefore be represented by a Fourier series $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$.
 In particular, $u = 0$ at the boundary, so constants and cosines must drop out of the Fourier series.
@@ -252,19 +252,33 @@ $$
 $$
 \end{lemma}
 \begin{proof}
+  \footnote{The proof is slightly more general than required, in order to reuse the proof for the nine point stencil.}
 Suppose the opposite is true,
 $$
 \max(f)_\Omega > \max(f)_{\partial \Omega}.
 $$
 Then, there is an internal grid point on which $f$ attains it maximal value.
-We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2,3,4$.
+We denote this point by $x_0$, and label the other points involved in the stencil $x_i$, $i = 1, 2, \dots, n$ for a general stencil.
+Denote by $a_i$ the coefficient of each point in the stencil, so that the stencil is $\sum_{i=0}^n a_i f(x_i)$, where we restric ourselves to stencils where $a_i > 0$ for $i\neq 0$.
+For the five point stencil $n=4$.
 Then
-$$
-4f(x_0) = \sum_{i=1}^4 f(x_i) - \nabla_5^2 f(x_0) \leq \sum_{i=1}^4 f(x_i) \leq 4 f(x_0),
-$$
-where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
-As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
+\begin{equation}
+  -a_0 f(x_0)
+  = \sum_{i=1}^n a_i f(x_i) - \nabla_5^2 f(x_0)
+  \leq f(x_0) \sum_{i=1}^n a_i 
+\end{equation}
+For the five point stencil the sum over $a_i, i>0$ equals $-a_0$, and as the RHS is equal to the LHS, the equality must hold throughout.
+Since $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = \dots = f(x_0)$.
 Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
+
+%% We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2,3,4$.
+%% Then
+%% $$
+%% 4f(x_0) = \sum_{i=1}^4 f(x_i) - \nabla_5^2 f(x_0) \leq \sum_{i=1}^4 f(x_i) \leq 4 f(x_0),
+%% $$
+%% where the last inequality is attained from the fact that $x_0$ is assumed to be the maximal value of $f$.
+%% As the RHS is equal to the LHS, the equality must hold throughout, and as $f(x_i) \leq f(x_0)$ we must have that all the neighbouring values have the same value as $x_0$, $f(x_1) = f(x_2) = f(x_3) = f(x_4) = f(x_0)$.
+%% Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that all internal points have the same value, and that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
 \end{proof}
 
 %% 2
@@ -365,25 +379,11 @@ $$
 $$
 \end{lemma}
 \begin{proof}
-Suppose the opposite is true,
-$$
-\max(f)_\Omega > \max(f)_{\partial \Omega}.
-$$
-Then, there is an internal grid point on which $f$ attains it maximal value.
-We denote this point by $x_0$, and label its neighbouring points $x_i, i = 1,2, \dots, 7, 8$, where the first four are the cardinal points and the latter four the NE, NW, SE, SW points.
-Then
-\begin{align*}
-\frac{10}{3} f(x_0)
-&= \frac{1}{6} \sum_{i=1}^4 f(x_i)
-+ \frac{2}{3} \sum_{i=5}^8 f(x_i)
-- \nabla_9^2 f(x_0)\\
-&\leq \frac{1}{6} \sum_{i=1}^4 f(x_i)
-+ \frac{2}{3} \sum_{i=5}^8 f(x_i)\\
-&\leq
-\left( 4\frac16 + 4\frac23 \right) u(x_0)\\
-&= \frac{10}{3} u(x_0).
-\end{align*}
-By the same reasoning as in lemma \ref{pde:lemma:max} this leads to a contradiction.
+  Using the notation introduced in the proof of lemma \ref{pde:lemma:max}, we have for the nine point stencil that
+  $$
+  \sum_{i=1}^9 a_i = -a_0,
+  $$
+  and thus by the exact same proof as for lemma \ref{pde:lemma:max} this proof is completed.
 \end{proof}
 
 %% 2
