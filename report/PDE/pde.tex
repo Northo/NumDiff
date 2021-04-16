@@ -281,25 +281,53 @@ $$
 \end{lemma}
 \begin{proof}
 Consider the function
-$$
-\phi = \frac14 [ (x-\frac12)^2 + (y-\frac12)^2 ],
-$$
-It has the properties that $0 \leq \phi \leq \frac18$ and $\nabla_5^2 \phi = 1$.
+\begin{equation}
+\phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right).
+\label{pde:equation:phi5}
+\end{equation}
+It has the property $\nabla_5^2 \phi_5(x,y) = 1$, takes the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attains the maximum on $\partial \Omega$, as shown in \cref{pde:figure:phi}.
 Let $\inorm{\nabla_5^2 v} = M$.
 Then
 $$
-\nabla_5^2 (v + \phi M) = \nabla_5^2 v +  M \geq 0.
+\nabla_5^2 (v + \phi_5 M) = \nabla_5^2 v +  M \geq 0.
 $$
-By lemma \ref{pde:lemma:max} we have then that $\nabla_5^2 (v + \phi M)$ attains its maximum value on $\partial \Omega$.
+By lemma \ref{pde:lemma:max} we have then that $\nabla_5^2 (v + \phi_5 M)$ attains its maximum value on $\partial \Omega$.
 Thus
 $$
 \inorm{v}
-\leq \inorm{v + \phi M}
-\leq \max_{\partial \Omega}(v + \phi M)
-= \max_{\partial\Omega} (\phi M)
+\leq \inorm{v + \phi_5 M}
+\leq \max_{\partial \Omega}(v + \phi_5 M)
+= \max_{\partial\Omega} (\phi_5 M)
 = \frac18 \inorm{\nabla_5^2 v}.
 $$
 \end{proof}
+
+\newcommand{\phidisplay}[3]{
+\begin{tikzpicture}
+\begin{axis}[
+	width=8.2cm, height=7.5cm,
+	zmin=0.0,
+	xlabel=$x$, xtick distance=0.25,
+	ylabel=$y$, ytick distance=0.25,
+	ztick={0,#2}, zticklabels={0,#2},
+	scaled ticks=false,
+	grid,
+	title={$#3$},
+]
+	\addplot3 [
+		surf,
+		domain=0:1,
+	] {#1};
+\end{axis}
+\end{tikzpicture}
+}
+
+\begin{figure}[t]
+\centering
+\phidisplay{1/4*((x-1/2)^2+(y-1/2)^2)}{1/8}{\phi_5(x,y)}
+\phidisplay{1/5*((x-1/2)^4+(y-1/2)^4)-6/5*(x-1/2)^2*(y-1/2)^2+1/4*((x-1/2)^2+(y-1/2)^2)}{3/40}{\phi_9(x,y)}
+\caption{\label{pde:figure:phi}The functions $\phi_5(x,y)$ and $\phi_9(x,y)$ range from $\phi_5(\frac12,\frac12)=\phi_9(\frac12,\frac12)=0$ at the center to $\phi_5(0,0) = 1/8$ and $\phi_9(0,0)=3/40$ at the boundaries of $[0,1]\times[0,1]$.}
+\end{figure}
 
 %% 3
 \begin{theorem}
@@ -370,8 +398,19 @@ By the same reasoning as in lemma \ref{pde:lemma:max} this leads to a contradict
   \inorm{v} \leq \frac{3}{40} \inorm{\nabla_9^2 v}.
   $$
 \end{lemma}
+\newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
 \begin{proof}
-  Fuck, this was harder....
+  Consider the function
+  \begin{equation}
+  \phi_9(x,y) = \phinine
+  \label{pde:equation:phi9}
+  \end{equation}
+  It has the property $\nabla_9^2 \phi_9(x,y) = 1$, takes the values $0 \leq \phi_9(x,y) \leq 3/40$ on $\Omega$ and attains the maximum on $\partial \Omega$, as shown in \cref{pde:figure:phi}.
+  Repeating the proof of \cref{pde:lemma:bound} with $\phi_5(x,y) \rightarrow \phi_9(x,y)$ and $\nabla_5 \rightarrow \nabla_9$ shows that
+  $$
+  \inorm{v}
+  \leq \frac{3}{40} \inorm{\nabla_9^2 v}.
+  $$
 \end{proof}
 
 %% 3
