@@ -21,13 +21,37 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 
 \subsection{Analytical solution}
 
-TODO: Herman: periodic on $[0,1]$ $\rightarrow$ periodic on $[-1,1]$, $2m\pi \rightarrow m\pi$, ...
-
-Due to the single-valued Dirichlet boundary conditions, the solution $u(x,y)$ is periodic on $[0,1]\times[0,1]$ and can therefore be represented by a Fourier series $\sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} \exp(i 2 \pi x) \exp(i 2 \pi y)$.
-In particular, $u = 0$ at the boundary, so constants and cosines must drop out of the Fourier series.
-It can therefore be represented by a double sine-only Fourier series (after rescaling $\hat{u}_{mn}$)
+Let us extend the definition of $u(x,y)$ on $[0,1]\times[0,1]$ to the full $xy$-plane $[-\infty,+\infty]\times[-\infty,+\infty]$ as the antisymmetric continuation with the properties $u(x,y+1) = u(x+1,y) = -u(x,y)$.
+Then $u(x,y)$ is periodic in both directions with period $2$ (not $1$!) and can therefore be written as a Fourier series
+\begin{equation}
+	u(x,y) = \sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} e^{i 2 \pi m x / 2} e^{i 2 \pi n y / 2}
+\end{equation}
+with coefficients
+\begin{equation}
+	\hat{u}_{mn} = \frac{1}{4} \integraltwo{u(x,y) e^{-i 2 \pi m x / 2} e^{-i 2 \pi n y / 2}}{x}{y}{-1}{+1}{-1}{+1}.
+\end{equation}
+By the antisymmetry $u(x+1,y)=u(x,y+1)=-u(x,y)$ and the symmetry $u(x+1,y+1)=u(x,y)$, the Fourier coefficients satisfy
+\begin{equation*}
+	u_{m,n} = -u_{-m,n} = -u_{m,-n} = u_{-m,-n},
+\end{equation*}
+so we can write the Fourier series as
+\begin{equation}
+\begin{split}
+	u(x,y) &= \hat{u}_{00} + \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn}
+	\left( 
+	  e^{+i \pi m x} e^{+i \pi n y}
+	- e^{-i \pi m x} e^{+i \pi n y}
+	- e^{+i \pi m x} e^{-i \pi n y}
+	+ e^{-i \pi m x} e^{-i \pi n y}
+	\right) \\
+	       &= \hat{u}_{00} - 4 \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn} \sin(m \pi x) \sin(n \pi y)
+\end{split}
+\end{equation}
+after simplifying all complex expontentials using Euler's identity $e^{ix} = \cos x + i \sin x$.
+The boundary condition $u = 0$ requires $\hat{u}_{00} = 0$.
+Rescaling $\hat{u}_{mn} \rightarrow -\hat{u}_{mn}/4$, we have the analytical solution
 \newcommand{\fourierseries}[3]{
-	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(2 #2 \pi x) \sin(2 #2 \pi y)
+	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(#2 \pi x) \sin(#2 \pi y)
 }
 \newcommand{\fourierexpand}[1]{
 	\fourierseries{\hat{#1}_{mn}}{m}{n}
@@ -39,7 +63,7 @@ u(x,y) = \fourierexpand{u}.
 
 Plug the Fourier series into \cref{eq:PDE} and act with the biharmonic operator to get
 \begin{equation*}
-\nabla^4 u(x,y) = \fourierseries{((2m\pi)^2+(2n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = f.
+\nabla^4 u(x,y) = \fourierseries{((m\pi)^2+(n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = f.
 \end{equation*}
 For simplicity, we \textbf{restrict ourselves to sources $f(x,y)$ that also vanish at the boundary}.
 Then the source can also be written
@@ -50,11 +74,11 @@ Then the source can also be written
 The Fourier series for $\nabla^4 u(x,y)$ and $f(x,y)$ can be equal only if their coefficients are equal.
 This can be seen formally by multiplying both by $\sin(2m'\pi x) \sin(2n'\pi y)$, integrating over $x$ and $y$ and using the orthogonality of the sine functions,
 \begin{equation*}
-	\integral{\sin(2m\pi x) \sin(2m' \pi x)}{x}{0}{1} = \frac{1}{2} \delta_{mm'}.
+	\integral{\sin(m\pi x) \sin(m' \pi x)}{x}{0}{1} = \frac{1}{2} \delta_{mm'}.
 \end{equation*}
 Therefore, the coefficients of the solution are
 \begin{equation}
-	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((2m\pi)^2+(2n\pi)^2)^2},
+	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((m\pi)^2+(n\pi)^2)^2},
 \end{equation}
 and the solution $u(x,y)$ is available by summing its Fourier series.
 
@@ -63,14 +87,14 @@ If we only know $f(x,y)$, we can find the coefficients by using the orthogonalit
 Multiply the Fourier series by $\sin(2 m' \pi x) \sin(2 n' \pi y)$ and integrate over $x$ and $y$ to get
 \begin{equation*}
 \begin{split}
-  & \,\, \integraltwo{f(x,y) \sin(2 m' \pi x) \sin(2 n' \pi y)}{x}{y}{0}{1}{0}{1} \\
-= & \,\, \sum_{m=1}^{\infty} \sum_{n=1}^{\infty} \hat{f}_{mn} \underbrace{\integral{\sin(2m\pi x)\sin(2m'\pi x)}{x}{0}{1}}_{\delta_{mm'}/2} \underbrace{\integral{\sin(2n\pi y)\sin(2n'\pi y)}{y}{0}{1}}_{\delta_{nn'}/2} \\
+  & \,\, \integraltwo{f(x,y) \sin(m' \pi x) \sin(n' \pi y)}{x}{y}{0}{1}{0}{1} \\
+= & \,\, \sum_{m=1}^{\infty} \sum_{n=1}^{\infty} \hat{f}_{mn} \underbrace{\integral{\sin(m\pi x)\sin(m'\pi x)}{x}{0}{1}}_{\delta_{mm'}/2} \underbrace{\integral{\sin(\pi y)\sin(n'\pi y)}{y}{0}{1}}_{\delta_{nn'}/2} \\
 = & \,\, \hat{f}_{m'n'} / 4.
 \end{split}
 \end{equation*}
 Read from bottom to top,
 \begin{equation}
-\hat{f}_{mn} = 4 \integraltwo{f(x,y) \sin(2 m \pi x) \sin(2 n \pi y)}{x}{y}{0}{1}{0}{1}.
+\hat{f}_{mn} = 4 \integraltwo{f(x,y) \sin(m \pi x) \sin(n \pi y)}{x}{y}{0}{1}{0}{1}.
 \end{equation}
 
 Note that a general source $f(x,y)$ may only be represented exactly by an infinite Fourier series.
