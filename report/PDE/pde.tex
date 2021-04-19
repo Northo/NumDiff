@@ -194,6 +194,8 @@ The nine point stencil is then
 
 The eigenvalues of the Kronecker product $A \otimes B$ is the product of the eigenvalues of $A$ and $B$.
 The eigenvalue of the Kronecker sum $A\oplus B = A \otimes I + I \otimes B$ is the sum of eigenvalues of $A$ and $B$.
+(TODO: these are non-obvious properties, need a reference, e.g. \url{http://www.siam.org/books/textbooks/OT91sample.pdf} theorem 13.12 and 13.16)
+% Some properties/proofs in https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT3350/h07/undervisningsmateriale/chap9slides.pdf
 In general the eigenvalues of a TST matrix are
 \begin{equation*}
 	\lambda_k = a + 2 b \cos\left(\frac{k \pi}{N + 1}\right)
@@ -432,6 +434,7 @@ $$
 F = a_1 y_1 + a_2 y_2 + ...,
 $$
 where $y_1, y_2, \dots$ are the eigenvectors of $A$.
+(TODO: $U$ is also expanded in the eigenvectors?)
 The solution $U$ is the of course
 $$
 U =
