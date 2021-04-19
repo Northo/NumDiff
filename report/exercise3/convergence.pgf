@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+  \begin{loglogaxis}[
+      title={Error plot for varios values of $Nx$ and $Ny$},
+      xlabel={$N = N_x \times N_y$},
+      ylabel={Relative error},
+      xtick={300, 350, 400, 450},
+      xticklabels={300, 350, 400, 450},
+      %ymax=10,
+    ]
+    \addplot[color=blue,mark=x]
+    table[x={N}, y={error}]
+    {exercise3/convergence/varNX-ny-20-num-6-var-0.2.dat};
+    \addplot[color=red,mark=*]
+    table[x={N}, y={error}]
+    {exercise3/convergence/varNY-nx-20-num-6-var-0.2.dat};
+    \addplot[dotted, mark=.]
+    table[x={N}, y={error}]
+    {exercise3/convergence/both-20-num-6-var-0.2.dat};
+    \legend{
+      {$N_y = 20$, varying $N_x$},
+      {$N_x = 20$, varying $N_y$},
+      {Uniform},
+    };
+  \end{loglogaxis}
+\end{tikzpicture}

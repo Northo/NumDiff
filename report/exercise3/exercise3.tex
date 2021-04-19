@@ -1,7 +1,7 @@
 \section{Laplace equation in two dimensions}
 In this section, we will solve the two-dimensional Laplace equation on a quadratic domain
 \begin{equation}
-    u_{xx} + u_{yy} = 0, \, (x,y) \in \Omega := [0,1]^2,
+    u_\text{xx} + u_\text{yy} = 0, \, (x,y) \in \Omega := [0,1]^2,
     \label{ex3:eq:laplace}
 \end{equation} with boundary conditions on the edges of $\Omega$
 \begin{equation*}
@@ -25,7 +25,7 @@ First, asssume that we can write
 \end{equation*}
 which implies that
 \begin{equation*}
-    u_{xx} + u_{yy} =  \alpha''(x) \beta(y) + \alpha(x) \beta''(y) = 0,
+    u_\text{xx} + u_\text{yy} =  \alpha''(x) \beta(y) + \alpha(x) \beta''(y) = 0,
 \end{equation*}
 where the prime markers $'$ denote differentiation of the single variable functions $\alpha(x)$ and $\beta(y)$.
 Rearranging, we get that
@@ -64,8 +64,9 @@ and finally
 
 \subsection{Numerical solution}
 \label{sec:exc3:numerical}
-Numerically, we can solve this equation by dividing the domain $\Omega$ into a grid.
-That is, we divide the interval $x \in [0,1]$ and $y \in [0,1]$ into $M$ and $N$ parts, respectively, so that the domain contains $M * N$ points, in which we will approximate the solution to equation \ref{ex3:eq:laplace}.
+We solve the equation numerically by discretizing the domain $\Omega = [0, 1]^2$, approximate the equation on that domain using a five point stencil, and solving the approximated system.
+The domain is discretized with $M+2$ and $N+2$ points in the $x$ and $y$ direction, so that there are $M$ and $N$ internal points in each direction.
+The total system to be solved is thus $M \times N$ points, as the boundaries are known.
 
 Rewriting Laplace's equation using central differences, we get
 \begin{equation*}
@@ -74,14 +75,14 @@ Rewriting Laplace's equation using central differences, we get
     % I think the equations are a bit long, but relatively clear in return.
     \partial^2_x u(x_m, y_n) 
         &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + \Oh(h^2)\\
-        &= \frac{1}{h^2}\delta^2_x u(x_m,y_n),\\
+        &= \frac{1}{h^2}\delta^2_x u(x_m,y_n) + \Oh(h^2),\\
     \end{split}
 \end{equation*}
 \begin{equation*}
     \begin{split}
     \partial^2_y u(x_m, y_n) 
-        &= \frac{1}{k^2}[u(x_{m},y_{n-1}) + 2u(x_m,y_n) + u(x_{m},y_{n+1})] + \Oh(k^2)\\
-        &= \frac{1}{h^2}\delta^2_y u(x_m,y_n),\\
+        &= \frac{1}{k^2}[u(x_\text{m},y_{n-1}) + 2u(x_m,y_n) + u(x_\text{m},y_{n+1})] + \Oh(k^2)\\
+        &= \frac{1}{k^2}\delta^2_y u(x_m,y_n) + \Oh(k^2),\\
     \end{split}
 \end{equation*}
 where $(x_m, y_n)$ denote the point $(m,n)$ in the grid. 
@@ -93,17 +94,18 @@ Adding these expressions, and naming our approximated solution $U_{m,n} := u(x_m
 \end{equation*}
 or, simplifying the notation with the notation visualized in figure \ref{ex3:fig:stencil},
 \begin{equation*}
-    \frac{1}{k^2}(U_{above} + U_{below} - 2U_{center}) + \frac{1}{h^2}(U_{left} + U_{right} - 2U_{center}) = 0.
+    \frac{1}{k^2}(U_\text{above} + U_\text{below} - 2U_\text{center}) + \frac{1}{h^2}(U_\text{left} + U_\text{right} - 2U_\text{center}) = 0.
 \end{equation*}
 
 \begin{figure}[hb]
     \centering
     \input{./exercise3/stencil.pgf}
+    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.}
     \label{ex3:fig:stencil}
-    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.} 
 \end{figure}
 
-This stencil can be used to approximate the value of $U(x_m, y_n) = U_{center}$ for all points $(x_m, y_n)$ in the grid.
+%This stencil can be used to approximate the value of $U(x_m, y_n) = U_\text{center}$ for all points $(x_m, y_n)$ in the grid.
+We will now construct the matrix $A$ such that we can write our equation as the matrix equation $A U = 0$, where $U$ is the flattened solution.
 Ignoring firstly the above and below nodes of the stencil, we can easily set up a matrix $A'$ in the same way as in Section \ref{task_1}.
 Note that this is done only in order to clarify the derivation -- the matrix $A'$ is merely a "stepping stone" -- not a useful result.
 \begin{equation*}
@@ -118,7 +120,7 @@ Note that this is done only in order to clarify the derivation -- the matrix $A'
       &   &  & 1 & -2 \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_{0n} \\ U_{1n} \\ \vdots \\ U_{M,n} \\ U_{M+1,n} \\
+    U_\text{1n} \\ U_\text{2n} \\ \vdots \\ U_{M-1,n} \\ U_{M,n} \\
     \end{bmatrix}
     =
     \begin{bmatrix}
@@ -127,19 +129,20 @@ Note that this is done only in order to clarify the derivation -- the matrix $A'
     ,
     \label{ex3:eq:simple_matrix}
 \end{equation*}
-Note also that this equation only considers one particular $n$.
+Note also that this equation only considers one particular value of $y$, corresponding to $n$.
 In order to actually solve our entire system, we must include the nodes above and below as well.
 This can be done by considering a much larger matrix $A$ and a much longer vector $U$.
-The latter being a stacked vector containing all $M+1$ elements $U_{0n}, \ldots, U_{Mn}$, followed by $U_{01}, \ldots U_{M1}$ and so on.
-The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
-Now, we are able to inclute the nodes $U_{above}$ and $U_{below}$ from the stencil.
-These two nodes are now -- instead of being above and below $U_{center}$ -- to the sides, $M$ nodes away. See figure \ref{ex3:fig:flat_stencil}.
+The latter being a stacked vector containing all $M$ elements $U_\text{11}, \ldots, U_\text{M1}$, followed by $U_\text{12}, \ldots U_\text{M2}$ and so on.
+%% The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
+%% Now, we are able to inclute the nodes $U_\text{above}$ and $U_\text{below}$ from the stencil.
+In this formulation of the problem, the values $U_\text{right}$ and $U_\text{left}$ correspond to the neighbouring points in $U$.
+The above and below nodes -- instead of being above and below $U_\text{center}$ -- are now to the sides, $M$ nodes away. See figure \ref{ex3:fig:flat_stencil}.
 
 \begin{figure}[htb]
     \centering
     \input{./exercise3/flat_stencil.pgf}
+    \caption{By flattening the five-point stencil, we can write the system of equations, which is now on the form $AU = 0$.}
     \label{ex3:fig:flat_stencil}
-    \caption{By flattening the five-point stencil, we can write the system of equations, which is now on the form $AU = 0$.} 
 \end{figure}
 
 We thus write
@@ -151,14 +154,14 @@ We thus write
     \begin{bmatrix}
         \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} &&\frac{1}{k^2}\\
         \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} &&\frac{1}{k^2}\\
-        & \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} &&\frac{1}{k^2}\\
+        & \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & 0 &&\frac{1}{k^2}\\
         &  \quad \ddots & \quad \ddots  & \quad \ddots \\
-        \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
+        \frac{1}{k^2} && 0 & \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
         & \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2}   & \frac{1}{h^2} \\
-        && \frac{1}{k^2} && \frac{-2}{h^2} + \frac{-2}{k^2} & \frac{1}{h^2} \\
+        && \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2} \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_{0} \\ \vdots \\ U_{m} \\ \vdots \\ U_{N \cdot m} \\ \vdots \\ U_{N \cdot M} \\
+    U_\text{1} \\ \vdots \\ U_\text{m} \\ \vdots \\ U_{N \cdot m} \\ \vdots \\ U_{N \cdot M} \\
     \end{bmatrix}
     =
     \begin{bmatrix}
@@ -167,7 +170,65 @@ We thus write
     = 0,
     \label{ex3:eq:solution_equation}
 \end{equation*}
-which can be solved, given initial conditions on the boundary of $\Omega$.
+which can be solved.
+It is important to note the zeros on the upper and lower diagonal, which correspond to the nodes that have less than four neighbours, ie. the nodes on the border.
+Gien initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
+Thus, the final equation will be on the form $AU = b$, where $b$ contains the boundary conditions.
+%\todo{Should probably be explained in more detail?}
+
+The matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
+Noticing its recursive structure one may realize that the matrix can be constructed by a Kronecker sum.
+This procedure is discussed in more depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast poisson solver.
+We will here however only take the observation about the Kronecker sum as a convenient way to implement the construction of our matrix.
+Let $K_n$ be the system matrix of the one dimensional finite central difference scheme of size $n$ introduced earlier.
+That is the $N\times N$ matrix
+$$
+K_n =
+\begin{bmatrix}
+  -2& 1 \\
+  1 & -2 & 1 &   \\
+  & \ddots & \ddots & \ddots & \\
+  %&   & 1 & -2 & 1 \\
+  &   & 1 & -2 & 1 \\
+  &   &  & 1 & -2 \\
+\end{bmatrix}.
+$$
+The matrix $A$ is then compactly written as
+\begin{equation}
+  A =
+  \frac{1}{h^2} K_N \oplus \frac{1}{k^2} K_M
+  = \frac{1}{h^2} K_N \otimes I_M
+  + I_N \otimes \frac{1}{k^2} K_M.
+\end{equation}
+
+    %% sp.kron(Ky, sp.eye(Nx))/hx**2
+    %% + sp.kron(sp.eye(Ny), Kx)/hy**2
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=8cm, height=8cm,
+        xmin=0, xmax=19,
+        ymin=0, ymax=19,
+        ticks=none,
+        y dir=reverse,
+        colormap/viridis,
+        colorbar,
+      ]
+      \addplot[
+        surf,
+        mesh/cols=20,
+        point meta=explicit,
+        shader=flat corner,
+      ] 
+      table[meta=U]{./exercise3/stencil.dat};
+      \draw[dashed] (4,4) rectangle (8, 8);
+    \end{axis}
+  \end{tikzpicture}
+
+  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure.}
+  \label{fig:laplace:stencil}
+\end{figure}
 
 \begin{figure}[htbp]
     \centering
@@ -191,3 +252,5 @@ which can be solved, given initial conditions on the boundary of $\Omega$.
     \label{ex3:fig:heat_map}
     \caption{The numerically computed solution to the Laplace equation.}
 \end{figure}
+
+\input{exercise3/convergence.pgf}

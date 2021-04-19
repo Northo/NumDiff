@@ -2,10 +2,10 @@
     %% X-axis, courtesy of task force 1:
     \draw[dashed] (0,2) -- (4,2);
     \draw[dashed](2,0) -- (2,4);
-    \filldraw (0,2) circle (2pt) node[anchor=north] {$U_{left}$};
-    \filldraw (4,2) circle (2pt) node[anchor=north] {$U_{right}$};
-    \filldraw (2,0) circle (2pt) node[anchor=north] {$U_{below}$};
-    \filldraw (2,4) circle (2pt) node[anchor=south] {$U_{above}$};
-    \filldraw (2,2) circle (2pt) node[anchor=south west] {$U_{center}$};
+    \filldraw (0,2) circle (2pt) node[anchor=north] {$U_\text{left}$};
+    \filldraw (4,2) circle (2pt) node[anchor=north] {$U_\text{right}$};
+    \filldraw (2,0) circle (2pt) node[anchor=north] {$U_\text{below}$};
+    \filldraw (2,4) circle (2pt) node[anchor=south] {$U_\text{above}$};
+    \filldraw (2,2) circle (2pt) node[anchor=south west] {$U_\text{center}$};
 
 \end{tikzpicture}
