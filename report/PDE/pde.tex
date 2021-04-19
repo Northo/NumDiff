@@ -105,7 +105,7 @@ so $\hat{u}_{00} = -\hat{u}_{00} = 0$ and we can write the Fourier series as
 after simplifying all complex expontentials using Euler's identity $e^{ix} = \cos x + i \sin x$.
 Rescaling $\hat{u}_{mn} \rightarrow -\hat{u}_{mn}/4$, we then begin by expressing our analytical solution as the double sine series
 \newcommand{\fourierseries}[3]{
-	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(#2 \pi x) \sin(#2 \pi y)
+	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(#2 \pi x) \sin(#3 \pi y)
 }
 \newcommand{\fourierexpand}[1]{
 	\fourierseries{\hat{#1}_{mn}}{m}{n}
