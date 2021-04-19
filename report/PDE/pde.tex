@@ -406,10 +406,10 @@ $$
 \begin{tikzpicture}
 \begin{axis}[
 	width=8.2cm, height=7.5cm,
-	zmin=0.0,
+	zmin=0.0,zmax=0.13,
 	xlabel=$x$, xtick distance=0.25,
 	ylabel=$y$, ytick distance=0.25,
-	ztick={0,#2}, zticklabels={0,#2},
+	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
 	scaled ticks=false,
 	grid,
 	title={$#3$},
@@ -424,7 +424,7 @@ $$
 
 \begin{figure}[t]
 \centering
-\phidisplay{1/4*((x-1/2)^2+(y-1/2)^2)}{1/8}{\phi_5(x,y)}
+\phidisplay{1/4*((x-1/2)^2+(y-1/2)^2)}{-1}{\phi_5(x,y)}
 \phidisplay{1/5*((x-1/2)^4+(y-1/2)^4)-6/5*(x-1/2)^2*(y-1/2)^2+1/4*((x-1/2)^2+(y-1/2)^2)}{3/40}{\phi_9(x,y)}
 \caption{\label{pde:figure:phi}The functions $\phi_5(x,y)$ and $\phi_9(x,y)$ range from $\phi_5(\frac12,\frac12)=\phi_9(\frac12,\frac12)=0$ at the center to $\phi_5(0,0) = 1/8$ and $\phi_9(0,0)=3/40$ at the boundaries of $[0,1]\times[0,1]$.}
 \end{figure}
