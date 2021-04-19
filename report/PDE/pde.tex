@@ -21,35 +21,89 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 
 \subsection{Analytical solution}
 
-Let us extend the definition of $u(x,y)$ on $[0,1]\times[0,1]$ to the full $xy$-plane $[-\infty,+\infty]\times[-\infty,+\infty]$ as the antisymmetric continuation with the properties $u(x,y+1) = u(x+1,y) = -u(x,y)$.
-Then $u(x,y)$ is periodic in both directions with period $2$ (not $1$!) and can therefore be written as a Fourier series
-\begin{equation}
+\begin{figure}
+\centering
+\pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
+\begin{tikzpicture}
+\begin{axis}[
+	width=7.5cm, height=7.5cm,
+	xtick={-1,0,1}, ytick={-1,0,1},
+	xlabel=$x$, ylabel=$y$,
+	title={$u(x,y)$},
+	% grid=major,
+	declare function={
+		myfunc(\x,\y)=sin(deg(pi*\x))*sin(deg(pi*\y)); % + 0.5*sin(deg(3*pi*\x))*sin(deg(3*pi*\y));
+	},
+	colormap name=redblue,
+	view={0}{90},
+	% colorbar right, colorbar style={ytick={-1,0,+1}},
+]
+\addplot3 [surf, domain=-1:1, contour filled={number=50}] {myfunc(x,y)};
+\draw (+0.5, +0.5) node {$u(x,y)$};
+\draw (-0.5, +0.5) node {$-u(x+1,y)$};
+\draw (+0.5, -0.5) node {$-u(x,y+1)$};
+\draw (-0.5, -0.5) node {$u(x+1,y+1)$};
+\draw [->, thick] (+0.1, +0.5) -- (-0.1, +0.5);
+\draw [->, thick] (+0.5, +0.1) -- (+0.5, -0.1);
+\draw [->, thick] (-0.5, +0.1) -- (-0.5, -0.1);
+\draw [->, thick] (+0.1, -0.5) -- (-0.1, -0.5);
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}
+\begin{axis}[
+	width=8cm, height=8cm,
+	xtick={-1,0,1}, ytick={-1,0,1},
+	xlabel=$x$, ylabel=$y$, zlabel={$u(x,y)$},
+	% grid=major,
+	declare function={
+		myfunc(\x,\y)=sin(deg(pi*\x))*sin(deg(pi*\y)); % + 0.5*sin(deg(3*pi*\x))*sin(deg(3*pi*\y));
+	},
+	colormap name=redblue,
+	% view={0}{90},
+	% colorbar right, colorbar style={ytick={-1,0,+1}},
+]
+\addplot3 [surf, domain=-1:1] {myfunc(x,y)};
+\end{axis}
+\end{tikzpicture}
+\caption{\label{continuationfig}
+	The function $u(x,y)$ is originally defined on $[0,1]\times[0,1]$, but we extend the definition to the full $xy$-plane with the rules $u(x+1,y) = u(x,y+1) = -u(x,y)$.
+	This makes $u(x,y)$ periodic and permits Fourier analysis.
+	Here is the continuation on $[-1,1]\times[-1,1]$.
+}
+\end{figure}
+
+To use Fourier analysis, let us extend the definition of $u(x,y)$ on $[0,1]\times[0,1]$ to the full $xy$-plane $[-\infty,+\infty]\times[-\infty,+\infty]$ as the antisymmetric continuation with the rules $u(x,y+1) = u(x+1,y) = -u(x,y)$.
+The procedure is illustrated in \cref{continuationfig}.
+Using the antisymmetry, the conditions $u = -u = 0$ and $\nabla^2 u = -\nabla^2 u = 0$ are automatically satisfied at the boundaries.
+This can also be seen for the simple trial function in \cref{continuationfig}, which vanishes and inflects at the boundaries.
+Now $u(x,y) = u(x+2,y) = u(x,y+2)$ is periodic in both directions with period $2$ and can therefore be written as a Fourier series
+\begin{equation*}
 	u(x,y) = \sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} e^{i 2 \pi m x / 2} e^{i 2 \pi n y / 2}
-\end{equation}
-with coefficients
-\begin{equation}
+\end{equation*}
+with coefficients (TODO: note on orthogonality or take this as known?)
+\begin{equation*}
 	\hat{u}_{mn} = \frac{1}{4} \integraltwo{u(x,y) e^{-i 2 \pi m x / 2} e^{-i 2 \pi n y / 2}}{x}{y}{-1}{+1}{-1}{+1}.
-\end{equation}
+\end{equation*}
 By the antisymmetry $u(x+1,y)=u(x,y+1)=-u(x,y)$ and the symmetry $u(x+1,y+1)=u(x,y)$, the Fourier coefficients satisfy
 \begin{equation*}
 	u_{m,n} = -u_{-m,n} = -u_{m,-n} = u_{-m,-n},
 \end{equation*}
-so we can write the Fourier series as
-\begin{equation}
+so $\hat{u}_{00} = -\hat{u}_{00} = 0$ and we can write the Fourier series as
+\begin{equation*}
 \begin{split}
-	u(x,y) &= \hat{u}_{00} + \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn}
+	u(x,y) &= \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn}
 	\left( 
 	  e^{+i \pi m x} e^{+i \pi n y}
 	- e^{-i \pi m x} e^{+i \pi n y}
 	- e^{+i \pi m x} e^{-i \pi n y}
 	+ e^{-i \pi m x} e^{-i \pi n y}
 	\right) \\
-	       &= \hat{u}_{00} - 4 \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn} \sin(m \pi x) \sin(n \pi y)
+	       &= -4 \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn} \sin(m \pi x) \sin(n \pi y)
 \end{split}
-\end{equation}
+\end{equation*}
 after simplifying all complex expontentials using Euler's identity $e^{ix} = \cos x + i \sin x$.
-The boundary condition $u = 0$ requires $\hat{u}_{00} = 0$.
-Rescaling $\hat{u}_{mn} \rightarrow -\hat{u}_{mn}/4$, we have the analytical solution
+Rescaling $\hat{u}_{mn} \rightarrow -\hat{u}_{mn}/4$, we then begin by expressing our analytical solution as the double sine series
 \newcommand{\fourierseries}[3]{
 	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(#2 \pi x) \sin(#2 \pi y)
 }
@@ -61,30 +115,29 @@ u(x,y) = \fourierexpand{u}.
 \label{pde:equation:fourierexpansion}
 \end{equation}
 
-Plug the Fourier series into \cref{eq:PDE} and act with the biharmonic operator to get
+Plug this Fourier series into \cref{eq:PDE} and act with the biharmonic operator to get
 \begin{equation*}
-\nabla^4 u(x,y) = \fourierseries{((m\pi)^2+(n\pi)^2)^2 \hat{u}_{mn}}{m}{n} = f.
+\nabla^4 u(x,y) = \fourierseries{\left((m\pi)^2+(n\pi)^2\right)^2 \hat{u}_{mn}}{m}{n} = f(x,y).
 \end{equation*}
-For simplicity, we \textbf{restrict ourselves to sources $f(x,y)$ that also vanish at the boundary}.
-Then the source can also be written
+For simplicity, we \textbf{restrict ourselves to sources that can also be written} (TODO: what restrictions does this impose on $f$?)
 \begin{equation}
 	f(x,y) = \fourierexpand{f}.
 \end{equation}
 
 The Fourier series for $\nabla^4 u(x,y)$ and $f(x,y)$ can be equal only if their coefficients are equal.
-This can be seen formally by multiplying both by $\sin(2m'\pi x) \sin(2n'\pi y)$, integrating over $x$ and $y$ and using the orthogonality of the sine functions,
+This can be seen formally by multiplying both by $\sin(2m'\pi x) \sin(2n'\pi y)$, integrating over $x$ and $y$ and using orthogonality of the sine functions,
 \begin{equation*}
 	\integral{\sin(m\pi x) \sin(m' \pi x)}{x}{0}{1} = \frac{1}{2} \delta_{mm'}.
 \end{equation*}
 Therefore, the coefficients of the solution are
 \begin{equation}
-	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{((m\pi)^2+(n\pi)^2)^2},
+	\hat{u}_{mn} = \frac{\hat{f}_{mn}}{\left((m\pi)^2+(n\pi)^2\right)^2},
 \end{equation}
-and the solution $u(x,y)$ is available by summing its Fourier series.
+and the solution $u(x,y)$ is available by summing its Fourier series \ref{pde:equation:fourierexpansion}.
 
 If we know $\hat{f}_{mn}$, it is straightforward to compute $\hat{u}_{mn}$ and thus the solution $u(x,y)$ itself from its Fourier series.
 If we only know $f(x,y)$, we can find the coefficients by using the orthogonality of the sine functions again.
-Multiply the Fourier series by $\sin(2 m' \pi x) \sin(2 n' \pi y)$ and integrate over $x$ and $y$ to get
+Multiply the Fourier series by $\sin(m' \pi x) \sin(n' \pi y)$ and integrate over $x$ and $y$ to get
 \begin{equation*}
 \begin{split}
   & \,\, \integraltwo{f(x,y) \sin(m' \pi x) \sin(n' \pi y)}{x}{y}{0}{1}{0}{1} \\
