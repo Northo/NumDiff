@@ -295,6 +295,7 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 	xlabel=$M$, ylabel=$\Vert u - U \Vert_2$,
 	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
 	grid=major,
+	xmin=1.9, xmax=360,
 	legend style={at={(0.5,+1.13)},anchor=north}, legend cell align=left,
 	transpose legend, legend columns=2, legend entries={
 		{UMR (disc.)},
@@ -306,19 +307,21 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 		{AMR source (disc.)},
 		{AMR source (cont.)}
 	}, cycle list={
-		{black, dashed, line width=0.7pt, mark=none, mark size=0.3pt},
-		{black, solid,  line width=0.7pt, mark=none, mark size=0.3pt},
-		{red,   dashed, line width=0.7pt, mark=none, mark size=0.3pt},
-		{red,   solid,  line width=0.7pt, mark=none, mark size=0.3pt},
-		{blue,  dashed, line width=0.7pt, mark=none, mark size=0.3pt},
-		{blue,  solid,  line width=0.7pt, mark=none, mark size=0.3pt},
-		{green, dashed, line width=0.7pt, mark=none, mark size=0.3pt},
-		{green, solid,  line width=0.7pt, mark=none, mark size=0.3pt},
+		{black, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		{black, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		{red,   densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		{red,   solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		{blue,  densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		{blue,  solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		{green, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		{green, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
 	},
 ]
+\addplot [color=magenta, domain=1:400, samples=2, forget plot] {1.8/x^2} node [pos=0.31,pin={-100:$\Oh(h^2)$}, inner sep=0pt] {};
 \pgfplotsinvokeforeach{UMR,AMRE,AMRT,AMRS} {
 \addplot table [x=#1-M,y=#1-ED] {exercise1/amr_errors.dat};
 \addplot table [x=#1-M,y=#1-EC] {exercise1/amr_errors.dat};
+% \draw (+5,0) node {a} -- (+6,2) node {b};
 }
 \end{loglogaxis}
 \end{tikzpicture}
