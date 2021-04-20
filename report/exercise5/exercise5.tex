@@ -180,10 +180,13 @@ Then we construct $U$ by appending $\alpha$ and $\beta$ at the beginning and end
 \addplot [ybar interval, fill=red] table [x=x, y=E] {#1-step2.dat}; % errors
 \addplot [black, dashed] table [y=refE] {#1-step2.dat}; % reference error line
 
-\nextgroupplot[xlabel=$x$];
-\addplot [draw=none] table [x=x, y=U] {#1-step0.dat}; % hidden dummy plot (just for ticks)
+\nextgroupplot[xlabel=$x$, legend pos=north west];
+\addplot [draw=none, color=white] table [x=x, y=U] {#1-step0.dat}; % hidden dummy plot (just for ticks)
 \addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
 \addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step0.dat}; % numerical
+\addlegendimage{empty legend}\addlegendentry{}
+\addlegendimage{empty legend}\addlegendentry{$u(x)$}
+\addlegendimage{empty legend}\addlegendentry{$U(x)$}
 
 \nextgroupplot[xlabel=$x$, yticklabels={,,}];
 \addplot [draw=none] table [x=x, y=U] {#1-step1.dat}; % hidden dummy plot (just for ticks)
@@ -236,7 +239,7 @@ Computational resources are wasted by using many points in areas where the solut
 These resources would be better spent by increasing the grid resolution in the areas where the error is large.
 This is the motivation for turning to adaptive refinement and non-uniform grids.
 
-\figureseries{exercise5/data/UMR}{femumr}{Uniform refinement}
+\figureseries{exercise5/data/UMR}{femumr}{Uniform mesh refinement on four problems with the average error strategy, showing the evolution of an initial mesh whose elements are split in half over three iterations, along with the distribution of $L_2$-errors across the elements.}
 
 \subsubsection{Adaptive refinement}
 \label{fem_amr_section}
@@ -284,7 +287,7 @@ Now the error strictly decreases between each refinement of the grid.
 This suggests that the oscillating pattern is due to refinements where intervals with large error are present even after refining the element with greatest error.
 For example, it would be a bad idea to refine only \emph{one} element in the first problem in \cref{femamr}, where errors are even across the elements.
 
-\figureseries{exercise5/data/AMR}{femamr}{Adaptive refinement, average strategy}
+\figureseries{exercise5/data/AMR}{femamr}{Adaptive mesh refinement on four problems with the average strategy, showing the evolution of an initial uniform mesh as it is refined over three iterations. Elements whose $L_2$-error lie above the reference error \protect\begin{tikzpicture}[baseline=-0.5ex]\protect\draw[black, dashed] (0,0.0) -- (4ex,0.0);\protect\end{tikzpicture} are split in half.}
 
 \begin{figure}[h!]
 \centering
