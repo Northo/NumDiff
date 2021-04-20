@@ -301,11 +301,11 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 ]
 \pgfplotsinvokeforeach {1,2,3,4} {
 	\ifthenelse{\equal{#1}{1}}{
-		\nextgroupplot[ylabel=error,title={$f(x) = -2$}];
+		\nextgroupplot[ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},title={$f(x) = -2$}];
 	}{\ifthenelse{\equal{#1}{2}}{
 		\nextgroupplot[title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$}];
 	}{\ifthenelse{\equal{#1}{3}}{
-		\nextgroupplot[xlabel=$M+1$, ylabel=error, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
+		\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$}, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
 	}{
 		\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
 	}}}
@@ -316,5 +316,5 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{femconvergence}Convergence plot, comparision of three strategies}
+\caption{\label{femconvergence}Convergence plots for four problems that compare uniform mesh refinement with the two adaptive mesh refinement strategies. (TODO: show order?)}
 \end{figure}
