@@ -190,20 +190,20 @@ As shown in \cref{sine_evolution}, the solution represents a sine wave traveling
 
 In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Euler method and the Crank-Nicholson method.
 Note that the Crank-Nicholson method approaches the exact solution with as little as $N=10$ time steps and a few hundred spatial grid points $M$, while the Euler method produces garbage with as many as $N=300000$ time steps and becomes less stable as the number of spatial grid points increases.
-The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions, showing the stable second order (fist order???) nature of the Crank-Nicholson method and the unstability of the Euler method.
+The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions, showing the stable second order (TODO: why is it first order? is it supposed to be?) nature of the Crank-Nicholson method and the unstability of the Euler method.
 
 \begin{figure}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Forward Euler ($N=300000$)}]
-\pgfplotsinvokeforeach{5,10,15,20,25} {
+\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Forward Euler ($N=300000$)},ylabel={$U(x,1)$}]
+\pgfplotsinvokeforeach{5,15,25} {
 	\addplot table {exercise4/snapshot-forward-euler-M#1-N300000.dat};
 	\addlegendentry{$M=#1$};
 }
-\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={0:$u(x,1)$},inner sep=0pt] {};
 \end{axis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)}]
+\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)},yticklabels={,,}]
 \pgfplotsinvokeforeach{200,400,600} {
 	\addplot table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
 	\addlegendentry{$M=#1$};
@@ -211,7 +211,10 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 \addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
 \end{axis}
 \end{tikzpicture}
-\caption{\label{ex4_euler_vs_crank_snapshots}}
+\caption{\label{ex4_euler_vs_crank_snapshots}
+	Snapshots of the numerical solution $U(x,1)$ and the exact solution $u(x,1)$ for a constant number of time steps $N$, but varying number of grid points $M$ with the Forward Euler and Crank-Nicholson method.
+	The left plot is meant to demonstrate the downfall of the Euler method and is not supposed to look pretty.
+}
 \end{figure}
 
 \begin{figure}
