@@ -217,22 +217,23 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 \begin{figure}
 \centering
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,ylabel={relative error},legend pos=north east,width=8cm,title=Crank-Nicholson]
-\pgfplotsinvokeforeach{10,20,30,40,50} {
-	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
-	\addlegendentry{$N=#1$};
-}
-\end{loglogaxis}
-\end{tikzpicture}
-\begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,legend pos=north west,width=8cm,title=Forward Euler]
+\begin{loglogaxis}[xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,width=8cm,title=Forward Euler,xtick=data,xticklabels={5,10,15,20,25,30}]
 \pgfplotsinvokeforeach{10000,20000,30000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-forward-euler.dat};
 	\addlegendentry{$N=#1$};
 }
 \end{loglogaxis}
 \end{tikzpicture}
-\caption{\label{ex4_euler_vs_crank_convergence}Convergence plot at $t=1$, comparison between Crank-Nicholson and Forward Euler}
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$M$,legend pos=north east,width=8cm,title=Crank-Nicholson,xmin=5,xmax=2000]
+\addplot [dashed, domain=1:3000, samples=2, color=magenta,forget plot] {40/x^1} node [pos=0.4,pin={0:$\Oh(h^1)$},inner sep=0pt] {};
+\pgfplotsinvokeforeach{10,20,30,40} {
+	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
+	\addlegendentry{$N=#1$};
+}
+\end{loglogaxis}
+\end{tikzpicture}
+\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicholson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
 \end{figure}
 
 \subsection{Stability analysis}
