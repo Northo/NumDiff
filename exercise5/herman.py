@@ -204,16 +204,16 @@ x = sympy.var("x")
 
 params = [
     ("f1", -2, (0, 1), (0, 1)),
-    ("f2", (40000*x**2 - 200) * sympy.exp(-100*x**2), (-1, +1), (np.exp(-100), np.exp(-100))),
-    ("f3", (4000000*x**2 - 2000) * sympy.exp(-1000*x**2), (-1, +1), (np.exp(-1000), np.exp(-1000))),
+    ("f2", -(40000*x**2 - 200) * sympy.exp(-100*x**2), (-1, +1), (np.exp(-100), np.exp(-100))),
+    ("f3", -(4000000*x**2 - 2000) * sympy.exp(-1000*x**2), (-1, +1), (np.exp(-1000), np.exp(-1000))),
     ("f4", 2/9*x**(-4/3), (0, 1), (0, 1)), # TODO: how to deal with singularity at f(0)?
 ]
 
 probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
-    # prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
+    prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
     prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False, write=True)
-    # prob.convergence_plot(plot=False)
+    prob.convergence_plot(plot=False)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))

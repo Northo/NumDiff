@@ -204,22 +204,22 @@ Then we construct $U$ by appending $\alpha$ and $\beta$ at the beginning and end
 \newcommand\figureseries[3]{
 \begin{figure}
 \centering
-$f(x) = -2$
+$f(x) = -2$, \quad $u(0) = 0$, \quad $u(1) = 1$
 \medskip \medskip
 \plotseries{#1/f1}{x^2}{}{0}{1} \\
 \medskip \medskip \medskip \medskip
-$f(x) = (40000x^2 - 200) \exp(-100x^2)$
+$f(x) = -(40000x^2 - 200) \exp(-100x^2)$, \quad $u(-1) = e^{-100}$, \quad $u(1) = e^{-100}$
 \medskip \medskip 
-\plotseries{#1/f2}{exp(-100) - exp(-100*x^2)}{}{-1}{1} \\
+\plotseries{#1/f2}{-(exp(-100) - exp(-100*x^2))}{}{-1}{1} \\
 \end{figure}
 \begin{figure}
 \ContinuedFloat % split over two pages
 \centering
-$f(x) = (4000000x^2 - 2000) \exp(-1000x^2)$
+$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$, \quad $u(-1) = e^{-1000}$, \quad $u(1) = e^{-1000}$
 \medskip \medskip
-\plotseries{#1/f3}{exp(-1000) - exp(-1000*x^2)}{}{-1}{1} \\
+\plotseries{#1/f3}{-(exp(-1000) - exp(-1000*x^2))}{}{-1}{1} \\
 \medskip \medskip \medskip \medskip
-$f(x) = 2x^{-4/3}/9$
+$f(x) = 2x^{-4/3}/9$, \quad $u(0) = 0$, \quad $u(1) = 1$
 \medskip \medskip
 \plotseries{#1/f4}{x^(2/3)}{}{0}{1}
 \caption{\label{#2}#3}
@@ -303,9 +303,9 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 	\ifthenelse{\equal{#1}{1}}{
 		\nextgroupplot[ylabel=error,title={$f(x) = -2$}];
 	}{\ifthenelse{\equal{#1}{2}}{
-		\nextgroupplot[title={$f(x) = (40000x^2 - 200) \exp(-100x^2)$}];
+		\nextgroupplot[title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$}];
 	}{\ifthenelse{\equal{#1}{3}}{
-		\nextgroupplot[xlabel=$M+1$, ylabel=error, title={$f(x) = (4000000x^2 - 2000) \exp(-1000x^2)$}];
+		\nextgroupplot[xlabel=$M+1$, ylabel=error, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
 	}{
 		\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
 	}}}
