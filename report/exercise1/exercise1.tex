@@ -102,28 +102,30 @@ To handle the singular matrix, we solve the system with a least-squares method i
 			clip marker paths=true
 			]
 			\nextgroupplot[title={$u(0)=0, \quad u_x(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$}];
-			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_neu.dat};
-			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_neu.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$\Oh(h^2)$,continuous norm,discrete norm},xmin=5,xmax=2000];
-			\addplot [color=red, domain=1:3000, samples=2] {1.3/x^2};
-			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/dir_neu_err.dat};
-			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/dir_neu_err.dat};
+			% \addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_neu.dat};
+			% \addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_neu.dat};
+			\addplot [color=black, thick] table [x=x,y=u] {exercise1/dir_neu.dat};
+			\addplot [color=blue, mark=square*, mark size=1pt, thin] table [x=x,y=U] {exercise1/dir_neu.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$\Oh(h^2)$,$L_2$ (cont.),$L_2$ (disc.)},xmin=5,xmax=2000];
+			\addplot [black, dashed, domain=1:3000, samples=2] {1.45/(x)^2};
+			\addplot [red!75!black, mark=square*] table [x=M,y=cont] {exercise1/dir_neu_err.dat};
+			\addplot [red!100!black, mark=*] table [x=M,y=disc] {exercise1/dir_neu_err.dat};
 
-			\nextgroupplot[title={$u(0)=1, \quad u(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$}];
-			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_dir.dat};
-			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_dir.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$\Oh(h^2)$,continuous norm,discrete norm},xmin=5,xmax=2000];
-			\addplot [color=red, domain=1:3000, samples=2] {0.10/x^2};
-			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/dir_dir_err.dat};
-			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/dir_dir_err.dat};
+			\nextgroupplot[title={$u(0)=1, \quad u(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$];
+			\addplot [color=black, thick] table [x=x,y=u] {exercise1/dir_dir.dat};
+			\addplot [color=blue, mark=square*, mark size=1pt, thin] table [x=x,y=U] {exercise1/dir_dir.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},xmin=5,xmax=2000];
+			\addplot [black, dashed, domain=1:3000, samples=2] {0.10/(x)^2};
+			\addplot [red!75!black, mark=square*] table [x=M,y=cont] {exercise1/dir_dir_err.dat};
+			\addplot [red!100!black, mark=*] table [x=M,y=disc] {exercise1/dir_dir_err.dat};
 
-			\nextgroupplot[title={$u_x(0)=0, \quad u_x(1)=1/2$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$},scaled ticks=false, tick label style={/pgf/number format/fixed}];
-			\addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/neu_neu.dat};
-			\addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/neu_neu.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$\Oh(h^2)$,continuous norm,discrete norm},xmin=5,xmax=2000];
-			\addplot [color=red, domain=1:3000, samples=2] {3.50/x^2};
-			\addplot [mark=*, color=black, mark size=1.5pt, line width=3pt] table [x=M,y=cont] {exercise1/neu_neu_err.dat};
-			\addplot [mark=*, color=gray,  mark size=1pt, line width=1pt] table [x=M,y=disc] {exercise1/neu_neu_err.dat};
+			\nextgroupplot[title={$u_x(0)=0, \quad u_x(1)=1/2$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,scaled ticks=false, tick label style={/pgf/number format/fixed}];
+			\addplot [color=black, thick] table [x=x,y=u] {exercise1/neu_neu.dat};
+			\addplot [color=blue, mark=square*, mark size=1pt, thin] table [x=x,y=U] {exercise1/neu_neu.dat};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},xmin=5,xmax=2000];
+			\addplot [black, dashed, domain=1:3000, samples=2] {3.60/(x)^2};
+			\addplot [red!75!black, mark=square*] table [x=M,y=cont] {exercise1/neu_neu_err.dat};
+			\addplot [red!100!black, mark=*] table [x=M,y=disc] {exercise1/neu_neu_err.dat};
 		\end{groupplot}
 	\end{tikzpicture}
 	\caption{\label{poisson_numerical_solutions}
@@ -273,8 +275,10 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 	\nextgroupplot[xticklabels={,,},yticklabels={,,},xtick=data];
 }}}}
 \addplot table [x=x, y expr=-1] {exercise1/amre_M#1.dat}; % hidden dummy plot, just go get the ticks
-\addplot [line width=5pt, black, mark=none, domain=0:1   ] {exp(-(x-0.5)^2/0.1)};
-\addplot [line width=1pt, red  , mark=*   , mark size=1pt] table [x=x, y=U] {exercise1/amre_M#1.dat};
+% \addplot [line width=5pt, black, mark=none, domain=0:1   ] {exp(-(x-0.5)^2/0.1)};
+% \addplot [line width=1pt, red  , mark=*   , mark size=1pt] table [x=x, y=U] {exercise1/amre_M#1.dat};
+\addplot [black, mark=none,    domain=0:1, thick, samples=100] {exp(-(x-0.5)^2/0.1)};
+\addplot [blue , mark=square*, mark size=1pt, thin] table [x=x, y=U] {exercise1/amre_M#1.dat};
 \node at (0.5, 0.5) {$M=#1$};
 }
 \end{groupplot}
@@ -292,7 +296,7 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 \begin{tikzpicture}
 \begin{loglogaxis}[
 	width=16.5cm, height=12cm,
-	xlabel=$M$, ylabel=$\Vert u - U \Vert_2$,
+	xlabel=$M$, ylabel=$\Ltwoerror{u - U}/\Ltwoerror{u}$,
 	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
 	grid=major,
 	xmin=1.9, xmax=360,
@@ -307,17 +311,25 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 		{AMR source (disc.)},
 		{AMR source (cont.)}
 	}, cycle list={
-		{black, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
-		{black, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
-		{red,   densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
-		{red,   solid,  line width=1.0pt, mark=*, mark size=1.3pt},
-		{blue,  densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
-		{blue,  solid,  line width=1.0pt, mark=*, mark size=1.3pt},
-		{green, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
-		{green, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		% {black, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		% {black, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		% {red,   densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		% {red,   solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		% {blue,  densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		% {blue,  solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		% {green, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
+		% {green, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
+		{red!75!black,    solid, mark=square*, mark size=1.0pt},
+		{red!100!black,   solid, mark=*,       mark size=1.0pt},
+		{cyan!75!black,   solid, mark=square*, mark size=1.0pt},
+		{cyan!100!black,  solid, mark=*,       mark size=1.0pt},
+		{green!75!black,  solid, mark=square*, mark size=1.0pt},
+		{green!100!black, solid, mark=*,       mark size=1.0pt},
+		{yellow!60!black, solid, mark=square*, mark size=1.0pt},
+		{yellow!80!black, solid, mark=*,       mark size=1.0pt},
 	},
 ]
-\addplot [color=magenta, domain=1:400, samples=2, forget plot] {1.8/x^2} node [pos=0.31,pin={-100:$\Oh(h^2)$}, inner sep=0pt] {};
+\addplot [black, dashed, domain=1:400, samples=2, forget plot] {1.8/x^2} node [pos=0.31,pin={-100:$\Oh(h^2)$}, inner sep=0pt] {};
 \pgfplotsinvokeforeach{UMR,AMRE,AMRT,AMRS} {
 \addplot table [x=#1-M,y=#1-ED] {exercise1/amr_errors.dat};
 \addplot table [x=#1-M,y=#1-EC] {exercise1/amr_errors.dat};
