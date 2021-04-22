@@ -430,6 +430,7 @@ $$
 	scaled ticks=false,
 	grid,
 	title={$#3$},
+  point meta max=0.13,  % Sets max value for cmap 
 ]
 	\addplot3 [
 		surf,
@@ -551,9 +552,9 @@ Written as matrix expressions
 where we used the fact that $S^{-1} = S$.
 Moreover, formulated more directly with regards to implementing the solver, we have that the solution is
 $$
-U = IFST(FST(F) / \Lambda),
+U = \text{IFST}(\text{FST}(F) / \Lambda),
 $$
-where $IFST, FST$ are the inverse and normal fast sine tranform.
+where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform.
 
 \subsection{Demonstration of order}
 \begin{figure}[h]
