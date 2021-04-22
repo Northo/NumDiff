@@ -239,6 +239,45 @@ def test_order():
     plt.loglog(Ns, [np.linalg.norm(x, ord=np.inf) for x in five_nine_diff])
     plt.show()
 
+
+def __integral(m):
+    return (
+        48*(
+            np.pi**9*m**5*np.e**2
+            - 20*(np.pi**9*np.e**2 + 2*np.pi**7*np.e**2)*m**3
+            - (np.pi**9*m**5 - 20*(np.pi**9 + 2*np.pi**7)*m**3 + 16*(4*np.pi**9 + 15*np.pi**7 + 5*np.pi**5)*m)*(-1)**m
+            + 16*(4*np.pi**9*np.e**2 + 15*np.pi**7*np.e**2 + 5*np.pi**5*np.e**2)*m)
+        /
+        (
+            np.pi**10*m**10*np.e**3
+            - 20*(2*np.pi**10*np.e**3 - np.pi**8*np.e**3)*m**8
+            + 16384*np.pi**8*np.e**3
+            + 16*(33*np.pi**10*np.e**3 - 20*np.pi**8*np.e**3 + 10*np.pi**6*np.e**3)*m**6
+            + 40960*np.pi**6*np.e**3
+            - 320*(8*np.pi**10*np.e**3 - 7*np.pi**8*np.e**3 - 2*np.pi**4*np.e**3)*m**4
+            + 33792*np.pi**4*np.e**3
+            + 256*(16*np.pi**10*np.e**3 + 35*np.pi**6*np.e**3 + 20*np.pi**4*np.e**3 + 5*np.pi**2*np.e**3)*m**2
+            + 10240*np.pi**2*np.e**3 + 1024*np.e**3
+        )
+    )
+
+
+def analytical_solution_fourier(m, n):
+    return __integral(m) * __integral(n)
+
+
+def get_analytical_solution(terms=5):
+    m = n = np.arange(1, terms+1)
+    mm, nn = np.meshgrid(m, n)
+    fourier_coeff = analytical_solution_fourier(mm, nn)
+    def analytical_solution(x, y):
+        sines = (
+            np.sin(mm * np.pi * x)
+            * np.sin(nn * np.pi * y)
+        )
+        return np.sum(sines * fourier_coeff)
+    return np.vectorize(analytical_solution)
+
 def exercise_h():
     def f(x, y):
         return (
@@ -284,4 +323,9 @@ if __name__=="__main__":
     #     header="N E5 E9",
     # )
     # test_order()
-    exercise_h()
+    #exercise_h()
+    anal = get_analytical_solution()
+    x = y = np.linspace(0, 1, 100)
+    xx, yy = np.meshgrid(x, y)
+    plt.imshow(anal(xx, yy))
+    plt.show()
