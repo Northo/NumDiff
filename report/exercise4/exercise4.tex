@@ -173,8 +173,8 @@ zticklabel={\pgfmathparse{\tick-1}$\pgfmathprintnumber{\pgfmathresult}$} % hack 
 		}{
 		\nextgroupplot[xlabel=$x$,title={$t=#1/4$}];
 		}
-		\addplot [black,line width=3pt,domain=-1:+1,samples=100] {sin(deg(pi*(x-#1/4)))};
-		\addplot [red,line width=1pt] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1},skip first n=1] {exercise4/timeevol_sin.dat};
+		\addplot [black,thick,domain=-1:+1,samples=100] {sin(deg(pi*(x-#1/4)))};
+		\addplot [blue,thin] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1},skip first n=1] {exercise4/timeevol_sin.dat};
 	};
 \end{groupplot}
 % \path (group c3r1.south east) -- node[below, inner ysep=30]{\pgfplotslegendfromname{thelegend}} (group c3r1.south west);
@@ -189,26 +189,34 @@ The Fourier series of the analytical solution then has nonzero coefficients $c_{
 As shown in \cref{sine_evolution}, the solution represents a sine wave traveling with velocity $1$ to the right.
 
 In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Euler method and the Crank-Nicholson method.
-Note that the Crank-Nicholson method approaches the exact solution with as little as $N=10$ time steps and a few hundred spatial grid points $M$, while the Euler method produces garbage with as many as $N=300000$ time steps and becomes less stable as the number of spatial grid points increases.
+Note that the Crank-Nicholson method approaches the exact solution with as little as $N=10$ time steps and a few hundred spatial grid points $M$, while the Euler method produces garbage with as many as $N=300 000$ time steps and becomes less stable as the number of spatial grid points increases.
 The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions, showing the stable second order (TODO: why is it first order? is it supposed to be?) nature of the Crank-Nicholson method and the unstability of the Euler method.
 
 \begin{figure}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Forward Euler ($N=300000$)},ylabel={$U(x,1)$}]
+\begin{axis}[ymin=-1.2, ymax=+1.2, title={Forward Euler ($N=300 000$)},ylabel={$U(x,1)$},cycle list={
+	{blue!100!black, mark=square*, mark size=1pt},
+	{blue!66!black, mark=square*, mark size=1pt},
+	{blue!33!black, mark=square*, mark size=1pt},
+}]
 \pgfplotsinvokeforeach{5,15,25} {
 	\addplot table {exercise4/snapshot-forward-euler-M#1-N300000.dat};
 	\addlegendentry{$M=#1$};
 }
-\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={0:$u(x,1)$},inner sep=0pt] {};
+\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={0:$u(x,1)$},inner sep=0pt] {};
 \end{axis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)},yticklabels={,,}]
+\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)},yticklabels={,,},cycle list={
+	{blue!100!black, mark=square*, mark size=1pt},
+	{blue!66!black, mark=square*, mark size=1pt},
+	{blue!33!black, mark=square*, mark size=1pt},
+}]
 \pgfplotsinvokeforeach{200,400,600} {
 	\addplot table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
 	\addlegendentry{$M=#1$};
 }
-\addplot [xlabel=$x$, color=black, domain=-1:+1, very thick] {sin(deg(pi*(x-1)))};
+\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
 \end{axis}
 \end{tikzpicture}
 \caption{\label{ex4_euler_vs_crank_snapshots}
@@ -220,7 +228,11 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 \begin{figure}
 \centering
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,width=8cm,title=Forward Euler,xtick=data,xticklabels={5,10,15,20,25,30}]
+\begin{loglogaxis}[xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,width=8cm,title=Forward Euler,xtick=data,xticklabels={5,10,15,20,25,30},cycle list={
+	{blue!100!black, mark=square*, mark size=1.5pt},
+	{blue!66!black, mark=square*, mark size=1.5pt},
+	{blue!33!black, mark=square*, mark size=1.5pt},
+}]
 \pgfplotsinvokeforeach{10000,20000,30000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-forward-euler.dat};
 	\addlegendentry{$N=#1$};
@@ -228,15 +240,21 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 \end{loglogaxis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,legend pos=north east,width=8cm,title=Crank-Nicholson,xmin=5,xmax=2000]
-\addplot [dashed, domain=1:3000, samples=2, color=magenta,forget plot] {40/x^1} node [pos=0.4,pin={0:$\Oh(h^1)$},inner sep=0pt] {};
-\pgfplotsinvokeforeach{10,20,30,40} {
+\begin{loglogaxis}[xlabel=$M$,legend pos=north east,width=8cm,title=Crank-Nicholson,xmin=5,xmax=2000,cycle list={
+	{blue!100!black, mark=square*, mark size=1.5pt},
+	{blue!75!black, mark=square*, mark size=1.5pt},
+	{blue!50!black, mark=square*, mark size=1.5pt},
+	{blue!25!black, mark=square*, mark size=1.5pt},
+	{blue!0!black, mark=square*, mark size=1.5pt},
+}]
+\addplot [dashed, domain=1:3000, samples=2, black, forget plot] {40/x^1} node [pos=0.4,pin={0:$\Oh(h^1)$},inner sep=0pt] {};
+\pgfplotsinvokeforeach{10,20,30,40,50} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
 	\addlegendentry{$N=#1$};
 }
 \end{loglogaxis}
 \end{tikzpicture}
-\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicholson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
+\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots with the discrete $L_2$ error of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicholson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
 \end{figure}
 
 \subsection{Stability analysis}
@@ -367,7 +385,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 				}
 			}
 		}
-		\addplot [black] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1}] {exercise4/timeevol_exp.dat};
+		\addplot [blue, thick] table [x expr=-1+2*\coordindex/800, y expr=\thisrowno{#1}] {exercise4/timeevol_exp.dat};
 		\draw (0.0,-0.8) node {$t=#1/11$};
 	};
 \end{groupplot}
@@ -385,28 +403,24 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	ymin=0.4, ymax=0.5, restrict y to domain=0:10,
 ]
 	\pgfplotscreateplotcyclelist{mycycle}{
-		{black,solid},
-		{black,dashdotted},
+		{black,dotted},
 		{black,dashed},
-		{blue,solid},
-		{blue,dashdotted},
-		{blue,dashed},
-		{green,solid},
-		{green,dashdotted},
-		{green,dashed},
-		{red,solid},
-		{red,dashdotted},
-		{red,dashed},
+		{black,solid},
+		{blue!100!black,dotted},
+		{blue!80!black,dashed},
+		{blue!60!black,solid},
+		{green!100!black,dotted},
+		{green!80!black,dashed},
+		{green!60!black,solid},
+		{red!100!black,dotted},
+		{red!80!black,dashed},
+		{red!60!black,solid},
 	};
 
-	\nextgroupplot[title={Forward Euler}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east];
-	\addplot {0};
-	\addlegendentry{$N=30000$};
-	\addplot {0};
-	\addlegendentry{$N=40000$};
-	\addplot {0};
-	\addlegendentry{$N=50000$};
-
+	\nextgroupplot[title={Forward Euler}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east,restrict y to domain=0:1.0];
+	\addplot {0}; \addlegendentry{$N=30000$};
+	\addplot {0}; \addlegendentry{$N=40000$};
+	\addplot {0}; \addlegendentry{$N=50000$};
 	\pgfplotsinvokeforeach{15,20,25} {
 		\addplot table [x expr=\coordindex/100, y={forward-euler-M#1-N30000}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={forward-euler-M#1-N40000}] {exercise4/norm-evolution.dat};
@@ -420,8 +434,9 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	\pgfplotscreateplotcyclelist{mycyclee}{
 	};
 
-	\nextgroupplot[title={Crank-Nicholson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={{red,line width=6pt},{blue,line width=4pt},{green,line width=2pt}},
-	legend entries={$N=100$,$N=200$,$N=300$},
+	\nextgroupplot[title={Crank-Nicholson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={
+		{red,thick},{blue,semithick},{green,thin}
+	}, legend entries={$N=100$,$N=200$,$N=300$},
 	];
 	\pgfplotsinvokeforeach{800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
