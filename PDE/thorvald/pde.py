@@ -285,17 +285,16 @@ def exercise_h():
             *
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
-    N = 10000
-    xx, yy, h = get_mesh(N, reth=True)
-    F = f(xx, yy)
-    G_anal = nine_point_solve(F)
-    U9_anal = nine_point_solve(G_anal)
-    U9_anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
+
+    # G_anal = nine_point_solve(F)
+    # U9_anal = nine_point_solve(G_anal)
+    # U9_anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
     print("Solve the 'analytical' solution")
     errors = []
     comp_time = []
-    Ns = np.geomspace(8, 256, 8, dtype=int)
+    Ns = np.geomspace(8, 300, 8, dtype=int)
     use_fps = True
+    anal = get_analytical_solution(terms=8)
     for N in Ns:
         xx, yy, h = get_mesh(N, reth=True)
         F = f(xx, yy)
@@ -303,10 +302,17 @@ def exercise_h():
         G = nine_point_solve(F, use_fps=use_fps)
         U9 = nine_point_solve(G, use_fps=use_fps)
         comp_time.append(time.time() - start_time)
-        errors.append(np.linalg.norm(
-            U9.flatten() - U9_anal(xx, yy).flatten(),
-            ord=np.inf,
-        ))
+        errors.append(
+            np.linalg.norm(
+                U9.flatten() - anal(xx, yy).flatten(),
+                ord=np.inf,
+            )
+            /
+            np.linalg.norm(
+                anal(xx, yy).flatten(),
+                ord=np.inf,
+            )
+        )
     plt.loglog(Ns, errors, '-x')
     plt.show()
     plt.loglog(Ns, comp_time, '-x')
@@ -323,9 +329,4 @@ if __name__=="__main__":
     #     header="N E5 E9",
     # )
     # test_order()
-    #exercise_h()
-    anal = get_analytical_solution()
-    x = y = np.linspace(0, 1, 100)
-    xx, yy = np.meshgrid(x, y)
-    plt.imshow(anal(xx, yy))
-    plt.show()
+    exercise_h()
