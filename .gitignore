@@ -1,6 +1,5 @@
 *.log
 *.aux
-*.bib
 .ipynb_checkpoints
 __pycache__
 *.ipynb

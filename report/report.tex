@@ -10,6 +10,9 @@
 \usepackage{caption} % for captions
 \usepackage{ifthen} % for if/else statements (in plots)
 
+\usepackage{biblatex}
+\addbibresource{bib.bib}
+
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{commath}
@@ -76,13 +79,14 @@
 \input{PDE/pde.tex}
 
 \clearpage
-\begin{thebibliography}{99}
-\bibitem{owren}
-Brynjulf Owren:
-\textit{TMA4212 Numerical solution of partial differential equations with finite difference methods}
-(2017)
-[\url{http://www.math.ntnu.no/emner/TMA4212/2020v/notes/master.pdf}]
+\printbibliography
+%% \begin{thebibliography}{99}
+%% \bibitem{owren}
+%% Brynjulf Owren:
+%% \textit{TMA4212 Numerical solution of partial differential equations with finite difference methods}
+%% (2017)
+%% [\url{http://www.math.ntnu.no/emner/TMA4212/2020v/notes/master.pdf}]
 
-\end{thebibliography}
+%% \end{thebibliography}
 
 \end{document}

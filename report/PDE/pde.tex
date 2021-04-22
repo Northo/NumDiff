@@ -159,7 +159,7 @@ However, we can also construct problems with a finite number of terms in the \em
 
 \subsection{Numerical solution method}
 
-We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$,
+We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$:
 \begin{align}\label{eq:PDE-poisson}
   \nabla^2g &= f,\\
   \nabla^2u &= g,\\
@@ -168,7 +168,7 @@ We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing
 
 
 %% c)
-In solving the poisson equation $\nabla^2 u = f$ will consider here two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
+In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
 
 \newcommand{\crossStencil}[5]{%
   \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}, nodes={draw, circle}]
@@ -185,7 +185,7 @@ In solving the poisson equation $\nabla^2 u = f$ will consider here two discreti
   \end{tikzpicture}
 }
 
-Written in stencil diagrams, the five point stencil is given as 
+Written in stencil diagrams, the five point stencil is given as \cite{part2}
 $$
 u \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
@@ -241,9 +241,11 @@ K =
 $$
 Using the Kronecker product, this may be written as
 $$
-K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
+% K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
+K2D = K \otimes I + I \otimes K = K \oplus K,
 $$
-which is useful when working with sparse matricies.
+where $\otimes$ and $\oplus$ are the Kronecker product and Kronecker sum.
+This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.
 
 We will split the nine point stencil matrix into two, according to the stencil diagram above.
 One matrix represents a five point stencil with weights altered to $\frac{-10}{3}, \frac23$ instead of $-4, 1$, we denote this matrix by $K2D^{(9)}$.
@@ -269,11 +271,26 @@ The nine point stencil is then
   somename9stencil = K2D^{(9)} + \Sigma 2D
 \end{equation}
 
-The eigenvalues of the Kronecker product $A \otimes B$ is the product of the eigenvalues of $A$ and $B$.
-The eigenvalue of the Kronecker sum $A\oplus B = A \otimes I + I \otimes B$ is the sum of eigenvalues of $A$ and $B$.
-(TODO: these are non-obvious properties, need a reference, e.g. \url{http://www.siam.org/books/textbooks/OT91sample.pdf} theorem 13.12 and 13.16)
+Let $\lambda_k, ~k\in[1, n]$ be the eigenvalues of the matrix $A$, and let $\mu_l, ~l\in [1, m]$ be the eigenvalues of the matrix $B$.
+As shown in for example \cite{Laub_2004} the eigenvalues of the Kronecker product $A \otimes B$ are the products of the eigenvalues of $A$ and $B$,
+$$
+%% \lambda_1 \mu_1, \dots, \lambda_1 \mu_m,
+%% \lambda_2 \mu_1, \dots, \lambda_2 \mu_m,
+%% \dots,
+%% \lambda_n \mu_1, \dots, \lambda_n \mu_m.
+\lambda_k\lambda_l, \quad k \in [1, n], l\in [1,m].
+$$
+The eigenvalues of the Kronecker sum $A\oplus B$ are the sum of the eigenvalues of $A$ and $B$
+$$
+%% \lambda_1 + \mu_1, \dots, \lambda_1 + \mu_m,
+%% \lambda_2 + \mu_1, \dots, \lambda_2 + \mu_m,
+%% \dots,
+%% \lambda_n + \mu_1, \dots, \lambda_n + \mu_m.
+\lambda_k + \lambda_l, \quad k \in [1, n], l\in [1,m].
+$$
+%(TODO: these are non-obvious properties, need a reference, e.g. \url{http://www.siam.org/books/textbooks/OT91sample.pdf} theorem 13.12 and 13.16)
 % Some properties/proofs in https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT3350/h07/undervisningsmateriale/chap9slides.pdf
-In general the eigenvalues of a TST matrix are
+In general the eigenvalues of a TST matrix are\cite{tridiagonal}
 \begin{equation*}
 	\lambda_k = a + 2 b \cos\left(\frac{k \pi}{N + 1}\right)
 \end{equation*}
