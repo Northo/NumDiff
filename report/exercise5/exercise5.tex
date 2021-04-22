@@ -182,21 +182,21 @@ Then we construct $U$ by appending $\alpha$ and $\beta$ at the beginning and end
 
 \nextgroupplot[xlabel=$x$, legend pos=north west];
 \addplot [draw=none, color=white] table [x=x, y=U] {#1-step0.dat}; % hidden dummy plot (just for ticks)
-\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
-\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step0.dat}; % numerical
+\addplot [domain=#4:#5, samples=300, thick, black] {#2}; % analytical
+\addplot [mark=*, mark size=1.0, blue, thin, mark=square*] table [x=x, y=U] {#1-step0.dat}; % numerical
 \addlegendimage{empty legend}\addlegendentry{}
 \addlegendimage{empty legend}\addlegendentry{$u(x)$}
 \addlegendimage{empty legend}\addlegendentry{$U(x)$}
 
 \nextgroupplot[xlabel=$x$, yticklabels={,,}];
 \addplot [draw=none] table [x=x, y=U] {#1-step1.dat}; % hidden dummy plot (just for ticks)
-\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
-\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step1.dat}; % numerical
+\addplot [domain=#4:#5, samples=300, thick, black] {#2}; % analytical
+\addplot [mark=*, mark size=1.0, blue, thin, mark=square*] table [x=x, y=U] {#1-step1.dat}; % numerical
 
 \nextgroupplot[xlabel=$x$, yticklabels={,,}];
 \addplot [draw=none] table [x=x, y=U] {#1-step2.dat}; % hidden dummy plot (just for ticks)
-\addplot [blue, domain=#4:#5, samples=300, line width=1pt, black] {#2}; % analytical
-\addplot [black, mark=*, mark size=1.0, red, line width=0.5pt] table [x=x, y=U] {#1-step2.dat}; % numerical
+\addplot [domain=#4:#5, samples=300, thick, black] {#2}; % analytical
+\addplot [mark=*, mark size=1.0, blue, thin, mark=square*] table [x=x, y=U] {#1-step2.dat}; % numerical
 \end{groupplot}
 \end{tikzpicture}
 }
@@ -208,6 +208,7 @@ $f(x) = -2$, \quad $u(0) = 0$, \quad $u(1) = 1$
 \medskip \medskip
 \plotseries{#1/f1}{x^2}{}{0}{1} \\
 \medskip \medskip \medskip \medskip
+\medskip \medskip \medskip \medskip
 $f(x) = -(40000x^2 - 200) \exp(-100x^2)$, \quad $u(-1) = e^{-100}$, \quad $u(1) = e^{-100}$
 \medskip \medskip 
 \plotseries{#1/f2}{-(exp(-100) - exp(-100*x^2))}{}{-1}{1} \\
@@ -218,6 +219,7 @@ $f(x) = -(40000x^2 - 200) \exp(-100x^2)$, \quad $u(-1) = e^{-100}$, \quad $u(1) 
 $f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$, \quad $u(-1) = e^{-1000}$, \quad $u(1) = e^{-1000}$
 \medskip \medskip
 \plotseries{#1/f3}{-(exp(-1000) - exp(-1000*x^2))}{}{-1}{1} \\
+\medskip \medskip \medskip \medskip
 \medskip \medskip \medskip \medskip
 $f(x) = 2x^{-4/3}/9$, \quad $u(0) = 0$, \quad $u(1) = 1$
 \medskip \medskip
