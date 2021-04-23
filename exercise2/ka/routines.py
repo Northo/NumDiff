@@ -11,10 +11,13 @@ class BoundaryCondition:
 
     def __init__(self, type, value):
         self.type = type
+        self.value = value
+        """
         if callable(value):
             self.value = value
         else:
             self.value = lambda t: value
+        """
 
 
 class Grid:
@@ -29,6 +32,72 @@ class Grid:
             self.is_uniform = False
         self.x = x
         self.h = x[1:] - x[:-1]
+
+
+def theta_method(grid, bc1, bc2, u0, N, t_end, log=True, method="cn"):
+    if method=="cn":
+        theta=0.5
+    elif method=="be":
+        theta=1.0
+    elif method=="fe":
+        theta=0.0
+    else:
+        raise{f"Invalid method specification: {method}\n Valid options are: fe, be, cn"}
+    if not grid.is_uniform:
+        raise ("Unsupported error, FE does not currently support non uniform grids")
+    x = grid.x
+    M = len(x)
+    t, k = np.linspace(0, t_end, N, retstep=True)
+    U = u0(x)  # initial, t = 0
+    h = grid.h[0]
+    r = k / (h ** 2)
+
+    if log:
+        solution_matrix = np.zeros((N, M))
+        solution_matrix[0] = U
+
+    m = M
+    k=0
+    l=M
+    if bc1.type == BoundaryCondition.DIRCHLET:
+        m -= 1
+        k = 1
+    if bc2.type == BoundaryCondition.DIRCHLET:
+        m -= 1
+        l = M-1
+    # LHS
+    diag = np.repeat(1+2*theta*r, m)
+    offdiag_upper = np.repeat(-theta*r, m-1)
+    offdiag_lower = np.repeat(-theta*r, m-1)
+    # RHS
+    diag_b = np.repeat(1-2*r*(1-theta), m)
+    offdiag_upper_b = np.repeat(r*(1-theta), m-1)
+    offdiag_lower_b = np.repeat(r*(1-theta), m-1)
+    b_boundary = np.zeros(m)
+    if bc1.type == BoundaryCondition.NEUMANN:
+        offdiag_upper[0] = -2*theta*r
+        offdiag_upper_b[0] = 2*r*(1-theta)
+        b_boundary[0] = -2*r*h*bc1.value
+    else:
+        b_boundary[0] = r*bc1.value
+    if bc2.type == BoundaryCondition.NEUMANN:
+        offdiag_lower[-1] = -2*theta*r
+        offdiag_lower_b[-1] = 2*r*(1-theta)
+        b_boundary[-1] = 2*r*h*bc2.value
+    else:
+        b_boundary[-1] = r*bc2.value
+    A = csr_matrix(diags([diag, offdiag_upper, offdiag_lower], [0, 1, -1]))
+    B = diags([diag_b, offdiag_upper_b, offdiag_lower_b], [0, 1, -1])
+    
+    for (i, ti) in enumerate(t[1:]):
+        U_p = U[k:l]
+        b = B@U_p + b_boundary
+        U[k:l] = spsolve(A, b)
+        if log:
+            solution_matrix[i+1] = U
+    if log:
+        return t, U, solution_matrix
+    return t, U
 
 
 def forward_euler(grid, bc1, bc2, u0, N, t_end, log=True):
@@ -368,10 +437,10 @@ def test_method(method, grid, N, t_end):
 
     bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, u0(0))
     bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, u0(1))
-    # bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
-    # bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 
-    t, U_final, solutions = method(grid, bc1, bc2, u0, N, t_end)
+    t, U, solutions = method(grid, bc1, bc2, u0, N, t_end, method="be")
 
     num_samples = 5
     for i in range(num_samples):
@@ -384,13 +453,8 @@ def test_method(method, grid, N, t_end):
 
 
 if __name__ == "__main__":
-    M = 100
+    M = 10
     N = 100
     N_FE = 10000
-    grid = Grid(Grid.NON_UNIFORM, np.linspace(0, 1, M) ** 2)
     unigrid = Grid(Grid.UNIFORM, np.linspace(0, 1, M))
-    # test_method(forward_euler, unigrid, N_FE, 0.1)
-    test_method(backward_euler, unigrid, N, 0.1)
-    test_method(backward_euler, grid, N, 0.1)
-    test_method(crank_nicolson, unigrid, N, 0.1)
-    test_method(crank_nicolson, grid, N, 0.1)
+    test_method(theta_method, unigrid, N, 0.1)
