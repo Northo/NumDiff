@@ -60,7 +60,7 @@ This gives the final system of difference equations for the numerical solution
 where the Euler method or the Crank-Nicholson method is obtained by inserting $\theta = 0$ or $\theta = 1/2$, respectively.
 In matrix form, the system can be written
 \begin{equation}
-	\left(I - \theta k A\right) U^{n+1} = \left(I - \left(1-\theta\right) k A\right) U^n,
+	\left(I - \theta k A\right) U^{n+1} = \left(I + \left(1-\theta\right) k A\right) U^n,
 	\label{matrixeq}
 \end{equation}
 where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A = $
@@ -85,7 +85,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
             &          &             &             &             &             & \cb -1      & 0           & \ca +1      \\
 \ca +1      &          &             &             &             &             &             & \cb -1      & 0           \\
 \end{bmatrix}
--\frac{1+\pi^2}{h^3}
+-\frac{1+\pi^2}{8 h^3}
 \begin{bmatrix}
 % 0      & +1/2h  &        &        & -1/2h  \\
 % -1/2h  & 0      & +1/2h  &        &        \\
