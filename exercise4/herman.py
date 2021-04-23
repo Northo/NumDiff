@@ -224,11 +224,10 @@ def convergence_plots(plot=False, write=False):
             path = f"../report/exercise4/convergence-{method}.dat"
             write_table_to_file(path, np.transpose(columns), headers)
 
-def snapshots():
+def snapshots(plot=False, write=False):
     runs = [
-        # {"method": "crank-nicholson", "M": [20, 40, 60, 80, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000], "N": [10, 100]},
-        # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
-        {"method": "forward-euler", "M": [5, 10, 15, 20, 25], "N": [300000]},
+        {"method": "crank-nicholson", "M": [25,50,75], "N": [10]},
+        {"method": "forward-euler", "M": [20, 25, 29], "N": [100000]},
     ]
 
     for run in runs:
@@ -244,19 +243,22 @@ def snapshots():
                 u = solve_analytical(x, t)
                 U = solve_numerical(x, t, method=run["method"])
 
-                path = f"../report/exercise4/snapshot-{method}-M{M}-N{N}.dat"
-                columns = [x, U[-1,:]]
-                headers = ["x", "U"]
-                write_table_to_file(path, np.transpose(columns), headers)
+                if write:
+                    path = f"../report/exercise4/snapshot-{method}-M{M}-N{N}.dat"
+                    columns = [x, U[-1,:]]
+                    headers = ["x", "U"]
+                    write_table_to_file(path, np.transpose(columns), headers)
 
-                # plt.plot(x, U[-1], label=f"N={N}")
-                # plt.plot(x, u[-1], color="black")
-            # plt.show()
+                if plot:
+                    plt.plot(x, U[-1], label=f"N={N}")
+                    plt.plot(x, u[-1], color="black")
+            if plot:
+                plt.show()
 
 # timeevol(animate=True, path="../report/exercise4/timeevol_sin.dat", U0=lambda x: np.sin(np.pi*x), time_samples=5)
 # timeevol(animate=True, time_samples=12, U0=lambda x: np.exp(-10*x**2), N=100, M=800, path="../report/exercise4/timeevol_exp.dat")
 
 # timeevol(animate=True, M=20, N=100000, method="forward-euler")
-convergence_plots(plot=True, write=True)
-# snapshots()
+# convergence_plots(plot=True, write=True)
+# snapshots(write=True)
 # norm_evolution()

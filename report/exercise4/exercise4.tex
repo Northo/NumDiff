@@ -194,29 +194,29 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 
 \begin{figure}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, title={Forward Euler ($N=300 000$)},ylabel={$U(x,1)$},cycle list={
-	{blue!100!black, mark=square*, mark size=1pt},
-	{blue!66!black, mark=square*, mark size=1pt},
-	{blue!33!black, mark=square*, mark size=1pt},
+\begin{axis}[ymin=-1.2, ymax=+1.2, title={Forward Euler ($N=100000$)},ylabel={$U(x,1)$},cycle list={
+	{blue!100!black, mark=square*, mark size=0.75pt},
+	{blue!75!black, mark=square*, mark size=0.75pt},
+	{blue!50!black, mark=square*, mark size=0.75pt},
 }]
-\pgfplotsinvokeforeach{5,15,25} {
-	\addplot table {exercise4/snapshot-forward-euler-M#1-N300000.dat};
+\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100, forget plot] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
+\pgfplotsinvokeforeach{20,25,29} {
+	\addplot table {exercise4/snapshot-forward-euler-M#1-N100000.dat};
 	\addlegendentry{$M=#1$};
 }
-\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={0:$u(x,1)$},inner sep=0pt] {};
 \end{axis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, no markers,title={Crank-Nicholson ($N=10$)},yticklabels={,,},cycle list={
-	{blue!100!black, mark=square*, mark size=1pt},
-	{blue!66!black, mark=square*, mark size=1pt},
-	{blue!33!black, mark=square*, mark size=1pt},
+\begin{axis}[ymin=-1.2, ymax=+1.2, title={Crank-Nicholson ($N=10$)},yticklabels={,,},cycle list={
+	{blue!100!black, mark=square*, mark size=0.75pt},
+	{blue!75!black,  mark=square*, mark size=0.75pt},
+	{blue!50!black,  mark=square*, mark size=0.75pt},
 }]
-\pgfplotsinvokeforeach{200,400,600} {
+\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100, forget plot] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
+\pgfplotsinvokeforeach{25,50,75} {
 	\addplot table {exercise4/snapshot-crank-nicholson-M#1-N10.dat};
 	\addlegendentry{$M=#1$};
 }
-\addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
 \end{axis}
 \end{tikzpicture}
 \caption{\label{ex4_euler_vs_crank_snapshots}
