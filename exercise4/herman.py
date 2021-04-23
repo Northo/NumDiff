@@ -46,21 +46,16 @@ def solve_numerical(x, t, U0=None, method="crank-nicholson"):
     M = x.shape[0]
     N = t.shape[0]
     dx = x[1] - x[0]
-    dt = t[1] - t[0]
 
-    print(f"M = {M}, N = {N}, dt/dx^2 = {dt/dx**2}")
+    print(f"M = {M}, N = {N}")
 
     A = np.zeros((M, M))
-    stencil1 = np.array([-1, 0, +1]) / (2*dx) # 1st derivative
-    stencil3 = np.array([-1/8, 0, +3/8, 0, -3/8, 0, +1/8]) / dx**3 # 3rd derivative
-    relinds1 = [i - (len(stencil1)-1)//2 for i in range(0, len(stencil1))]
-    relinds3 = [i - (len(stencil3)-1)//2 for i in range(0, len(stencil3))]
     for i in range(0, M):
         # impose periodic BCs by wrapping stencil coefficients around the matrix
-        inds1 = [(i + relind1) % M for relind1 in relinds1]
-        inds3 = [(i + relind3) % M for relind3 in relinds3]
-        A[i,inds1] -= (1+np.pi**2) * stencil1
-        A[i,inds3] -= stencil3
+        A[i,(i-3)%M] =                             - 1/(8*dx**3) * (-1)
+        A[i,(i-1)%M] = -(1+np.pi**2)/(2*dx) * (-1) - 1/(8*dx**3) * (+3)
+        A[i,(i+1)%M] = -(1+np.pi**2)/(2*dx) * (+1) - 1/(8*dx**3) * (-3)
+        A[i,(i+3)%M] =                             - 1/(8*dx**3) * (+1)
 
     if U0 is None:
         U0 = np.sin(np.pi*x)
