@@ -180,10 +180,10 @@ def write_results(x, t, U, path):
     print(z)
     write_table_to_file(path, np.transpose([x,y,z]), ["x t U"])
 
-def convergence_plots():
+def convergence_plots(plot=False, write=False):
     runs = [
-        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [10, 20, 30, 40, 50]},
-        {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
+        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10, 2**12, 2**13], "N": [10, 20, 30, 40, 50]},
+        # {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
         # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
     ]
 
@@ -200,19 +200,21 @@ def convergence_plots():
                 err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
                 run["err"][-1].append(err)
 
-    for run in runs:
-        plt.title(run["method"])
-        for n, N in enumerate(run["N"]):
-            plt.loglog(run["M"], run["err"][n], label=f"N={N}")
-        plt.show()
+    if plot:
+        for run in runs:
+            plt.title(run["method"])
+            for n, N in enumerate(run["N"]):
+                plt.loglog(run["M"], run["err"][n], label=f"N={N}")
+            plt.show()
 
-    for run in runs:
-        method = run["method"]
-        columns = [run["M"]] + [run["err"][i] for i in range(0, len(run["N"]))]
-        headers = ["M"     ] + [f"E{N}"       for N in run["N"]]
+    if write:
+        for run in runs:
+            method = run["method"]
+            columns = [run["M"]] + [run["err"][i] for i in range(0, len(run["N"]))]
+            headers = ["M"     ] + [f"E{N}"       for N in run["N"]]
 
-        path = f"../report/exercise4/convergence-{method}.dat"
-        write_table_to_file(path, np.transpose(columns), headers)
+            path = f"../report/exercise4/convergence-{method}.dat"
+            write_table_to_file(path, np.transpose(columns), headers)
 
 def snapshots():
     runs = [
@@ -243,9 +245,10 @@ def snapshots():
                 # plt.plot(x, u[-1], color="black")
             # plt.show()
 
-timeevol(animate=True, path="../report/exercise4/timeevol_sin.dat", U0=lambda x: np.sin(np.pi*x), time_samples=5)
+# timeevol(animate=True, path="../report/exercise4/timeevol_sin.dat", U0=lambda x: np.sin(np.pi*x), time_samples=5)
 # timeevol(animate=True, time_samples=12, U0=lambda x: np.exp(-10*x**2), N=100, M=800, path="../report/exercise4/timeevol_exp.dat")
 
-# convergence_plots()
+# timeevol(animate=True, N=100)
+convergence_plots(plot=True)
 # snapshots()
 # norm_evolution()
