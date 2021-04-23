@@ -228,27 +228,28 @@ The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergen
 \begin{figure}
 \centering
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,width=8cm,title=Forward Euler,xtick=data,xticklabels={5,10,15,20,25,30},cycle list={
+\begin{loglogaxis}[xmin=4.5, xmax=46, ymin=1e-1, ymax=1e3,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,legend cell align=left,width=8.4cm,title=Forward Euler,xtick={5,10,15,20,25,30,35,40},xticklabels={5,10,15,20,25,30,35,40},cycle list={
 	{blue!100!black, mark=square*, mark size=1.5pt},
 	{blue!66!black, mark=square*, mark size=1.5pt},
 	{blue!33!black, mark=square*, mark size=1.5pt},
 }]
-\pgfplotsinvokeforeach{10000,20000,30000} {
+\addplot [black, dashed, samples=2, domain=1:100, forget plot] {280/x^2} node [pos=0.4, pin={45:$\Oh(h^2)$}] {};
+\pgfplotsinvokeforeach{10000,100000,1000000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-forward-euler.dat};
 	\addlegendentry{$N=#1$};
 }
 \end{loglogaxis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,legend pos=north east,width=8cm,title=Crank-Nicholson,xmin=5,xmax=2000,cycle list={
+\begin{loglogaxis}[xlabel=$M$,legend pos=north east,legend cell align={left},width=8.4cm,title=Crank-Nicholson,xmin=5,xmax=2000,cycle list={
 	{blue!100!black, mark=square*, mark size=1.5pt},
 	{blue!75!black, mark=square*, mark size=1.5pt},
 	{blue!50!black, mark=square*, mark size=1.5pt},
 	{blue!25!black, mark=square*, mark size=1.5pt},
 	{blue!0!black, mark=square*, mark size=1.5pt},
 }]
-\addplot [dashed, domain=1:3000, samples=2, black, forget plot] {40/x^1} node [pos=0.4,pin={0:$\Oh(h^1)$},inner sep=0pt] {};
-\pgfplotsinvokeforeach{10,20,30,40,50} {
+\addplot [dashed, domain=1:3000, samples=2, black, forget plot] {270/x^2} node [pos=0.32,pin={0:$\Oh(h^2)$},inner sep=0pt] {};
+\pgfplotsinvokeforeach{10,100,1000,10000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
 	\addlegendentry{$N=#1$};
 }

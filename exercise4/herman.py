@@ -30,7 +30,6 @@ def theta_method(t, A, U0, theta):
     # so optimize by LU-factorizing M1 to solve the system for many different RHSes
     M1 = sp.sparse.csc_matrix(I - theta*dt*A)
     M2 = sp.sparse.csc_matrix(I + (1-theta)*dt*A)
-
     lu = scipy.sparse.linalg.splu(M1)
     for n in range(1, N):
         dt = t[n] - t[n-1]
@@ -157,17 +156,17 @@ def norm_evolution():
 
     # plt.ylim(-0.01, +0.01) # relative error always [-1, +1]
 
-def timeevol(animate=True, path=None, time_samples=5, U0=None, N=100, M=800):
+def timeevol(animate=True, path=None, time_samples=5, U0=None, N=100, M=800, method="crank-nicholson"):
     x = np.linspace(-1, +1, M)
     t = np.linspace(0, 1, N)
 
     if U0 is None:
         u = solve_analytical(x, t)
-        U = solve_numerical(x, t)
+        U = solve_numerical(x, t, method=method)
     else:
         u = None
         U0 = np.array([U0(x) for x in x])
-        U = solve_numerical(x, t, U0=U0)
+        U = solve_numerical(x, t, U0=U0, method=method)
 
     if animate:
         animate_solution(x, t, U, u)
@@ -191,10 +190,8 @@ def write_results(x, t, U, path):
 
 def convergence_plots(plot=False, write=False):
     runs = [
-        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [10, 100, 1000, 10000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
-        # {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [2000, 4000, 6000, 8000, 10000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
-        # {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14], "N": [10, 20, 30, 40, 50]}, # <- this gives O(h^2) for one or two M, but then gets unstable
-        {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
+        # {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [10, 100, 1000, 10000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
+        {"method": "forward-euler", "M": [5,10,15,20,25,30,35,40,45], "N": [10000, 100000, 1000000]},
         # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
     ]
 
@@ -259,7 +256,7 @@ def snapshots():
 # timeevol(animate=True, path="../report/exercise4/timeevol_sin.dat", U0=lambda x: np.sin(np.pi*x), time_samples=5)
 # timeevol(animate=True, time_samples=12, U0=lambda x: np.exp(-10*x**2), N=100, M=800, path="../report/exercise4/timeevol_exp.dat")
 
-# timeevol(animate=True, M=500, N=100)
-convergence_plots(write=True)
+# timeevol(animate=True, M=20, N=100000, method="forward-euler")
+convergence_plots(plot=True, write=True)
 # snapshots()
 # norm_evolution()
