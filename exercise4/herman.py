@@ -25,46 +25,17 @@ def theta_method(t, A, U0, theta):
     U[0] = U0
     I = np.identity(M)
 
-    x, dx = np.linspace(-1, +1, len(U0), retstep=True)
-    c = np.zeros(M)
-    c[0]  = 0
-    c[1]  = -(1+np.pi**2)/(2*dx) * (-1) - 1/(8*dx**3) * (+3)
-    c[2]  = 0
-    c[3]  =                             - 1/(8*dx**3) * (-1)
-    c[-3] =                             - 1/(8*dx**3) * (+1)
-    c[-1] = -(1+np.pi**2)/(2*dx) * (+1) - 1/(8*dx**3) * (-3)
-
-    c1 = -theta*dt*c
-    c1[0] = 1
-
-    c2 = +(1-theta)*dt*c
-    c2[0] = 1
-
     # Solve matrix system M1 @ U[n] == M2 @ U[n-1] at each time step
     # The matrices M1 and M2 are constant,
     # so optimize by LU-factorizing M1 to solve the system for many different RHSes
-    M1 = (I - theta*dt*A)
-    M2 = (I + (1-theta)*dt*A)
-    # M1 = sp.sparse.csc_matrix(I - theta*dt*A)
-    # M2 = sp.sparse.csc_matrix(I + (1-theta)*dt*A)
-    # M1 = scipy.linalg.circulant(c1)
-    # M2 = scipy.linalg.circulant(c2)
+    M1 = sp.sparse.csc_matrix(I - theta*dt*A)
+    M2 = sp.sparse.csc_matrix(I + (1-theta)*dt*A)
 
-    # print(M1)
-
-    # lu, piv = sp.linalg.lu_factor(M1)
+    lu = scipy.sparse.linalg.splu(M1)
     for n in range(1, N):
         dt = t[n] - t[n-1]
-        U[n] = np.linalg.solve(M1, M2 @ U[n-1])
-        # U[n] = sp.linalg.solve_circulant(c1, M2 @ U[n-1])
-        # U[n] = sp.linalg.lu_solve((lu, piv), M2 @ U[n-1])
-        # U[n] = sp.sparse.linalg.spsolve(M1, M2 @ U[n-1])
-        # U[n]
+        U[n] = lu.solve(M2 @ U[n-1])
     
-    print(np.shape(U))
-    print(np.shape(U[:,0]))
-
-    U = np.append(U, np.array([U[:,0]]).T, axis=1)
     return U
 
 def solve_analytical(x, t):
@@ -75,7 +46,7 @@ def solve_numerical(x, t, U0=None, method="crank-nicholson"):
     assert grid_is_uniform(x), "Space step not uniform"
     assert grid_is_uniform(t), "Time step not uniform"
 
-    x = x[:-1] # remove last point
+    x = x[:-1] # remove last point (it would've been a duplicate of the first!)
 
     M = x.shape[0]
     N = t.shape[0]
@@ -104,6 +75,7 @@ def solve_numerical(x, t, U0=None, method="crank-nicholson"):
     else:
         raise(f"Unknown method \"{method}\"")
 
+    U = np.append(U, np.array([U[:,0]]).T, axis=1) # add column at right boundary with same value as on the left
     return U
 
 def animate_solution(x, t, u1, u2=None):
@@ -219,10 +191,10 @@ def write_results(x, t, U, path):
 
 def convergence_plots(plot=False, write=False):
     runs = [
-        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [2000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
+        {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [10, 100, 1000, 10000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
         # {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10], "N": [2000, 4000, 6000, 8000, 10000]}, # <- this gives O(h^2) for one or two M, but then gets unstable
         # {"method": "crank-nicholson", "M": [2**3, 2**4, 2**5, 2**6, 2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14], "N": [10, 20, 30, 40, 50]}, # <- this gives O(h^2) for one or two M, but then gets unstable
-        # {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
+        {"method": "forward-euler", "M": [5,10,15,20,25,30], "N": [10000, 20000, 30000]},
         # {"method": "forward-euler", "M": [3, 6, 12, 24, 48], "N": [500000, 750000, 1000000]},
     ]
 
@@ -236,7 +208,7 @@ def convergence_plots(plot=False, write=False):
                 u = solve_analytical(x, t)
                 U = solve_numerical(x, t, method=run["method"])
 
-                err = (np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2))**2
+                err = np.linalg.norm(u-U, 2) / np.linalg.norm(u, 2)
                 run["err"][-1].append(err)
 
     if plot:
@@ -288,6 +260,6 @@ def snapshots():
 # timeevol(animate=True, time_samples=12, U0=lambda x: np.exp(-10*x**2), N=100, M=800, path="../report/exercise4/timeevol_exp.dat")
 
 # timeevol(animate=True, M=500, N=100)
-convergence_plots(plot=True)
+convergence_plots(write=True)
 # snapshots()
 # norm_evolution()
