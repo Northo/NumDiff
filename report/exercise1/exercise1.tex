@@ -3,10 +3,10 @@
 
 In this section, we will solve the one-dimensional Poisson equation
 \begin{equation}
-u_{xx} = f(x) \qquad (0 < x < 1)
+\pd[2]{u}{x} = f(x) \qquad (0 < x < 1)
 \label{poisson_equation}
 \end{equation}
-subject to a source term $f(x)$ and different boundary conditions at $x = 0$ and $x = 1$.
+subject to a source term $f(x)$ and different combinations of Dirichlet and Neumann boundary conditions at $x = 0$ and $x = 1$.
 First, we will solve it with finite difference methods of first and second order on a uniform grid.
 Finally, we solve it on a non-uniform grid and investigate how adaptive mesh refinement (AMR) can be used to obtain accurate solutions by distributing fewer points more cleverly along the grid.
 
@@ -25,7 +25,7 @@ where the constants $C_1$ and $C_2$ are determined from two boundary conditions 
 Note that this is equivalent to saying that the solution is a sum of the solution to the homogenuous equation $u_{xx} = 0$ and a solution to the inhomogenuous equation $u_{xx} = f(x)$.
 
 Note that if \emph{two} Neumann boundary conditions $u_x(0) = a$ and $u_x(1) = b$ are imposed, then the solution $u(x)$ is unique only up to a constant.
-If $u(x)$ is a solution to the boundary value problem defined by \cref{poisson_equation} and $u_x(0) = a$ subject to $u_x(1) = b$, then also $(u+C)_{xx} = u_{xx}$ in the interior and $(u+C)_x(0) = u_x(0) = a$ on the left boundary, and similarly on the right boundary $x=1$.
+If $u(x)$ is a solution to the boundary value problem defined by \cref{poisson_equation} with $u_x(0) = a$ and $u_x(1) = b$, then also $(u+C)_{xx} = u_{xx}$ in the interior and $(u+C)_x(0) = u_x(0) = a$ on the left boundary, and similarly on the right boundary $x=1$.
 It can also be seen by observing that $C_1$ is undetermined when \ref{poisson_analytical_solution} is differentiated.
 
 \subsection{Numerical solution on a uniform grid}
