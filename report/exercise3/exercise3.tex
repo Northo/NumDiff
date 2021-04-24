@@ -235,7 +235,6 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
   \label{fig:laplace:stencil}
 \end{figure}
 
-\iffalse
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}
@@ -246,19 +245,20 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
             mesh/ordering=x varies,
             mesh/cols=100,
             mesh/rows=100,
+            xlabel=x,
+            ylabel=y,
         ]
             \addplot[
                 surf,
                 shader=flat,
                 point meta=explicit,
             ] 
-            table[meta=U]{./exercise3/laplace.dat};
+            table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
     \label{ex3:fig:heat_map}
     \caption{The numerically computed solution to the Laplace equation.}
 \end{figure}
-\fi
 
 \begin{figure}[htbp]
     \centering

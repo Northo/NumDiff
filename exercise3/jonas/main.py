@@ -1,11 +1,8 @@
 #import scipy.sparse as sp
 from scipy.sparse import diags, csr_matrix
 from scipy.sparse.linalg import spsolve
-import numpy as np
-import matplotlib.pyplot as plt
-
-# We want to calculate the stencil
-#          U_n
+import numpy as np 
+import matplotlib.pyplot as plt # We want to calculate the stencil #          U_n
 #           |
 #           |
 #   U_w --- U   --- U_e
@@ -126,5 +123,5 @@ def write_columns_to_file(path, columns, headers):
         columns[i] = column
     write_table_to_file(path, np.transpose(columns), headers)
 
-path = f"../../report/exercise3/laplace.dat"
-write_to_file(path, U, x, y)
+path = f"../../report/exercise3/laplace_uniform.dat"
+write_to_file(path, U_arr, x, y)
