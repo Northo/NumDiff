@@ -4,14 +4,15 @@ In this section, we will solve the two-dimensional Laplace equation on a quadrat
     u_\text{xx} + u_\text{yy} = 0, \, (x,y) \in \Omega := [0,1]^2,
     \label{ex3:eq:laplace}
 \end{equation} with boundary conditions on the edges of $\Omega$
-\begin{equation*}
+\begin{equation}
     \begin{split}
         u(0,y) &= 0,\\
         u(1,y) &= 0,\\
         u(x,0) &= 0,\\
         u(x,1) &= \sin(2\pi x).\\
     \end{split}
-\end{equation*}
+    \label{ex3:eq:boundary_conditions}
+\end{equation}
 We will solve this equation numerically using a five point stencil, but first, we solve it analytically to provide a reference solution which can be compared with the numerical one.
 
 \subsection{Analytical solution}
@@ -87,10 +88,10 @@ Rewriting Laplace's equation using central differences, we get
 \end{equation*}
 where $(x_m, y_n)$ denote the point $(m,n)$ in the grid. 
 %$i = 0,\ldots M_x$, and $j = 0,\ldots, M_y$.
-Adding these expressions, and naming our approximated solution $U_{m,n} := u(x_m,y_n)$, we find that the Laplace equation can be approximated 
+Adding these expressions, and naming our approximated solution with the shorthand notation $U_m^n := u(x_m,y_n)$, we find that the Laplace equation can be approximated 
 \begin{equation*}
     0 = \partial^2_x u(x_m,y_n) + \partial^2_y u(x_m,y_n)
-    \approx \frac{1}{h^2}\delta^2_x U_{m,n} + \frac{1}{k^2}\delta^2_y U_{m,n},
+    \approx \frac{1}{h^2}\delta^2_x U_m^n + \frac{1}{k^2}\delta^2_y U_m^n,
 \end{equation*}
 or, simplifying the notation with the notation visualized in figure \ref{ex3:fig:stencil},
 \begin{equation*}
@@ -105,7 +106,7 @@ or, simplifying the notation with the notation visualized in figure \ref{ex3:fig
 \end{figure}
 
 %This stencil can be used to approximate the value of $U(x_m, y_n) = U_\text{center}$ for all points $(x_m, y_n)$ in the grid.
-We will now construct the matrix $A$ such that we can write our equation as the matrix equation $A U = 0$, where $U$ is the flattened solution.
+We will now construct the matrix $A$ such that we can write our equation as the matrix equation $A U = b$, where $U$ is the flattened solution, and $b = \vec{b}$ contains the boundary conditions of the system, which will be explained in more detail below.
 Ignoring firstly the above and below nodes of the stencil, we can easily set up a matrix $A'$ in the same way as in Section \ref{task_1}.
 Note that this is done only in order to clarify the derivation -- the matrix $A'$ is merely a "stepping stone" -- not a useful result.
 \begin{equation*}
@@ -120,28 +121,30 @@ Note that this is done only in order to clarify the derivation -- the matrix $A'
       &   &  & 1 & -2 \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_\text{1n} \\ U_\text{2n} \\ \vdots \\ U_{M-1,n} \\ U_{M,n} \\
+    U_1^n \\ U_2^n \\ \vdots \\ U_{M-1}^n \\ U_M^n \\
     \end{bmatrix}
     =
     \begin{bmatrix}
-    0 \\ 0 \\ \vdots \\ 0 \\ 0 \\
+    b_1 \\ b_2 \\ \vdots \\ b_{M-1}^n \\ b_M^n \\
     \end{bmatrix}
     ,
     \label{ex3:eq:simple_matrix}
 \end{equation*}
 Note also that this equation only considers one particular value of $y$, corresponding to $n$.
-In order to actually solve our entire system, we must include the nodes above and below as well.
+The boundary conditions on the right hand side are zero for all internal points, while the values along the edges, that is $n = {1, N}$ or $m = {1, M}$, are set according to \eqref{ex3:eq:boundary_conditions}.
+
+In order to actually solve our entire system, we must include the nodes above and below the center as well.
 This can be done by considering a much larger matrix $A$ and a much longer vector $U$.
-The latter being a stacked vector containing all $M$ elements $U_\text{11}, \ldots, U_\text{M1}$, followed by $U_\text{12}, \ldots U_\text{M2}$ and so on.
+The latter being a stacked vector containing all $M$ elements $U_1^1, \ldots, U_M^1$, followed by $U_1^2, \ldots U_M^2$ and so on.
 %% The matrix $A$ is still the tridiagonal matrix sith elements $[1, -4, 1]$, but now with size $(N\cdot M)^2$.
 %% Now, we are able to inclute the nodes $U_\text{above}$ and $U_\text{below}$ from the stencil.
 In this formulation of the problem, the values $U_\text{right}$ and $U_\text{left}$ correspond to the neighbouring points in $U$.
-The above and below nodes -- instead of being above and below $U_\text{center}$ -- are now to the sides, $M$ nodes away. See figure \ref{ex3:fig:flat_stencil}.
+The above and below nodes -- instead of being above and below $U_\text{center}$ -- are now to the sides, $M$ nodes away, as illustrated in figure \ref{ex3:fig:flat_stencil}.
 
 \begin{figure}[htb]
     \centering
     \input{./exercise3/flat_stencil.pgf}
-    \caption{By flattening the five-point stencil, we can write the system of equations, which is now on the form $AU = 0$.}
+    \caption{By flattening the five-point stencil, we can write the system of equations, which is then on the form $AU = 0$.}
     \label{ex3:fig:flat_stencil}
 \end{figure}
 
@@ -161,29 +164,30 @@ We thus write
         && \frac{1}{k^2} && \frac{1}{h^2} & \frac{-2}{h^2} + \frac{-2}{k^2} \\
     \end{bmatrix}
     \begin{bmatrix}
-    U_\text{1} \\ \vdots \\ U_\text{m} \\ \vdots \\ U_{N \cdot m} \\ \vdots \\ U_{N \cdot M} \\
+    U_\text{1} \\ \vdots \\ U_\text{m} \\ \vdots \\ U_{N \times m} \\ \vdots \\ U_{N \times M} \\
     \end{bmatrix}
     =
     \begin{bmatrix}
-    0 \\ 0 \\ 0 \\ \vdots \\ 0 \\ 0 \\ 0 \\
+    b_1 \\ \vdots \\ b_m \\ \vdots \\ b_{N \times m} \\ \vdots \\ b_{N \times M}\\
     \end{bmatrix}
-    = 0,
+    = b,
     \label{ex3:eq:solution_equation}
 \end{equation*}
 which can be solved.
 It is important to note the zeros on the upper and lower diagonal, which correspond to the nodes that have less than four neighbours, ie. the nodes on the border.
-Gien initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
-Thus, the final equation will be on the form $AU = b$, where $b$ contains the boundary conditions.
+These nodes are treated with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
+%Given initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
+Thus, the final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}
 
-The matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
-Noticing its recursive structure one may realize that the matrix can be constructed by a Kronecker sum.
-This procedure is discussed in more depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast poisson solver.
-We will here however only take the observation about the Kronecker sum as a convenient way to implement the construction of our matrix.
-Let $K_n$ be the system matrix of the one dimensional finite central difference scheme of size $n$ introduced earlier.
-That is the $N\times N$ matrix
+The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
+By noticing its recursive structure, one may realize that the matrix can be constructed by a Kronecker sum.
+This procedure is discussed in more depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast Poisson solver.
+For now however, we will only take the observation about the Kronecker sum as a convenient way to implement the construction of our matrix.
+Let $K_M$ be the system matrix of the one dimensional finite central difference scheme of size $m$ introduced as $A'$ in equation \eqref{ex3:eq:simple_matrix}.
+That is, the $M\times M$ matrix
 $$
-K_n =
+K_M =
 \begin{bmatrix}
   -2& 1 \\
   1 & -2 & 1 &   \\
@@ -193,13 +197,14 @@ K_n =
   &   &  & 1 & -2 \\
 \end{bmatrix}.
 $$
-The matrix $A$ is then compactly written as
+The full matrix $A$ is then compactly written as
 \begin{equation}
   A =
   \frac{1}{h^2} K_N \oplus \frac{1}{k^2} K_M
   = \frac{1}{h^2} K_N \otimes I_M
   + I_N \otimes \frac{1}{k^2} K_M.
 \end{equation}
+This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
@@ -255,4 +260,9 @@ The matrix $A$ is then compactly written as
 \end{figure}
 \fi
 
-\input{exercise3/convergence.pgf}
+\begin{figure}[htbp]
+    \centering
+    \input{exercise3/convergence.pgf}
+    \label{ex3:fig:convergence_plot}
+    \caption{Convergence plot for varying $N$ and $M$.}
+\end{figure}
