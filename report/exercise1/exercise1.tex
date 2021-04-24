@@ -92,7 +92,7 @@ Note that if the numerical solution is subject to two Neumann boundary condition
 In this case, we impose the additional constraint $U_0 = 0$ by setting all entries in the first column of $A$ to zero.
 To handle the singular matrix, we solve the system with a least-squares method instead of a GESV LU factorization method.
 
-\begin{figure}
+\begin{figure}[tb]
 	\centering
 	\begin{tikzpicture}
 		\begin{groupplot}[
@@ -252,7 +252,7 @@ In \cref{fem_amr_section}, we will improve our AMR strategy exactly in this way.
 The effect is that the oscillating pattern is eliminated and that the error decreases strictly with each refinement step.
 This will be equivalent to jumping directly from one local minimum in the oscillation to the next.
 
-\begin{figure}
+\begin{figure}[tb]
 \centering
 \begin{tikzpicture}
 \begin{groupplot}[
@@ -291,7 +291,7 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 }
 \end{figure}
 
-\begin{figure}
+\begin{figure}[tb]
 \centering
 \begin{tikzpicture}
 \begin{loglogaxis}[

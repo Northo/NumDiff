@@ -98,7 +98,7 @@ or, simplifying the notation with the notation visualized in figure \ref{ex3:fig
     \frac{1}{k^2}(U_\text{above} + U_\text{below} - 2U_\text{center}) + \frac{1}{h^2}(U_\text{left} + U_\text{right} - 2U_\text{center}) = 0.
 \end{equation*}
 
-\begin{figure}[hb]
+\begin{figure}[htb]
     \centering
     \input{./exercise3/stencil.pgf}
     \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.}
@@ -208,7 +208,7 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
-\begin{figure}[ht]
+\begin{figure}[btp]
   \centering
   \begin{tikzpicture}
     \begin{axis}[
@@ -238,7 +238,7 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
 Using this method, the solution to equation \ref{ex3:eq:laplace} is computed, and the results are shown in figure \ref{ex3:fig:heat_map}.
 An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
 
-\begin{figure}[htbp]
+\begin{figure}[tbp]
     \centering
     \begin{tikzpicture}
         \begin{axis}[
@@ -263,7 +263,7 @@ An error analysis showing the error with varying grid resolutions in both the $x
     \label{ex3:fig:heat_map}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
     \caption{Convergence plot for varying $N$ and $M$.}
