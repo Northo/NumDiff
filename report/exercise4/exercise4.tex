@@ -5,31 +5,41 @@ In this section, we will study the one-dimensional linearized Korteweg-De Vries 
 \pd{u}{t} + \left(1+\pi^2\right)\pd{u}{x} + \pd[3]{u}{x} = 0 \qquad (t \geq 0) \quad (-L/2 \leq x \leq +L/2),
 \label{kdv_equation}
 \end{equation}
-where the solution $u = u(x,t)$ is subject to periodic boundary conditions
+where the solution $u = u(x,t)$ is subject to the periodic boundary condition
 \begin{equation*}
 u(x+L, t) = u(x, t).
 \end{equation*}
 
 \subsection{Analytical solution}
 
-As the solution is periodic in space at every time $t$, it can be expressed as a Fourier series
-\begin{equation}
-u(x, t) = \sum_{n=-\infty}^{+\infty} c_n(t) \exp{(i q_n x)}
-\label{fourier_series}
-\end{equation}
-with wavenumbers $q_n = 2 \pi n / L$ and time-dependent coefficients $c_n(t)$ that ensure spatial periodicity at all times.
-This can be derived formally by separation of variables.
-Inserting the Fourier series into \cref{kdv_equation} gives the condition
+Let us solve the Korteweg-De Vries equation with separation of variables, writing one solution as
 \begin{equation*}
-	\sum_n \left( \dot{c}_n(t) + i \left( \left( 1+\pi^2 \right) q_n - q_n^3 \right) c_n(t) \right) \exp{(i q_n x)} = 0
+	u_n(x,t) = X_n(x) \, T_n(t).
 \end{equation*}
-on the coefficients.
-Due to orthogonality of the Fourier basis functions $\exp(i q_n x)$, the sum can vanish only if all prefactors vanish separately.
-This gives a first-order differential equation for each coefficient with the solution
+For the spatial part of the solution, let us use the periodic ansatz
+\begin{equation*}
+	X_n(x) = e^{i q_n x} \quad \text{with wavenumbers} \quad q_n = 2 \pi L / n.
+\end{equation*}
+Now insert $u_n(x,t) = X_n(x) \, T_n(t)$ into \cref{kdv_equation} and divide by $X_n(x) \, T_n(t)$ to get
+\begin{equation*}
+	\underbrace{\frac{\dot{T}_n(t)}{T_n(t)}}_{-i \omega_n} + \underbrace{\left( 1 + \pi^2 \right) \frac{X_n'(x)}{X_n(x)} + \frac{X_n'''(x)}{X_n(x)}}_{i \omega_n} = 0.
+\end{equation*}
+The first term is a function of $t$ only and the remaining terms are a function of $x$ only, so they must be constant.
+In anticipation of the result, we label the constants $\mp i \omega_n$.
+The temporal part gives
+\begin{equation*}
+	T_n(t) = e^{-i \omega_n t},
+\end{equation*}
+while inserting our ansatz $X_n(x) = e^{i q_n x}$ into the spatial part gives the dispersion relation
+\begin{equation*}
+	\omega_n = (1 + \pi^2) q_n - q_n^3.
+\end{equation*}
+The solution $u_n(x,t)$ is now fully specified.
+Due to the linearity of \cref{kdv_equation} and the periodic boundary condition, we can superpose multiple solutions $u_n(x,t)$ into a general solution
 \begin{equation}
-	c_n(t) = c_n(0) \exp{\left( -i \left (\left(1+\pi^2\right)q_n - q_n^3\right) t \right) }.
-	\label{fourier_coefficients}
+	u(x,t) = \sum_{n=-\infty}^{+\infty} c_n \exp{\left( i(q_n x - \omega_n t) \right)},
 \end{equation}
+which is a sum of plane waves propagating at different frequencies.
 
 \subsection{Numerical solution method}
 
