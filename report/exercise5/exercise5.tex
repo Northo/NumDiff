@@ -1,4 +1,4 @@
-\section{Poisson equation in one dimension finite element method}
+\section{Poisson equation in one dimension using finite element method}
 
 \newcommand\basisexpand[2]{\sum_{i=0}^{M+1} #1_i \varphi_i(#2)}
 
@@ -28,7 +28,7 @@ Note that $u''(x) = \hat{u}''(x)$ and $r(a) = \alpha$ and $r(b) = \beta$.
 The purpose of this splitting is that $\hat{u}$ solves \ref{poisson_equation2} with homogenuous Dirichlet boundary conditions, while $r(x)$ \textbf{lifts} the values at the boundaries to satisfy the inhomogenuous boundary conditions.
 
 Now insert \ref{splitting_exact} into \cref{poisson_equation2}, multiply it by a \textbf{trial function} $v(x)$ and integrate both sides from $a$ to $b$.
-We let $v(a) = v(b) = 0$ and use integration by parts on the left, dropping the boundary term term $-[u'(x) v(x)]_a^b$.
+We let $v(a) = v(b) = 0$ and use integration by parts on the left, dropping the boundary term $-[u'(x) v(x)]_a^b$.
 This gives the \textbf{weak formulation} of the problem:
 \newcommand{\weakform}[3]{
 \text{Find} \,\, \hat{#1}(x) \,\, \text{such that}
