@@ -124,8 +124,8 @@ def get_mesh(N, reth=False):
 
 def plot_errors(Ns, errors):
     hs = 1 / (Ns + 2 - 1)  # N are internal points, N + 2 in total
-    for i in [1, 2, 4]:
-        plt.loglog(Ns, hs**i, label=f"$h^{i}$")
+#     for i in [1, 2, 4]:
+#         plt.loglog(Ns, hs**i, label=f"$h^{i}$")
     for error in errors:
         if error == "Ns": continue
         plt.loglog(Ns, errors[error],  '-x', label=error)
@@ -147,7 +147,9 @@ def demonstrate_order(plot=False):
     errors = {
         "Ns": Ns,
         "five": [],
+        "five_roof": [],
         "nine": [],
+        "nine_roof": [],
     }
     fps_kwargs = {"type": 1, "norm": "ortho"}
     for N in Ns:
@@ -170,7 +172,14 @@ def demonstrate_order(plot=False):
         )
 
         errors["five"].append(errfunc(U5, U_anal))
+        errors["five_roof"].append(
+            # 1/8 * 1/12 * h**2 * (k*np.pi)**2 * (l*np.pi)**2 / ((np.pi*k)**2 + (np.pi*l)**2)
+             h**2 * 0.1
+        )
         errors["nine"].append(errfunc(U9, U_anal))
+        errors["nine_roof"].append(
+            h**4 * 0.1
+        )
 
     if plot:
         plot_errors(Ns, errors)
@@ -315,12 +324,57 @@ def get_analytical_solution(terms=5):
         return np.sum(sines * np.real(fourier_coeff))
     return np.vectorize(analytical_solution)
 
+
+def new_analytical_solution(x, y):
+    return (
+        4*(
+            6*np.pi**4*np.exp(x + y)*np.sin(np.pi*x)**4
+            - 8*(
+                4*np.pi*y**3*np.exp(x)*np.sin(np.pi*x)**4 - 6*np.pi*y**2*np.exp(x)*np.sin(np.pi*x)**4 - 6*np.pi**3*np.exp(x)*np.sin(np.pi*x)**2 + 4*(2*np.pi**2*x - np.pi**2)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3 + (3*np.pi + 16*np.pi**3 - 2*np.pi*x**2 + 2*np.pi*x)*np.exp(x)*np.sin(np.pi*x)**4 + 4*(3*np.pi**3*np.exp(x)*np.sin(np.pi*x)**2 - 2*(2*np.pi**2*x - np.pi**2)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3 - (np.pi + 8*np.pi**3 - np.pi*x**2 + np.pi*x)*np.exp(x)*np.sin(np.pi*x)**4)*y
+            )*np.cos(np.pi*y)*np.exp(y)*np.sin(np.pi*y)**3
+            + (
+                4*y**4*np.exp(x)*np.sin(np.pi*x)**4 - 8*y**3*np.exp(x)*np.sin(np.pi*x)**4 - 8*(3*np.pi + 4*np.pi*x**3 + 16*np.pi**3 - 6*np.pi*x**2 - 4*(np.pi + 8*np.pi**3)*x)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3 + (256*np.pi**4 + 4*x**4 - 8*(16*np.pi**2 + 1)*x**2 - 8*x**3 + 64*np.pi**2 + 4*(32*np.pi**2 + 3)*x + 1)*np.exp(x)*np.sin(np.pi*x)**4 + 6*np.pi**4*np.exp(x) - 24*(2*np.pi**3*x - np.pi**3)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x) - 12*(13*np.pi**4 - 6*np.pi**2*x**2 + 6*np.pi**2*x + 2*np.pi**2)*np.exp(x)*np.sin(np.pi*x)**2 + 8*(2*(np.pi - 2*np.pi*x)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3 - (16*np.pi**2 - x**2 + x + 1)*np.exp(x)*np.sin(np.pi*x)**4 + 3*np.pi**2*np.exp(x)*np.sin(np.pi*x)**2)*y**2 - 4*(4*(np.pi - 2*np.pi*x)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3 - (32*np.pi**2 - 2*x**2 + 2*x + 3)*np.exp(x)*np.sin(np.pi*x)**4 + 6*np.pi**2*np.exp(x)*np.sin(np.pi*x)**2)*y
+            )*np.exp(y)*np.sin(np.pi*y)**4
+            - 24*(2*np.pi**3*y*np.exp(x)*np.sin(np.pi*x)**4 - np.pi**3*np.exp(x)*np.sin(np.pi*x)**4)*np.cos(np.pi*y)*np.exp(y)*np.sin(np.pi*y)
+            + 12*(
+                6*np.pi**2*y**2*np.exp(x)*np.sin(np.pi*x)**4
+                - 6*np.pi**2*y*np.exp(x)*np.sin(np.pi*x)**4
+                + 6*np.pi**4*np.exp(x)*np.sin(np.pi*x)**2
+                - 4*(2*np.pi**3*x - np.pi**3)*np.cos(np.pi*x)*np.exp(x)*np.sin(np.pi*x)**3
+                - (13*np.pi**4 - 2*np.pi**2*x**2 + 2*np.pi**2*x + 2*np.pi**2)*np.exp(x)*np.sin(np.pi*x)**4
+            )*np.exp(y)*np.sin(np.pi*y)**2
+        )*np.exp(-x**2 - y**2 - 1/2)
+    )
+
+
 def exercise_h():
-    def f(x, y):
+    # def f(x, y):
+    #     return (
+    #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
+    #         *
+    #         np.exp(-(x-0.5)**2 - (y-0.5)**2)
+    #     )
+    f = new_analytical_solution
+    def anal(x,y):
         return (
             (np.sin(np.pi*x) * np.sin(np.pi*y))**4
             *
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
+        )
+
+    def errfunc(u, v, ord=np.inf):
+        u = u.flatten()
+        v = v.flatten()
+        return (
+            np.linalg.norm(
+                u - v,
+                ord=ord,
+            )
+            # /
+            # np.linalg.norm(
+            #     v,
+            #     ord=ord,
+            # )
         )
 
     # N = 1000
@@ -332,9 +386,9 @@ def exercise_h():
     print("Solve the 'analytical' solution")
     errors = []
     comp_time = []
-    Ns = np.geomspace(8, 512, 8, dtype=int)
+    Ns = np.geomspace(8, 256, 8, dtype=int)
     use_fps = True
-    anal = get_analytical_solution(terms=8)
+    # anal = get_analytical_solution(terms=8)
     for N in Ns:
         xx, yy, h = get_mesh(N, reth=True)
         F = f(xx, yy)
@@ -343,15 +397,7 @@ def exercise_h():
         U9 = nine_point_solve(G, use_fps=use_fps)
         comp_time.append(time.time() - start_time)
         errors.append(
-            np.linalg.norm(
-                U9.flatten() - anal(xx, yy).flatten(),
-                ord=np.inf,
-            )
-            /
-            np.linalg.norm(
-                anal(xx, yy).flatten(),
-                ord=np.inf,
-            )
+            errfunc(U9, anal(xx, yy))
         )
 
     plt.subplot(121)
@@ -365,6 +411,8 @@ def exercise_h():
     plt.show()
     plt.loglog(Ns, comp_time, '-x')
     plt.show()
+
+    return errors, comp_time
 
 
 def plot_fourier(m_max):
@@ -383,15 +431,34 @@ def plot_fourier(m_max):
 
 if __name__=="__main__":
     # errors = demonstrate_order(True)
-    # Ns = errors["Ns"]
-    # e_5 = errors["five"]
-    # e_9 = errors["nine"]
+    # data = [errors[error] for error in errors]
+    # header = ' '.join(errors.keys())
     # np.savetxt(
     #     "order.dat",
-    #     np.vstack([Ns, e_5, e_9]).T,
-    #     header="N E5 E9",
+    #     np.vstack(data).T,
+    #     header=header,
+    #     comments='',
     # )
-    # demonstrate_order(plot=True)
     # test_order()
-    exercise_h()
+
+
+    errors, comp_time = exercise_h()
+    data = errors
+    header = ""
+    np.savetxt(
+        "error_bvp.dat",
+        np.vstack(data).T,
+        header=header,
+        comments='',
+    )
+    data = [comp_time[comp] for comp in comp_time]
+    header = ' '.join(comp_time.keys())
+    np.savetxt(
+        "comp_bvp.dat",
+        np.vstack(data).T,
+        header=header,
+        comments='',
+    )
+
+
     # plot_fourier(4)
