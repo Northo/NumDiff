@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import scipy.sparse
 import scipy.sparse.linalg
 from scipy.fft import dst, idst
+from scipy.special import erf
 from functools import partial
 from scipy.interpolate import NearestNDInterpolator
 import time
@@ -56,6 +57,26 @@ def nine_point_eigenval(N, k, l):
     )
 
 
+def five_point_solve(F, use_fps=True, **fps_kwargs):
+    N = F.shape[0]
+    h = 1 / (N + 2 - 1)
+    if not fps_kwargs:
+        fps_kwargs = fps_kwargs = {"type": 1, "norm": "ortho"}
+    if use_fps:
+        U5 = fps(
+            h**2  * F,
+            get_eigval_array(N, five_point_eigenval),
+            **fps_kwargs
+        )
+    else:
+        U5 = scipy.sparse.linalg.spsolve(
+            five_point_stencil(N),
+            h**2 * F.flatten(),
+        ).reshape(N, N)
+    return U5
+
+
+
 def nine_point_solve(F, use_fps=True, **fps_kwargs):
     N = F.shape[0]
     h = 1 / (N + 2 - 1)
@@ -106,6 +127,7 @@ def plot_errors(Ns, errors):
     for i in [1, 2, 4]:
         plt.loglog(Ns, hs**i, label=f"$h^{i}$")
     for error in errors:
+        if error == "Ns": continue
         plt.loglog(Ns, errors[error],  '-x', label=error)
     plt.legend()
     plt.show()
@@ -242,24 +264,39 @@ def test_order():
 
 def __integral(m):
     return (
-        48*(
-            np.pi**9*m**5*np.e**2
-            - 20*(np.pi**9*np.e**2 + 2*np.pi**7*np.e**2)*m**3
-            - (np.pi**9*m**5 - 20*(np.pi**9 + 2*np.pi**7)*m**3 + 16*(4*np.pi**9 + 15*np.pi**7 + 5*np.pi**5)*m)*(-1)**m
-            + 16*(4*np.pi**9*np.e**2 + 15*np.pi**7*np.e**2 + 5*np.pi**5*np.e**2)*m)
-        /
-        (
-            np.pi**10*m**10*np.e**3
-            - 20*(2*np.pi**10*np.e**3 - np.pi**8*np.e**3)*m**8
-            + 16384*np.pi**8*np.e**3
-            + 16*(33*np.pi**10*np.e**3 - 20*np.pi**8*np.e**3 + 10*np.pi**6*np.e**3)*m**6
-            + 40960*np.pi**6*np.e**3
-            - 320*(8*np.pi**10*np.e**3 - 7*np.pi**8*np.e**3 - 2*np.pi**4*np.e**3)*m**4
-            + 33792*np.pi**4*np.e**3
-            + 256*(16*np.pi**10*np.e**3 + 35*np.pi**6*np.e**3 + 20*np.pi**4*np.e**3 + 5*np.pi**2*np.e**3)*m**2
-            + 10240*np.pi**2*np.e**3 + 1024*np.e**3
-        )
+        1/16*np.sqrt(np.pi)*(
+            erf(-2*1j*np.pi + 1/2*1j*np.pi*m + 1/2)*np.exp(4*np.pi**2*m)*np.sin(1/2*np.pi*m)
+            - erf(-2*1j*np.pi + 1/2*1j*np.pi*m - 1/2)*np.exp(4*np.pi**2*m)*np.sin(1/2*np.pi*m)
+            + 4*erf(-1j*np.pi + 1/2*1j*np.pi*m + 1/2)*np.exp(3*np.pi**2*m + 3*np.pi**2)*np.sin(1/2*np.pi*m)
+            - 4*erf(-1j*np.pi + 1/2*1j*np.pi*m - 1/2)*np.exp(3*np.pi**2*m+ 3*np.pi**2)*np.sin(1/2*np.pi*m)
+            + 6*erf(1/2*1j*np.pi*m + 1/2)*np.exp(2*np.pi**2*m + 4*np.pi**2)*np.sin(1/2*np.pi*m)
+            - 6*erf(1/2*1j*np.pi*m - 1/2)*np.exp(2*np.pi**2*m + 4*np.pi**2)*np.sin(1/2*np.pi*m)
+            + 4*erf(1j*np.pi + 1/2*1j*np.pi*m + 1/2)*np.exp(np.pi**2*m + 3*np.pi**2)*np.sin(1/2*np.pi*m)
+            - 4*erf(1j*np.pi + 1/2*1j*np.pi*m - 1/2)*np.exp(np.pi**2*m + 3*np.pi**2)*np.sin(1/2*np.pi*m)
+            + erf(2*1j*np.pi + 1/2*1j*np.pi*m + 1/2)*np.sin(1/2*np.pi*m)
+            - erf(2*1j*np.pi + 1/2*1j*np.pi*m - 1/2)*np.sin(1/2*np.pi*m)
+        )*np.exp(-1/4*np.pi**2*m**2 - 2*np.pi**2*m - 4*np.pi**2)
     )
+
+    # return (
+    #     48*(
+    #         np.pi**9*m**5*np.e**2
+    #         - 20*(np.pi**9*np.e**2 + 2*np.pi**7*np.e**2)*m**3
+    #         - (np.pi**9*m**5 - 20*(np.pi**9 + 2*np.pi**7)*m**3 + 16*(4*np.pi**9 + 15*np.pi**7 + 5*np.pi**5)*m)*(-1)**m
+    #         + 16*(4*np.pi**9*np.e**2 + 15*np.pi**7*np.e**2 + 5*np.pi**5*np.e**2)*m)
+    #     /
+    #     (
+    #         np.pi**10*m**10*np.e**3
+    #         - 20*(2*np.pi**10*np.e**3 - np.pi**8*np.e**3)*m**8
+    #         + 16384*np.pi**8*np.e**3
+    #         + 16*(33*np.pi**10*np.e**3 - 20*np.pi**8*np.e**3 + 10*np.pi**6*np.e**3)*m**6
+    #         + 40960*np.pi**6*np.e**3
+    #         - 320*(8*np.pi**10*np.e**3 - 7*np.pi**8*np.e**3 - 2*np.pi**4*np.e**3)*m**4
+    #         + 33792*np.pi**4*np.e**3
+    #         + 256*(16*np.pi**10*np.e**3 + 35*np.pi**6*np.e**3 + 20*np.pi**4*np.e**3 + 5*np.pi**2*np.e**3)*m**2
+    #         + 10240*np.pi**2*np.e**3 + 1024*np.e**3
+    #     )
+    # )
 
 
 def analytical_solution_fourier(m, n):
@@ -269,13 +306,13 @@ def analytical_solution_fourier(m, n):
 def get_analytical_solution(terms=5):
     m = n = np.arange(1, terms+1)
     mm, nn = np.meshgrid(m, n)
-    fourier_coeff = analytical_solution_fourier(mm, nn)
+    fourier_coeff = analytical_solution_fourier(mm, nn) / ((mm * np.pi)**2 + (nn * np.pi)**2)**2
     def analytical_solution(x, y):
         sines = (
             np.sin(mm * np.pi * x)
             * np.sin(nn * np.pi * y)
         )
-        return np.sum(sines * fourier_coeff)
+        return np.sum(sines * np.real(fourier_coeff))
     return np.vectorize(analytical_solution)
 
 def exercise_h():
@@ -286,13 +323,16 @@ def exercise_h():
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
 
+    # N = 1000
+    # xx, yy, h = get_mesh(N, reth=True)
+    # F = f(xx, yy)
     # G_anal = nine_point_solve(F)
     # U9_anal = nine_point_solve(G_anal)
-    # U9_anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
+    # anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
     print("Solve the 'analytical' solution")
     errors = []
     comp_time = []
-    Ns = np.geomspace(8, 300, 8, dtype=int)
+    Ns = np.geomspace(8, 512, 8, dtype=int)
     use_fps = True
     anal = get_analytical_solution(terms=8)
     for N in Ns:
@@ -313,9 +353,32 @@ def exercise_h():
                 ord=np.inf,
             )
         )
+
+    plt.subplot(121)
+    plt.imshow(anal(xx, yy), vmin=-1e-3, vmax=1e-3)
+    plt.colorbar()
+    plt.subplot(122)
+    plt.imshow(U9, vmin=-1e-3, vmax=1e-3)
+    plt.colorbar()
+    plt.show()
     plt.loglog(Ns, errors, '-x')
     plt.show()
     plt.loglog(Ns, comp_time, '-x')
+    plt.show()
+
+
+def plot_fourier(m_max):
+    m = n = np.arange(1, m_max+1)
+    mm, nn = np.meshgrid(m, n)
+    coef = (
+        __integral(mm) * __integral(nn)/
+        ((mm * np.pi)**2 + (nn * np.pi)**2 )**2
+    )
+    plt.imshow(
+        np.real(coef)
+    )
+    print(coef[0])
+    plt.colorbar()
     plt.show()
 
 if __name__=="__main__":
@@ -328,5 +391,7 @@ if __name__=="__main__":
     #     np.vstack([Ns, e_5, e_9]).T,
     #     header="N E5 E9",
     # )
+    # demonstrate_order(plot=True)
     # test_order()
     exercise_h()
+    # plot_fourier(4)
