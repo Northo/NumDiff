@@ -38,36 +38,58 @@ The solution $u_n(x,t)$ is now fully specified.
 Due to the linearity of \cref{kdv_equation} and the periodic boundary condition, we can superpose multiple solutions $u_n(x,t)$ into a general solution
 \begin{equation}
 	u(x,t) = \sum_{n=-\infty}^{+\infty} c_n \exp{\left( i(q_n x - \omega_n t) \right)},
+	\label{fourier_series}
 \end{equation}
 which is a sum of plane waves propagating at different frequencies.
 
 \subsection{Numerical solution method}
 
-\iffalse
+To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Forward Euler method and the Crank-Nicholson method.
+We will find the solution on the periodic spatial grid
+\begin{center}
+\begin{tikzpicture}
+\def\centerarc[#1](#2)(#3:#4:#5)% [draw options] (center) (initial angle:final angle:radius)
+{ \draw[#1] ($(#2)+({#5*cos(#3)},{#5*sin(#3)})$) arc (#3:#4:#5); }
+\centerarc[black,solid](0,0)(  0: 60:3);
+\centerarc[black,dashed](0,0)( 60:150:3);
+\centerarc[black,solid](0,0)(150:210:3);
+\centerarc[black,dashed](0,0)(210:300:3);
+\centerarc[black,solid](0,0)(300:360:3);
+\node [fill=black, circle, scale=0.5, pin={  0:$x_0 = -L/2$}] at ({3*cos(  0)},{3*sin(  0)}) {};
+\node [fill=black, circle, scale=0.5, pin={ 30:$x_1$}] at ({3*cos( 30)},{3*sin( 30)}) {};
+\node [fill=black, circle, scale=0.5, pin={ 60:$x_2$}] at ({3*cos( 60)},{3*sin( 60)}) {};
+\node [fill=black, circle, scale=0.5, pin={150:$x_{m-1}$}] at ({3*cos(150)},{3*sin(150)}) {};
+\node [fill=black, circle, scale=0.5, pin={180:$x_m$}] at ({3*cos(180)},{3*sin(180)}) {};
+\node [fill=black, circle, scale=0.5, pin={210:$x_{m+1}$}] at ({3*cos(210)},{3*sin(210)}) {};
+\node [fill=black, circle, scale=0.5, pin={300:$x_{M-2}$}] at ({3*cos(300)},{3*sin(300)}) {};
+\node [fill=black, circle, scale=0.5, pin={330:$x_{M-1}$}] at ({3*cos(330)},{3*sin(330)}) {};
+\node [pin={[pin distance=0.05cm]15:$h$}] at ({3*cos( 15)},{3*sin( 15)}) {};
+\node [pin={[pin distance=0.05cm]45:$h$}] at ({3*cos( 45)},{3*sin( 45)}) {};
+\node [pin={[pin distance=0.05cm]165:$h$}] at ({3*cos(165)},{3*sin(165)}) {};
+\node [pin={[pin distance=0.05cm]195:$h$}] at ({3*cos(195)},{3*sin(195)}) {};
+\node [pin={[pin distance=0.05cm]315:$h$}] at ({3*cos(315)},{3*sin(315)}) {};
+\node [pin={[pin distance=0.05cm]345:$h$}] at ({3*cos(345)},{3*sin(345)}) {};
+\end{tikzpicture}
+\end{center}
+of $M$ points.
+For the first spatial derivative, we use the central difference
 \begin{equation*}
-	\dpd{u}{t} = F\left(\dpd{u}{x}, \dpd[3]{u}{x}\right), \qquad \text{where} \,\, F\left(\dpd{u}{x}, \dpd[3]{u}{x}\right) = -\left(1+\pi^2\right) \dpd{u}{x} - \dpd[3]{u}{x}
-\end{equation*}
-\fi
-
-To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Euler method and the Crank-Nicholson method.
-For the first order spatial derivative, we use the central difference
-\begin{equation*}
-	\dpd{u_m^n}{x}    \approx \frac{\delta u_m^n}{2 h}       = \frac{u_{m+1}^n-u_{m-1}^n}{2 h}.
+	\dpd{u_m^n}{x} = \frac{u_{m+1}^n-u_{m-1}^n}{2 h} + \Oh(h^2).
 \end{equation*}
 We repeat the same finite difference three times to approximate the third order spatial derivative as 
 \begin{equation*}
-	\dpd[3]{u_m^n}{x} \approx \frac{\delta^3 u_m^n}{(2 h)^3} = \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3}.
+	\dpd[3]{u_m^n}{x} = \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3} + \Oh(h^2).
 \end{equation*}
 Inserting these approximations into \cref{kdv_equation}, we get the intermediate result
 \begin{equation*}
-	\dpd{u_m^n}{t} \approx F(u^n) = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3}.
+	\dpd{u_m^n}{t} = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3} + \Oh(h^2) \equiv F(u^n) + \Oh(h^2).
 \end{equation*}
-For later convenience, we write the Euler method and Crank-Nicholson method collectively with the $\theta$-method.
+For later convenience, we write the Forward Euler method and Crank-Nicholson method collectively with the $\theta$-method.
 This gives the final system of difference equations for the numerical solution
 \begin{equation}\label{theta_method_discretized}
 	\frac{U_m^{n+1} - U_m^n}{k} = (1-\theta) F(U^n) + \theta F(U^{n+1}),
 \end{equation}
-where the Euler method or the Crank-Nicholson method is obtained by inserting $\theta = 0$ or $\theta = 1/2$, respectively.
+where the Forward Euler method or the Crank-Nicholson method is obtained by setting $\theta = 0$ or $\theta = 1/2$, respectively.
 In matrix form, the system can be written
 \begin{equation}
 	\left(I - \theta k A\right) U^{n+1} = \left(I + \left(1-\theta\right) k A\right) U^n,
@@ -81,9 +103,9 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 % https://tex.stackexchange.com/a/571702
 \begin{equation*}
 \renewcommand{\arraystretch}{1.25} % stretch matrix vertically to make it square
-\renewcommand{\arraycolsep}{4.5pt} % juuuust make matrix fill page width
+\renewcommand{\arraycolsep}{4.15pt} % juuuust make matrix fill page width
 % TODO: fix signs
-\frac{-1}{2 h}
+\frac{-(1+\pi^2)}{2 h}
 \begin{bmatrix}
 0           & \ca +1   &             &             &             &             &             &             & \cb -1      \\
 \cb -1      & 0        & \ca +1      &             &             &             &             &             &             \\
@@ -95,7 +117,7 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
             &          &             &             &             &             & \cb -1      & 0           & \ca +1      \\
 \ca +1      &          &             &             &             &             &             & \cb -1      & 0           \\
 \end{bmatrix}
--\frac{1+\pi^2}{8 h^3}
+-\frac{1}{8 h^3}
 \begin{bmatrix}
 % 0      & +1/2h  &        &        & -1/2h  \\
 % -1/2h  & 0      & +1/2h  &        &        \\
@@ -117,53 +139,10 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 where we have imposed periodic boundary conditions $U_m^n = U_{m+M}^n$ by simply wrapping the spatial derivative stencils around the matrix.
 
 We then solve the system by preparing $U^0$ from the initial condition $u(x, 0)$ and solve \cref{matrixeq} repeatedly to step forward in time.
-Note that with the constant time step $k$, all matrices in \cref{matrixeq} are constant in time, and the process of solving the system many times can be accelerated by for example LU-factorizing the matrix on the left side.
-
-\iffalse
-\begin{figure}
-\begin{tikzpicture}
-\begin{axis}[
-areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
-areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
-width=17cm,
-height=12cm,
-view={-28}{+30},
-xlabel={$x$},
-ylabel={$t$},
-zmin=0,
-ymajorgrids,
-xmajorgrids,
-zmajorgrids,
-xtick distance=0.50,
-ytick distance=0.25,
-ztick distance=1,
-legend cell align={left},
-title={Crank-Nicholson ($M=800, \, N=100$)},
-zticklabel={\pgfmathparse{\tick-1}$\pgfmathprintnumber{\pgfmathresult}$} % hack to offset labels by 1 (to make it possible to use filling, which is 0-based)
-]
-\pgfplotsinvokeforeach{5,4,...,1}{
-	% TODO: set zlims correctly
-	% Filled version
-	% \addplot3 [areaplot1] table [x index=0,y expr={#1/5},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
-	% \pgfmathparse{int(round(5+#1))};
-	% \pgfmathtruncatemacro\mymacro{round(5+#1)};
-	% \addplot3 [areaplot2] table [x index=0,y expr={#1/5},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat} \closedcycle;
-	% \node[draw] at (0, 2) {\mymacro}; % for debug
-
-	% Non-filled version
-	\addplot3 [fill=gray, opacity=0.75, mark=none, draw=gray!80!black, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{#1}+1] {exercise4/timeevol.dat} \closedcycle;
-	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$u(x,t) = \sin(\pi(x-t))$}}{}
-	\pgfmathparse{int(round(5+#1))};
-	\pgfmathtruncatemacro\mymacro{round(5+#1)};
-	\addplot3 [mark=none, color=red, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{\mymacro}+1] {exercise4/timeevol.dat};
-	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$U(x_m,t_n)$}}{}
-	% \node[draw] at (0, 2) {\mymacro}; % for debug
-}
-\end{axis}
-\end{tikzpicture}
-\caption{\label{ex4_solution_3d}}
-\end{figure}
-\fi
+Note that with constant steps $h$ and $k$ in both space and time, the matrices in \cref{matrixeq} are constant.
+To save both memory and time, we represent them with sparse matrices.
+In addition, to efficiently solve the same system with different right hand sides many times, we $LU$-factorize the sparse matrix for $I - \theta k A$.
+Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to the identity, so there is no system to solve -- the $U^{n+1}$ is given by simply multiplying the right side.
 
 \begin{figure}[b]
 \centering
@@ -195,12 +174,17 @@ zticklabel={\pgfmathparse{\tick-1}$\pgfmathprintnumber{\pgfmathresult}$} % hack 
 \end{figure}
 
 Next, we test our numerical solution on the problem defined by the initial condition $u(x, 0) = \sin(\pi x)$ on $x \in [-1, +1]$ with $L = 2$.
-The Fourier series of the analytical solution then has nonzero coefficients $c_{\pm1}(0) = \pm 1/2i$ and wavenumbers $q_{\pm 1} = \pm \pi$, which give rise to the analytical solution $u(x, t) = \sin(\pi(x-t))$ when inserted into \cref{fourier_series}.
+The analytical solution \ref{fourier_series} then gets nonzero contributions only from $n = \pm 1$, which gives the analytical solution $u(x, t) = \sin(\pi(x-t))$.
 As shown in \cref{sine_evolution}, the solution represents a sine wave traveling with velocity $1$ to the right.
 
-In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Euler method and the Crank-Nicholson method.
-Note that the Crank-Nicholson method approaches the exact solution with as little as $N=10$ time steps and a few hundred spatial grid points $M$, while the Euler method produces garbage with as many as $N=300 000$ time steps and becomes less stable as the number of spatial grid points increases.
-The convergence plot of the error at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions, showing the stable second order (TODO: why is it first order? is it supposed to be?) nature of the Crank-Nicholson method and the unstability of the Euler method.
+In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Forward Euler method and the Crank-Nicholson method.
+Note that the Crank-Nicholson method approaches the exact solution with only $N=10$ time steps and under hundred spatial grid points $M$.
+In contrast, the Forward Euler method seems to become unstable as the spatial resolution is increased, even with $N=100000$ time steps.
+
+The convergence plot at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions.
+As we expect from the central finite differences, both methods show second order convergence in space for sufficiently refined grids. 
+But the Forward Euler method diverges as $h$ decreases, although the divergence is delayed by also decreasing $k$.
+The Crank-Nicholson method remains stable with much fewer time steps and much finer spatial grids.
 
 \begin{figure}
 \begin{tikzpicture}
@@ -287,28 +271,26 @@ Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i q_l x_m)$
 Now look at the amplification factor $G_l = C_l^{n+1} / C_l^n$ of Fourier mode $l$ over one time step. 
 With $\theta = 1/2$, the Crank-Nicholson method gives 
 \begin{equation}
-	G_l = \frac{1 + i k f(x) / 2}{1 - i k f(x) / 2} \quad \implies \quad \abs{G_l} = 1.
+	G_l = \frac{1 + i k f(q_l) / 2}{1 - i k f(q_l) / 2} \quad \implies \quad \abs{G_l} = 1.
 	\label{crank_nicholson_amplification_factor}
 \end{equation}
 The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicholson method is \textbf{unconditionally stable}.
 
 The Euler method has $\theta = 0$ and gives
 \begin{equation}
-	G_l = 1 + i k f(x) \quad \implies \quad \abs{G_l} = \sqrt{1 + k^2 f(q_l)^2}.
+	G_l = 1 + i k f(q_l) \quad \implies \quad \abs{G_l} = \sqrt{1 + k^2 f(q_l)^2}.
 	\label{euler_amplification_factor}
 \end{equation}
 Since $\abs{\sin(q_l h)} \leq 1$ for all $q_l$, we can bound $f(q_l)$ by
 \begin{equation*}
 	\abs{f(q_l)} \leq \frac{(1+\pi^2)}{h} + \frac{1}{h^3} = \frac{1}{h^3} \left( (1+\pi^2) h^2 + 1 \right) \leq \frac{1}{h^3} \left( (1+\pi^2) L^2 + 1 \right).
 \end{equation*}
-Then $\abs{G_l} = \sqrt{1 + O(k^2 / h^6)}$.
-% TODO: cite von neumann stability criterion
-The Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} is attained only with $k \leq O(h^6)$, corresponding to \emph{extremely small} time steps.
-Thus, while the Euler method in theory is \textbf{conditionally stable}, it is unstable for all practical time steps.
-The Crank-Nicholson method is far superior, as it remains stable while allowing much coarser spatial resolution and larger time steps.
+Then $\abs{G_l} = \sqrt{1 + O(k^2 / h^6)} > 1$ for all $h$ and $k$, so each Fourier mode is amplified over time.
+But the Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} is still attained with $k \leq O(h^6)$, so the Forward Euler method is \textbf{conditionally stable}.
+Only if $k/h^6 << 1$ does it remain stable, which explains the divergence for decreasing $h$ and fixed $k$ we found in \cref{ex4_euler_vs_crank_convergence} and why this is delayed by also decreasing $k$.
 
-% TODO: one figure with Euler, small M large N
-% TODO: one figure with CN, 
+Thus, while the Euler method in theory is stable, it is unstable for practical combinations of $k$ and $h$.
+The Crank-Nicholson method is far superior, as it remains stable over time and allows both smaller resolution in time and greater resolution in space.
 
 \iffalse
 \begin{figure}
@@ -354,21 +336,20 @@ The Crank-Nicholson method is far superior, as it remains stable while allowing 
 
 The stability of the finite difference methods can be even better illustrated by investigating the time evolution of the $L_2$-norm of the solution.
 To this end, we will first show that the $L_2$-norm of the analytical solution is preserved over time.
-Then we will show the time evolution of the $L_2$-norm of numerical solutions.
+Then we will investigate the time evolution of the norm of numerical solutions.
 
 The $L_2$-norm of the analytical solution is defined as
 \begin{equation*}
 	\Vert u(x,t) \Vert_2 = \left( \frac{1}{2} \int_{-L/2}^{+L/2} |u(x,t)|^2 \dif x \right)^{1/2}.
 \end{equation*}
-To understand why it is constant in time, insert the Fourier expansion \cref{fourier_series} for $u(x,t)$ to get
+Now insert the solution \ref{fourier_series} and use orthogonality of the complex exponentials to get
 \begin{equation*}
-\int_{-1}^{+1} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m(t) c_n^*(t) \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(q_m-q_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_n \left| c_n(t) \right|^2.
+\int_{-L/2}^{+L/2} \dif x \left| u(x,t) \right|^2 = \sum_{m,n} c_m c_n^* \exp{(i(\omega_n-\omega_m)t)} \underbrace{\int_{-L/2}^{+L/2} \exp{\left(i(q_m-q_n)x\right)}}_{L \delta_{m n}} \dif x = L \sum_m \left| c_m \right|^2.
 \end{equation*}
-Since the Fourier coefficients \eqref{fourier_coefficients} have constant magnitude $|c_n(t)| = |c_n(0)|$, the $L_2$-norm is the same at any time $t$.
-Note that it is the \emph{odd} number of spatial derivatives in \cref{kdv_equation} that gives the exponential in \cref{fourier_coefficients} a purely imaginary argument, and preserves the amplitude of each Fourier mode.
+The final sum is independent of time, so the $L_2$-norm is indeed conserved.
 
 We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( -x^2 / 0.1 \right)$.
-The time evolution illustrated in \cref{gaussian_evolution} shows how multiple Fourier modes are activated.
+The time evolution illustrated in \cref{gaussian_evolution} shows how multiple modes are activated.
 In \cref{norm_evolution}, we show how the norm of the numerical solution evolves over time.
 The Euler method diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
 In contrast, the Crank-Nicholson metohd is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_nicholson_amplification_factor}.
@@ -462,4 +443,4 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 \caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Euler and the Crank-Nicholson method, on different grids.}
 \end{figure}
 
-The stability and norm preservation of the Crank-Nicholson method makes it the method of choice for problems like this, where the analytical solution is known to have the same property.
+The stability of the Crank-Nicholson method and the property that it preserves the amplitude of Fourier modes make it an optimal method for equations like the Korteweg-De Vries equation, where the analytical solution is known to have a constant norm.
