@@ -1,13 +1,19 @@
 \begin{tikzpicture}
-    \begin{loglogaxis}[
-        title={Demonstration of order of five and nine point stencil},
-        xlabel={$N$},
-        ylabel={Relative error},
-        ]
-        \addplot table[x={N}, y={E5}] {PDE/order.dat};
-        \addlegendentry{Five point};
+  \begin{loglogaxis}[
+      title={Demonstration of order of the five and nine point stencil.},
+      xlabel={$N = N_x = N_y$},
+      ylabel={Absolute error, $\lVert u - v \rVert_\infty$},
+      legend pos=south west,
+    ]
+    \addplot[mark=none, dashed] table[x={Ns}, y={five_roof}] {PDE/order.dat};
+    \addlegendentry{$C h^2$};
+    \addplot[mark=none] table[x={Ns}, y={nine_roof}] {PDE/order.dat};
+    \addlegendentry{$C h^4$};
 
-        \addplot table[x={N}, y={E9}] {PDE/order.dat};
-        \addlegendentry{Nine point};
-    \end{loglogaxis}
+    \addplot table[x={Ns}, y={five}] {PDE/order.dat};
+    \addlegendentry{Five point};
+
+    \addplot table[x={Ns}, y={nine}] {PDE/order.dat};
+    \addlegendentry{Nine point};
+  \end{loglogaxis}
 \end{tikzpicture}

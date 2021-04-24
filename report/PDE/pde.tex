@@ -20,7 +20,7 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 \end{subequations}
 
 \subsection{Analytical solution}
-
+\label{sec:pde:anal}
 \begin{figure}
 \centering
 \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
@@ -160,10 +160,13 @@ However, we can also construct problems with a finite number of terms in the \em
 \subsection{Numerical solution method}
 
 We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$:
+
 \begin{align}\label{eq:PDE-poisson}
-  \nabla^2g &= f,\\
-  \nabla^2u &= g,\\
-  g = u &= 0,\quad \text{ on } \partial \Omega.
+  \begin{split}
+    \nabla^2g &= f,\\
+    \nabla^2u &= g,\\
+    g = u &= 0,\quad \text{ on } \partial \Omega.
+  \end{split}
 \end{align}
 
 
@@ -402,7 +405,7 @@ $$
 \end{proof}
 
 \begin{remark}
-  For the five and nine point stencil, such functions exist.
+  For the five and nine point stencil, such functions exist.TODO: Should we show/motivate this?
   \begin{equation}
     \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right)
     \label{pde:equation:phi5}
@@ -557,30 +560,86 @@ $$
 where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform.
 
 \subsection{Demonstration of order}
-\begin{figure}[h]
+To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
+From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
+$$
+u(x, y) =
+\frac{
+  \sin(m \pi x)\sin(n \pi y)
+}{
+  (n\pi)^2 + (m\pi)^2
+}
+, ~m=3, n=4.
+$$
+The mesh refinement is done with the same number of discretization points in $x$- and $y$-direction.
+The values used are $N = N_x = N_y = \{8, 16, 32, 64, 128, 256\}$.
+The solution is shown in figure \ref{fig:pde:order_solution}.
+As expected, the error for the five point stencil goes as $h^2$ while the error for the nine point stencil goes as $h^4$.
+The absolute error as a function of $N$ is shown in figure \ref{fig:pde:order}.
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzpicture}
+    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
+\begin{axis}[
+	width=8.2cm, height=7.5cm,
+%	zmin=0.0,zmax=0.13,
+	xlabel=$x$, xtick distance=0.25,
+	ylabel=$y$, ytick distance=0.25,
+  samples=50,
+%	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
+%	scaled taicks=false,
+%	grid,
+	% title={Test},
+  zlabel={$u(x, y)$},
+  colormap name=redblue,
+	view={20}{50},
+]
+	\addplot3 [
+		surf,
+		domain=0:1,
+    opacity=0.85,%shader=interp,
+	] {sin(deg(3 * pi * x)) * sin(deg(4 * pi * y)) / pi^2 * (3^2 + 4^2)};
+\end{axis}
+  \end{tikzpicture}
+  \caption{The solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^22), ~m=3, n=4$ to the manufactured Poisson equation with inhomogenity $f=\sin(m \pi x)\sin(n \pi y)$.}
+  \label{fig:pde:order_solution}
+\end{figure}
+
+\begin{figure}[tb]
   \centering
   \input{./PDE/order.pgf}
-  \caption{Error as a function discretization points $N$
-    TODO: figure is to be updated with prettier figure
-    TODO: Most appropriate with function of h or N?}
+  \caption{Relative error for the clamped Biharmonic equation on $[0,1]^2$ using the five and nine point stencil.
+    Also shown are $h^2$ and $h^4$, which are the expected convergence rates of the five and nine point stencil respectively.
+    First axis shows $N$, the number of internal discretization points in one direction, so that the total number of grid points is $N^2$.
+    Solution was found for the manufactured problem $f=\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$.
+  }
+  \label{fig:pde:order}
 \end{figure}
 
 
 \subsection{Solving the Biharmonic equation}
-Consider the equation
-\begin{align*}
-  \nabla^4 u &= f(x, y) &(x, y) &\in \phantom{\partial}\Omega\\
-  u = \nabla^2u &= 0  &(x, y) &\in \partial\Omega
-\end{align*}
-where $f(x, y) =
+We will now solve \eqref{eq:PDE} numerically for
+$f(x, y) =
 \left(
 \sin \pi x
 \sin \pi y
 \right)^4
 e^{-(x-0.5)^2 - (y-0.5)^2}
 $.
+According to equation \eqref{eq:PDE-poisson} we split the equation into a system of poisson equations by introducing a new function $g$:
+\begin{align*}
+  \begin{split}
+    \nabla^2g &= f,\\
+    \nabla^2u &= g,\\
+    g = u &= 0,\quad \text{ on } \partial \Omega.
+  \end{split}
+\end{align*}
+It is now simply a matter of applying the described fast poisson solver sequentially for the two equations.
 
-Then
+For creating convergence plots and to use as a test on the validity of our approach, we will also find the analytical solution to the equation.
+The function $f$ fulfills $f(x,y) = 0$ for $(x,y)\in \partial\Omega$, and we may thus use the analytical results derived in section \ref{sec:pde:anal}.
+Fourier transforming $f$ results in 
 \begin{equation*}
 	\hat{f}_{mn} =
 	\left[ 2 \integral{\sin^4(\pi x) \sin(m \pi x) e^{-(x-1/2)^2}}{x}{0}{1}\right]
@@ -589,14 +648,21 @@ Then
 The integrals do have analytical solutions, but they are not easy to compute.
 We have computed them with the SAGE CAS suite.
 Below is an easy-to-copy expression for the first bracket $ = I(m)$ in the equation above.
-Then $\hat{f}_{mn} = I(m) \, I(n)$, and the analytical solution can be computed (but it has infinitely many terms)
+Then $\hat{f}_{mn} = I(m) \, I(n)$.
+%% Old wrong result
+%% >>> I(m) = 48*(pi^9*m^5*e^2 - 20*(pi^9*e^2 + 2*pi^7*e^2)*m^3 - (pi^9*m^5 - 20*(pi^9 + 2*pi^7)*m^3 + 16*(4*pi^9 + 15*pi^7 + 5*pi^5)*m)*(-1)^m + 16*(4*pi^9*e^2 + 15*pi^7*e^2 + 5*pi^5*e^2)*m)/(pi^10*m^10*e^3 - 20*(2*pi^10*e^3 - pi^8*e^3)*m^8 + 16384*pi^8*e^3 + 16*(33*pi^10*e^3 - 20*pi^8*e^3 + 10*pi^6*e^3)*m^6 + 40960*pi^6*e^3 - 320*(8*pi^10*e^3 - 7*pi^8*e^3 - 2*pi^4*e^3)*m^4 + 33792*pi^4*e^3 + 256*(16*pi^10*e^3 + 35*pi^6*e^3 + 20*pi^4*e^3 + 5*pi^2*e^3)*m^2 + 10240*pi^2*e^3 + 1024*e^3)
+
+Funnet f etter ny endring:
+4*(6*pi^4*e^(x + y)*sin(pi*x)^4 - 8*(4*pi*y^3*e^x*sin(pi*x)^4 - 6*pi*y^2*e^x*sin(pi*x)^4 - 6*pi^3*e^x*sin(pi*x)^2 + 4*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 + (3*pi + 16*pi^3 - 2*pi*x^2 + 2*pi*x)*e^x*sin(pi*x)^4 + 4*(3*pi^3*e^x*sin(pi*x)^2 - 2*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 - (pi + 8*pi^3 - pi*x^2 + pi*x)*e^x*sin(pi*x)^4)*y)*cos(pi*y)*e^y*sin(pi*y)^3 + (4*y^4*e^x*sin(pi*x)^4 - 8*y^3*e^x*sin(pi*x)^4 - 8*(3*pi + 4*pi*x^3 + 16*pi^3 - 6*pi*x^2 - 4*(pi + 8*pi^3)*x)*cos(pi*x)*e^x*sin(pi*x)^3 + (256*pi^4 + 4*x^4 - 8*(16*pi^2 + 1)*x^2 - 8*x^3 + 64*pi^2 + 4*(32*pi^2 + 3)*x + 1)*e^x*sin(pi*x)^4 + 6*pi^4*e^x - 24*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x) - 12*(13*pi^4 - 6*pi^2*x^2 + 6*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^2 + 8*(2*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (16*pi^2 - x^2 + x + 1)*e^x*sin(pi*x)^4 + 3*pi^2*e^x*sin(pi*x)^2)*y^2 - 4*(4*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (32*pi^2 - 2*x^2 + 2*x + 3)*e^x*sin(pi*x)^4 + 6*pi^2*e^x*sin(pi*x)^2)*y)*e^y*sin(pi*y)^4 - 24*(2*pi^3*y*e^x*sin(pi*x)^4 - pi^3*e^x*sin(pi*x)^4)*cos(pi*y)*e^y*sin(pi*y) + 12*(6*pi^2*y^2*e^x*sin(pi*x)^4 - 6*pi^2*y*e^x*sin(pi*x)^4 + 6*pi^4*e^x*sin(pi*x)^2 - 4*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x)^3 - (13*pi^4 - 2*pi^2*x^2 + 2*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^4)*e^y*sin(pi*y)^2)*e^(-x^2 - y^2 - 1/2)
 \begin{lstlisting}
 I(m) = 2 * integral(sin(pi*x)^4*sin(m*pi*x)*exp(-(x-1/2)^2), x, 0, 1)
->>> I(m) = 48*(pi^9*m^5*e^2 - 20*(pi^9*e^2 + 2*pi^7*e^2)*m^3 - (pi^9*m^5 - 20*(pi^9 + 2*pi^7)*m^3 + 16*(4*pi^9 + 15*pi^7 + 5*pi^5)*m)*(-1)^m + 16*(4*pi^9*e^2 + 15*pi^7*e^2 + 5*pi^5*e^2)*m)/(pi^10*m^10*e^3 - 20*(2*pi^10*e^3 - pi^8*e^3)*m^8 + 16384*pi^8*e^3 + 16*(33*pi^10*e^3 - 20*pi^8*e^3 + 10*pi^6*e^3)*m^6 + 40960*pi^6*e^3 - 320*(8*pi^10*e^3 - 7*pi^8*e^3 - 2*pi^4*e^3)*m^4 + 33792*pi^4*e^3 + 256*(16*pi^10*e^3 + 35*pi^6*e^3 + 20*pi^4*e^3 + 5*pi^2*e^3)*m^2 + 10240*pi^2*e^3 + 1024*e^3)
-
-New result
 >> 1/16*sqrt(pi)*(erf(-2*I*pi + 1/2*I*pi*m + 1/2)*e^(4*pi^2*m)*sin(1/2*pi*m) - erf(-2*I*pi + 1/2*I*pi*m - 1/2)*e^(4*pi^2*m)*sin(1/2*pi*m) + 4*erf(-I*pi + 1/2*I*pi*m + 1/2)*e^(3*pi^2*m + 3*pi^2)*sin(1/2*pi*m) - 4*erf(-I*pi + 1/2*I*pi*m - 1/2)*e^(3*pi^2*m + 3*pi^2)*sin(1/2*pi*m) + 6*erf(1/2*I*pi*m + 1/2)*e^(2*pi^2*m + 4*pi^2)*sin(1/2*pi*m) - 6*erf(1/2*I*pi*m - 1/2)*e^(2*pi^2*m + 4*pi^2)*sin(1/2*pi*m) + 4*erf(I*pi + 1/2*I*pi*m + 1/2)*e^(pi^2*m + 3*pi^2)*sin(1/2*pi*m) - 4*erf(I*pi + 1/2*I*pi*m - 1/2)*e^(pi^2*m + 3*pi^2)*sin(1/2*pi*m) + erf(2*I*pi + 1/2*I*pi*m + 1/2)*sin(1/2*pi*m) - erf(2*I*pi + 1/2*I*pi*m - 1/2)*sin(1/2*pi*m))*e^(-1/4*pi^2*m^2 - 2*pi^2*m - 4*pi^2)
 \end{lstlisting}
+Something something sine transform.
+
+The numerical solution is shown in figure \ref{fig:pde:bvp}.
+In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
+
 
 \begin{figure}
 \begin{tikzpicture}
