@@ -94,10 +94,10 @@ class Problem:
         for i in range(0, M+2):
             if i > 0:
                 integrand = lambda y: (y-x[i-1])/(x[i]-x[i-1]) * self.f(y)
-                F[i] += scipy.integrate.quad(integrand, x[i-1], x[i], limit=5)[0]
+                F[i] += scipy.integrate.fixed_quad(integrand, x[i-1], x[i], n=20)[0]
             if i < M+1:
                 integrand = lambda y: (x[i+1]-y)/(x[i+1]-x[i]) * self.f(y)
-                F[i] += scipy.integrate.quad(integrand, x[i], x[i+1], limit=5)[0]
+                F[i] += scipy.integrate.fixed_quad(integrand, x[i], x[i+1], n=20)[0]
 
         # Boundary conditions
         F = F - A @ np.concatenate(([self.u1], np.zeros(M), [self.u2]))
@@ -151,7 +151,7 @@ class Problem:
         
         self.refine(M0, refiner, steps, callback, plot, write, "AMR")
 
-    def convergence_plot(self, plot=False):
+    def convergence_plot(self, plot=False, write=False):
         i = 0
         steps = 12
         Ms, Es = np.empty((3, steps)), np.empty((3, steps))
@@ -171,9 +171,10 @@ class Problem:
         self.refine_adaptively("maxerror", callback, M0=2, steps=steps) # TODO: start at 2 or 20?
         plt.loglog(Ms[i], Es[i], marker="o", label="maxerror")
 
-        columns = [Ms[0], Es[0], Ms[1], Es[1], Ms[2], Es[2]]
-        headers = [ "M1",  "E1",  "M2",  "E2",  "M3",  "E3"]
-        write_columns_to_file(f"../report/exercise5/data/convergence/{self.label}-convergence.dat", columns, headers)
+        if write:
+            columns = [Ms[0], Es[0], Ms[1], Es[1], Ms[2], Es[2]]
+            headers = [ "M1",  "E1",  "M2",  "E2",  "M3",  "E3"]
+            write_columns_to_file(f"../report/exercise5/data/convergence/{self.label}-convergence.dat", columns, headers)
 
         if plot:
             plt.legend()
@@ -213,7 +214,7 @@ probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1
 for prob in probs:
     prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
     prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False, write=True)
-    prob.convergence_plot(plot=False)
+    prob.convergence_plot(write=True)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))

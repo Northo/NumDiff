@@ -149,7 +149,7 @@ The former involves only the known basis functions and gives nonzero entries
 \end{align*}
 The latter involves integrals over an arbitrary source function $f(x)$ times the basis functions $\varphi_j(x)$.
 This integral must be approximated numerically and should be split from $x_{i-1}$ to $x_i$ and $x_i$ to $x_{i+1}$ to properly handle the spike in $\varphi_j(x)$ at $x_j$.
-(TODO: comment on numerical integration procedure, Gaussian integration)
+We use Gauss-Legendre quadrature to do these integrals.
 
 We now impose $\hat{U}(a) = \hat{U}(b) = 0$ by removing the first and last entries in the matrix equation \emph{after} calculating the entire $(M+2) \times (M+2)$ system described above.
 This gives an $M \times M$ equation.
@@ -279,6 +279,9 @@ Without it, precision issues would make some elements skip the refinement criter
 \subsubsection{Comparison of convergence}
 
 Finally, in \cref{femconvergence}, we compare the convergence of uniform and adaptive refinement strategies.
+With uniform refinement, our finite element method yields second order convergence for the three first problems.
+In the fourth problem, the source $f(x) = 2x^{-4/3}/9$ diverges at the left boundary $x = 0$, so the integrals over it become inaccurate.
+This can explain the lower order convergence.
 
 In all problems, adaptive refinement yields greater or equal accuracy for a given number of elements compared to uniform refinement.
 This is in contrast to what was the case for the finite difference method in \cref{amr_convergence_plot}, where adaptive refinement gave errors only comparable and usually larger than those from uniform refinement.
@@ -321,7 +324,7 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f3-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$},xmin=0.5,xmax=4000,ymin=5e-6,ymax=0.1];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.14/x^1.2} node [pos=0.4,pin={0:$\Oh(h^{1.2})$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.4,pin={0:$\Oh(h^{1.15})$}] {};
 	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.15/x^2} node [pos=0.65,pin={180:$\Oh(h^{2})$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f4-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f4-convergence.dat};
