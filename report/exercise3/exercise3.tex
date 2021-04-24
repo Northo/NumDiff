@@ -235,6 +235,9 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
   \label{fig:laplace:stencil}
 \end{figure}
 
+Using this method, the solution to equation \ref{ex3:eq:laplace} is computed, and the results are shown in figure \ref{ex3:fig:heat_map}.
+An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
+
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}
@@ -256,13 +259,13 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
             table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
+    \caption{The numerically computed solution to the Laplace equation, using $N = M = 100$.}
     \label{ex3:fig:heat_map}
-    \caption{The numerically computed solution to the Laplace equation.}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \input{exercise3/convergence.pgf}
-    \label{ex3:fig:convergence_plot}
     \caption{Convergence plot for varying $N$ and $M$.}
+    \label{ex3:fig:convergence_plot}
 \end{figure}
