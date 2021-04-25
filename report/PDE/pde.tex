@@ -174,17 +174,18 @@ We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing
 In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
 
 \newcommand{\crossStencil}[5]{%
-  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}, nodes={draw, circle}]
+  \begin{tikzpicture}[scale=0.5,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=0.7,inner sep=0pt, minimum size=6ex, fill=white}, nodes={draw, circle}]
     \draw node[below]{$#1$} (0,0) -- (0,2) node[above]{$#2$};
     \draw (-1, 1) node[left]{$#3$} -- (1, 1) node[right]{$#4$};
-    \node[above right, draw=none] at (0,1) {$#5$};
+	\draw (0,1) node{$#5$};
+    % \node[center, draw=none] at (0,1) {$#5$};
   \end{tikzpicture}
 }
 
 \newcommand{\xStencil}[4]{%
-  \begin{tikzpicture}[scale=0.5,baseline=1mm, every node/.style={scale=0.7}, nodes={draw, circle}]
-    \draw node[below left]{$#1$} (0,0) -- (1.41, 1.41) node[above right]{$#2$};
-    \draw (0, 1.41) node[above left]{$#3$} -- (1.41, 0) node[below right]{$#4$};
+  \begin{tikzpicture}[scale=0.5,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=0.7,inner sep=0pt, minimum size=6ex, fill=white}, nodes={draw, circle}]
+    \draw node[below left]{$#1$} (0,0) -- (2, 2) node[above right]{$#2$};
+    \draw (0, 2) node[above left]{$#3$} -- (2, 0) node[below right]{$#4$};
   \end{tikzpicture}
 }
 
