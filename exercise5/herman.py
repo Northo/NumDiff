@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm
 import scipy.integrate
+import scipy.sparse
+import scipy.sparse.linalg
 import sympy
 
 def write_table_to_file(path, table, headers):
@@ -104,7 +106,8 @@ class Problem:
         A = A[1:-1,1:-1]
         F = F[1:-1]
 
-        U = np.linalg.solve(A, F)
+        A = scipy.sparse.csr_matrix(A)
+        U = scipy.sparse.linalg.spsolve(A, F)
         U = np.concatenate(([self.u1], U, [self.u2])) # restore boundary conditions
         self.x = x
         self.U = U
