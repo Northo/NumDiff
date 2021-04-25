@@ -347,7 +347,7 @@ def new_analytical_solution(x, y):
     )
 
 
-def exercise_h():
+def exercise_h(ord=np.inf, use_fps=True):
     # def f(x, y):
     #     return (
     #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
@@ -387,7 +387,7 @@ def exercise_h():
     errors = []
     comp_time = []
     Ns = np.geomspace(8, 256, 8, dtype=int)
-    use_fps = True
+    use_fps = use_fps
     # anal = get_analytical_solution(terms=8)
     for N in Ns:
         xx, yy, h = get_mesh(N, reth=True)
@@ -397,9 +397,13 @@ def exercise_h():
         U9 = nine_point_solve(G, use_fps=use_fps)
         comp_time.append(time.time() - start_time)
         errors.append(
-            errfunc(U9, anal(xx, yy))
+            errfunc(U9, anal(xx, yy), ord=ord)
         )
 
+    # Save solution
+    data = np.array([d.flatten() for d in [xx, yy, U9]]).T
+    header = "x y U"
+#    np.savetxt(f"biharmonic_solution_{Ns[-1]}.dat", data, header=header, comments="")
     plt.subplot(121)
     plt.imshow(anal(xx, yy), vmin=-1e-3, vmax=1e-3)
     plt.colorbar()
@@ -412,7 +416,7 @@ def exercise_h():
     plt.loglog(Ns, comp_time, '-x')
     plt.show()
 
-    return errors, comp_time
+    return errors, comp_time, Ns
 
 
 def plot_fourier(m_max):
@@ -442,17 +446,20 @@ if __name__=="__main__":
     # test_order()
 
 
-    errors, comp_time = exercise_h()
-    data = errors
-    header = ""
+    errors, comp_time, Ns = exercise_h(
+        ord=2,
+        use_fps=True,
+    )
+    data = [Ns, errors]
+    header = "N error"
     np.savetxt(
         "error_bvp.dat",
         np.vstack(data).T,
         header=header,
         comments='',
     )
-    data = [comp_time[comp] for comp in comp_time]
-    header = ' '.join(comp_time.keys())
+    data = [Ns, comp_time]
+    header = "N comp_time"
     np.savetxt(
         "comp_bvp.dat",
         np.vstack(data).T,
