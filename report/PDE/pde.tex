@@ -77,11 +77,11 @@ To use Fourier analysis, let us extend the definition of $u(x,y)$ on $[0,1]\time
 The procedure is illustrated in \cref{continuationfig}.
 Using the antisymmetry, the conditions $u = -u = 0$ and $\nabla^2 u = -\nabla^2 u = 0$ are automatically satisfied at the boundaries.
 This can also be seen for the simple trial function in \cref{continuationfig}, which vanishes and inflects at the boundaries.
-Now $u(x,y) = u(x+2,y) = u(x,y+2)$ is periodic in both directions with period $2$ and can therefore be written as a Fourier series
+Now $u(x,y) = u(x+2,y) = u(x,y+2)$ is periodic in both directions with period $2$ and can therefore be written as a Fourier series \cite{Kreyszig}
 \begin{equation*}
-	u(x,y) = \sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} e^{i 2 \pi m x / 2} e^{i 2 \pi n y / 2}
+	u(x,y) = \sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} e^{i 2 \pi m x / 2} e^{i 2 \pi n y / 2}.
 \end{equation*}
-with coefficients (TODO: note on orthogonality or take this as known?)
+Multiply by $e^{i 2 \pi m' x / 2} e^{i 2 \pi n' y / 2}$, integrate over $x$ and $y$ and use orthogonality to find the coefficients
 \begin{equation*}
 	\hat{u}_{mn} = \frac{1}{4} \integraltwo{u(x,y) e^{-i 2 \pi m x / 2} e^{-i 2 \pi n y / 2}}{x}{y}{-1}{+1}{-1}{+1}.
 \end{equation*}
@@ -119,7 +119,7 @@ Plug this Fourier series into \cref{eq:PDE} and act with the biharmonic operator
 \begin{equation*}
 \nabla^4 u(x,y) = \fourierseries{\left((m\pi)^2+(n\pi)^2\right)^2 \hat{u}_{mn}}{m}{n} = f(x,y).
 \end{equation*}
-For simplicity, we \textbf{restrict ourselves to sources that can also be written} (TODO: what restrictions does this impose on $f$?)
+For simplicity, we \textbf{restrict ourselves to sources that can also be written}
 \begin{equation}
 	f(x,y) = \fourierexpand{f}.
 \end{equation}

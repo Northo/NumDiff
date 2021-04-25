@@ -90,7 +90,7 @@ where the first and last rows of the matrix generally vary depending on the boun
 
 Note that if the numerical solution is subject to two Neumann boundary conditions, the matrix becomes singular and the solution non-unique.
 In this case, we impose the additional constraint $U_0 = 0$ by setting all entries in the first column of $A$ to zero.
-To handle the singular matrix, we solve the system with a least-squares method instead of a GESV LU factorization method.
+To handle the singular matrix, we instead find the least-squares solution to the matrix equation. \cite{numpy_lstsq}
 
 \begin{figure}[tb]
 	\centering
@@ -146,7 +146,7 @@ In \cref{poisson_numerical_solutions}, we present numerical solutions for three 
 
 Our approach to handling the boundary conditions is not the only possible approach.
 The system of equations is equivalent if we remove the first row and column of $A$ and the first entries in $U$ and $b$, but simultaneously modify the entry $f(x_1) \rightarrow f(x_1) - a/h^2$.
-This approach is more consistent with treating $U_0$ as a known variable, since its precise value is defined by the Dirichlet boundary condition.
+This approach is done in \cite{owren}, for example, and is more consistent with treating $U_0$ as a known variable, since its precise value is defined by the Dirichlet boundary condition.
 However, our approach of inserting a trivial equation $1 \cdot U_0 = a$ keeps the matrix dimensions independent of boundary conditions and makes it easier to reason with how the discretized differential operator represented by $A$ operates on the grid point $U_0$ in the same way it operates on all other grid points.
 
 Neumann boundary conditions can also be handled differently.
@@ -154,6 +154,7 @@ Instead of approximating the second derivative only on actual grid points, we co
 Then we could use this together with the central difference $(U_{-1} - 2 U_0 + U_1) / h^2 = f(x_0)$ to eliminate $U_{-1}$.
 Eliminating $U_{-1}$, the first equation becomes $(U_1 - U_0) / h = a + h f(x_0) / 2$, so the boundary condition could be handled by setting the first row to $[-1/h, +1/h, 0, \dots]$ and modifying the first entry in $b$ to $a \rightarrow a + h f(x_0) / 2$.
 This would also be second order, and would allow us to use the same stencil also at $x_0$, but we would then have to pay the price of modifying the right side of the matrix equation in an unnatural way.
+This approach is also done in \cite{owren}.
 
 \subsection{Adaptive numerical solution on a non-uniform grid}
 

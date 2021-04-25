@@ -137,11 +137,12 @@ where $U^{n} = \begin{bmatrix} U_0^n & \dots & U_{M-1}^n \end{bmatrix}^T$ and $A
 .
 \end{equation*}
 where we have imposed periodic boundary conditions $U_m^n = U_{m+M}^n$ by simply wrapping the spatial derivative stencils around the matrix.
+This is equivalent to calculating stencil indices modulo $M$, consistent with our circular grid.
 
 We then solve the system by preparing $U^0$ from the initial condition $u(x, 0)$ and solve \cref{matrixeq} repeatedly to step forward in time.
 Note that with constant steps $h$ and $k$ in both space and time, the matrices in \cref{matrixeq} are constant.
-To save both memory and time, we represent them with sparse matrices.
-In addition, to efficiently solve the same system with different right hand sides many times, we $LU$-factorize the sparse matrix for $I - \theta k A$.
+To save both memory and time, we represent them with sparse matrices. \cite{scipy_sparse}
+In addition, to efficiently solve the same system with different right hand sides many times, we $LU$-factorize the sparse matrix for $I - \theta k A$. \cite{scipy_sparse_lu}
 Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to the identity, so there is no system to solve -- the $U^{n+1}$ is given by simply multiplying the right side.
 
 \begin{figure}[b]
@@ -255,12 +256,12 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \subsection{Stability analysis}
 
 Motivated by the examples of the Euler method and the Crank-Nicholson method, we perform a Von Neumann analysis of their stability.
-Just like the exact solution, the numerical solution is subject to periodic boundary conditions in space and can therefore be expanded in a Fourier series
+Just like the exact solution, the numerical solution is subject to periodic boundary conditions in space and can therefore be expanded in a Fourier series \cite{Kreyszig}
 \begin{equation}
 	U_m^n = U(x_m, t_n) = \sum_l C_l^n \exp \left(i q_l x_m\right).
 \end{equation}
 Consider now a single Fourier mode $C_l^n \exp (i q_l x_m)$ in this series.
-Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i q_l x_m)$ and expanding exponentials using Euler's identity gives
+Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i q_l x_m)$ and expanding exponentials using Euler's identity $e^{ix} = \cos x + i \sin x$ gives
 % TODO: need a cleaner version of the discretized equation
 \begin{equation*}
 % \frac{C_l^{n+1}-C_l^n}{k} = \left(\left(1-\theta\right)C_l^n+\theta C_l^{n+1}\right) \left(-(1+\pi^2) \frac{e^{i q_l h}-e^{-i q_l h}}{2h} - \frac{e^{3i q_l h}-e^{-3i q_l h}-3(e^{i q_l h}-e^{-i q_l h})}{8h^3}\right)
