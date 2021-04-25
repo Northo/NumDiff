@@ -4,7 +4,6 @@ from scipy.integrate import quad
 from matplotlib import animation
 from collections.abc import Callable  # Spooky stuff I don't know what is
 
-from routines import Grid
 from functools import partial
 
 
@@ -39,7 +38,6 @@ def piecewise_constant_continuation(xr, ur):
     Returns:
         numpy.piecewise function, piecewise constant funciton of x
     """
-
     return lambda x: np.piecewise(
         x,
         [xr[i] <= x < xr[j] for (i, j) in zip(range(len(ur) - 1), range(1, len(ur)))],
@@ -49,38 +47,35 @@ def piecewise_constant_continuation(xr, ur):
 
 def continous_continuation(xr, ur):
     """ Cont. continuation using interpolation """
-
     return lambda x: np.interp(x, xr, ur)
 
 
-def discrete_convergence_plot_M_ref(
-    method, ref_grid, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+def reference_spatial_refinement(
+    n_solver, M_ref, error_type, bc1, bc2, u0, N, t_end, plot=False, outpath=""
 ):
-    """ Make convergence (plot relative error asf. of M) """
-    # Reference solution (in place of analytical)
-    _, ref_sol = method(
-        ref_grid, bc1, bc2, u0, N, t_end, log=False
-    )  # reference sol in array form
-    u = np.vectorize(
-        piecewise_constant_continuation(ref_grid.x, ref_sol)
-    )  # reference sol, piece wise constant callable function
-
-    # Different M values (for parameter sweep)
+    x_ref = np.linspace(0, 1, M_ref)
+    _, sol_ref = n_solver(bc1, bc2, u0, x_ref, N, t_end, log=False)
+    if error_type == "discrete":
+        sol_ref_pwc = np.vectorize(piecewise_constant_continuation(x_ref, sol_ref))
+    elif error_type == "continous":
+        U_ref = continous_continuation(x_ref, sol_ref)
     M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
-
     for (i, Mi) in enumerate(M_array):
-        grid_Mi = Grid(Grid.UNIFORM, np.linspace(0, 1, Mi))
-        _, U = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U_ref = u(grid_Mi.x)  # Discretized reference solution
-        error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
+        xi = np.linspace(0, 1, Mi)
+        _, U = n_solver(bc1, bc2, u0, xi, N, t_end, log=False)
+        if error_type == "discrete":
+            U_ref = sol_ref_pwc(xi)
+            error_array[i] = l2_discrete_relative_error(U_ref, U)
+        elif error_type == "continous":
+            U = continous_continuation(xi, U)
+            error_array[i] = L2_continous_relative_error(U_ref, U)
     if outpath != "":
         table = np.column_stack((M_array, error_array))
         np.savetxt(outpath, table, header="M err", comments="")
         plt.title(outpath)
     if plot:
+        plt.title(n_solver.__name__ + "spatialref" + error_type)
         plt.xlabel("M")
         plt.ylabel("rel. error")
         plt.xscale("log")
@@ -91,36 +86,27 @@ def discrete_convergence_plot_M_ref(
     return error_array, M_array
 
 
-def continous_convergence_plot_M_ref(
-    method, ref_grid, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+def spatial_refinement(
+    n_solver, analyt, error_type, bc1, bc2, u0, N, t_end, plot=False, outpath=""
 ):
-    """ Make convergence (plot relative error asf. of M) """
-    # Reference solution (in place of analytical)
-    _, ref_sol = method(
-        ref_grid, bc1, bc2, u0, N, t_end, log=False
-    )  # reference sol in array form
-    U_ref = continous_continuation(
-        ref_grid.x, ref_sol
-    )  # reference sol, callable function
-
-    # Different M values (for parameter sweep)
+    u_analytical = lambda x: analyt(x, t_end)
     M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
     error_array = np.zeros(len(M_array))  # for storing relative errors
-
     for (i, Mi) in enumerate(M_array):
-        grid_Mi = Grid(Grid.UNIFORM, np.linspace(0, 1, Mi))
-        _, U_array = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U = continous_continuation(grid_Mi.x, U_array)
-        error_array[i] = L2_continous_relative_error(
-            U_ref, U
-        )  # continous relative error
+        xi = np.linspace(0, 1, Mi)
+        _, U = n_solver(bc1, bc2, u0, xi, N, t_end, log=False)
+        if error_type == "discrete":
+            U_ref = u_analytical(xi)
+            error_array[i] = l2_discrete_relative_error(U_ref, U)
+        elif error_type == "continous":
+            U = continous_continuation(xi, U)
+            error_array[i] = L2_continous_relative_error(u_analytical, U)
     if outpath != "":
         table = np.column_stack((M_array, error_array))
         np.savetxt(outpath, table, header="M err", comments="")
         plt.title(outpath)
     if plot:
+        plt.title(n_solver.__name__ + "spatialref" + error_type)
         plt.xlabel("M")
         plt.ylabel("rel. error")
         plt.xscale("log")
@@ -131,163 +117,79 @@ def continous_convergence_plot_M_ref(
     return error_array, M_array
 
 
-def discrete_convergence_plot(
-    analyt, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+def temporal_refinement(
+    n_solver, analyt, error_type, bc1, bc2, u0, M, t_end, plot=False, outpath=""
 ):
-    """ Make convergence (plot relative error asf. of M) """
-    u_analy = lambda x: analyt(x, t_end)  # Analytical solution at t_end
-    # Different M values (for parameter sweep)
-    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
-    error_array = np.zeros(len(M_array))  # for storing relative errors
-
-    for (i, Mi) in enumerate(M_array):
-        grid_Mi = Grid(Grid.UNIFORM, np.linspace(0, 1, Mi))
-        _, U = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U_ref = u_analy(grid_Mi.x)
-        error_array[i] = l2_discrete_relative_error(U_ref, U)  # discrete relative error
+    u_analytical = lambda x: analyt(x, t_end)
+    x = np.linspace(0, 1, M)
+    N_array = [8, 16, 32, 64, 128, 256, 512, 1024]
+    error_array = np.zeros(len(N_array))  # for storing relative errors
+    for (i, Ni) in enumerate(N_array):
+        _, U = n_solver(bc1, bc2, u0, x, Ni, t_end, log=False)
+        if error_type == "discrete":
+            U_ref = u_analytical(x)
+            error_array[i] = l2_discrete_relative_error(U_ref, U)
+        elif error_type == "continous":
+            U = continous_continuation(x, U)
+            error_array[i] = L2_continous_relative_error(u_analytical, U)
     if outpath != "":
-        table = np.column_stack((M_array, error_array))
-        np.savetxt(outpath, table, header="M err", comments="")
+        table = np.column_stack((N_array, error_array))
+        np.savetxt(outpath, table, header="N err", comments="")
         plt.title(outpath)
     if plot:
+        plt.title(n_solver.__name__ + "timeref" + error_type)
         plt.xlabel("M")
         plt.ylabel("rel. error")
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(M_array, error_array)
-        plt.plot(M_array, error_array, "x")
+        plt.plot(N_array, error_array)
+        plt.plot(N_array, error_array, "x")
         plt.show()
-    return error_array, M_array
+    return error_array, N_array
 
 
-def continous_convergence_plot(
-    analyt, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+def kch_refinement(
+    n_solver, analyt, error_type, bc1, bc2, u0, c, t_end, plot=False, outpath=""
 ):
-    """ Make convergence (plot relative error asf. of M) """
-    U_ref = lambda x: analyt(x, t_end)  # Analytical solution at t_end
-    # Different M values (for parameter sweep)
-    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]
-    error_array = np.zeros(len(M_array))  # for storing relative errors
-
-    for (i, Mi) in enumerate(M_array):
-        grid_Mi = Grid(Grid.UNIFORM, np.linspace(0, 1, Mi))
-        _, U_array = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U = continous_continuation(grid_Mi.x, U_array)
-        error_array[i] = L2_continous_relative_error(
-            U_ref, U
-        )  # continous relative error
+    u_analytical = lambda x: analyt(x, t_end)
+    M_array = np.array([8, 16, 32, 64, 128, 256, 512, 1024])
+    h_array = 1 / (M_array - 1)
+    k_array = c * h_array
+    N_array = 1 / k_array + 1
+    r_array = k_array / h_array ** 2
+    error_array = np.zeros(len(r_array))  # for storing relative errors
+    for (i, (Mi, Ni)) in enumerate(zip(M_array, N_array)):
+        Ni = int(Ni)
+        xi = np.linspace(0, 1, Mi)
+        _, U = n_solver(bc1, bc2, u0, xi, Ni, t_end, log=False)
+        if error_type == "discrete":
+            U_ref = u_analytical(xi)
+            error_array[i] = l2_discrete_relative_error(U_ref, U)
+        elif error_type == "continous":
+            U = continous_continuation(xi, U)
+            error_array[i] = L2_continous_relative_error(u_analytical, U)
     if outpath != "":
-        table = np.column_stack((M_array, error_array))
-        np.savetxt(outpath, table, header="M err", comments="")
+        table = np.column_stack((r_array, error_array))
+        np.savetxt(outpath, table, header="r err", comments="")
         plt.title(outpath)
     if plot:
-        plt.xlabel("M")
+        plt.title(n_solver.__name__ + "kchref" + error_type)
+        plt.xlabel("r")
         plt.ylabel("rel. error")
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(M_array, error_array)
-        plt.plot(M_array, error_array, "x")
+        plt.plot(r_array, error_array)
+        plt.plot(r_array, error_array, "x")
         plt.show()
-    return error_array, M_array
+    return error_array, r_array
 
 
-# From T-vice
-def _split_interval(a, b, error_function, tol):
-    """Helper function used by partition_interval"""
-    c = (a + b) / 2  # Bisection
-    if error_function(a, c, b) <= tol:
-        partition = [c]
-    else:
-        partition = [
-            *_split_interval(a, c, error_function, tol),
-            c,
-            *_split_interval(c, b, error_function, tol),
-        ]
-    return partition
-
-
-# From T-vice
-def partition_interval(
-        a, b, tol, error_function: Callable[[float, float, float], float]
-):
-    """Partition an interval adaptively.
-    Makes error_function less than tol for all sub intervals.
-    Arguments:
-        a,b : float The start and stop of the interval.
-        errror_function : func(a, c, b) -> err, error estimation for the interval [a, b].
-        tol : float The tolerance for the error on an interval.
-    Returns:
-        x : ndarray The partitioned interval."""
-    x = _split_interval(a, b, error_function, tol)
-    return np.array([a, *x, b])
-
-
-def AMR_discrete_convergence_plot(
-    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
-):
-    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
-    error_array = np.empty(len(M_array))
-    tols = np.geomspace(0.0000046, 0.1, len(M_array))
-    u_analy = lambda x: analy(x, t_end)  # analytical sol at t_end
-    actual_M = []
-    for (i, tol) in enumerate(tols):
-        x = partition_interval(0, 1, error_function, tol)
-        actual_M.append(len(x))
-        grid_Mi = Grid(Grid.NON_UNIFORM, x)
-        _, U = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U_ref = u_analy(grid_Mi.x)  # Discretized reference solution
-        error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
-    if outpath != "":
-        table = np.column_stack((actual_M, error_array))
-        np.savetxt(outpath, table, header="M err", comments="")
-        plt.title(outpath)
-    if plot:
-        plt.xlabel("M")
-        plt.ylabel("rel. error")
-        plt.xscale("log")
-        plt.yscale("log")
-        plt.plot(actual_M, error_array)
-        plt.plot(actual_M, error_array, "x")
-        plt.show()
-    return error_array, M_array
-
-
-def AMR_continous_convergence_plot(
-    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
-):
-    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
-    error_array = np.empty(len(M_array))
-    tols = np.geomspace(0.0000046, 0.1, len(M_array))
-    U_ref = lambda x: analy(x, t_end)  # analytical sol at t_end
-    actual_M = []
-    for (i, tol) in enumerate(tols):
-        x = partition_interval(0, 1, error_function, tol)
-        actual_M.append(len(x))
-        grid_Mi = Grid(Grid.NON_UNIFORM, x)
-        _, U_array = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        U = continous_continuation(grid_Mi.x, U_array)
-        error_array[i] = L2_continous_relative_error(U_ref, U)  # dicrete relative error
-    if outpath != "":
-        table = np.column_stack((actual_M, error_array))
-        np.savetxt(outpath, table, header="M err", comments="")
-        plt.title(outpath)
-    if plot:
-        plt.xlabel("M")
-        plt.ylabel("rel. error")
-        plt.xscale("log")
-        plt.yscale("log")
-        plt.plot(actual_M, error_array)
-        plt.plot(actual_M, error_array, "x")
-        plt.show()
-    return error_array, M_array
+def save_solution_surface_plot_data(x, t, sols, outpath):
+    U_table = np.resize(sols, sols.size)
+    x_table = np.tile(x, len(t))
+    t_table = np.repeat(t, len(x))
+    table = np.column_stack((x_table, t_table, U_table))
+    np.savetxt(outpath, table, header="x t U", comments="")
 
 
 def animate(i, x, U, curve):
@@ -311,47 +213,143 @@ def animate_time_development(x, U):
     return anim
 
 
-def curvature_estimator(u):
-    """Generate a curvature estimator"""
-
-    def error_estimate(a, c, b):
-        return np.abs(2 * u(c) - u(a) - u(b))
-
-    return error_estimate
-
-
-def min_dist_mixin(estimator, min_dist):
-    def error_estimate(a, c, b):
-        dist = b - a
-        return np.where(dist < min_dist, estimator(a, c, b), np.inf)
-
-    return error_estimate
-
-
-def find_error(
-        partitioner,
-        parameters,
-        error_function,
-        analytical_func,
-        method,
-        bc1,
-        bc2,
-        u0,
-        N,
-        t_end,
-):
-    Ms = []
-    errors = []
-    analytical = partial(analytical_func, t=t_end)
-    for (i, param) in enumerate(parameters):
-        x = partitioner(0, 1, param)
-        Ms.append(len(x))
-        # TODO: Set to UNIFORM if x is uniform
-        grid_Mi = Grid(Grid.NON_UNIFORM, x)
-        _, U = method(
-            grid_Mi, bc1, bc2, u0, N, t_end, log=False
-        )  # solution with current M
-        errors.append(
-            error_function(U, analytical, x)
-        )
-    return Ms, errors
+# Stuff below is for possible extenison to non-uniform grids and AMR
+# From T-vice
+# def _split_interval(a, b, error_function, tol):
+#    """Helper function used by partition_interval"""
+#    c = (a + b) / 2  # Bisection
+#    if error_function(a, c, b) <= tol:
+#        partition = [c]
+#    else:
+#        partition = [
+#            *_split_interval(a, c, error_function, tol),
+#            c,
+#            *_split_interval(c, b, error_function, tol),
+#        ]
+#    return partition
+#
+#
+## From T-vice
+# def partition_interval(
+#        a, b, tol, error_function: Callable[[float, float, float], float]
+# ):
+#    """Partition an interval adaptively.
+#    Makes error_function less than tol for all sub intervals.
+#    Arguments:
+#        a,b : float The start and stop of the interval.
+#        errror_function : func(a, c, b) -> err, error estimation for the interval [a, b].
+#        tol : float The tolerance for the error on an interval.
+#    Returns:
+#        x : ndarray The partitioned interval."""
+#    x = _split_interval(a, b, error_function, tol)
+#    return np.array([a, *x, b])
+#
+#
+# def AMR_discrete_convergence_plot(
+#    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+# ):
+#    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
+#    error_array = np.empty(len(M_array))
+#    tols = np.geomspace(0.0000046, 0.1, len(M_array))
+#    u_analy = lambda x: analy(x, t_end)  # analytical sol at t_end
+#    actual_M = []
+#    for (i, tol) in enumerate(tols):
+#        x = partition_interval(0, 1, error_function, tol)
+#        actual_M.append(len(x))
+#        grid_Mi = Grid(Grid.NON_UNIFORM, x)
+#        _, U = theta_heat(
+#            grid_Mi, bc1, bc2, u0, N, t_end, log=False, method=method
+#        )  # solution with current M
+#        U_ref = u_analy(grid_Mi.x)  # Discretized reference solution
+#        error_array[i] = l2_discrete_relative_error(U_ref, U)  # dicrete relative error
+#    if outpath != "":
+#        table = np.column_stack((actual_M, error_array))
+#        np.savetxt(outpath, table, header="M err", comments="")
+#        plt.title(outpath)
+#    if plot:
+#        plt.xlabel("M")
+#        plt.ylabel("rel. error")
+#        plt.xscale("log")
+#        plt.yscale("log")
+#        plt.plot(actual_M, error_array)
+#        plt.plot(actual_M, error_array, "x")
+#        plt.show()
+#    return error_array, M_array
+#
+#
+# def AMR_continous_convergence_plot(
+#    error_function, analy, method, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+# ):
+#    M_array = [8, 16, 32, 64, 128, 256, 512, 1024]  # Ms from UMR
+#    error_array = np.empty(len(M_array))
+#    tols = np.geomspace(0.0000046, 0.1, len(M_array))
+#    U_ref = lambda x: analy(x, t_end)  # analytical sol at t_end
+#    actual_M = []
+#    for (i, tol) in enumerate(tols):
+#        x = partition_interval(0, 1, error_function, tol)
+#        actual_M.append(len(x))
+#        grid_Mi = Grid(Grid.NON_UNIFORM, x)
+#        _, U_array = theta_heat(
+#            grid_Mi, bc1, bc2, u0, N, t_end, log=False, method=method
+#        )  # solution with current M
+#        U = continous_continuation(grid_Mi.x, U_array)
+#        error_array[i] = L2_continous_relative_error(U_ref, U)  # dicrete relative error
+#    if outpath != "":
+#        table = np.column_stack((actual_M, error_array))
+#        np.savetxt(outpath, table, header="M err", comments="")
+#        plt.title(outpath)
+#    if plot:
+#        plt.xlabel("M")
+#        plt.ylabel("rel. error")
+#        plt.xscale("log")
+#        plt.yscale("log")
+#        plt.plot(actual_M, error_array)
+#        plt.plot(actual_M, error_array, "x")
+#        plt.show()
+#    return error_array, M_array
+#
+#
+# def curvature_estimator(u):
+#    """Generate a curvature estimator"""
+#
+#    def error_estimate(a, c, b):
+#        return np.abs(2 * u(c) - u(a) - u(b))
+#
+#    return error_estimate
+#
+#
+# def min_dist_mixin(estimator, min_dist):
+#    def error_estimate(a, c, b):
+#        dist = b - a
+#        return np.where(dist < min_dist, estimator(a, c, b), np.inf)
+#
+#    return error_estimate
+#
+#
+# def find_error(
+#        partitioner,
+#        parameters,
+#        error_function,
+#        analytical_func,
+#        method,
+#        bc1,
+#        bc2,
+#        u0,
+#        N,
+#        t_end,
+# ):
+#    Ms = []
+#    errors = []
+#    analytical = partial(analytical_func, t=t_end)
+#    for (i, param) in enumerate(parameters):
+#        x = partitioner(0, 1, param)
+#        Ms.append(len(x))
+#        # TODO: Set to UNIFORM if x is uniform
+#        grid_Mi = Grid(Grid.NON_UNIFORM, x)
+#        _, U = theta_heat(
+#            grid_Mi, bc1, bc2, u0, N, t_end, log=False, method=method
+#        )  # solution with current M
+#        errors.append(
+#            error_function(U, analytical, x)
+#        )
+#    return Ms, errors
