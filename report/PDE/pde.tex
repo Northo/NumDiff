@@ -595,12 +595,12 @@ These eigenvalues were given in section \ref{sec:pde:numerical_solution}.
 
 
 Written as matrix expressions
-\begin{align}
+\begin{align*}
   A U &= F\\
   S\Lambda S U &= F\\
   &\Rightarrow\\
   U &= S\Lambda^{-1} S F,
-\end{align}
+\end{align*}
 where we used the fact that $S^{-1} = S$. TODO: Justify 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
