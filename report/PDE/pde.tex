@@ -157,7 +157,8 @@ However, we can also construct problems with a finite number of terms in the \em
 
 %% b)
 
-\subsection{Numerical solution method}
+\subsection{Numerical solution}
+\label{sec:pde:numerical_solution}
 
 We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$:
 
@@ -172,6 +173,7 @@ We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing
 
 %% c)
 In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
+The approximated discrete solution is denoted by $v$.
 
 \newcommand{\crossStencil}[5]{%
   \begin{tikzpicture}[scale=0.5,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=0.7,inner sep=0pt, minimum size=6ex, fill=white}, nodes={draw, circle}]
@@ -191,11 +193,11 @@ In solving the poisson equation $\nabla^2 u = f$ we will consider two discretiza
 
 Written in stencil diagrams, the five point stencil is given as \cite{part2}
 $$
-u \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
+v \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
 while the nine point stencil is given by
 $$
-u
+v
 \left(
 \xStencil{\frac16}{\frac16}{\frac16}{\frac16}
 +
@@ -211,8 +213,8 @@ $$
 
 
 We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
-We will use the same flattening for the 2D discrete function $u$ as described in section \ref{sec:exc3:numerical}.
-We recognize that in $U$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
+We will use the same flattening for the 2D discrete function $v$ as described in section \ref{sec:exc3:numerical}.
+As before we recognize that in the flattened $v$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
 Thus, writing out the five point stencil $K_{2D}$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
 We can compactly write this as
 $$
@@ -564,7 +566,7 @@ In general, however, this is not a viable way to solve the problem, as it requir
 However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
 We also have simple analytical expressions for the eigenvalues.
 
-According to \eqref{eq:pde:eigenvec} $(m, n)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
+According to \eqref{eq:pde:eigenvec} the $(m, n)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
 $$
 \sin\left( \frac{m k \pi}{N + 1} \right)
 \sin\left( \frac{n l \pi}{N + 1} \right).
@@ -589,6 +591,7 @@ $$
 U = \text{IFST}(\text{FST}(F) / \Lambda),
 $$
 where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform in two dimensions, and $\Lambda$ are the eigenvalues of the stencil for which we solve.
+These eigenvalues were given in section \ref{sec:pde:numerical_solution}.
 
 
 Written as matrix expressions
@@ -629,7 +632,7 @@ The absolute error as a function of $N$ is shown in figure \ref{fig:pde:order}.
   samples=50,
 %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
 %	scaled taicks=false,
-%	grid,
+  grid,
 	% title={Test},
   zlabel={$u(x, y)$},
   colormap name=redblue,
