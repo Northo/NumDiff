@@ -214,7 +214,7 @@ We will now describe the structure of the matricies involved in the problem, sta
 We will use the same flattening for the 2D discrete function $u$ as described in section \ref{sec:exc3:numerical}.
 We recognize that in $U$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
 Thus, writing out the five point stencil $K2D$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
-We can compactley write this as
+We can compactly write this as (COMMENT FROM HERMAN: is it better to use subscripts, i.e. $K2D \rightarrow K_{2D}$?)
 $$
 K2D =
 \begin{bmatrix}
@@ -238,9 +238,9 @@ K =
   -2 & 1 &   \\
   1 & -2 & 1 &  \\
   & 1 & -2 & 1 & \\
-  &&&\ddots\\
-  && 1 & -2 & 1\\
-  &&& 1 & -2
+  &&\ddots&\ddots&\ddots\\
+  &&& 1 & -2 & 1\\
+  &&&& 1 & -2
 \end{bmatrix}.
 $$
 Using the Kronecker product, this may be written as
@@ -352,7 +352,7 @@ The eigenvalues of the nine point stencil are thus
 \end{definition}
 
 \begin{definition}
-  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^n a_i = -a_0$.
+  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^n a_i = -a_0$. (COMMENT FROM HERMAN: sum to $n$, or $n-1$ as in prev def?)
 \end{definition}
 
 \begin{lemma}\label{pde:lemma:max}
