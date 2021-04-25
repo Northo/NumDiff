@@ -81,6 +81,8 @@ class Problem:
         A = np.zeros((M+2, M+2)) # will later chop off ends
         F = np.zeros(M+2) # will later chop off ends
 
+        print(f"Solving M = {M}")
+
         for i in range(0, M+2):
             for j in range(i, M+2):
                 if j == i:
@@ -123,9 +125,15 @@ class Problem:
 
         return U
 
-    def refine(self, M0, refiner, steps, callback, plot, write, label):
+    def refine(self, M0, refiner, callback, plot, write, label, steps=None, maxM=None):
+        assert not (steps is None and maxM is None), "Must provide either steps or maxM"
         x = np.linspace(self.x1, self.x2, M0) # initial uniform grid
-        for step in range(0, steps):
+        step = 0
+        while True:
+            if steps is not None and step >= steps:
+                break
+            elif maxM is not None and len(x) > maxM:
+                break
             self.solve(x)
             if callback:
                 callback(step)
@@ -134,13 +142,14 @@ class Problem:
             if plot:
                 self.plot(show=True)
             x = refiner(x)
+            step += 1
 
     def refine_uniformly(self, callback=None, M0=2, steps=12, plot=False, write=False):
         def refiner(x):
             return np.linspace(self.x1, self.x2, 2*(len(x)-1)+1)
-        self.refine(M0, refiner, steps, callback, plot, write, "UMR")
+        self.refine(M0, refiner, callback, plot, write, "UMR", steps=steps)
 
-    def refine_adaptively(self, strategy, callback=None, M0=2, steps=4, plot=False, write=False):
+    def refine_adaptively(self, strategy, callback=None, M0=2, steps=None, maxM=None, plot=False, write=False):
         self.strategy = strategy
 
         def refiner(x):
@@ -152,26 +161,25 @@ class Problem:
             newx = np.append(newx, x[-1])
             return newx
         
-        self.refine(M0, refiner, steps, callback, plot, write, "AMR")
+        self.refine(M0, refiner, callback, plot, write, "AMR", steps=steps, maxM=maxM)
 
-    def convergence_plot(self, plot=False, write=False):
+    def convergence_plot(self, plot=False, write=False, M0=20, maxM=2050):
         i = 0
-        steps = 12
-        Ms, Es = np.empty((3, steps)), np.empty((3, steps))
+        Ms, Es = np.full((3, 50), np.nan), np.full((3, 50), np.nan) # allocate enough space for all iterations
 
         def callback(step):
             Ms[i,step] = len(self.x) - 2
             Es[i,step] = self.error_measure()
 
-        self.refine_uniformly(callback, steps=steps)
+        self.refine_uniformly(callback, steps=9, M0=9)
         plt.loglog(Ms[i], Es[i], marker="o", label="uniform")
 
         i = 1
-        self.refine_adaptively("avgerror", callback, M0=2, steps=steps) # TODO: start at 2 or 20?
+        self.refine_adaptively("avgerror", callback, M0=M0, maxM=maxM) # TODO: start at 2 or 20?
         plt.loglog(Ms[i], Es[i], marker="o", label="avgerror")
 
         i = 2
-        self.refine_adaptively("maxerror", callback, M0=2, steps=steps) # TODO: start at 2 or 20?
+        self.refine_adaptively("maxerror", callback, M0=M0, maxM=maxM) # TODO: start at 2 or 20?
         plt.loglog(Ms[i], Es[i], marker="o", label="maxerror")
 
         if write:
@@ -215,9 +223,9 @@ params = [
 
 probs = [Problem(f, (x1, x2), (u1, u2), label=label) for label, f, (x1, x2), (u1, u2) in params]
 for prob in probs:
-    prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
-    prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False, write=True)
-    prob.convergence_plot(write=True)
+    # prob.refine_uniformly(M0=8, steps=3, plot=False, write=True)
+    # prob.refine_adaptively("avgerror", M0=20, steps=4, plot=False, write=True)
+    prob.convergence_plot(write=True, maxM=2050)
 
 # prob = Problem(f, (x1, x2), (u1, u2), label=label)
 #prob.solve_adaptive(np.array([-1, -0.5, 0, 0.1, 0.3, 0.8, 1]))

@@ -301,31 +301,34 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 	group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=2.5cm},
 	xmode=log, ymode=log,
 	width=8cm, height=7cm, 
-	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
+	xtick={8,32,128,512,2048},
+	xticklabels={8,32,128,512,2048},
+	xmin=4, xmax=4000,
+	ymin=1e-8, ymax=0.7,
 ]
-	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},title={$f(x) = -2$},xmin=0.5,xmax=4000,ymin=1e-8,ymax=5e-1,
+	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},title={$f(x) = -2$},
 		legend entries={uniform, adaptive (avg. strategy), adaptive (max strategy)}, legend style={at={(1.95,+1.35),anchor=center}, legend columns=-1},
 	];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.19/x^2} node [pos=0.3,pin={0:$\Oh(h^2)$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.19/x^2} node [pos=0.38,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f1-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f1-convergence.dat};
 	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f1-convergence.dat};
 
-	\nextgroupplot[xlabel=$M+1$, title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$},xmin=0.5,xmax=4000,ymin=2e-6,ymax=4e-0];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {22/x^2} node [pos=0.4,pin={0:$\Oh(h^2)$}] {};
+	\nextgroupplot[xlabel=$M+1$, title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$}];
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {22/x^2} node [pos=0.45,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f2-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f2-convergence.dat};
 	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f2-convergence.dat};
 
-	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$}, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$},xmin=0.5,xmax=4000,ymin=1e-5,ymax=4e-0];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {122/x^2} node [pos=0.5,pin={0:$\Oh(h^2)$}] {};
+	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$}, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {122/x^2} node [pos=0.55,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f3-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f3-convergence.dat};
 	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f3-convergence.dat};
 
-	\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$},xmin=0.5,xmax=4000,ymin=5e-6,ymax=0.1];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.4,pin={0:$\Oh(h^{1.15})$}] {};
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.15/x^2} node [pos=0.65,pin={180:$\Oh(h^{2})$}] {};
+	\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.37,pin={30:$\Oh(h^{1.15})$}] {};
+	%\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.25/x^2} node [pos=0.45,pin={270:$\Oh(h^{2})$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f4-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f4-convergence.dat};
 	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f4-convergence.dat};
