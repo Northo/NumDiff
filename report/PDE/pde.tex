@@ -469,7 +469,7 @@ $$
 \frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + \frac{h^2}{12} \partial_x^4 + \mathcal{O}(h^4),
 $$
 and similarly for $y$.
-Therefore we get, to order $h^2$
+Therefore we get, to order $h^2$ TODO: Use this, or change to carrying the Order($h^2$) through?
 \begin{align*}
   \nabla_5^2 u
   &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
@@ -479,6 +479,13 @@ Therefore we get, to order $h^2$
 \end{align*}
 Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
 For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$.
+
+As $\nabla^2 u = \nabla_5^2 v = f$
+\begin{equation}
+  \inorm{u - v}
+  \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
+  \leq Ch^4 \lvert D^4 v\rvert_\infty.
+\end{equation}
 \end{proof}
 
 
@@ -506,6 +513,7 @@ Taylor expanding $\nabla_9^2 u$, similarly to what was done in the five point st
   &= \nabla^2 u + \frac{h^2}{12} \nabla^2 f + C h^4 \mathcal{O}(D^6 u).
 \end{align*}
 Here $\mathcal{O}(D^n u)$ is to be understood as terms involving $n$-index derivatives of $u$.
+Here $\nabla^4 u = \nabla^2 (\nabla^2 u) = \nabla^2 f$ was used.
 Notice that
 $$
 \nabla^2 f = \nabla_5^2 f + C h^2 \mathcal{O}(D^4 f),
@@ -518,7 +526,7 @@ Thus
 \begin{align}
   \inorm{\nabla_9^2 (u  - v)}
   &= \inorm{Ch^4 \mathcal{O}(D^6u)}\\
-  &\leq Ch^4 \inorm{D^6u}
+  &\leq Ch^2 \lvert D^6 u\rvert_\infty.
 \end{align}
 \end{proof}
 
@@ -534,8 +542,8 @@ $$
 F = a_1 y_1 + a_2 y_2 + ...,
 $$
 where $y_1, y_2, \dots$ are the eigenvectors of $A$.
-(TODO: $U$ is also expanded in the eigenvectors?)
-The solution $U$ is the of course
+A similar expansion must exist for $U$, as the eigenvectors are assumed to be complete.
+One may verify simply by insertion that the solution $U$ is then of course
 $$
 U =
 \frac{a_1}{\lambda_1} y_1
@@ -547,6 +555,34 @@ In general, however, this is not a viable way to solve the problem, as it requir
 However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
 We also have simple analytical expressions for the eigenvalues.
 
+More specifically, the $(i,j)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
+TODO: add source or show (\url{https://ocw.mit.edu/courses/mathematics/18-086-mathematical-methods-for-engineers-ii-spring-2006/readings/am35.pdf} is source on five point).
+$$
+\sin\left( \frac{i k \pi}{N + 1} \right)
+\sin\left( \frac{j l \pi}{N + 1} \right).
+$$
+Given a discrete function $y_k$, the discrete sine transform (of type I) in one dimension, $x[n]$, is defined as\cite{scipy_dst} (TODO: figure out prefactors)
+$$
+y_k =
+2 \sum_{n=0}^{N-1}
+x[n]
+\sin\left(
+\frac{
+  \pi (k+1) (n+1)
+}{
+  N + 1
+}
+\right), ~0 \leq k < N.
+$$
+The two dimensional equivalent is simply to apply this transformation to the two directions sequentially.
+This prefectly corresonds to the eigenvectors of the stncils!
+Formulating the Fast Poisson Solver more directly with regards to implementing the solver, we have that the solution is
+$$
+U = \text{IFST}(\text{FST}(F) / \Lambda),
+$$
+where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform in two dimensions, and $\Lambda$ are the eigenvalues of the stencil for which we solve.
+
+
 Written as matrix expressions
 \begin{align}
   A U &= F\\
@@ -554,13 +590,7 @@ Written as matrix expressions
   &\Rightarrow\\
   U &= S\Lambda^{-1} S F,
 \end{align}
-where we used the fact that $S^{-1} = S$.
-Moreover, formulated more directly with regards to implementing the solver, we have that the solution is
-$$
-U = \text{IFST}(\text{FST}(F) / \Lambda),
-$$
-where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform.
-
+where we used the fact that $S^{-1} = S$. TODO: Justify 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
 From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
@@ -653,12 +683,12 @@ Below is an easy-to-copy expression for the first bracket $ = I(m)$ in the equat
 Then $\hat{f}_{mn} = I(m) \, I(n)$.
 %% Old wrong result
 %% >>> I(m) = 48*(pi^9*m^5*e^2 - 20*(pi^9*e^2 + 2*pi^7*e^2)*m^3 - (pi^9*m^5 - 20*(pi^9 + 2*pi^7)*m^3 + 16*(4*pi^9 + 15*pi^7 + 5*pi^5)*m)*(-1)^m + 16*(4*pi^9*e^2 + 15*pi^7*e^2 + 5*pi^5*e^2)*m)/(pi^10*m^10*e^3 - 20*(2*pi^10*e^3 - pi^8*e^3)*m^8 + 16384*pi^8*e^3 + 16*(33*pi^10*e^3 - 20*pi^8*e^3 + 10*pi^6*e^3)*m^6 + 40960*pi^6*e^3 - 320*(8*pi^10*e^3 - 7*pi^8*e^3 - 2*pi^4*e^3)*m^4 + 33792*pi^4*e^3 + 256*(16*pi^10*e^3 + 35*pi^6*e^3 + 20*pi^4*e^3 + 5*pi^2*e^3)*m^2 + 10240*pi^2*e^3 + 1024*e^3)
-
-Funnet f etter ny endring: (Herman kommenterte ut for å få dokumentet til å kompilere - se i latexkoden)
-% 4*(6*pi^4*e^(x + y)*sin(pi*x)^4 - 8*(4*pi*y^3*e^x*sin(pi*x)^4 - 6*pi*y^2*e^x*sin(pi*x)^4 - 6*pi^3*e^x*sin(pi*x)^2 + 4*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 + (3*pi + 16*pi^3 - 2*pi*x^2 + 2*pi*x)*e^x*sin(pi*x)^4 + 4*(3*pi^3*e^x*sin(pi*x)^2 - 2*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 - (pi + 8*pi^3 - pi*x^2 + pi*x)*e^x*sin(pi*x)^4)*y)*cos(pi*y)*e^y*sin(pi*y)^3 + (4*y^4*e^x*sin(pi*x)^4 - 8*y^3*e^x*sin(pi*x)^4 - 8*(3*pi + 4*pi*x^3 + 16*pi^3 - 6*pi*x^2 - 4*(pi + 8*pi^3)*x)*cos(pi*x)*e^x*sin(pi*x)^3 + (256*pi^4 + 4*x^4 - 8*(16*pi^2 + 1)*x^2 - 8*x^3 + 64*pi^2 + 4*(32*pi^2 + 3)*x + 1)*e^x*sin(pi*x)^4 + 6*pi^4*e^x - 24*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x) - 12*(13*pi^4 - 6*pi^2*x^2 + 6*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^2 + 8*(2*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (16*pi^2 - x^2 + x + 1)*e^x*sin(pi*x)^4 + 3*pi^2*e^x*sin(pi*x)^2)*y^2 - 4*(4*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (32*pi^2 - 2*x^2 + 2*x + 3)*e^x*sin(pi*x)^4 + 6*pi^2*e^x*sin(pi*x)^2)*y)*e^y*sin(pi*y)^4 - 24*(2*pi^3*y*e^x*sin(pi*x)^4 - pi^3*e^x*sin(pi*x)^4)*cos(pi*y)*e^y*sin(pi*y) + 12*(6*pi^2*y^2*e^x*sin(pi*x)^4 - 6*pi^2*y*e^x*sin(pi*x)^4 + 6*pi^4*e^x*sin(pi*x)^2 - 4*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x)^3 - (13*pi^4 - 2*pi^2*x^2 + 2*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^4)*e^y*sin(pi*y)^2)*e^(-x^2 - y^2 - 1/2)
 \begin{lstlisting}
 I(m) = 2 * integral(sin(pi*x)^4*sin(m*pi*x)*exp(-(x-1/2)^2), x, 0, 1)
 >> 1/16*sqrt(pi)*(erf(-2*I*pi + 1/2*I*pi*m + 1/2)*e^(4*pi^2*m)*sin(1/2*pi*m) - erf(-2*I*pi + 1/2*I*pi*m - 1/2)*e^(4*pi^2*m)*sin(1/2*pi*m) + 4*erf(-I*pi + 1/2*I*pi*m + 1/2)*e^(3*pi^2*m + 3*pi^2)*sin(1/2*pi*m) - 4*erf(-I*pi + 1/2*I*pi*m - 1/2)*e^(3*pi^2*m + 3*pi^2)*sin(1/2*pi*m) + 6*erf(1/2*I*pi*m + 1/2)*e^(2*pi^2*m + 4*pi^2)*sin(1/2*pi*m) - 6*erf(1/2*I*pi*m - 1/2)*e^(2*pi^2*m + 4*pi^2)*sin(1/2*pi*m) + 4*erf(I*pi + 1/2*I*pi*m + 1/2)*e^(pi^2*m + 3*pi^2)*sin(1/2*pi*m) - 4*erf(I*pi + 1/2*I*pi*m - 1/2)*e^(pi^2*m + 3*pi^2)*sin(1/2*pi*m) + erf(2*I*pi + 1/2*I*pi*m + 1/2)*sin(1/2*pi*m) - erf(2*I*pi + 1/2*I*pi*m - 1/2)*sin(1/2*pi*m))*e^(-1/4*pi^2*m^2 - 2*pi^2*m - 4*pi^2)
+
+Funnet f etter ny endring:
+4*(6*pi^4*e^(x + y)*sin(pi*x)^4 - 8*(4*pi*y^3*e^x*sin(pi*x)^4 - 6*pi*y^2*e^x*sin(pi*x)^4 - 6*pi^3*e^x*sin(pi*x)^2 + 4*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 + (3*pi + 16*pi^3 - 2*pi*x^2 + 2*pi*x)*e^x*sin(pi*x)^4 + 4*(3*pi^3*e^x*sin(pi*x)^2 - 2*(2*pi^2*x - pi^2)*cos(pi*x)*e^x*sin(pi*x)^3 - (pi + 8*pi^3 - pi*x^2 + pi*x)*e^x*sin(pi*x)^4)*y)*cos(pi*y)*e^y*sin(pi*y)^3 + (4*y^4*e^x*sin(pi*x)^4 - 8*y^3*e^x*sin(pi*x)^4 - 8*(3*pi + 4*pi*x^3 + 16*pi^3 - 6*pi*x^2 - 4*(pi + 8*pi^3)*x)*cos(pi*x)*e^x*sin(pi*x)^3 + (256*pi^4 + 4*x^4 - 8*(16*pi^2 + 1)*x^2 - 8*x^3 + 64*pi^2 + 4*(32*pi^2 + 3)*x + 1)*e^x*sin(pi*x)^4 + 6*pi^4*e^x - 24*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x) - 12*(13*pi^4 - 6*pi^2*x^2 + 6*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^2 + 8*(2*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (16*pi^2 - x^2 + x + 1)*e^x*sin(pi*x)^4 + 3*pi^2*e^x*sin(pi*x)^2)*y^2 - 4*(4*(pi - 2*pi*x)*cos(pi*x)*e^x*sin(pi*x)^3 - (32*pi^2 - 2*x^2 + 2*x + 3)*e^x*sin(pi*x)^4 + 6*pi^2*e^x*sin(pi*x)^2)*y)*e^y*sin(pi*y)^4 - 24*(2*pi^3*y*e^x*sin(pi*x)^4 - pi^3*e^x*sin(pi*x)^4)*cos(pi*y)*e^y*sin(pi*y) + 12*(6*pi^2*y^2*e^x*sin(pi*x)^4 - 6*pi^2*y*e^x*sin(pi*x)^4 + 6*pi^4*e^x*sin(pi*x)^2 - 4*(2*pi^3*x - pi^3)*cos(pi*x)*e^x*sin(pi*x)^3 - (13*pi^4 - 2*pi^2*x^2 + 2*pi^2*x + 2*pi^2)*e^x*sin(pi*x)^4)*e^y*sin(pi*y)^2)*e^(-x^2 - y^2 - 1/2)
 \end{lstlisting}
 Something something sine transform.
 

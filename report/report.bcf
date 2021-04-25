@@ -2350,14 +2350,24 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">bib.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1">burgers</bcf:citekey>
-    <bcf:citekey order="2">burgers</bcf:citekey>
-    <bcf:citekey order="3">solve_ivp</bcf:citekey>
-    <bcf:citekey order="4">owren</bcf:citekey>
-    <bcf:citekey order="5">part2</bcf:citekey>
-    <bcf:citekey order="6">scipy_kron</bcf:citekey>
-    <bcf:citekey order="7">Laub_2004</bcf:citekey>
-    <bcf:citekey order="8">tridiagonal</bcf:citekey>
+    <bcf:citekey order="1">numpy_lstsq</bcf:citekey>
+    <bcf:citekey order="2">owren</bcf:citekey>
+    <bcf:citekey order="3">owren</bcf:citekey>
+    <bcf:citekey order="4">burgers</bcf:citekey>
+    <bcf:citekey order="5">burgers</bcf:citekey>
+    <bcf:citekey order="6">solve_ivp</bcf:citekey>
+    <bcf:citekey order="7">scipy_sparse</bcf:citekey>
+    <bcf:citekey order="8">scipy_sparse_lu</bcf:citekey>
+    <bcf:citekey order="9">Kreyszig</bcf:citekey>
+    <bcf:citekey order="10">owren</bcf:citekey>
+    <bcf:citekey order="11">curry</bcf:citekey>
+    <bcf:citekey order="12">scipy_fixed_quad</bcf:citekey>
+    <bcf:citekey order="13">Kreyszig</bcf:citekey>
+    <bcf:citekey order="14">part2</bcf:citekey>
+    <bcf:citekey order="15">scipy_kron</bcf:citekey>
+    <bcf:citekey order="16">Laub_2004</bcf:citekey>
+    <bcf:citekey order="17">tridiagonal</bcf:citekey>
+    <bcf:citekey order="18">scipy_dst</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
