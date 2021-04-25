@@ -3,82 +3,131 @@ from heateq import *
 from functools import partial
 
 PLOT_SAMPLES = True
-OUT_DIR = "../../report/exercise2/data_ka/"
+# OUT_DIR = "../../report/exercise2/data_ka/"
+OUT_DIR = "./data/"
 
 
-##################################
-### Defining equation - IC/BCs ###
-##################################
-
-
-def u0(x):
-    """ Initial condition """
-    # return 10*np.sin(x*np.pi)
-    return np.sin(x * np.pi)
-
-
-# Boundary conditions (Dirchlet)
-bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
-bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
-
-
-def analytical(x, t):
-    """ Analytical solution of manufactured dirchlet problem """
-    return np.sin(np.pi * x) * np.exp(-np.pi ** 2 * t)
-
-
-##########################
-### Numerical solution ###
-##########################
-
-
-# All error functions must have the call sign.
-# error_func(U:ndarray, u:callable, x:ndarray)
-ERROR_FUNCTIONS = {
-    "L2 discrete": lambda U, u, x: l2_discrete_relative_error(u(x), U),
-    "L2 continous interpolation": lambda U, u, x: L2_continous_relative_error(u, continous_continuation(x, U)),
-    "L2 continous step": lambda U, u, x: L2_continous_relative_error(u, piecewise_constant_continuation(x, U)),
-}
-
-## Partitioners ##
-AMR_simple = partial(
-    partition_interval,
-    error_function=curvature_estimator(u0)
-)
-AMR_min_dist = partial(
-    partition_interval,
-    error_function=min_dist_mixin(AMR_simple, 0.1)
-)
-
-M = np.arange(10, 1000, 100)  # Used in UMR
-
-# Find errors for each methdo defined in methods
-methods = [
-    # partitioner, parameters, error_function, solver, label
-    [np.linspace, M, ERROR_FUNCTIONS["L2 continous interpolation"], backward_euler, "UMR contionus BE"],
-    [np.linspace, M, ERROR_FUNCTIONS["L2 continous interpolation"], crank_nicolson, "UMR contionus CN"],
-    [np.linspace, M, ERROR_FUNCTIONS["L2 discrete"], backward_euler, "UMR discrete BE"],
-    [AMR_simple, np.geomspace(0.0000046, 0.1, 10), ERROR_FUNCTIONS["L2 continous step"], backward_euler, "AMR continous BE"],
-    [AMR_simple, np.geomspace(0.0000046, 0.1, 10), ERROR_FUNCTIONS["L2 continous step"], crank_nicolson, "AMR continous CN"],
-]
-
-N = 100  # Number of time steps
-errors = []
-for partitioner, parameters, error_function, method, label in methods:
-    Ms, errors_for_Ms = find_error(
-        partitioner,
-        parameters,
-        error_function,
-        analytical_func=analytical,
-        method=method,
-        bc1=bc1, bc2=bc2,
-        u0=u0,
-        N=N,
-        t_end=1,
+def make_spatial_convergence_plots(u0, bc1, bc2, error_type, analyt, N=10000):
+    t_end = 1
+    outpath = f"{OUT_DIR}2b_BE_spatialref_{error_type}_err_N{N}_tend{t_end}.dat"
+    print(outpath)
+    spatial_refinement(
+        backward_euler,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
     )
-    errors.append({"errors": errors_for_Ms, "Ms": Ms, "label": label})
 
-for error in errors:
-    plt.plot(error["Ms"], error["errors"], label=error["label"])
-plt.legend()
-plt.show()
+    outpath = f"{OUT_DIR}2b_CN_spatialref_{error_type}_err_N{N}_tend{t_end}.dat"
+    spatial_refinement(
+        crank_nicolson,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        N,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+
+def make_temporal_convergence_plots(u0, bc1, bc2, error_type, analyt, M=10000):
+    t_end = 1
+    outpath = f"{OUT_DIR}2b_BE_timeref_{error_type}_err_M{M}_tend{t_end}.dat"
+    temporal_refinement(
+        backward_euler,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        M,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+    outpath = f"{OUT_DIR}2b_CN_timeref_{error_type}_err_M{M}_tend{t_end}.dat"
+    temporal_refinement(
+        crank_nicolson,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        M,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+
+def make_kch_convergence_plots(u0, bc1, bc2, error_type, analyt, c=1):
+    t_end = 1
+    outpath = f"{OUT_DIR}2b_BE_kchref_{error_type}_err_c{c}_tend{t_end}.dat"
+    kch_refinement(
+        backward_euler,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        c,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+    outpath = f"{OUT_DIR}2b_CN_kchref_{error_type}_err_c{c}_tend{t_end}.dat"
+    kch_refinement(
+        crank_nicolson,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        c,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+
+if __name__ == "__main__":
+
+    def u0(x):
+        """ Initial condition """
+        # return 10*np.sin(x*np.pi)
+        return np.sin(x * np.pi)
+
+    # Boundary conditions (Dirchlet)
+    bc1 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
+    bc2 = BoundaryCondition(BoundaryCondition.DIRCHLET, 0)
+
+    def analytical(x, t):
+        """ Analytical solution of manufactured dirchlet problem """
+        return np.sin(np.pi * x) * np.exp(-np.pi ** 2 * t)
+
+    make_spatial_convergence_plots(u0, bc1, bc2, "discrete", analytical, N=1000)
+    make_spatial_convergence_plots(u0, bc1, bc2, "continous", analytical, N=1000)
+    make_temporal_convergence_plots(u0, bc1, bc2, "discrete", analytical, M=1000)
+    make_temporal_convergence_plots(u0, bc1, bc2, "continous", analytical, M=1000)
+    make_kch_convergence_plots(u0, bc1, bc2, "discrete", analytical, c=1)
+    make_kch_convergence_plots(u0, bc1, bc2, "continous", analytical, c=1)
+
+    x = np.linspace(0, 1, 100)
+    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 100, 0.5, method="cn")
+    outpath = f"{OUT_DIR}2b_surface.dat"
+    save_solution_surface_plot_data(x, t, sols, outpath)
+
+    # Animation
+    animation = animate_time_development(x, sols)
+    plt.show()
