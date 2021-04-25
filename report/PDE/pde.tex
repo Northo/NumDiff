@@ -213,10 +213,10 @@ $$
 We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
 We will use the same flattening for the 2D discrete function $u$ as described in section \ref{sec:exc3:numerical}.
 We recognize that in $U$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
-Thus, writing out the five point stencil $K2D$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
-We can compactly write this as (COMMENT FROM HERMAN: is it better to use subscripts, i.e. $K2D \rightarrow K_{2D}$?)
+Thus, writing out the five point stencil $K_{2D}$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
+We can compactly write this as
 $$
-K2D =
+K_{2D} =
 \begin{bmatrix}
   K & 0 \\
   0 & K & 0\\
@@ -246,15 +246,15 @@ $$
 Using the Kronecker product, this may be written as
 $$
 % K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
-K2D = K \otimes I + I \otimes K = K \oplus K,
+K_{2D} = K \otimes I + I \otimes K = K \oplus K,
 $$
 where $\otimes$ and $\oplus$ are the Kronecker product and Kronecker sum.
 This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.
 
 We will split the nine point stencil matrix into two, according to the stencil diagram above.
-One matrix represents a five point stencil with weights altered to $\frac{-10}{3}, \frac23$ instead of $-4, 1$, we denote this matrix by $K2D^{(9)}$.
+One matrix represents a five point stencil with weights altered to $\frac{-10}{3}, \frac23$ instead of $-4, 1$, we denote this matrix by $\tilde{K}_{2D}^{(9)}$.
 The other is the ``X''-stencil taking care of the NE, NW, SE, and SW points, each with a weight of $\frac16$, as shown in the diagram.
-We will denote this matrix by $\Sigma 2D$.
+We will denote this matrix by $\Sigma_{2D}$.
 
 Let
 \begin{equation}
@@ -269,20 +269,20 @@ Let
   \end{bmatrix}
 \end{equation}
 be the TST matrix with ones on its off-diagonals and zero on the diagonal.
-Then we have $\Sigma 2D = \Sigma \otimes \Sigma$.
+Then we have $\Sigma_{2D} = \Sigma \otimes \Sigma$.
 The nine point stencil is then
 \begin{equation}
-  somename9stencil = K2D^{(9)} + \Sigma 2D
+  K_{2D}^{(9)} = \tilde{K}_{2D}^{(9)} + \Sigma_{2D}.
 \end{equation}
 
 Let $\lambda_k, ~k\in[1, n]$ be the eigenvalues of the matrix $A$, and let $\mu_l, ~l\in [1, m]$ be the eigenvalues of the matrix $B$.
-As shown in for example \cite{Laub_2004} the eigenvalues of the Kronecker product $A \otimes B$ are the products of the eigenvalues of $A$ and $B$,
+As shown in for example \textcite{Laub_2004}, the eigenvalues of the Kronecker product $A \otimes B$ are the products of the eigenvalues of $A$ and $B$,
 $$
 %% \lambda_1 \mu_1, \dots, \lambda_1 \mu_m,
 %% \lambda_2 \mu_1, \dots, \lambda_2 \mu_m,
 %% \dots,
 %% \lambda_n \mu_1, \dots, \lambda_n \mu_m.
-\lambda_k\lambda_l, \quad k \in [1, n], l\in [1,m].
+\lambda_k\mu_l, \quad k \in [1, n], l\in [1,m].
 $$
 The eigenvalues of the Kronecker sum $A\oplus B$ are the sum of the eigenvalues of $A$ and $B$
 $$
@@ -292,13 +292,22 @@ $$
 %% \lambda_n + \mu_1, \dots, \lambda_n + \mu_m.
 \lambda_k + \lambda_l, \quad k \in [1, n], l\in [1,m].
 $$
+Moreover, if $x_1, \dots, x_n$ are linearly independent eigenvectors of $A$ corresponding to $\lambda_1, \dots, \lambda_n$, and $z_1, \dots, z_n$ are linearly independent eigenvectors of $B$ corresponding to $\mu_1, \dots, \mu_n$, then $x_k \otimes z_l$ are linearly independent eigenvectors of $A\otimes B$ corresponding to $\lambda_k \mu_l$.
 %(TODO: these are non-obvious properties, need a reference, e.g. \url{http://www.siam.org/books/textbooks/OT91sample.pdf} theorem 13.12 and 13.16)
 % Some properties/proofs in https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT3350/h07/undervisningsmateriale/chap9slides.pdf
-In general the eigenvalues of a TST matrix are\cite{tridiagonal}
+According to \cite{tridiagonal} the eigenvalues of a TST matrix where $a$ is the main diagonal and $b$ is the off diagonal are 
 \begin{equation*}
 	\lambda_k = a + 2 b \cos\left(\frac{k \pi}{N + 1}\right)
 \end{equation*}
-where $a$ is the main diagonal and $b$ is the off diagonal.
+and the eigenvectors are
+\begin{equation*}
+  y_k(m) = \sin\frac{m k \pi}{N+1}.
+\end{equation*}
+Thus, $K_{2D}, \tilde{K}_{2D}^{(9)}, \text{ and } \Sigma_{2D}$ share the same eigenvectors,
+\begin{equation}\label{eq:pde:eigenvec}
+y_{kl}(m, n) = \sin\frac{m k \pi}{N+1}\sin\frac{n l \pi}{N+1}.
+\end{equation}
+As a result, $K_{2D}^{(9)}$ also share these eigenvectors.
 %% Thus the eigenvalues of $K$ are
 %% $$
 %% \lambda_k = -2
@@ -308,25 +317,25 @@ where $a$ is the main diagonal and $b$ is the off diagonal.
 %% $$
 %% \gamma_k = -\frac{2}{\sqrt{6}}\cos\left(\frac{k \pi}{N + 1}\right).
 %% $$
-Thus, the eigenvalues of $K2D$ are
+The eigenvalues of $K_{2D}$ are then
 $$
 \left(-2 + 2\cos\left(\frac{k \pi}{N + 1}\right)\right)
 +
 \left(-2 + 2\cos\left(\frac{l \pi}{N + 1}\right)\right).
 $$
-The eigenvalues of $K2D^{(9)}$ are
+The eigenvalues of $\tilde{K}_{2D}^{(9)}$ are
 $$
 \frac13\left(-10 + 4\cos\left(\frac{k \pi}{N + 1}\right)\right)
 +
 \frac13\left(-10 + 4\cos\left(\frac{l \pi}{N + 1}\right)\right)
 $$
-and the eigenvalues of $\Sigma \otimes \Sigma$ are
+and the eigenvalues of $\Sigma_{2D}$ are
 $$
 \frac46
 \cos\left(\frac{k \pi}{N+1}\right)
 \cos\left(\frac{l \pi}{N+1}\right).
 $$
-The eigenvalues of the nine point stencil are thus
+The eigenvalues of the nine point stencil $K_{2D}$ are thus
 \begin{equation}
   -\frac{10}{3}
   + \frac43
@@ -352,7 +361,7 @@ The eigenvalues of the nine point stencil are thus
 \end{definition}
 
 \begin{definition}
-  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^n a_i = -a_0$. (COMMENT FROM HERMAN: sum to $n$, or $n-1$ as in prev def?)
+  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^{n-1} a_i = -a_0$.
 \end{definition}
 
 \begin{lemma}\label{pde:lemma:max}
@@ -537,7 +546,7 @@ We are to solve the equation
 $$
 A U = F.
 $$
-Assuming that the eigenvectors of $A$ are a complete set, we may write
+Assuming that the eigenvectors of $A$ form a complete set, we may write
 $$
 F = a_1 y_1 + a_2 y_2 + ...,
 $$
@@ -555,11 +564,10 @@ In general, however, this is not a viable way to solve the problem, as it requir
 However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
 We also have simple analytical expressions for the eigenvalues.
 
-More specifically, the $(i,j)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
-TODO: add source or show (\url{https://ocw.mit.edu/courses/mathematics/18-086-mathematical-methods-for-engineers-ii-spring-2006/readings/am35.pdf} is source on five point).
+According to \eqref{eq:pde:eigenvec} $(m, n)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
 $$
-\sin\left( \frac{i k \pi}{N + 1} \right)
-\sin\left( \frac{j l \pi}{N + 1} \right).
+\sin\left( \frac{m k \pi}{N + 1} \right)
+\sin\left( \frac{n l \pi}{N + 1} \right).
 $$
 Given a discrete function $y_k$, the discrete sine transform (of type I) in one dimension, $x[n]$, is defined as\cite{scipy_dst} (TODO: figure out prefactors)
 $$
@@ -575,7 +583,7 @@ x[n]
 \right), ~0 \leq k < N.
 $$
 The two dimensional equivalent is simply to apply this transformation to the two directions sequentially.
-This prefectly corresonds to the eigenvectors of the stncils!
+This prefectly corresonds to the eigenvectors of the stencils!
 Formulating the Fast Poisson Solver more directly with regards to implementing the solver, we have that the solution is
 $$
 U = \text{IFST}(\text{FST}(F) / \Lambda),
