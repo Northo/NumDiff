@@ -406,13 +406,14 @@ $$
 \end{proof}
 
 \begin{remark}
-  For the five and nine point stencil, such functions exist.TODO: Should we show/motivate this?
+  For the five and nine point stencil, such functions do exist.
+  Suspecting that the stencils are second and fourth order, we look for second and fourth order polynomials in $x$ and $y$ which has this property.
+  We find that
   \begin{equation}
     \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right)
     \label{pde:equation:phi5}
   \end{equation}
   has the property $\nabla_5^2 \phi_5(x,y) = 1$, takes the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attains the maximum on $\partial \Omega$.
-    
   \newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
   Similarly, the function
   \begin{equation}
