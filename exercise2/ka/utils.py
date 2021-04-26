@@ -51,10 +51,12 @@ def continous_continuation(xr, ur):
 
 
 def reference_spatial_refinement(
-    n_solver, M_ref, error_type, bc1, bc2, u0, N, t_end, plot=False, outpath=""
+    n_solver, MN_ref, error_type, bc1, bc2, u0, N, t_end, plot=False, outpath=""
 ):
+    M_ref = MN_ref
+    N_ref = MN_ref
     x_ref = np.linspace(0, 1, M_ref)
-    _, sol_ref = n_solver(bc1, bc2, u0, x_ref, N, t_end, log=False)
+    _, sol_ref = n_solver(bc1, bc2, u0, x_ref, N_ref, t_end, log=False)
     if error_type == "discrete":
         sol_ref_pwc = np.vectorize(piecewise_constant_continuation(x_ref, sol_ref))
     elif error_type == "continous":

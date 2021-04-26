@@ -25,7 +25,7 @@
 \filldraw (0,4.5) circle (2pt) node[anchor=east] {$t_n$};
 \filldraw (0,6) circle (2pt) node[anchor=east] {$t_{N-2}$};
 \filldraw (0,7.5) circle (2pt) node[anchor=east] {$t_{N-1}$};
-\filldraw (0,9) circle (2pt) node[anchor=east] {$t_{N} = t_{end}$};
+\filldraw (0,9) circle (2pt) node[anchor=east] {$t_{N} = t_{\text{end}}$};
 
 % Y-axis on right side
 \draw (9.0,0) -- (9.0,3);
@@ -37,7 +37,7 @@
 \filldraw (9.0,4.5) circle (2pt) node[anchor=west] {$t_n$};
 \filldraw (9.0,6.0) circle (2pt) node[anchor=west] {$t_{N-2}$};
 \filldraw (9.0,7.5) circle (2pt) node[anchor=west] {$t_{N-1}$};
-\filldraw (9.0,9.0) circle (2pt) node[anchor=west] {$t_{N} = t_{end}$};
+\filldraw (9.0,9.0) circle (2pt) node[anchor=west] {$t_{N} = t_{\text{end}}$};
 
 % Grid
 \draw[dotted] (1.5,0) -- (1.5,9.0);

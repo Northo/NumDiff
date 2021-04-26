@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+    \begin{groupplot}
+        [
+            group style={group size=2 by 1, horizontal sep=2cm},
+            height=7cm,
+            width=0.48\textwidth,
+        ]
+        \nextgroupplot[title=2b discrete, xmode=log, ymode=log, legend pos=south west]
+        \addplot[color=blue,mark=x] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_BE_kchref_discrete_err_c1_tend1.dat};
+        \addplot[color=red,mark=*] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_CN_kchref_discrete_err_c1_tend1.dat};
+        \addplot[color=black,mark=diamond] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_BE_kchref_discrete_err_c2_tend1.dat};
+        \addplot[color=gray,mark=triangle] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_CN_kchref_discrete_err_c1_tend1.dat};
+        \legend{BE c=1, CN c=1, BE c=2, CN c=2};
+
+        \nextgroupplot[title=2b continous, xmode=log, ymode=log, legend pos=south west]
+        \addplot[color=blue,mark=x] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_BE_kchref_continous_err_c1_tend1.dat};
+        \addplot[color=red,mark=*] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_CN_kchref_continous_err_c1_tend1.dat};
+        \addplot[color=black,mark=diamond] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_BE_kchref_continous_err_c2_tend1.dat};
+        \addplot[color=gray,mark=triangle] table[x={r}, y={err}] 
+            {exercise2/data_ka/2b_CN_kchref_continous_err_c1_tend1.dat};
+        \legend{BE c=1, CN c=1, BE c=2, CN c=2};
+    \end{groupplot}
+\end{tikzpicture}
