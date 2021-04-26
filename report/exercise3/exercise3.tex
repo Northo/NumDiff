@@ -174,8 +174,9 @@ We thus write
     \label{ex3:eq:solution_equation}
 \end{equation*}
 which can be solved.
-It is important to note the zeros on the upper and lower diagonal, which correspond to the nodes that have less than four neighbours, ie. the nodes on the border.
-These nodes are treated with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
+Note that the matrix is \emph{not} Toeplitz!
+There are zeros on the upper and lower diagonal, correponding to the nodes that have less than four neighbours, ie. the nodes on the border.
+These nodes are handled with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
 %Given initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
 Thus, the final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}

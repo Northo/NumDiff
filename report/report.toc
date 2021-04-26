@@ -60,7 +60,7 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {7.4}The Fast Poisson Solver}{44}{subsection.7.4}%
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {7.5}Demonstration of order}{44}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.5}Demonstration of order}{45}{subsection.7.5}%
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {7.6}Solving the Biharmonic equation}{45}{subsection.7.6}%
 \defcounter {refsection}{0}\relax 

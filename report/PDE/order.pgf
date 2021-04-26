@@ -2,18 +2,27 @@
   \begin{loglogaxis}[
       title={Demonstration of order of the five and nine point stencil.},
       xlabel={$N = N_x = N_y$},
-      ylabel={Absolute error, $\lVert u - v \rVert_\infty$},
+      ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
       legend pos=south west,
+      xmin=6, xmax=340,
     ]
-    \addplot[mark=none, dashed] table[x={Ns}, y={five_roof}] {PDE/order.dat};
-    \addlegendentry{$C h^2$};
-    \addplot[mark=none] table[x={Ns}, y={nine_roof}] {PDE/order.dat};
-    \addlegendentry{$C h^4$};
+    %% \addplot[mark=none, dashed] table[x={Ns}, y={five_roof}] {PDE/order.dat};
+    %% \addlegendentry{$C h^2$};
+    %% \addplot[mark=none] table[x={Ns}, y={nine_roof}] {PDE/order.dat};
+    %% \addlegendentry{$C h^4$};
 
-    \addplot table[x={Ns}, y={five}] {PDE/order.dat};
+    % \addplot table[x={Ns}, y expr=1/(\thisrow{Ns}-1)^2] {PDE/order.dat};
+          
+
+    \addplot table[x={Ns}, y={five}] {PDE/order_rel_norm2.dat};
     \addlegendentry{Five point};
 
-    \addplot table[x={Ns}, y={nine}] {PDE/order.dat};
+    \addplot table[x={Ns}, y={nine}] {PDE/order_rel_norm2.dat};
     \addlegendentry{Nine point};
+
+    \addplot [black, loosely dashdotted, domain = 6:356, samples=2] {30/(x-1)^2};
+    \addplot [black, loosely dashed, domain = 6:356, samples=2] {30/(x-1)^4};
+    \addlegendentry{$\mathcal{O}(h^2)$};
+    \addlegendentry{$\mathcal{O}(h^4)$};
   \end{loglogaxis}
 \end{tikzpicture}
