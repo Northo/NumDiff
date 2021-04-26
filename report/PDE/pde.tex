@@ -215,7 +215,8 @@ $$
 We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
 We will use the same flattening for the 2D discrete function $v$ as described in section \ref{sec:exc3:numerical}.
 As before we recognize that in the flattened $v$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
-Thus, writing out the five point stencil $K_{2D}$, we get a toeplitz and symmetric matrix, where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
+Thus, writing out the five point stencil $K_{2D}$, we get a toeplitz and symmetric matrix (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
+(TODO: should we more clearly differentiate between the discrete function and the vector describing it?)
 We can compactly write this as
 $$
 K_{2D} =
@@ -246,6 +247,7 @@ K =
 \end{bmatrix}.
 $$
 Using the Kronecker product, this may be written as
+(TODO: Verify order (ie. not I x K + K x I) believe this is a convention thing).
 $$
 % K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
 K_{2D} = K \otimes I + I \otimes K = K \oplus K,
@@ -305,7 +307,7 @@ and the eigenvectors are
 \begin{equation*}
   y_k(m) = \sin\frac{m k \pi}{N+1}.
 \end{equation*}
-Thus, $K_{2D}, \tilde{K}_{2D}^{(9)}, \text{ and } \Sigma_{2D}$ share the same eigenvectors,
+Thus, $K_{2D}, \tilde{K}_{2D}^{(9)}, \text{ and } \Sigma_{2D}$ share the same eigenvectors, (TODO: consider to argue more explicitly for this)
 \begin{equation}\label{eq:pde:eigenvec}
 y_{kl}(m, n) = \sin\frac{m k \pi}{N+1}\sin\frac{n l \pi}{N+1}.
 \end{equation}
@@ -350,6 +352,7 @@ The eigenvalues of the nine point stencil $K_{2D}$ are thus
   \cos(\frac{k \pi}{N+1})
   \cos(\frac{l \pi}{N+1}).
 \end{equation}
+TODO: Consider writing all of these eigenvalues in a more structured manner.
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
