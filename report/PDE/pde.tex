@@ -361,26 +361,26 @@ TODO: Consider writing all of these eigenvalues in a more structured manner.
 
 \subsection{Stability and order of the five and nine point stencils}
 \begin{definition}
-  The $n$-point stencil $\nabla_n^2 f(x_0) = \sum_{i=0}^{n-1} a_i f(x_i)$,
+  A proper $n$-point stencil $\nabla_n^2$ with weights $a_i$ has the properties
+  \begin{equation*}
+  	\nabla_n^2 f(x_0) = \sum_{i=0}^{n-1} a_i f(x_i),
+	\qquad 
+	a_i > 0 \,\, \text{for} \,\, i \geq 1
+	\qquad \text{and} \qquad
+	\sum_{i=1}^{n-1} a_i = -a_0,
+  \end{equation*}
   where $x_i$ are the neighbouring points of $x_0$.
 \end{definition}
 
-\begin{definition}
-  We denote by a proper stencil a stencil where $a_i > 0$ for $i>0$ and $\sum_{i=1}^{n-1} a_i = -a_0$.
-\end{definition}
-
-\begin{lemma}\label{pde:lemma:max}
-If $\nabla_n^2 f \geq 0$ on $\Omega$, and $\nabla_n^2$ is a proper stencil, the maximum value of $f$ is attained on $\partial \Omega$, that is
+\begin{lemma}[Discrete maximum principle]\label{pde:lemma:max}
+If $\nabla_n^2 f \geq 0$ on $\Omega$ and $\nabla_n^2$ is a proper stencil, then $f$ attains its maximum value on $\partial \Omega$, that is
 $$
-\max(f)_\Omega \leq \max(f)_{\partial \Omega}.
+\max_\Omega f  \leq \max_{\partial \Omega} f.
 $$
 \end{lemma}
 \begin{proof}
-Suppose the opposite is true,
-$$
-\max(f)_\Omega > \max(f)_{\partial \Omega}.
-$$
-Then, there is an internal grid point $x_0$ on which $f$ attains it maximal value.
+Suppose instead that $\max_\Omega f > \max_{\partial \Omega} f$.
+Then there is an internal grid point $x_0$ on which $f$ attains its maximum value $f(x_0) \geq f(x_i)$, where $x_i$ are the neighbouring points $x_i$.
 Then
 \begin{equation}
   -a_0 f(x_0)
@@ -389,15 +389,15 @@ Then
   \leq \sum_{i=1}^{n-1} a_i f(x_0)
   = -a_0 f(x_0).
 \end{equation}
-As the RHS is equal to the LHS, the equality must hold throughout.
-Since $f(x_i) \leq f(x_0)$ all points of the stencil must be equal, $f(x_1) = f(x_2) = \dots = f(x_n) = f(x_0)$.
-Applying this same argument to each of the neighbours, and then to their neighbours and so on, we ultimately reach the conclusion that the same value is also attained on $\partial \Omega$, and we thus have a contradiction.
+The right side is equal to the left side, so equality must hold throughout and $\sum_{i=1}^{n-1} a_i (f(x_0) - f(x_i)) = 0$.
+The stencil is proper, so $a_i > 0$ for $i \geq 1$ and all the are nonnegative, so it can only vanish if $f(x_0) = f(x_1) = \dots = f(x_{n-1})$.
+Repeating the argument at each neighbour $x_i$, and then to their neighbours and so on, we ultimately reach the conclusion that the same value is also attained on $\partial \Omega$, so we have a contradiction.
 \end{proof}
 
 \begin{lemma}\label{pde:lemma:bound}
-  If $\exists ~ \phi_n > 0$ such that the proper stencil $\nabla_n^2 \phi_n = 1$ on $\Omega$, and $v$ is a descrete function that equals zero on $\partial \Omega$, then
+  If there exists a function $\phi_n(x,y) \geq 0$ such that $\nabla_n^2 \phi_n = 1$ on $\Omega$ for a proper stencil $\nabla_n^2$, and $v$ is a discrete function that equals zero on $\partial \Omega$, then
   \begin{equation}
-    \inorm{v} \leq \max_{\partial\Omega}(\lvert \phi_n \rvert)
+    \inorm{v} \leq \max_{\partial\Omega} \lvert \phi_n \rvert
     \inorm{\nabla_n^2 v}.
   \end{equation}
 \end{lemma}
@@ -408,28 +408,28 @@ Then
 $$
 \nabla_n^2 (v + \phi_n M) = \nabla_n^2 v +  M \geq 0.
 $$
-$\nabla_n^2$ is a proper stencil, so by lemma \ref{pde:lemma:max} $\nabla_n^2 (v + \phi_n M)$ attains its maximum value on $\partial \Omega$.
+Since $\nabla_n^2$ is a proper stencil, $v + \phi_n M$ attains its maximum value on $\partial \Omega$ by lemma \ref{pde:lemma:max}.
 Thus
 $$
 \inorm{v}
 \leq \inorm{v + \phi_n M}
-\leq \max_{\partial \Omega}(\lvert v + \phi_n M\rvert)
-= \max_{\partial\Omega} (\lvert \phi_n \rvert) M
-= \max_{\partial\Omega} (\lvert \phi_n \rvert) \inorm{\nabla_n^2 v}.
+\leq \max_{\partial \Omega} \lvert v + \phi_n M\rvert
+= \max_{\partial\Omega} \lvert \phi_n \rvert M
+= \max_{\partial\Omega} \lvert \phi_n \rvert \inorm{\nabla_n^2 v}. \qedhere
 $$
 \end{proof}
 
 \begin{remark}
   For the five and nine point stencil, such functions do exist.
-  Suspecting that the stencils are second and fourth order, we look for second and fourth order polynomials in $x$ and $y$ which has this property.
-  We find that
+  Suspecting that the stencils are second and fourth order, we look for second and fourth order polynomials in $x$ and $y$ with this property.
+  We find 
   \begin{equation}
     \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right)
     \label{pde:equation:phi5}
   \end{equation}
-  has the property $\nabla_5^2 \phi_5(x,y) = 1$, takes the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attains the maximum on $\partial \Omega$.
+  with the property $\nabla_5^2 \phi_5(x,y) = 1$, taking the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attaining the maximum on $\partial \Omega$.
   \newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
-  Similarly, the function
+  Similarly, the polynomial
   \begin{equation}
   \phi_9(x,y) = \phinine
   \label{pde:equation:phi9}
@@ -467,83 +467,77 @@ $$
 \end{figure}
 
 %% 3
+\begin{definition}
+  We denote the maximum of all $n$-index derivatives of $u$ on $\Omega$ by
+  \begin{equation*}
+  \abs{D^n u}_\infty = \max_{m=0}^n \inorm{\partial_x^m \partial_y^{n-m} u}
+  \end{equation*}
+\end{definition}
+
 \begin{theorem}[Five point stencil stability]
-If $\nabla^2 u = f$ and $\nabla_5^2 v = f$, then
+If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq Ch^4 \lvert D^4 v\rvert_\infty.
+\inorm{u - v} \leq \frac{h^2}{48} \lvert D^4 v\rvert_\infty.
 $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound}
+By lemma \ref{pde:lemma:bound} with $\phi_5(x,y)$ from \ref{pde:equation:phi5},
 $$
 \inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
 $$
-By Taylor expanding $u(x + h, y)$ and $u(x - h, y)$ we get
-$$
-\frac{1}{h^2} \delta_x^2 u = \partial_x^2 u + \frac{h^2}{12} \partial_x^4 + \mathcal{O}(h^4),
-$$
-and similarly for $y$.
-Therefore we get, to order $h^2$ TODO: Use this, or change to carrying the Order($h^2$) through?
+Taylor expand all terms in $\nabla_5^2 u$ around $(x,y)$ to first order to get
 \begin{align*}
-  \nabla_5^2 u
-  &=\frac{1}{h^2} (\delta_x^2 + \delta_y^2) u\\
-  &= (\partial_x^2 + \partial_y^2 + \frac{h^2}{12} \partial_x^4 + \frac{h^2}{12} \partial_y^4) u\\
-  &\leq \nabla^2 u + \frac{h^2}{12} \max(\partial_x^4 u, \partial_y^4 u)\\
-  &\leq \nabla^2 u + C h^2 \lvert D^4 u \rvert_\infty.
+  \nabla_5^2 u(x,y)
+  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h)\\
+  &\leq f(x,y)          + \frac{h^2}{6} \max_\Omega\left\{\abs{\partial_x^4 u}, \abs{\partial_y^4 u}\right\} \\
+  &\leq f(x,y)          + \frac{h^2}{6} \abs{D^4 u}_\infty.\\
 \end{align*}
-Here $\lvert D^n u\rvert_\infty$ is to be understood as the maximal value of all $n$-index derivatives of $u$.
-For example for $D^2$ this would be $u_{xx}, u_{xy}, u_{yx}, \text{and } u_{yy}$.
-
-As $\nabla^2 u = \nabla_5^2 v = f$
-\begin{equation}
+for some $0 \leq \theta, \eta \leq 1$.
+Finally, substitute $f = \nabla_5^2 v$ to conclude that
+\begin{equation*}
   \inorm{u - v}
   \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
-  \leq Ch^4 \lvert D^4 v\rvert_\infty.
-\end{equation}
+  \leq \frac{h^2}{48} \abs{D^4 v}_\infty. \qedhere
+\end{equation*}
 \end{proof}
 
 
 %% 3
 \begin{theorem}[Nine point stencil stability]
-TODO verify it should be $F f$ not $f$.
-If $\nabla^2 u = f$ and $\nabla_9^2 v = F f = f + \frac{h^2}{12} \nabla_5^2 f$, then
+If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{h^2}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq Ch^2 \lvert D^6 v\rvert_\infty.
+\inorm{u - v} \leq \frac{11h^4}{2400} \lvert D^6 v\rvert_\infty.
 $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound}
+By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
 $$
 \inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
 $$
-Taylor expanding $\nabla_9^2 u$, similarly to what was done in the five point stencil case, we get
+Taylor expand all terms in $\nabla_9^2 u$ around $(x,y)$ as in the former proof to get
 \begin{align*}
-  \nabla_9^2 u
-  &= (\nabla^2
-  + \frac{h^2}{12} \partial_x^4
-  + \frac{h^2}{12} \partial_y^4
-  + \frac{h^2}{6} \partial_x^2 \partial_y^2
-  ) u + h^4 C \mathcal{O}(D^6 u)\\
-  &= \nabla^2 u + \frac{h^2}{12} \nabla^2 f + C h^4 \mathcal{O}(D^6 u).
+  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \\
+                    &\leq f(x,y)          + \frac{h^2}{12} \nabla^2 f(x,y) + \frac{h^4}{30} \abs{D^6 u}_\infty.
 \end{align*}
-Here $\mathcal{O}(D^n u)$ is to be understood as terms involving $n$-index derivatives of $u$.
-Here $\nabla^4 u = \nabla^2 (\nabla^2 u) = \nabla^2 f$ was used.
-Notice that
-$$
-\nabla^2 f = \nabla_5^2 f + C h^2 \mathcal{O}(D^4 f),
-$$
-and that $\mathcal{O}(D^4 f)
-= \mathcal{O}(D^4 \nabla^2 u)
-= \mathcal{O}(D^6 u)$.
-
-Thus
-\begin{align}
-  \inorm{\nabla_9^2 (u  - v)}
-  &= \inorm{Ch^4 \mathcal{O}(D^6u)}\\
-  &\leq Ch^2 \lvert D^6 u\rvert_\infty.
-\end{align}
+for some $0 \leq \theta, \eta \leq 1$.
+From the Taylor expansion in the former proof with $u \rightarrow f$, we also know that
+\begin{align*}
+	\nabla^2 f(x,y) &= \nabla_5^2 f(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) f(x + \chi h,y + \psi h) \\
+	%= \nabla^2 f(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) \nabla^2 u(x'',y''),
+	&= \nabla_5^2 f(x,y) + \frac{h^2}{12} (\partial_x^6 + \partial_y^6 + \partial_x^4 \partial_y^2 + \partial_x^2 \partial_y^4) u(x + \chi h,y + \psi h) \\
+	&\leq \nabla_5^2 f(x,y) + \frac{h^2}{3} \abs{D^6 u}_\infty
+\end{align*}
+for some $0 \leq \chi, \psi \leq 1$. Altogether
+\begin{equation*}
+	\nabla_9^2 u(x,y) \leq f(x,y) + \frac{h^2}{12} \nabla_5^2 f(x,y) + \frac{11 h^4}{180} \abs{D^6 u}_\infty.
+\end{equation*}
+Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
+\begin{equation*}
+  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq \frac{11 h^4}{2400} \abs{D^6 u}_\infty. \qedhere
+\end{equation*}
 \end{proof}
 
+(TODO: a word on convergence and stability)
 
 
 \subsection{The Fast Poisson Solver}
