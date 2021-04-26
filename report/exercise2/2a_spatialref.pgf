@@ -9,7 +9,7 @@
             title={$L_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$M$,
+            xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             xmin=5,
             xmax=3000,
@@ -52,7 +52,7 @@
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             ]
             \addplot [black, dashed, domain=1:3000, samples=2] {0.0001/(x)^2};

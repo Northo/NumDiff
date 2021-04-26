@@ -48,12 +48,13 @@ if __name__ == "__main__":
     bc1 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
     bc2 = BoundaryCondition(BoundaryCondition.NEUMANN, 0)
 
-    make_reference_convergence_plots(u0, bc1, bc2, "discrete", 10000, N=1000)
-    make_reference_convergence_plots(u0, bc1, bc2, "continous", 10000, N=1000)
+    #make_reference_convergence_plots(u0, bc1, bc2, "discrete", 10000, N=1000)
+    #make_reference_convergence_plots(u0, bc1, bc2, "continous", 10000, N=1000)
 
     x = np.linspace(0, 1, 50)
-    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 50, 0.5, method="cn")
+    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 50, 0.3, method="cn")
     outpath = f"{OUT_DIR}2a_surface.dat"
+    save_solution_surface_plot_data(x, t, sols, outpath)
 
     # Animation
     animation = animate_time_development(x, sols)

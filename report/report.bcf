@@ -2369,7 +2369,11 @@
     <bcf:citekey order="17">scipy_kron</bcf:citekey>
     <bcf:citekey order="18">Laub_2004</bcf:citekey>
     <bcf:citekey order="20">tridiagonal</bcf:citekey>
+<<<<<<< HEAD
     <bcf:citekey order="21">TODO</bcf:citekey>
+=======
+    <bcf:citekey order="21">scipy_dst</bcf:citekey>
+>>>>>>> 2d72c98 (Adds some new convergence data)
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">

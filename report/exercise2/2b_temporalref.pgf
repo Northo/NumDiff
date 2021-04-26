@@ -11,24 +11,24 @@
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
-            legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=-1, column sep=0.8ex, legend entries={
-                {$\Oh(h)$},
-                {$\Oh(h^2)$},
-                {BE N=100},
-                {BE N=1000},
-                {CN N=100},
-                {CN N=1000},
-            }, cycle list={
-                {black!75!black,  dashed},
-                {black!75!black,  dotted},
-                {blue!100!black,  solid, mark=x,        mark size=1.0pt},
-                {red!75!black,    solid, mark=*,        mark size=1.0pt},
-                {black!100!black, solid, mark=diamond,  mark size=1.0pt},
-                {gray!75!black,   solid, mark=triangle, mark size=1.0pt},
-            },
+%            legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
+%            transpose legend, legend columns=-1, column sep=0.8ex, legend entries={
+%                {$\Oh(h)$},
+%                {$\Oh(h^2)$},
+%                {BE N=100},
+%                {BE N=1000},
+%                {CN N=100},
+%                {CN N=1000},
+%            }, cycle list={
+%                {black!75!black,  dashed},
+%                {black!75!black,  dotted},
+%                {blue!100!black,  solid, mark=x,        mark size=1.0pt},
+%                {red!75!black,    solid, mark=*,        mark size=1.0pt},
+%                {black!100!black, solid, mark=diamond,  mark size=1.0pt},
+%                {gray!75!black,   solid, mark=triangle, mark size=1.0pt},
+%            },
         ]
         \addplot [black, dotted, domain=1:3000, samples=2] {17./x};
         \addplot [black, dashed, domain=1:3000, samples=2] {14./(x)^2};
@@ -47,7 +47,7 @@
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
         \addplot [black, dotted, domain=1:3000, samples=2] {17./x};

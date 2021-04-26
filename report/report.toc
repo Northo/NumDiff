@@ -14,9 +14,15 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.2}Convergence and mesh refinement}{12}{subsection.2.2}%
 \defcounter {refsection}{0}\relax 
+<<<<<<< HEAD
 \contentsline {section}{\numberline {3}Invicid Burgers' equation}{14}{section.3}%
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.1}Time of breaking}{14}{subsection.3.1}%
+=======
+\contentsline {section}{\numberline {3}Invicid Burgers' equation}{15}{section.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {3.1}Time of breaking}{15}{subsection.3.1}%
+>>>>>>> 2d72c98 (Adds some new convergence data)
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {4}Laplace equation in two dimensions}{17}{section.4}%
 \defcounter {refsection}{0}\relax 
@@ -60,7 +66,11 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {7.4}The Fast Poisson Solver}{44}{subsection.7.4}%
 \defcounter {refsection}{0}\relax 
+<<<<<<< HEAD
 \contentsline {subsection}{\numberline {7.5}Demonstration of order}{45}{subsection.7.5}%
+=======
+\contentsline {subsection}{\numberline {7.5}Demonstration of order}{44}{subsection.7.5}%
+>>>>>>> 2d72c98 (Adds some new convergence data)
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {7.6}Solving the Biharmonic equation}{45}{subsection.7.6}%
 \defcounter {refsection}{0}\relax 

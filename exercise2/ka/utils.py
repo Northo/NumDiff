@@ -85,7 +85,6 @@ def reference_spatial_refinement(
         plt.plot(M_array, error_array)
         plt.plot(M_array, error_array, "x")
         plt.show()
-    return error_array, M_array
 
 
 def spatial_refinement(
@@ -116,7 +115,6 @@ def spatial_refinement(
         plt.plot(M_array, error_array)
         plt.plot(M_array, error_array, "x")
         plt.show()
-    return error_array, M_array
 
 
 def temporal_refinement(
@@ -147,7 +145,6 @@ def temporal_refinement(
         plt.plot(N_array, error_array)
         plt.plot(N_array, error_array, "x")
         plt.show()
-    return error_array, N_array
 
 
 def kch_refinement(
@@ -158,8 +155,7 @@ def kch_refinement(
     h_array = 1 / (M_array - 1)
     k_array = c * h_array
     N_array = 1 / k_array + 1
-    r_array = k_array / h_array ** 2
-    error_array = np.zeros(len(r_array))  # for storing relative errors
+    error_array = np.zeros(len(M_array))  # for storing relative errors
     for (i, (Mi, Ni)) in enumerate(zip(M_array, N_array)):
         Ni = int(Ni)
         xi = np.linspace(0, 1, Mi)
@@ -171,19 +167,57 @@ def kch_refinement(
             U = continous_continuation(xi, U)
             error_array[i] = L2_continous_relative_error(u_analytical, U)
     if outpath != "":
-        table = np.column_stack((r_array, error_array))
-        np.savetxt(outpath, table, header="r err", comments="")
+        table = np.column_stack((M_array, N_array, error_array))
+        np.savetxt(outpath, table, header="M N err", comments="")
         plt.title(outpath)
     if plot:
         plt.title(n_solver.__name__ + "kchref" + error_type)
-        plt.xlabel("r")
+        plt.xlabel("M or N")
         plt.ylabel("rel. error")
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(r_array, error_array)
-        plt.plot(r_array, error_array, "x")
+        plt.plot(M_array, error_array)
+        plt.plot(M_array, error_array, "x")
+        plt.plot(N_array, error_array)
+        plt.plot(N_array, error_array, ".")
         plt.show()
-    return error_array, r_array
+
+
+def r_refinement(
+    n_solver, analyt, error_type, bc1, bc2, u0, r, t_end, plot=False, outpath=""
+):
+    u_analytical = lambda x: analyt(x, t_end)
+    M_array = np.array([8, 16, 32, 64, 128, 256])
+    h_array = 1 / (M_array - 1)
+    k_array = r * (h_array **2)
+    N_array = 1 / k_array + 1
+    print(N_array)
+    error_array = np.zeros(len(M_array))  # for storing relative errors
+    for (i, (Mi, Ni)) in enumerate(zip(M_array, N_array)):
+        Ni = int(Ni)
+        xi = np.linspace(0, 1, Mi)
+        _, U = n_solver(bc1, bc2, u0, xi, Ni, t_end, log=False)
+        if error_type == "discrete":
+            U_ref = u_analytical(xi)
+            error_array[i] = l2_discrete_relative_error(U_ref, U)
+        elif error_type == "continous":
+            U = continous_continuation(xi, U)
+            error_array[i] = L2_continous_relative_error(u_analytical, U)
+    if outpath != "":
+        table = np.column_stack((M_array, N_array, error_array))
+        np.savetxt(outpath, table, header="M N err", comments="")
+        plt.title(outpath)
+    if plot:
+        plt.title(n_solver.__name__ + "rref" + error_type)
+        plt.xlabel("M or N")
+        plt.ylabel("rel. error")
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.plot(M_array, error_array)
+        plt.plot(M_array, error_array, "x")
+        plt.plot(N_array, error_array)
+        plt.plot(N_array, error_array, ".")
+        plt.show()
 
 
 def save_solution_surface_plot_data(x, t, sols, outpath):

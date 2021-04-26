@@ -226,28 +226,26 @@ but when lowering the number of time steps to $N=1000$,
 the time step error starts to dominate towards the end of the refinement and the error curve flattens. 
 For the solution computed with the Backward-Euler method we see the flattening happening much earlier, 
 which is due to this method being less accurate in time. 
-\begin{figure}[ht]
+\begin{figure}
     \centering
-    \input{exercise2/2b_spatialref.pgf}
-    \caption{Convergence plot, h refinement (2b)}
-    \label{fig:2b-spatial-ref}
+    \label{fig:2b-spatial-temporal-ref}
+    \subfloat[Convergence plot, h refinement (2b)]{
+        \input{exercise2/2b_spatialref.pgf}
+    } \\
+    \subfloat[Convergence plot, t refinement (2b)]{
+        \input{exercise2/2b_temporalref.pgf}
+    }
 \end{figure}
 
 Now we proceed to do refinement in the $t$-direction. 
 As mentioned, Crank-Nicolson
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/2b_temporalref.pgf}
-    \caption{Convergence plot, t refinement (2b)}
-    \label{fig:2b-temporal-ref}
-\end{figure}
 
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/2b_kchref.pgf}
-    \caption{Convergence plot, kch refinement (2b)}
-    \label{fig:2b-kch-ref}
-\end{figure}
+%\begin{figure}[ht]
+%    \centering
+%    \input{exercise2/2b_kchref.pgf}
+%    \caption{Convergence plot, kch refinement (2b)}
+%    \label{fig:2b-kch-ref}
+%\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: AMR data is likely to change.
