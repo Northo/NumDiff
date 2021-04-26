@@ -7,7 +7,9 @@ In this section, we consider the one-dimensional heat equation for $u = u(x, t)$
 \end{equation*}
 with either Neumann or Dirchlet boundary conditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
-These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively \cite{owren}, 
+These are, 
+as we will later see, 
+$\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
 and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. 
 We will do refinement of the grids in both the $x$-direction and the $t$-direction, 
 however we will here restrict our attention to uniform grids only. 
@@ -166,6 +168,8 @@ similar to what we did in section \ref{task_1}.
 \end{figure}
 
 \subsection{Convergence and mesh refinement}
+\textbf{Upcomming: derivation of convergence order for theta method.}
+
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
 by doing mesh refinement of the spatial grid $x_m$. 
 For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
@@ -198,7 +202,7 @@ on the same domain $x \in [0,1] := \Omega$ and $t > 0$.
 Note that we now have Dirchlet boundary conditions, 
 and we are now able compute the analytical solution, 
 which we do using the method of sepparation of variables. 
-\\ \textbf{Skal skrive sepparasjon her da}
+\\ \textbf{Finne kilde som kan refereres, f.eks. Kreyzig}
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
 \end{equation}
@@ -240,12 +244,16 @@ which is due to this method being less accurate in time.
 Now we proceed to do refinement in the $t$-direction. 
 As mentioned, Crank-Nicolson
 
-%\begin{figure}[ht]
-%    \centering
-%    \input{exercise2/2b_kchref.pgf}
-%    \caption{Convergence plot, kch refinement (2b)}
-%    \label{fig:2b-kch-ref}
-%\end{figure}
+\begin{figure}
+    \centering
+    \label{fig:2b-kch-r-ref}
+    \subfloat[Convergence plot, kch refinement (2b)]{
+        \input{exercise2/2b_kchref.pgf}
+    } \\
+    \subfloat[Convergence plot, r refinement (2b)]{
+        \input{exercise2/2b_rref.pgf}
+    }
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: AMR data is likely to change.

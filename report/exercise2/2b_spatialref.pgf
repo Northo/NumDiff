@@ -14,14 +14,12 @@
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=1ex, legend entries={
-                {$\Oh(h)$},
                 {$\Oh(h^2)$},
                 {BE N=100},
                 {BE N=1000},
                 {CN N=100},
                 {CN N=1000},
             }, cycle list={
-                {black!75!black,  dotted},
                 {black!75!black,  dashed},
                 {blue!100!black,  solid, mark=x,        mark size=1.0pt},
                 {red!75!black,    solid, mark=*,        mark size=1.0pt},
@@ -29,7 +27,6 @@
                 {gray!75!black,   solid, mark=triangle, mark size=1.0pt},
             },
         ]
-        \addplot [black, dotted, domain=1:2, samples=2] {0};
         \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
         \addplot[color=blue,mark=x] table[x={M}, y={err}] 
             {exercise2/data_ka/2b_BE_spatialref_discrete_err_N1000_tend1.dat};

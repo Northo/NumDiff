@@ -27,16 +27,16 @@
         \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
         \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
-            {exercise2/data_ka/2b_BE_kchref_discrete_err_c1_tend1.dat};
+            {exercise2/data_ka/2b_BE_rref_discrete_err_r1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
-            {exercise2/data_ka/2b_CN_kchref_discrete_err_c1_tend1.dat};
+            {exercise2/data_ka/2b_CN_rref_discrete_err_r1_tend1.dat};
 
         \nextgroupplot[title=2b continous, xmode=log, ymode=log, legend pos=south west]
         \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
         \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
-            {exercise2/data_ka/2b_BE_kchref_continous_err_c1_tend1.dat};
+            {exercise2/data_ka/2b_BE_rref_continous_err_r1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
-            {exercise2/data_ka/2b_CN_kchref_continous_err_c1_tend1.dat};
+            {exercise2/data_ka/2b_CN_rref_continous_err_r1_tend1.dat};
     \end{groupplot}
 \end{tikzpicture}
