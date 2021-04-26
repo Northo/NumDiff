@@ -3,8 +3,7 @@ from heateq import *
 from functools import partial
 
 PLOT_SAMPLES = True
-# OUT_DIR = "../../report/exercise2/data_ka/"
-OUT_DIR = "./data/"
+OUT_DIR = "../../report/exercise2/data_ka/"
 
 
 def make_spatial_convergence_plots(u0, bc1, bc2, error_type, analyt, N=10000):
@@ -116,15 +115,15 @@ if __name__ == "__main__":
         """ Analytical solution of manufactured dirchlet problem """
         return np.sin(np.pi * x) * np.exp(-np.pi ** 2 * t)
 
-    make_spatial_convergence_plots(u0, bc1, bc2, "discrete", analytical, N=1000)
-    make_spatial_convergence_plots(u0, bc1, bc2, "continous", analytical, N=1000)
-    make_temporal_convergence_plots(u0, bc1, bc2, "discrete", analytical, M=1000)
-    make_temporal_convergence_plots(u0, bc1, bc2, "continous", analytical, M=1000)
-    make_kch_convergence_plots(u0, bc1, bc2, "discrete", analytical, c=1)
-    make_kch_convergence_plots(u0, bc1, bc2, "continous", analytical, c=1)
+#    make_spatial_convergence_plots(u0, bc1, bc2, "discrete", analytical, N=10000)
+#    make_spatial_convergence_plots(u0, bc1, bc2, "continous", analytical, N=10000)
+#    make_temporal_convergence_plots(u0, bc1, bc2, "discrete", analytical, M=10000)
+#    make_temporal_convergence_plots(u0, bc1, bc2, "continous", analytical, M=10000)
+#    make_kch_convergence_plots(u0, bc1, bc2, "discrete", analytical, c=0.5)
+#    make_kch_convergence_plots(u0, bc1, bc2, "continous", analytical, c=0.5)
 
-    x = np.linspace(0, 1, 100)
-    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 100, 0.5, method="cn")
+    x = np.linspace(0, 1, 50)
+    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 50, 0.25, method="cn")
     outpath = f"{OUT_DIR}2b_surface.dat"
     save_solution_surface_plot_data(x, t, sols, outpath)
 

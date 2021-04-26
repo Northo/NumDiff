@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+    \begin{groupplot}
+        [
+            group style={group size=2 by 2, horizontal sep=2cm},
+            height=6cm, 
+            width=0.48\textwidth,
+        ]
+        \nextgroupplot[
+            title={2a surface solution plot},
+            xlabel={$t$},
+            ylabel={$x$},
+            zlabel={$U$},
+            ]
+            \addplot3[surf, mesh/cols=50] table[x={t}, y={x}, z={U}] 
+                {exercise2/data_ka/2a_surface.dat};
+        \nextgroupplot[
+            title={2b surface solution plot},
+            xlabel={$t$},
+            ylabel={$x$},
+            zlabel={$U$},
+            ]
+            \addplot3[surf, mesh/cols=50] table[x={t}, y={x}, z={U}] 
+                {exercise2/data_ka/2b_surface.dat};
+    \end{groupplot}
+\end{tikzpicture}

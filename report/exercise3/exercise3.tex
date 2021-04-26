@@ -174,15 +174,16 @@ We thus write
     \label{ex3:eq:solution_equation}
 \end{equation*}
 which can be solved.
-It is important to note the zeros on the upper and lower diagonal, which correspond to the nodes that have less than four neighbours, ie. the nodes on the border.
-These nodes are treated with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
+Note that the matrix is \emph{not} Toeplitz!
+There are zeros on the upper and lower diagonal, correponding to the nodes that have less than four neighbours, ie. the nodes on the border.
+These nodes are handled with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
 %Given initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
 Thus, the final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}
 
 The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
 By noticing its recursive structure, one may realize that the matrix can be constructed by a Kronecker sum.
-This procedure is discussed in more depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast Poisson solver.
+This procedure is discussed in depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast Poisson solver.
 For now however, we will only take the observation about the Kronecker sum as a convenient way to implement the construction of our matrix.
 Let $K_M$ be the system matrix of the one dimensional finite central difference scheme of size $m$ introduced as $A'$ in equation \eqref{ex3:eq:simple_matrix}.
 That is, the $M\times M$ matrix
@@ -235,7 +236,7 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
   \label{fig:laplace:stencil}
 \end{figure}
 
-Using this method, the solution to equation \ref{ex3:eq:laplace} is computed, and the results are shown in figure \ref{ex3:fig:heat_map}.
+Using the method described above, we have computed the solution to equation \ref{ex3:eq:laplace}, and the results are shown in figure \ref{ex3:fig:heat_map}.
 An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
 
 \begin{figure}[tbp]
@@ -266,6 +267,6 @@ An error analysis showing the error with varying grid resolutions in both the $x
 \begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
-    \caption{Convergence plot for varying $N$ and $M$.}
+    \caption{Convergence plot for varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
     \label{ex3:fig:convergence_plot}
 \end{figure}

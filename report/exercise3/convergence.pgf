@@ -2,23 +2,22 @@
   \begin{loglogaxis}[
       title={Convergence plot for Laplace equation.},
       xlabel={Grid size ($N \times M$)},
-      ylabel={Relative error},
-      xtick={300, 350, 400, 450},
-      xticklabels={300, 350, 400, 450},
-      %ymax=10,
+      ylabel={Relative error },
     ]
-    \addplot[color=blue,mark=x]
+    \addplot[color=blue,mark=triangle*]
     table[x={N}, y={error}]
-    {exercise3/convergence/varNX-ny-20-num-6-var-0.2.dat};
+    {exercise3/convergence/varNY.dat};
+
     \addplot[color=red,mark=*]
     table[x={N}, y={error}]
-    {exercise3/convergence/varNY-nx-20-num-6-var-0.2.dat};
+    {exercise3/convergence/varNX.dat};
+
     \addplot[dotted, mark=.]
     table[x={N}, y={error}]
-    {exercise3/convergence/both-20-num-6-var-0.2.dat};
+    {exercise3/convergence/both.dat};
     \legend{
-      {$M = 20$, varying $N$},
-      {$N = 20$, varying $M$},
+      {$M = 100$, varying $N$},
+      {$N = 100$, varying $M$},
       {Uniform ($N = M$)},
     };
   \end{loglogaxis}

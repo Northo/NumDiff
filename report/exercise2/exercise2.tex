@@ -7,8 +7,10 @@ In this section, we consider the one-dimensional heat equation for $u = u(x, t)$
 \end{equation*}
 with either Neumann or Dirchlet boundary conditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
-These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
-and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. However we will here restrict our attention to uniform grids only. 
+These are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively \cite{owren}, 
+and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. 
+We will do refinement of the grids in both the $x$-direction and the $t$-direction, 
+however we will here restrict our attention to uniform grids only. 
 
 \subsection{Numerical solution method}
 To solve the heat equation numerically we first perform semi-discretization, 
@@ -30,162 +32,160 @@ turning the PDE into a set of ODEs
 \end{equation*}
 
 The problem is then generally solved by imposing the boundary conditions, 
-and numerically integrating the equations in time. 
-The integration can be done by using one of the many off-shelf routines for ODEs, 
-e.g. Euler's method,  
-and for convenience we employ the $\theta$-method, 
+and numerically integrating the equations in time, 
+using for instance one of the many standard schemes for ODEs such as Euler's method. 
+For the sake of convenience we employ the $\theta$-method, 
 which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
-    y^{n+1} = y^n + \Delta t ((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})). 
+    y^{n+1} = y^n + \Delta t \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
 \end{equation*}
-Using a constant time step $\Delta t = k$ leads to uniform discretization of the time interval, 
-which we divide into $N$ equidistant points, 
-and the final discrete grid for space and time is illustrated in figure \ref{fig:2-uniform-grid}.
-This gives the approximate solution of $v_m(t)$ at $N$ finite times $t_n = nk, 
-\: n = 0, \ldots N-1, 
-\: k = 1/(N-1)$, 
-and we denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
-After organizing the terms, 
-the $\theta$-method for the 1D heat equation is then written out as
-\begin{equation}
-    (1 - \theta r \delta_x^2)U_m^{n+1} = (1 + (1-\theta)r\delta_x^2)U_m^n, 
-    \label{eq:theta-heat}
-\end{equation}
-where we have defined $r=k/h^2$. 
-Setting the value of $\theta$ in \eqref{eq:theta-heat} determines the specific numerical scheme. 
-We have
+and the value of $\theta$ determines the specific numerical scheme 
 \begin{equation*}
 \begin{split}
     \text{Forward Euler} \quad \theta = 0 \\
     \text{Backward Euler} \quad \theta = 1 \\
-    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}, \\
+    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}. \\
 \end{split}
 \end{equation*}
-and we will as mentioned consider the Bacward-Euler and Crank-Nicolson methods. 
-
-\begin{figure}[ht]
+We use a constant time step $k = 1/(N-1)$, 
+where $N$ denotes the number of time steps, 
+and the final uniform grid is illustrated in figure\ref{fig:2-uniform-grid}. 
+This gives the approximate solution of $v_m(t)$ at $t_n = nk$, 
+where $n = 0, \ldots N-1$, 
+and we denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
+After organizing the terms, 
+the $\theta$-method for the 1D heat equation is then written out as
+\begin{equation}
+    (1 - \theta r \delta_x^2)U_m^{n+1} = \left(1 + (1-\theta)r\delta_x^2\right)U_m^n, 
+    \label{eq:theta-heat}
+\end{equation}
+where we have defined $r=k/h^2$. 
+In the following we will as mentioned consider the Backward-Euler and Crank-Nicolson methods. 
+\begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
     \caption{Discrete uniform grid}
     \label{fig:2-uniform-grid}
 \end{figure}
 
-\subsubsection{Boundary conditions}
-For Dirchlet boundary conditions $u(0, t) = \sigma, \: u(1, t) = \beta$, 
-we substitute $U_0^{n+1} = \sigma$ and $U_M^{n+1} = \beta$ in \eqref{eq:theta-heat} for $m=0$ and $m=M+1$. 
-In matrix form, 
-the equation for the remaining inner nodes is then written as
-\begin{multline}
+To impose Dirchlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
+we substitute $U_0^{n+1} = \sigma$ and $U_{M+1}^{n+1} = \beta$ in equation \eqref{eq:theta-heat} for $m=1$ and $m=M$ to obtain 
+\begin{equation*}
+\begin{split}
+    (1+2r\theta)U_1^{n+1} - r\theta U_2^{n+1} = \left(1-2r(1-\theta)\right)U_1^n + r(1-\theta)U_2^n + r\sigma
+    \quad (\text{for} \: m=1) \\
+    (1+2r\theta)U_{M}^{n+1} - r\theta U_{M-1}^{n+1} = \left(1-2r(1-\theta)\right)U_{M}^n + r(1-\theta)U_{M-1}^n + r\beta
+    \quad (\text{for} \: m=M), 
+\end{split}
+\end{equation*}
+which we combine with equation \ref{eq:theta-heat} for the remaining spatial nodes to write the system of equations in matrix form
+\begin{equation}
+    (I - \theta r A)U^{n+1} = (I + (1-\theta)r A)U^n+\rho, 
+    \label{eq:theta-heat-matrix}
+\end{equation}
+with 
+\begin{equation}
+    A = 
     \begin{bmatrix}
-    1+2\theta r & -\theta r \\
-    -\theta r & 1+2\theta r & -\theta r & \\
+    -2 & 1 \\
+    1 & -2 & 1 & \\
       & \ddots & \ddots & \ddots & \\
-      &   & -\theta r & 1+2\theta r & -\theta r \\
-      &   &  & -\theta r & 1+2\theta r \\
+      &   & 1 & -2 & 1 \\
+      &   &  & 1 & -2 \\
     \end{bmatrix}
+    \quad \text{and} \quad
+    \rho = 
     \begin{bmatrix}
-    U_{1}^{n+1} \\ U_{2}^{n+1} \\ \vdots \\ U_{M-1}^{n+1} \\ U_{M}^{n+1} \\
-    \end{bmatrix}
-    \\
-    = 
-    \begin{bmatrix}
-    1-2r(1 - \theta) & r(1-\theta) \\
-    r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) & \\
-      & \ddots & \ddots & \ddots & \\
-      &   & r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) \\
-      &   &  & r(1-\theta) & 1-2r(1 - \theta) \\
-    \end{bmatrix}
-    \begin{bmatrix}
-    U_{1}^{n} \\ U_{2}^{n} \\ \vdots \\ U_{M-1}^{n} \\ U_{M}^{n}
-    \end{bmatrix}
-    + 
-    \begin{bmatrix}
-    \theta r \sigma \\ 0 \\ \vdots \\ 0 \\ \theta r \beta
+        r\sigma \\ 0 \\ \vdots \\ 0 \\ r\beta
     \end{bmatrix}
     .
     \label{eq:theta-heat-matrix-dirchlet}
-\end{multline}
+\end{equation}
 
 For Neumann boundary conditions, $u_x(0, t) = \sigma, \: u_x(1, t) = \beta$, 
-we introduce fictitious nodes to the left and right of the spatial grid, 
+we introduce fictitious nodes at $m=-1$ and $m=M+2$, 
 and approximate the first derivatives at the boundaries by
 \begin{equation*}
     \frac{U_1 - U_{-1}}{2h} = \sigma
-    \quad and \quad
+    \quad \text{and} \quad
     \frac{U_{M+2} - U_{M}}{2h} = \beta. 
 \end{equation*}
-Inserting this into \eqref{eq:theta-heat} for $m=0$ and $m=M+1$, 
-and eliminating the fictitious nodes we get 
+We then use these expressions to eliminate the fictitious nodes from equation \eqref{eq:theta-heat} for $m=0$ and $m=M+1$ to get
 \begin{equation*}
 \begin{split}
-    (1+r\theta)U_0^{n+1} - r\theta U_1^{n+1} = (1-2r(1-\theta))U_0^n + r(1-\theta)U_1^n - 2hr\sigma
-    \quad (for \: m=0) \\
-    (1+r\theta)U_{M+1}^{n+1} - r\theta U_M^{n+1} = (1-2r(1-\theta))U_{M+1}^n + r(1-\theta)U_M^n - 2hr\beta
-    \quad (for \: m=M+1), 
+    (1+2r\theta)U_0^{n+1} - 2r\theta U_1^{n+1} = \left(1-2r(1-\theta)\right)U_0^n + 2r(1-\theta)U_1^n - 2hr\sigma
+    \quad (\text{for} \: m=0) \\
+    (1+2r\theta)U_{M+1}^{n+1} - 2r\theta U_M^{n+1} = \left(1-2r(1-\theta)\right)U_{M+1}^n + 2r(1-\theta)U_M^n + 2rh\beta
+    \quad (\text{for} \: m=M+1). 
 \end{split}
 \end{equation*}
-which we combine with \eqref{eq:theta-heat} for the inner nodes, $1 \leq m \leq M$, 
-to get the equation as a $(M+2)\times (M+2)$ linear system
-\begin{multline}
+Now we can write the system of equations on the same matrix form \eqref{eq:theta-heat-matrix}, 
+but with 
+\begin{equation}
+    A = 
     \begin{bmatrix}
-    1+\theta r & -\theta r \\
-    -\theta r & 1+2\theta r & -\theta r & \\
+    -2 & 2 \\
+    1 & -2 & 1 & \\
       & \ddots & \ddots & \ddots & \\
-      &   & -\theta r & 1+2\theta r & -\theta r \\
-      &   &  & -\theta r & 1+\theta r \\
+      &   & 1 & -2 & 1 \\
+      &   &  & 2 & -2 \\
     \end{bmatrix}
+    \quad \text{and} \quad
+    \rho = 
     \begin{bmatrix}
-    U_{0}^{n+1} \\ U_{1}^{n+1} \\ \vdots \\ U_{M}^{n+1} \\ U_{M+1}^{n+1} \\
-    \end{bmatrix}
-    \\
-    = 
-    \begin{bmatrix}
-    1-2r(1 - \theta) & r(1-\theta) \\
-    r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) & \\
-      & \ddots & \ddots & \ddots & \\
-      &   & r(1-\theta) & 1-2r(1 - \theta) & r(1-\theta) \\
-      &   &  & r(1-\theta) & 1-2r(1 - \theta) \\
-    \end{bmatrix}
-    \begin{bmatrix}
-    U_{0}^{n} \\ U_{1}^{n} \\ \vdots \\ U_{M}^{n} \\ U_{M+1}^{n}
-    \end{bmatrix}
-    + 
-    \begin{bmatrix}
-    -2hr\sigma \\ 0 \\ \vdots \\ 0 \\ -2hr\beta
+        -2rh\sigma \\ 0 \\ \vdots \\ 0 \\ 2rh\beta
     \end{bmatrix}
     .
     \label{eq:theta-heat-matrix-neumann}
-\end{multline}
-All quantities on the right hand sides in \eqref{eq:theta-heat-matrix-dirchlet} and \eqref{eq:theta-heat-matrix-neumann} are known, 
+\end{equation}
+
+Note that with Dirchlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-dirchlet} is an $M \times M$ matrix. 
+With Neumann conditions however we still need to solve for the boundary nodes, 
+and $A$ is in \eqref{eq:theta-heat-matrix-neumann} an $(M+2) \times (M+2)$ matrix. 
+In both cases though, all quantities on the right hand sides in \eqref{eq:theta-heat-matrix} are known, 
 i.e. the equations are on the form $A\vec{x}=\vec{b}$, 
 and the known $\vec{b}$ is just written via a matrix-vector product for notational convenience. 
-The system of equation is then solved at each time step using "scipy.sparse.linalg.spsolve", 
-and the left hand side matrix is stored as a compressed sparse row/column % Må finne ut hvilken som er lur(est). 
-matrix. 
+To solve the problem we now solve this system of equations at each time step, 
+and since matrices in both cases are tridiagonal, 
+we represent them as sparse matrices and use a solver for sparse systems to save both memory and time. 
 
 With the numerical schemes in hand we now solve the heat equation with the following Neumann boundary conditions and initial condition, 
 \begin{equation}
     u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x). 
     \label{eq:2a}
 \end{equation}
-The computed solutions for $t \in [0, 0.5]$ is plotted in figure \ref{fig:2a-surface}, 
-and qualitatively the solution behaves in accordance to what one should expect for the heat equation. 
+The computed solutions for $t \in [0, 0.5]$ is plotted in figure \ref{fig:task2-surface}, 
+and qualitatively the solution behaves in accordance with what we expect for the heat equation. 
 To quantify and compare the accuracy of the numerical schemes we will now proceed to analyze convergence using mesh refinement, 
 similar to what we did in section \ref{task_1}. 
 
-\begin{figure}[ht]
-    \centering
-    \input{exercise2/2a_surface_plot.pgf}
+\begin{figure}
+    \input{exercise2/surface_plot_combined.pgf}
     \caption{I am a surface plot, Hooray :)}
-    \label{fig:2a-surface}
+    \label{fig:task2-surface}
 \end{figure}
 
 \subsection{Convergence and mesh refinement}
-As in section \ref{task_1} we now analyze the convergence of the numerical solution methods, 
+As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
 by doing mesh refinement of the spatial grid $x_m$. 
 For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
 so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
 which we use in place of the analytical solution when computing the error. 
+When doing mesh refinement of the spatial grid, 
+we vary the number of spatial grid points $M$, 
+and compute the numerical solution at the same point in time $t=t_{end}$. 
+We keep the number of time steps $N$ fixed, 
+so that the error from the time discretization does not vary, 
+and compute the $L_2$ discrete and $l2$ continous relative errors with respect to the reference solution. 
+The resulting convergence rates from the refinement is plotted in figure\ref{fig:2a-convergence}. 
+\begin{figure}[ht]
+    \centering
+    \input{exercise2/2a_spatialref.pgf}
+    \caption{Convergence plot, h refinement (2a)}
+    \label{fig:2a-convergence}
+\end{figure}
+
+From figure\ref{fig:2a-convergence} we see that \textbf{comment about results}
 
 In order to analyze the convergence further, 
 we also consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
@@ -196,33 +196,20 @@ Specifically we consider
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
-and the analytical solution is readily available as 
-\footnote{The analytical solution can be computed using e.g. separation of variables.}
+and we are now able compute the analytical solution, 
+which we do using the method of sepparation of variables. 
+\\ \textbf{Skal skrive sepparasjon her da}
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
-    % Necessary to derive this? Just separation of variables,
-    % and it is like the most basic example of the heat equation, 
-    % probably included in any introductory text on PDEs
 \end{equation}
 
-When doing mesh refinement of the spatial grid, 
-we vary the number of spatial grid points $M$, 
-and compute the numerical solution at the same point in time $t=t_{end}$. 
-We keep the number of time steps $N$ fixed, 
-so that the error from the time discretization does not vary, 
-and compute the $L_2$ discrete relative error with respect to the reference solution. 
-For equation \eqref{eq:2b-manufactured} we also compute the $l_2$ continous relative error, 
-and compute errors with respect to the analytical solution. 
-The resulting convergence plots are shown in figure \ref{fig:2a-convergence} and \ref{fig:2b-convergence}. 
-
+We now do the same spatial refinement for equation \eqref{eq:2b-manufactured}, 
+however now we compute the errors with respect to the analytical solution. 
+The resulting convergence plots are shown in figure \ref{fig:2b-spatial-ref}, 
+and here the difference between Backward Euler and Crank-Nicolson becomes more apparent. 
 Both methods are second order in the spatial step $h$, 
-and are unconditionally stable, 
+and are unconditionally stable \cite{find some source probably brynjulf}, 
 unlike e.g. the explicit Forward Euler method ($\theta=0$). 
-Despite this, 
-the solution with the Neumann boundary conditions \ref{eq:2a} seems to break down for sufficiently low $M$ using Backward Euler, 
-and the error blows up as seen in figure \ref{fig:2a-convergence}. 
-\textbf{Comment from KA: I dont really know why.}
-
 Crank-Nicolson is however one order higher in the time step $k$, 
 so that the total error is lower for Crank-Nicolson than Backward-Euler when $M$ and $N$ are the same. 
 This is seen when refining the spatial step $h$; 
@@ -233,25 +220,33 @@ At some point,
 when the spatial error has become sufficiently small, 
 the total error will be dominated by the error in the time step $k$, 
 and we expect this to happen earlier for the Backward-Euler method. 
-In figure \ref{fig:2b-convergence} we see exactly this. 
+In figure \ref{fig:2b-spatial-ref} we see exactly this. 
 The error of the Crank-Nicolson solution with $N=10000$ exhibits second order convergence throughout the entire refinement, 
 but when lowering the number of time steps to $N=1000$, 
 the time step error starts to dominate towards the end of the refinement and the error curve flattens. 
 For the solution computed with the Backward-Euler method we see the flattening happening much earlier, 
 which is due to this method being less accurate in time. 
-
 \begin{figure}[ht]
     \centering
-    \input{exercise2/2a_UMR_discrete.pgf}
-    \caption{Convergence plot, h refinement (2a)}
-    \label{fig:2a-convergence}
+    \input{exercise2/2b_spatialref.pgf}
+    \caption{Convergence plot, h refinement (2b)}
+    \label{fig:2b-spatial-ref}
+\end{figure}
+
+Now we proceed to do refinement in the $t$-direction. 
+As mentioned, Crank-Nicolson
+\begin{figure}[ht]
+    \centering
+    \input{exercise2/2b_temporalref.pgf}
+    \caption{Convergence plot, t refinement (2b)}
+    \label{fig:2b-temporal-ref}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \input{exercise2/2b_UMR_combined.pgf}
-    \caption{Convergence plot, h refinement (2b)}
-    \label{fig:2b-convergence}
+    \input{exercise2/2b_kchref.pgf}
+    \caption{Convergence plot, kch refinement (2b)}
+    \label{fig:2b-kch-ref}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

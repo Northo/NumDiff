@@ -153,9 +153,11 @@ def save_stencil(A, filename):
 
 
 def discretization_test():
-    N0 = 20
-    num_points = 6
-    var = 0.2
+    N0 = 100
+    num_points = 12
+    var_low = 0.9
+    var_high = 0.99
+    N_var = np.geomspace(N0*(1-var_high), N0*(10), num_points).astype(int)
 
     def save(filename, errors, nxs, nys):
         data = np.stack([nxs*nys, nxs, nys, errors]).T
@@ -169,22 +171,29 @@ def discretization_test():
     ## Change Ny
     Nx = N0
     Nxs = [Nx] * num_points
-    Nys = (
-        N0 * ( 1 + var * np.linspace(-1, 1, num_points))
-    ).astype(int)
-    save(f"varNY-nx-{Nx}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    Nys = N_var
+    #Nys = (
+        #N0 * ( 1 + var * np.linspace(-1, 1, num_points))
+    #).astype(int)
+    save(f"../../report/exercise3/convergence/varNY.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    #save(f"../../report/exercise3/convergence/varNY-nx-{Nx}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
 
     ## Change Nx
     Ny = N0
     Nys = [Ny] * num_points
-    Nxs = (
-        N0 * ( 1 + var * np.linspace(-1, 1, num_points))
-    ).astype(int)
-    save(f"varNX-ny-{Ny}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    Nxs = N_var
+    #Nxs = (
+    #    N0 * ( 1 + var * np.linspace(-1, 1, num_points))
+    #).astype(int)
+    save(f"../../report/exercise3/convergence/varNX.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    #save(f"../../report/exercise3/convergence/varNX-ny-{Ny}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
 
     ## Change both
-    Nys = Nxs = (
-        N0 * ( 1 + 0.5 * var * np.linspace(-1, 1, num_points))
-    ).astype(int)
-    save(f"both-{Ny}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    Nxs = N_var[4:num_points-2]
+    Nys = N_var[4:num_points-2]
+    #Nys = Nxs = (
+    #    N0 * ( 1 + 0.5 * var * np.linspace(-1, 1, num_points))
+    #).astype(int)
+    save(f"../../report/exercise3/convergence/both.dat", solve_errors(Nxs, Nys), Nxs, Nys)
+    #save(f"../../report/exercise3/convergence/both-{Ny}-num-{num_points}-var-{var}.dat", solve_errors(Nxs, Nys), Nxs, Nys)
 discretization_test()

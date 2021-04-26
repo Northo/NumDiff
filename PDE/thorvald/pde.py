@@ -133,10 +133,15 @@ def plot_errors(Ns, errors):
     plt.show()
 
 
-def demonstrate_order(plot=False):
+def demonstrate_order(plot=False, order=np.inf, relative=False):
     def errfunc(approx, anal):
-        order = np.inf
-        return np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
+        if relative:
+            return (
+                np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
+                / np.linalg.norm(anal.flatten(), ord=order)
+            )
+        else:
+            return np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
 
     def f(x, y, k=1, l=1):
         """Manufactured solution"""
@@ -347,7 +352,7 @@ def new_analytical_solution(x, y):
     )
 
 
-def exercise_h(ord=np.inf, use_fps=True):
+def exercise_h(ord=np.inf, use_fps=True, relative=False):
     # def f(x, y):
     #     return (
     #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
@@ -362,20 +367,25 @@ def exercise_h(ord=np.inf, use_fps=True):
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
 
-    def errfunc(u, v, ord=np.inf):
+    def errfunc(u, v, ord=np.inf, relative=False):
         u = u.flatten()
         v = v.flatten()
-        return (
-            np.linalg.norm(
+        if relative:
+            return (
+                np.linalg.norm(
+                    u - v,
+                    ord=ord,
+                )
+                / np.linalg.norm(
+                    v,
+                    ord=ord,
+                )
+            )
+        else:
+            return np.linalg.norm(
                 u - v,
                 ord=ord,
             )
-            # /
-            # np.linalg.norm(
-            #     v,
-            #     ord=ord,
-            # )
-        )
 
     # N = 1000
     # xx, yy, h = get_mesh(N, reth=True)
@@ -397,7 +407,7 @@ def exercise_h(ord=np.inf, use_fps=True):
         U9 = nine_point_solve(G, use_fps=use_fps)
         comp_time.append(time.time() - start_time)
         errors.append(
-            errfunc(U9, anal(xx, yy), ord=ord)
+            errfunc(U9, anal(xx, yy), ord=ord, relative=relative)
         )
 
     # Save solution
@@ -434,11 +444,11 @@ def plot_fourier(m_max):
     plt.show()
 
 if __name__=="__main__":
-    # errors = demonstrate_order(True)
+    # errors = demonstrate_order(True, order=2, relative=True)
     # data = [errors[error] for error in errors]
     # header = ' '.join(errors.keys())
     # np.savetxt(
-    #     "order.dat",
+    #     "order_rel_norm2.dat",
     #     np.vstack(data).T,
     #     header=header,
     #     comments='',
@@ -449,11 +459,12 @@ if __name__=="__main__":
     errors, comp_time, Ns = exercise_h(
         ord=2,
         use_fps=True,
+        relative=True,
     )
     data = [Ns, errors]
     header = "N error"
     np.savetxt(
-        "error_bvp.dat",
+        "error_bvp_rel_2.dat",
         np.vstack(data).T,
         header=header,
         comments='',
@@ -468,4 +479,4 @@ if __name__=="__main__":
     )
 
 
-    # plot_fourier(4)
+    # # plot_fourier(4)

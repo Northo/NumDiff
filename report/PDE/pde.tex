@@ -562,44 +562,83 @@ where $\lambda_i$ is the eigenvalue corresponding to $y_i$.
 In general, however, this is not a viable way to solve the problem, as it requires knowing all the eigenvalues and eigenvectors, as well as finding the coefficients $a_i$.
 However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
 We also have simple analytical expressions for the eigenvalues.
+The idea behind the Fast Poisson Solver is to given $F$ find its expansion coefficients $a_i$, divide these by the corresponding eigenvalues $\lambda_i$, and then use this to express $U$.
 
 According to \eqref{eq:pde:eigenvec} the $(m, n)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
 $$
 \sin\left( \frac{m k \pi}{N + 1} \right)
 \sin\left( \frac{n l \pi}{N + 1} \right).
 $$
-Given a discrete function $y_k$, the discrete sine transform (of type I) in one dimension, $x[n]$, is defined as\cite{scipy_dst} (TODO: figure out prefactors)
-$$
-y_k =
-2 \sum_{n=0}^{N-1}
-x[n]
-\sin\left(
-\frac{
-  \pi (k+1) (n+1)
-}{
-  N + 1
-}
-\right), ~0 \leq k < N.
-$$
+The discrete sine transform of type I $x(k)$ of $y(n)$ is defined as\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.} \cite{TODO}
+\begin{equation}
+  y(n) =
+  \sum_{k=1}^{N}
+  x(k)
+  \sin\left(
+  \frac{
+    \pi k n
+  }{
+    N + 1
+  }
+  \right), ~ n = 1, \dots N.
+\end{equation}
+%% Given a discrete function $y_k$, the discrete sine transform (of type I) in one dimension, $x[n]$, is defined as\cite{scipy_dst} (TODO: figure out prefactors)
+%% $$
+%% y_k =
+%% 2 \sum_{n=0}^{N-1}
+%% x[n]
+%% \sin\left(
+%% \frac{
+%%   \pi (k+1) (n+1)
+%% }{
+%%   N + 1
+%% }
+%% \right), ~0 \leq k < N.
+%% $$
 The two dimensional equivalent is simply to apply this transformation to the two directions sequentially.
+\begin{equation}
+  y(m, n) =
+  \sum_{k=1}^{N}
+  \sum_{l=1}^{N}
+  x(k, l)
+  \sin\left(
+  \frac{
+    \pi k m
+  }{
+    N + 1
+  }
+  \right)
+  \sin\left(
+  \frac{
+    \pi l n
+  }{
+    N + 1
+  }
+  \right), ~ m = 1, \dots N, n = 1, \dots N.
+\end{equation}
 This prefectly corresonds to the eigenvectors of the stencils!
+Therefore given $F(m, n)$ the 2D Discrete Sine Transform gives $x(k, l)$, corresponding to the coefficents $a_i$ introduced above (where now the subscript has two indices instead of one).
+As we know the eigenvalues $\lambda_{k,l}$ of the five and nine point stencils from section \ref{sec:pde:numerical_solution}, the solution $U$ is readily computed by the inverse Discrete Sine Transform, which calculates $y(m, n)$ given $x(k, l)$.
+
 Formulating the Fast Poisson Solver more directly with regards to implementing the solver, we have that the solution is
 $$
 U = \text{IFST}(\text{FST}(F) / \Lambda),
 $$
-where $\text{IFST}, \text{FST}$ are the inverse and normal fast sine tranform in two dimensions, and $\Lambda$ are the eigenvalues of the stencil for which we solve.
+where $\text{IFST}, \text{FST}$ are the inverse and normal Fast Sine Tranform in two dimensions, and $\Lambda$ are the eigenvalues of the stencil for which we solve.
 These eigenvalues were given in section \ref{sec:pde:numerical_solution}.
 
 
-Written as matrix expressions
-(TODO: this could probably be removed?)
-\begin{align*}
-  A U &= F\\
-  S\Lambda S U &= F\\
-  &\Rightarrow\\
-  U &= S\Lambda^{-1} S F,
-\end{align*}
-where we used the fact that $S^{-1} = S$. TODO: Justify 
+%% Written as matrix expressions
+%% (TODO: this could probably be removed?)
+%% \begin{align*}
+%%   A U &= F\\
+%%   S\Lambda S U &= F\\
+%%   &\Rightarrow\\
+%%   U &= S\Lambda^{-1} S F,
+%% \end{align*}
+%% where we used the fact that $S^{-1} = S$. TODO: Justify
+
+
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
 From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
@@ -683,7 +722,7 @@ According to equation \eqref{eq:PDE-poisson} we split the equation into a system
     g = u &= 0,\quad \text{ on } \partial \Omega.
   \end{split}
 \end{align*}
-It is now simply a matter of applying the described fast poisson solver sequentially for the two equations.
+It is now simply a matter of applying the described Fast Poisson Solver sequentially for the two equations.
 
 The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
@@ -727,15 +766,18 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
   \begin{loglogaxis}[
       title={},
       xlabel={$N = N_x = N_y$},
-      ylabel={Absolute error, $\lVert u - v \rVert_2$},
+      ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
       legend pos=south west,
+      xmin=6, xmax=340,
     ]
-    \addplot table[x={N}, y={error}] {PDE/error_bvp.dat};
+    \addplot table[x={N}, y={error}] {PDE/error_bvp_rel_2.dat};
     \addlegendentry{Nine point};
+    \addplot[black, dashed, domain = 6:356, samples=2] {100/(x-1)^2};
+    \addlegendentry{$\mathcal{O}(h^2)$};
   \end{loglogaxis}
 \end{tikzpicture}
 \caption{
-  The absolute error of the numerical solution to the clamped Biharmonic equation, using the manufactured solution $\left(
+  The relative error of the numerical solution to the clamped Biharmonic equation, using the manufactured solution $\left(
 \sin \pi x
 \sin \pi y
 \right)^4
