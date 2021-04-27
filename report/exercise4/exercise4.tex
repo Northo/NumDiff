@@ -397,21 +397,21 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 ]
 	\pgfplotscreateplotcyclelist{mycycle}{
 		{black,dotted},
-		{black,dashed},
+		{black,dashdotted},
 		{black,solid},
-		{blue!100!black,dotted},
-		{blue!80!black,dashed},
-		{blue!60!black,solid},
-		{green!100!black,dotted},
-		{green!80!black,dashed},
-		{green!60!black,solid},
-		{red!100!black,dotted},
-		{red!80!black,dashed},
-		{red!60!black,solid},
+		{blue,dotted},
+		{blue,dashdotted},
+		{blue,solid},
+		{green!80!black,dotted},
+		{green!80!black,dashdotted},
+		{green!80!black,solid},
+		{red,dotted},
+		{red,dashdotted},
+		{red,solid},
 	};
 
 	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east];
-	\addplot [forget plot, black, loosely dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\addplot {0}; \addlegendentry{$N=30000$};
 	\addplot {0}; \addlegendentry{$N=40000$};
 	\addplot {0}; \addlegendentry{$N=50000$};
@@ -422,7 +422,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	}
 
 	\draw [blue ] (0.90, 0.75) node {$M=15$};
-	\draw [green] (0.48, 0.95) node {$M=20$};
+	\draw [green!80!black] (0.48, 0.95) node {$M=20$};
 	\draw [red  ] (0.03, 0.89) node {$M=25$};
 
 	\pgfplotscreateplotcyclelist{mycyclee}{
@@ -432,7 +432,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 		{red,thick},{blue,semithick},{green,thin}
 	}, legend entries={$N=100$,$N=200$,$N=300$},
 	];
-	\addplot [forget plot, black, loosely dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\pgfplotsinvokeforeach{800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};
