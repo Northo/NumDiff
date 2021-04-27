@@ -236,8 +236,7 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
   \label{fig:laplace:stencil}
 \end{figure}
 
-Using the method described above, we have computed the solution to equation \ref{ex3:eq:laplace}, and the results are shown in figure \ref{ex3:fig:heat_map}.
-An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
+Using the method described above, the solution to equation \ref{ex3:eq:laplace} has been computed, and the results are shown in figure \ref{ex3:fig:heat_map}.
 \begin{figure}[tbp]
     \centering
     \begin{tikzpicture}
@@ -262,11 +261,16 @@ An error analysis showing the error with varying grid resolutions in both the $x
     \caption{The numerically computed solution to the Laplace equation, using $N = M = 100$.}
     \label{ex3:fig:heat_map}
 \end{figure}
-We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal.
-
+An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
 \begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
     \caption{Convergence plot for varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
     \label{ex3:fig:convergence_plot}
 \end{figure}
+We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal -- that is, of the same order of magnitude -- and further to order $\Oh(h^0)$ as the difference grows.
+The convergence plot shows that varying the grid size in either direction when $M \approx N$, converges to first order.
+However, when $M \neq N$, varying the smaller one increases accuracy to second order, and increasing the largest one, yields almost no gain in accuracy.
+
+This error behaviour is intuitive: When the resolution is a lot higher in one direction than the other, then the error is almost entirely due to the direction with the lowest resolution.
+Thus, increasing the resolution in the most precise direction gives only insignificant increases in the overall error.
