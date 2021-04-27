@@ -176,9 +176,11 @@ We thus write
 which can be solved.
 Note that the matrix is \emph{not} Toeplitz!
 There are zeros on the upper and lower diagonal, correponding to the nodes that have less than four neighbours, ie. the nodes on the border.
-These nodes are handled with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
+These nodes are handled with the boundary conditions, which come from $b$. 
+As was mentioned briefly above, the values in $b$ are set in points that correspond to the borders of the system.
+In this way, the edges of the system are determined with the boundary conditions.
 %Given initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
-Thus, the final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
+The final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}
 
 The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
@@ -203,9 +205,9 @@ The full matrix $A$ is then compactly written as
   A =
   \frac{1}{h^2} K_N \oplus \frac{1}{k^2} K_M
   = \frac{1}{h^2} K_N \otimes I_M
-  + I_N \otimes \frac{1}{k^2} K_M.
+  + I_N \otimes \frac{1}{k^2} K_M,
 \end{equation}
-This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
+which corresponds to the matrix illustrated in figure \ref{fig:laplace:stencil}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
@@ -232,7 +234,8 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
     \end{axis}
   \end{tikzpicture}
 
-  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure.}
+  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure, and the fact that some elements along the first off-diagonals are zero. 
+  These elements correspond to nodes along the edge of the system.}
   \label{fig:laplace:stencil}
 \end{figure}
 
@@ -241,6 +244,7 @@ Using the method described above, the solution to equation \ref{ex3:eq:laplace} 
     \centering
     \begin{tikzpicture}
         \begin{axis}[
+            title={Laplace equation, $N = M = 100$},
             colorbar,
             view={0}{90},
             colormap/jet,
@@ -258,7 +262,7 @@ Using the method described above, the solution to equation \ref{ex3:eq:laplace} 
             table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
-    \caption{The numerically computed solution to the Laplace equation, using $N = M = 100$.}
+    \caption{The numerically computed solution to the Laplace equation defined in equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}.}
     \label{ex3:fig:heat_map}
 \end{figure}
 An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
