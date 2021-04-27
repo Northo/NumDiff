@@ -238,7 +238,6 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
 
 Using the method described above, we have computed the solution to equation \ref{ex3:eq:laplace}, and the results are shown in figure \ref{ex3:fig:heat_map}.
 An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
-
 \begin{figure}[tbp]
     \centering
     \begin{tikzpicture}
@@ -263,6 +262,7 @@ An error analysis showing the error with varying grid resolutions in both the $x
     \caption{The numerically computed solution to the Laplace equation, using $N = M = 100$.}
     \label{ex3:fig:heat_map}
 \end{figure}
+We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal.
 
 \begin{figure}[tbp]
     \centering
