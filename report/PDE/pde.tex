@@ -779,6 +779,8 @@ It is now simply a matter of applying the described Fast Poisson Solver sequenti
 
 The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
+We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
+
 
 
 \begin{figure}[tb]
@@ -820,24 +822,20 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
       \begin{loglogaxis}[
           title={},
           xlabel={$\text{DoF} = N^2$},
-          ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
+          ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
           legend pos=south west,
-          xmin=6^2, xmax=340^2,
+          xmin=6^2, xmax=10e6,%2400^2,
         ]
         \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
         \addlegendentry{Nine point};
-        \addplot[black, dashed, domain = 6^2:356^2, samples=2] {30/(sqrt(x)-1)^2}
+        \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {30/(sqrt(x)-1)^2}
         node[pos=0.3,
           pin={[pin edge={solid, out=75, in=-100}]above right:$\mathcal{O}(h^2)$},
         ] {};
       \end{loglogaxis}
     \end{tikzpicture}
     \caption{
-      The relative error of the numerical solution to the clamped Biharmonic equation, using the manufactured solution $\left(
-      \sin \pi x
-      \sin \pi y
-      \right)^4
-      e^{-(x-0.5)^2 - (y-0.5)^2}$.
+      The relative error of the numerical solution.
       TODO: Could add five point for comparison?}
     \label{fig:pde:bvp_convergence}
   \end{subfigure}
@@ -866,11 +864,20 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
       \end{loglogaxis}
     \end{tikzpicture}
     \caption{
-      Computation time as a function of degrees of freedom, when solving the clamped Biharmonic equation.
+      Computation time.
       Computation times for two solvers shown, the Scipy Sparse Solver\cite{scipy_sparse_linalg_spsolve} and our own Fast Poisson Solver.
     }
     \label{fig:pde:bvp_time}
   \end{subfigure}
+  \caption{Error and computation time solving the clamped Biharmonic equation on the manufactured problem with analytical solution
+    $\left(
+    \sin \pi x
+    \sin \pi y
+    \right)^4
+    e^{-(x-0.5)^2 - (y-0.5)^2}$.
+    Figure \subref{fig:pde:bvp_convergence} shows the relative error using the nine point stencil, while figure \subref{fig:pde:bvp_time} shows the computation time.
+    Both are plottet with degrees of freedom on the first axis, the total number of internal points $N^2$.
+  }
 \end{figure}
 
 
