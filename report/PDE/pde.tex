@@ -842,9 +842,7 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
 
-
-\begin{figure}[tb]
-  \centering
+\newcommand{\biharmshowsol}[1]{
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
@@ -859,17 +857,23 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
 	      % title={Test},
         zlabel={$u(x, y)$},
         mesh/ordering=x varies,
-        mesh/cols=256,
-        mesh/rows=256,
+        mesh/cols=#1,
+        mesh/rows=#1,
 %        colormap name=redblue,
 	      view={20}{50},
       ]
 	    \addplot3 [
 		    surf,
         point meta=explicit,
-	    ] table[meta=U]{./PDE/biharmonic_solution_256.dat};
+	    ] table[meta=U]{./PDE/biharmonic_solution_#1.dat};
     \end{axis}
   \end{tikzpicture}
+}
+
+\begin{figure}[tb]
+  \centering
+  \biharmshowsol{32} % compiles with pdflatex
+  %\biharmshowsol{64} % compiles with lualatex
   \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more}
   \label{fig:pde:bvp}
 \end{figure}
