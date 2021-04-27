@@ -1,0 +1,37 @@
+\begin{tikzpicture}
+\begin{axis}[
+    areaplot1/.style={fill opacity=0.50, fill=green, mark=none},
+    areaplot2/.style={fill opacity=0.50, fill=red, mark=none},
+    width=17cm,
+    height=12cm,
+    view={-28}{+30},
+    xlabel={$x$},
+    ylabel={$t$},
+    zmin=0,
+    ymajorgrids,
+    xmajorgrids,
+    xtick distance=0.50,
+    ytick distance=0.25,
+    legend cell align={left},
+]
+\pgfplotsinvokeforeach{5,4,...,1}{
+	% Filled version
+	% \addplot3 [areaplot1] table [x index=0,y expr={#1/5},z expr=\thisrowno{#1}+1] {exercise2/data_ka/2a_surface.dat} \closedcycle;
+
+	% \pgfmathparse{int(round(5+#1))};
+	% \pgfmathtruncatemacro\mymacro{round(5+#1)};
+	% \addplot3 [areaplot2] table [x index=0,y expr={#1/5},z expr=\thisrowno{\mymacro}+1] {exercise2/data_ka/2a_surface.dat} \closedcycle;
+	% \node[draw] at (0, 2) {\mymacro}; % for debug
+
+
+	% Non-filled version
+	\addplot3 [fill=gray, opacity=0.75, mark=none, draw=gray!80!black, thick] table [x index=0,y index=1,z expr=\thisrowno{#1}+1] {exercise2/data_ka/2a_surface.dat} \closedcycle;
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$u(x,t) = \sin(\pi(x-t))$}}{}
+	\pgfmathparse{int(round(5+#1))};
+	\pgfmathtruncatemacro\mymacro{round(5+#1)};
+	%\addplot3 [mark=none, color=red, thick] table [x index=0,y expr={(#1-1)/(5-1)},z expr=\thisrowno{\mymacro}+1] {exercise2/data_ka/2a_surface.dat};
+	\ifthenelse{\equal{#1}{5}}{\addlegendentry{$U(x_m,t_n)$}}{}
+	\node[draw] at (0, 2) {\mymacro}; % for debug
+}
+\end{axis}
+\end{tikzpicture}
