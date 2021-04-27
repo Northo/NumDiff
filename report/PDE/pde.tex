@@ -814,59 +814,63 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
 
 %% Error plot
 \begin{figure}[hbp]
-\centering
-\begin{tikzpicture}
-  \begin{loglogaxis}[
-      title={},
-      xlabel={$\text{DoF} = N^2$},
-      ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
-      legend pos=south west,
-      xmin=6^2, xmax=340^2,
-    ]
-    \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
-    \addlegendentry{Nine point};
-    \addplot[black, dashed, domain = 6^2:356^2, samples=2] {100/(sqrt(x)-1)^2};
-    \addlegendentry{$\mathcal{O}(h^2)$};
-  \end{loglogaxis}
-\end{tikzpicture}
-\caption{
-  The relative error of the numerical solution to the clamped Biharmonic equation, using the manufactured solution $\left(
-\sin \pi x
-\sin \pi y
-\right)^4
-e^{-(x-0.5)^2 - (y-0.5)^2}$.
-  TODO: Could add five point for comparison?}
-\label{fig:pde:bvp_convergence}
-\end{figure}
+  \centering
+  \begin{subfigure}[t]{0.49\textwidth}
+    \begin{tikzpicture}
+      \begin{loglogaxis}[
+          title={},
+          xlabel={$\text{DoF} = N^2$},
+          ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
+          legend pos=south west,
+          xmin=6^2, xmax=340^2,
+        ]
+        \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
+        \addlegendentry{Nine point};
+        \addplot[black, dashed, domain = 6^2:356^2, samples=2] {30/(sqrt(x)-1)^2}
+        node[pos=0.3,
+          pin={[pin edge={solid, out=75, in=-100}]above right:$\mathcal{O}(h^2)$},
+        ] {};
+      \end{loglogaxis}
+    \end{tikzpicture}
+    \caption{
+      The relative error of the numerical solution to the clamped Biharmonic equation, using the manufactured solution $\left(
+      \sin \pi x
+      \sin \pi y
+      \right)^4
+      e^{-(x-0.5)^2 - (y-0.5)^2}$.
+      TODO: Could add five point for comparison?}
+    \label{fig:pde:bvp_convergence}
+  \end{subfigure}
+  ~
+  %% Computation time plot
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \begin{loglogaxis}[
+          title={},
+          xlabel={$\text{DoF} = N^2$},
+          ylabel={Computation time [s]},
+          legend pos=north west,
+        ]
+        \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_no_fps.dat};
+        \addlegendentry{Scipy Sparse Solver};
+        \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_fps.dat};
+        \addlegendentry{Fast Poisson Solver};
 
-%% Computation time plot
-\begin{figure}[hbp]
-\centering
-\begin{tikzpicture}
-  \begin{loglogaxis}[
-      title={},
-      xlabel={$\text{DoF} = N^2$},
-      ylabel={Computation time [s]},
-      legend pos=north west,
-    ]
-    \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_no_fps.dat};
-    \addlegendentry{Scipy Sparse Solver};
-    \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_fps.dat};
-    \addlegendentry{Fast Poisson Solver};
+        \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
+        \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
+        \addplot[domain=10^2:10^6, dashdotted] {1e-8 * x};
 
-    \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
-    \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
-    \addplot[domain=10^2:10^6, dashdotted] {1e-8 * x};
-
-    %% \addplot[domain=8:256] {0.0001 * x * ln(x)};
-    %% \addplot[domain=8:256] {0.0001 * x^2};
-  \end{loglogaxis}
-\end{tikzpicture}
-\caption{
-  Computation time as a function of degrees of freedom, when solving the clamped Biharmonic equation.
-  Computation times for two solvers shown, the Scipy Sparse Solver\cite{scipy_sparse_linalg_spsolve} and our own Fast Poisson Solver.
-}
-\label{fig:pde:bvp_time}
+        %% \addplot[domain=8:256] {0.0001 * x * ln(x)};
+        %% \addplot[domain=8:256] {0.0001 * x^2};
+      \end{loglogaxis}
+    \end{tikzpicture}
+    \caption{
+      Computation time as a function of degrees of freedom, when solving the clamped Biharmonic equation.
+      Computation times for two solvers shown, the Scipy Sparse Solver\cite{scipy_sparse_linalg_spsolve} and our own Fast Poisson Solver.
+    }
+    \label{fig:pde:bvp_time}
+  \end{subfigure}
 \end{figure}
 
 
