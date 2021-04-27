@@ -704,41 +704,49 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
 
 \begin{figure}[tb]
   \centering
-  \begin{tikzpicture}
-    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
-\begin{axis}[
-	width=8.2cm, height=7.5cm,
-%	zmin=0.0,zmax=0.13,
-	xlabel=$x$, xtick distance=0.25,
-	ylabel=$y$, ytick distance=0.25,
-  samples=50,
-%	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
-%	scaled taicks=false,
-  grid,
-	% title={Test},
-  zlabel={$u(x, y)$},
-  colormap name=redblue,
-	view={20}{50},
-]
-	\addplot3 [
-		surf,
-		domain=0:1,
-    opacity=0.85,%shader=interp,
-	] {sin(deg(3 * pi * x)) * sin(deg(4 * pi * y)) / pi^2 * (3^2 + 4^2)};
-\end{axis}
-  \end{tikzpicture}
-  \caption{The solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2), ~m=3, n=4$ to the manufactured Poisson equation with inhomogenity $f=\sin(m \pi x)\sin(n \pi y)$.}
-  \label{fig:pde:order_solution}
-\end{figure}
+  \begin{subfigure}[t]{0.49\textwidth}
+    \begin{tikzpicture}
+      \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
+      \begin{axis}[
+	        % width=8.2cm, height=7.5cm,
+          width=7cm, height=6cm,
+          %	zmin=0.0,zmax=0.13,
+	        xlabel=$x$, xtick distance=0.25,
+	        ylabel=$y$, ytick distance=0.25,
+          samples=50,
+          %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
+          %	scaled taicks=false,
+          grid,
+	        % title={Test},
+          zlabel={$u(x, y)$},
+          colormap name=redblue,
+	        view={20}{50},
+        ]
+	      \addplot3 [
+		      surf,
+		      domain=0:1,
+          opacity=0.85,%shader=interp,
+	      ] {sin(deg(3 * pi * x)) * sin(deg(4 * pi * y)) / pi^2 * (3^2 + 4^2)};
+      \end{axis}
+    \end{tikzpicture}
+    \caption{The analytical solution $u(x, y)$.}
+    \label{fig:pde:order_solution}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[t]{0.49\textwidth}
 
-\begin{figure}[tb]
-  \centering \input{./PDE/order.pgf}
-  \caption{Relative error for the clamped Biharmonic equation on $[0,1]^2$ using the five and nine point stencil.
-    Also shown are $h^2$ and $h^4$, which are the expected convergence rates of the five and nine point stencil respectively.
-    First axis shows $N$, the number of internal discretization points in one direction, so that the total number of grid points is $N^2$.
-    Solution was found for the manufactured problem $f=\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$.
+    \centering \input{./PDE/order.pgf}
+    \caption{Relative error.
+      Also shown are $Ch^2$ and $Ch^4$, which are the expected convergence rates of the five and nine point stencil respectively.
+      The constants are chosen such that the $h^2$ and $h^4$ line appears close to the stencil errors.
+      First axis shows degrees of freedom $N^2$, where $N$ is the number of internal discretization points in one direction.
+    }
+    \label{fig:pde:order}
+  \end{subfigure}
+  \caption{Solving the Poisson equation on the manufactured problem problem $f=\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$, with analytical solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2)$.
+    Solved with equal number of discretization points in $x$ and $y$ direction.
+    Subfigure \subref{fig:pde:order_solution} shows the analytical solution $u$, while \subref{fig:pde:order} shows the relative error for the five and nine point stencil.
   }
-  \label{fig:pde:order}
 \end{figure}
 
 
