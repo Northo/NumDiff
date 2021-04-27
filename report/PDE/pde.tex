@@ -474,7 +474,7 @@ $$
   \end{equation*}
 \end{definition}
 
-\begin{theorem}[Five point stencil stability]
+\begin{theorem}[Five point stencil stability]\label{thm:five}
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
 \inorm{u - v} \leq \frac{h^2}{48} \lvert D^4 v\rvert_\infty.
@@ -503,7 +503,7 @@ Finally, substitute $f = \nabla_5^2 v$ to conclude that
 
 
 %% 3
-\begin{theorem}[Nine point stencil stability]
+\begin{theorem}[Nine point stencil stability]\label{thm:nine}
 If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{h^2}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
 $$
 \inorm{u - v} \leq \frac{11h^4}{2400} \lvert D^6 v\rvert_\infty.
@@ -539,8 +539,51 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclud
 
 (TODO: a word on convergence and stability)
 
+\subsubsection{Stability when solving the Biharmonic equation}
+Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
+We will here show that the order of the solution to the system of Poisson equations in \eqref{eq:PDE-poisson} will be of the same order.
+
+We will begin with the five point stencil.
+One must show that
+$$
+\inorm{U - u} \leq Ch^2,
+$$
+where $u$ is the exact solution $\nabla^4 u = f$.
+Solving the Biharmonic equation as a system of Poisson equations consists of two steps 1) $\nabla^2 g = f$ and 2) $\nabla^2 u = g$.
+We find an approximation $G$ to $g$, where by theroem \ref{thm:five}
+$$
+\inorm{G - g} \leq C h^2.
+$$
+When solving step 2) we would ideally solve
+$$
+\nabla_5^2 U_e = g,
+$$
+in which case theorem \ref{thm:five} implies that
+$$
+\inorm{U_e - u} \leq C h^2.
+$$
+However we end up solving
+$$
+\nabla_5^2 U = G = g + \gamma(x, y) h^2.
+$$
+We have that
+\begin{equation}
+  \nabla_5^2 (U - U_e) = \gamma(x, y) h^2,
+\end{equation}
+By lemma \ref{pde:lemma:bound}
+$$
+\inorm{U - U_e} \leq \frac18 \inorm{\nabla_5^2 (U - U_e)} = \frac18 \inorm{\gamma(x, y) h^2} \leq C h^2.
+$$
+Thus,
+\begin{align*}
+  \inorm{U - u} &= \inorm{U - U_e + U_e - u}\\
+  &\leq \inorm{U - U_e} + \inorm{U_e - u}\\
+  &\leq C h^2.
+\end{align*}
+
 
 \subsection{The Fast Poisson Solver}
+TODO: cite \cite{Strang_2012} ?
 We are to solve the equation
 $$
 A U = F.
@@ -768,11 +811,11 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
       xlabel={$N = N_x = N_y$},
       ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
       legend pos=south west,
-      xmin=6, xmax=340,
+      xmin=6^2, xmax=340^2,
     ]
-    \addplot table[x={N}, y={error}] {PDE/error_bvp_rel_2.dat};
+    \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
     \addlegendentry{Nine point};
-    \addplot[black, dashed, domain = 6:356, samples=2] {100/(x-1)^2};
+    \addplot[black, dashed, domain = 6^2:356^2, samples=2] {100/(sqrt(x)-1)^2};
     \addlegendentry{$\mathcal{O}(h^2)$};
   \end{loglogaxis}
 \end{tikzpicture}
@@ -801,6 +844,9 @@ e^{-(x-0.5)^2 - (y-0.5)^2}$.
 
     \addplot table[x={N}, y={NO_FPS}] {PDE/comp_bvp_both.dat};
     \addlegendentry{Scipy Sparse Solver};
+
+    \addplot[domain=8:256] {0.0001 * x * ln(x)};
+    \addplot[domain=8:256] {0.0001 * x^2};
   \end{loglogaxis}
 \end{tikzpicture}
 \caption{
