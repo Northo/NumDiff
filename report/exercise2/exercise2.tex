@@ -171,17 +171,24 @@ similar to what we did in section \ref{task_1}.
 \textbf{Upcomming: derivation of convergence order for theta method.}
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
-by doing mesh refinement of the spatial grid $x_m$. 
-For \eqref{eq:2a}, the the analytical solution is not available in closed form, 
-so in order to analyze convergence we compute a reference solution using a sufficiently high $M$, 
+by doing mesh refinement. 
+We restrict the analysis to just Backward Euler and Crank-Nicolson. 
+These are unconditionally stable, 
+whilst the Forward Euler method has the added criterion $r=k/h^2 < 1/2$ for stability, 
+imposing impractical restrictions on the grids and the refinement \cite{TODO}. 
+
+We start by refining the spatial grid $x_m$ sepparately, 
+and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
+For \eqref{eq:2a}, however, the the analytical solution is not available in closed form, 
+so we cannot compute the exact errors. 
+In order to analyze convergence we therfore compute a reference solution, 
+using a high resolution spatial grid with $M_{ref}=10000$ spatial nodes, 
 which we use in place of the analytical solution when computing the error. 
-When doing mesh refinement of the spatial grid, 
-we vary the number of spatial grid points $M$, 
-and compute the numerical solution at the same point in time $t=t_{end}$. 
-We keep the number of time steps $N$ fixed, 
-so that the error from the time discretization does not vary, 
-and compute the $L_2$ discrete and $l2$ continous relative errors with respect to the reference solution. 
-The resulting convergence rates from the refinement is plotted in figure\ref{fig:2a-convergence}. 
+Since we are only refining in the spatial direction, 
+we keep the number of time steps $N$ fixed, 
+and compute the numerical solution and the errors at the same point in time $t$ with different values of $M$. 
+This way the error in the time step will be constant throughout the refinement, 
+allowing us to analyze the spatial convergence isolated. 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_spatialref.pgf}
@@ -198,10 +205,20 @@ The resulting convergence rates from the refinement is plotted in figure\ref{fig
     }
 \end{figure}
 
-From figure\ref{fig:2a-convergence} we see that \textbf{comment about results}
+The resulting convergence rates from the refinement is plotted in figure\ref{fig:2a-convergence}, 
+together with the expected convergence of $\Oh(h^2)$ in the spatial direction. 
+We see that the errors for the most part fail to follow the expected curve, 
+and instead they quickly flatten and remain about constant throughout the refinement. 
+Crank-Nicolson with $N=1000$ is the exception, 
+but even it's curve flattens towards the end of the refinement when $M$ gets large enough. 
+A flattend curve means that the error is dominated by the time step error, 
+and further refining the spatial grid gives in that case only diminishing returns. 
+We also see that the error of the solution computed with Crank-Nicolson and that it's curve flattens later than those of the solutions computed with Backward Euler. 
+This reflects the fact that Crank-Nicolson is one order more precise in the time step $k$, 
+also, 
+with a higher $N$ in figure we would be able to see the $\Oh(h^2)$ convergence better. 
 
-In order to analyze the convergence further, 
-we also consider the heat equation with a set of boundary and initial conditions for which the analytical solution is known. 
+In in order to analyze the convergence further we now switch to a set of boundary and initial conditions for which we can solve the heat equation analytically and compute the error properly. 
 Specifically we consider 
 \begin{equation}
     u(0,t) = u(1,t) = 0, \quad u(x,0) = \sin(\pi x), 
@@ -209,9 +226,9 @@ Specifically we consider
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
-and we are now able compute the analytical solution, 
-which we do using the method of sepparation of variables. 
-\\ \textbf{Finne kilde som kan refereres, f.eks. Kreyzig}
+and the analytical solution, 
+which can be calculated using sepparation of variables\cite{TODO}, 
+is readily available as
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
 \end{equation}
@@ -219,26 +236,12 @@ which we do using the method of sepparation of variables.
 We now do the same spatial refinement for equation \eqref{eq:2b-manufactured}, 
 however now we compute the errors with respect to the analytical solution. 
 The resulting convergence plots are shown in figure \ref{fig:2b-spatial-ref}, 
-and here the difference between Backward Euler and Crank-Nicolson becomes more apparent. 
-Both methods are second order in the spatial step $h$, 
-and are unconditionally stable \cite{find some source probably brynjulf}, 
-unlike e.g. the explicit Forward Euler method ($\theta=0$). 
-Crank-Nicolson is however one order higher in the time step $k$, 
-so that the total error is lower for Crank-Nicolson than Backward-Euler when $M$ and $N$ are the same. 
-This is seen when refining the spatial step $h$; 
-at large $h$ (low $M$), 
-the error is dominated by the spatial error, 
-and as we decrease $h$ (increase $M$) we should see the expected second order convergence in the spatial step. 
-At some point, 
-when the spatial error has become sufficiently small, 
-the total error will be dominated by the error in the time step $k$, 
-and we expect this to happen earlier for the Backward-Euler method. 
-In figure \ref{fig:2b-spatial-ref} we see exactly this. 
-The error of the Crank-Nicolson solution with $N=10000$ exhibits second order convergence throughout the entire refinement, 
-but when lowering the number of time steps to $N=1000$, 
-the time step error starts to dominate towards the end of the refinement and the error curve flattens. 
-For the solution computed with the Backward-Euler method we see the flattening happening much earlier, 
-which is due to this method being less accurate in time. 
+and here the characteristics we saw in \ref{fig:2a-convergence} are seen more clearly. 
+Again, Crank-Nicolson with $N=1000$ performs the best, 
+and displays here second order convergence througout the whole refinement. 
+The others starts out with second order convergence, 
+but flattens as the time error starts to dominate, 
+and also here we see that the error in Crank-Nicolson flattens later than the error in Backward Euler for the same value of $N$. 
 \begin{figure}
     \centering
     \label{fig:2b-spatial-temporal-ref}
@@ -263,9 +266,44 @@ which is due to this method being less accurate in time.
     }
 \end{figure}
 
-Now we proceed to do refinement in the $t$-direction. 
-As mentioned, Crank-Nicolson
+Now we proceed to do refinement in the $t$-direction, 
+while keeping the spatial step size constant. 
+I.e. we do the same as in the spatial refinement, 
+but instead we fix $M$ and vary $N$. 
+The resulting convergence plot is show in figure \ref{fig:2b-time-ref}, 
+and here the different in convergence orders of the two methods in the time step becomes very apparent. 
+The chosen fixed values for $M$ are large enough so that the spatial error does not dominate, 
+and we avoid the error curves flattening as $N$ gets large. 
+The error curves also seem to follow the expected convergence order. 
 
+Having investigated the spatial and temporal convergence sepparately, 
+we now look at the convergence when refining in the $x$- and $t$-directions simultaneously. 
+We start with refinement where the time step and spatial step are varied at equal rates, 
+by keeping $c = k/h$ constant. 
+Since we are now refining in both time and space, 
+we want to express the convergence in terms of the system's number of degrees of freedom $N_{dof}$, 
+which we also will have on the $x$-axis in the convergence plot to plot the error up against. 
+Defining $M^* = M+2$ denoting the total number of spatial nodes, 
+we can write $N_{dof} = M^*N$. 
+Using that $M^*=1/h+1$ and $N=1/k+1$ as well as our refinement restriction $c = k/h$, we get that 
+\begin{equation*}
+\begin{split}
+    N_{dof} = M^* N = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    \\ = \left(\frac{1}{h}+1\right)\left(\frac{1}{ch}+1\right)
+    \\ = \frac{1}{ch^2} + \frac{1}{ch} + \frac{1}{h} + 1 
+    \\ = \Oh(\frac{1}{h^2}).
+\end{split}
+\end{equation*}
+To relate this to the convergence rates we again use that $c=k/h$ to get 
+\begin{equation*}
+\begin{split}
+    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(ch+h^2) = \Oh(h) = \Oh(N_{dof}^{-1/2})\\
+    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(c^2 h^2+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-1}). 
+\end{split}
+\end{equation*}
+The resulting convergence plots with computed error curves, 
+as well as the expected convergence rates,
+is shown in figure \ref{fig:2b-kch-ref}. 
 \begin{figure}
     \centering
     \label{fig:2b-kch-r-ref}
@@ -289,6 +327,25 @@ As mentioned, Crank-Nicolson
         corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
 \end{figure}
+
+Finally we will do simultaneous refinement where we keep $r=k/h^2$ constant. 
+For the degrees of freedom $N_{dof}$ we now get 
+\begin{equation*}
+\begin{split}
+    N_{dof} = M^* N = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    \\ = \left(\frac{1}{h}+1\right)\left(\frac{1}{rh^2}+1\right)
+    \\ = \frac{1}{rh^3} + \frac{1}{rh^2} + \frac{1}{h} + 1 
+    \\ = \Oh(\frac{1}{h^3}), 
+\end{split}
+\end{equation*}
+and for the convergence rate we get 
+\begin{equation*}
+\begin{split}
+    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(rh^2+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-2/3})\\
+    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(r^2 h^4+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-2/3}). 
+\end{split}
+\end{equation*}
+The resulting convergence plot for this final refinement is shown in figure \ref{fig:2b-r-ref}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: AMR data is likely to change.
