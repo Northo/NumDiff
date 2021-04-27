@@ -846,7 +846,8 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
-	      width=8.2cm, height=7.5cm,
+	      width=15.2cm, height=12.5cm,
+		  xmin=0, xmax=1, ymin=0, ymax=1, zmin=0,
         %	zmin=0.0,zmax=0.13,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
@@ -870,17 +871,18 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
   \end{tikzpicture}
 }
 
-\begin{figure}[tb]
-  \centering
-  \biharmshowsol{32} % compiles with pdflatex
-  %\biharmshowsol{64} % compiles with lualatex
-  \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more}
-  \label{fig:pde:bvp}
-\end{figure}
-
 %% Error plot
 \begin{figure}[hbp]
   \centering
+
+  %% Solution plot
+  \begin{subfigure}[t]{\textwidth}
+    \centering
+    \biharmshowsol{32} % compiles with pdflatex
+    \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more TODO: does it work to have it here?}
+    \label{fig:pde:bvp}
+  \end{subfigure}
+
   \begin{subfigure}[t]{0.49\textwidth}
     \begin{tikzpicture}
       \begin{loglogaxis}[
