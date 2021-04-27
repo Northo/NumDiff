@@ -168,40 +168,31 @@ We transform the Biharmonic equation \ref{eq:PDE} into a system of Poisson equat
     g = u &= 0,\quad \text{ on } \partial \Omega.
   \end{split}
 \end{align}
-Instead of solving the Biharmonic equation directly with a stencil for $\nabla^4$, we will solve the two Poisson equations successively with a stencil $\nabla_n^2$ for $\nabla^2$ only:
-\begin{enumerate}
-	\item Solve $\nabla_n^2 G = F =    f$ numerically to obtain a numerical solution $G \approx g$. \label{pde:numstep1}
-	\item Solve $\nabla_n^2 U = G \neq g$ numerically to obtain a numerical solution $U \approx u$. \label{pde:numstep2}
-\end{enumerate}
-Note that the right hand side of \cref{pde:numstep1} is the true source $f$, but the right hand side of \cref{pde:numstep2} is only an approximation to the source $g$.
+Instead of solving the Biharmonic equation directly with a stencil for $\nabla^4$, we will solve the two Poisson equations successively with a stencil $\nabla_n^2$ for $\nabla^2$ only.
+First, we solve $\nabla^2 g = f$ to obtain an intermediate numerical solution $G \approx g$.
+Then we solve $\nabla^2 u = g$ to obtain the final numerical solution $U \approx u$.
+In the first step we will use the exactly known source $f$, but in the second step we will only use the approximate source $G \approx g$.
 
 %% c)
-In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
-The approximated discrete solution is denoted by $v$.
-
 \newcommand{\crossStencilInternal}[5]{
     \draw (0,-1) node{$#1$} -- (0,+1) node{$#2$};
     \draw (-1,0) node{$#3$} -- (+1,0) node{$#4$};
 	\draw (0,0)  node{$#5$};
 }
-
 \newcommand{\xStencilInternal}[4]{
     \draw (-1,-1) node{$#1$} -- (+1,+1) node{$#2$};
     \draw (-1,+1) node{$#3$} -- (+1,-1) node{$#4$};
 }
-
 \newcommand{\crossStencil}[5]{%
   \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
     \crossStencilInternal{#1}{#2}{#3}{#4}{#5}
   \end{tikzpicture}
 }
-
 \newcommand{\xStencil}[4]{%
   \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
     \xStencilInternal{#1}{#2}{#3}{#4}
   \end{tikzpicture}
 }
-
 \newcommand{\boxStencil}[9]{
   \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
 	\xStencilInternal{#6}{#7}{#8}{#9};
@@ -209,63 +200,35 @@ The approximated discrete solution is denoted by $v$.
   \end{tikzpicture}
 }
 
+For the Laplacian $\nabla^2$, we will use both a $5$-point stencil and a $9$-point stencil:
+\begin{equation*}
+	\nabla_5^2 = \crossStencil{1}{1}{1}{1}{-4}
+	\qquad \text{and} \qquad
+	\nabla_9^2 = \boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16} 
+	\,.
+\end{equation*}
+They are defined by their action on some function.
+For example,
+\begin{equation*}
+	\nabla_5^2 u(x,y) = \frac{-4u(x,y) + u(x+h,y) + u(x-h,y) + u(x,y+h) + u(x,y-h)}{h^2},
+\end{equation*}
+and $\nabla_9^2$ acts similarly but also includes terms like $u(x+h, y+h)$.
+We will solve Poisson equations with
+\begin{equation}
+	\nabla_5^2 U = F
+	\qquad \text{and} \qquad
+	\nabla_9^2 U = \left( 1 + \frac{1}{12} \nabla_5^2 \right) F
+	.
+\label{eq:pde:stencilequation}
+\end{equation}
+We will later show that the former is $\Oh(h^2)$, while the latter is $\Oh(h^4)$.
+% It will become clear later why we also use the $\nabla_5^2$-stencil on the right side.
 
-Written in stencil diagrams, the five point stencil is given as \cite{part2}
+Next, we turn to formulating \cref{eq:pde:stencilequation} as matrix equations.
+We define $U$, $G$ and $F$ as flattened vectors of the discretized functions for $u$, $g$ and $f$ following the same procedure as in \cref{sec:exc3:numerical}.
+For the $5$-point stencil, first define the one-dimensional second order central finite difference matrix,
 $$
-v \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
-$$
-while the nine point stencil is given by
-$$
-v
-\left(
-\boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16}
-\right)
-=
-v
-\left(
-\xStencil{\frac16}{\frac16}{\frac16}{\frac16}
-+
-\crossStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}
-\right)
-=
-h^2
-f
-\left(
-\crossStencil{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac23}
-\right).
-$$
-
-$$
-\boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16}
-%\boxStencil{a}{a}{a}{a}{a}{a}{a}{a}{a}
-$$
-
-
-We will now describe the structure of the matricies involved in the problem, starting with the simpler five point stencil.
-We will use the same flattening for the 2D discrete function $v$ as described in section \ref{sec:exc3:numerical}.
-As before we recognize that in the flattened $v$ neighbouring elements correspond to grid points that are left and right of each other, while the grid point up and down is the element N places before and after.
-Thus, writing out the five point stencil $K_{2D}$, we get a toeplitz and symmetric matrix (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
-(TODO: should we more clearly differentiate between the discrete function and the vector describing it?)
-We can compactly write this as
-$$
-K_{2D} =
-\begin{bmatrix}
-  K & 0 \\
-  0 & K & 0\\
-  0 & 0 & K \\
-  &&&\ddots
-\end{bmatrix}
-+
-\begin{bmatrix}
-  -2I & I & 0 &  \\
-  I & -2I & I & 0 \\
-  0 & I & -2I & I & 0 \dots\\
-  \vdots&&&\ddots
-\end{bmatrix}.
-$$
-where $I$ is the identity matrix and $K$ is the one dimensional central finite difference matrix of order 2,
-$$
-K =
+J_5 =
 \begin{bmatrix}
   -2 & 1 &   \\
   1 & -2 & 1 &  \\
@@ -273,40 +236,101 @@ K =
   &&\ddots&\ddots&\ddots\\
   &&& 1 & -2 & 1\\
   &&&& 1 & -2
-\end{bmatrix}.
+\end{bmatrix}
+.
 $$
-Using the Kronecker product, this may be written as
+Using the Kroenecker product $\otimes$ and the Kroenecker sum $\oplus$, the $5$-point stencil is represented by
+$$
+K_5 =
+\begin{bmatrix}
+  J_5 & 0 & 0 & \\
+  0 & J_5 & 0 & \ddots \\
+  0 & 0 & J_5 & \ddots \\
+  &\ddots&\ddots&\ddots
+\end{bmatrix}
++
+\begin{bmatrix}
+  -2I & I & 0 & \\
+  I & -2I & I & \ddots \\
+  0 & I & -2I & \ddots  \\
+  & \ddots & \ddots & \ddots & \\
+\end{bmatrix}
+= I \otimes J_5
++ J_5 \otimes I 
+= J_5 \oplus J_5
+.
+$$
+
+For the $9$-point stencil, note that it can be split into
+$$
+\boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16}
+\quad = \quad
+\crossStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}
+\quad + \quad
+\xStencil{\frac16}{\frac16}{\frac16}{\frac16}
+$$
+The first term can be handled like the $5$-point stencil and is represented by $J_9 \oplus J_9$ with
+\begin{equation*}
+J_9 = 
+\frac13
+\begin{bmatrix}
+  -5 & 2 &   \\
+  2 & -5 & 2 &  \\
+  & 2 & -5 & 2 & \\
+  &&\ddots&\ddots&\ddots\\
+  &&& 2 & -5 & 2\\
+  &&&& 2 & -5
+\end{bmatrix}
+.
+\end{equation*}
+The second stencil picks out neighbours located diagonally from the center point and is represented by
+\begin{equation*}
+\frac{1}{\sqrt{6}}
+\begin{bmatrix}
+0 & \Sigma &   \\
+\Sigma & 0 & \Sigma & \ddots \\
+  & \Sigma & 0 & \ddots \\
+& \ddots & \ddots & \ddots \\
+\end{bmatrix}
+= 
+\Sigma \otimes \Sigma
+\qquad \text{with} \qquad
+\Sigma =
+\frac{1}{\sqrt{6}}
+\begin{bmatrix}
+0 & 1  \\
+1 & 0 & 1 & \ddots \\
+  & 1 & 0 & \ddots \\
+  & \ddots & \ddots & \ddots \\
+\end{bmatrix}
+.
+\end{equation*}
+
+Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde:stencilequation} that we will solve are
+\begin{equation}
+\begin{alignedat}{2}
+	K_5 U &= F
+	&& \qquad \text{with} \qquad
+	K_5 = J_5 \oplus J_5 \\
+	K_9 U &= \left(I + \frac{h^2}{12} K_5 \right) F 
+	&& \qquad \text{with} \qquad
+	K_9 = J_9 \oplus J_9 + \Sigma \otimes \Sigma.
+\end{alignedat}
+\end{equation}
+
+(TODO: use $U$ or $v$ for discrete approximtae solution?)
+
+(TODO: say the matrices are toeplitz and symmetric) (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
+
+(TODO: should we more clearly differentiate between the discrete function and the vector describing it?)
+
 (TODO: Verify order (ie. not I x K + K x I) believe this is a convention thing).
-$$
-% K2D = \verb|kron|(I, K) + \verb|kron|(K, I)
-K_{2D} = K \otimes I + I \otimes K = K \oplus K,
-$$
-where $\otimes$ and $\oplus$ are the Kronecker product and Kronecker sum.
-This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.
 
-We will split the nine point stencil matrix into two, according to the stencil diagram above.
-One matrix represents a five point stencil with weights altered to $\frac{-10}{3}, \frac23$ instead of $-4, 1$, we denote this matrix by $\tilde{K}_{2D}^{(9)}$.
-The other is the ``X''-stencil taking care of the NE, NW, SE, and SW points, each with a weight of $\frac16$, as shown in the diagram.
-We will denote this matrix by $\Sigma_{2D}$.
+(TODO: check conventions on $h^2$)
 
-Let
-\begin{equation}
-  \Sigma =
-  \frac{1}{\sqrt{6}}
-  \begin{bmatrix}
-    0 & 1  \\
-    1 & 0 & 1 \\
-      & 1 & 0 & 1 \\
-      &   & 1 & 0 & \ddots\\
-      &   &   & \ddots  & \ddots
-  \end{bmatrix}
-\end{equation}
-be the TST matrix with ones on its off-diagonals and zero on the diagonal.
-Then we have $\Sigma_{2D} = \Sigma \otimes \Sigma$.
-The nine point stencil is then
-\begin{equation}
-  K_{2D}^{(9)} = \tilde{K}_{2D}^{(9)} + \Sigma_{2D}.
-\end{equation}
+(TODO: This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.)
+
+(TODO: move eigenstuff to FPS section?)
 
 Let $\lambda_k, ~k\in[1, n]$ be the eigenvalues of the matrix $A$, and let $\mu_l, ~l\in [1, m]$ be the eigenvalues of the matrix $B$.
 As shown in for example \textcite{Laub_2004}, the eigenvalues of the Kronecker product $A \otimes B$ are the products of the eigenvalues of $A$ and $B$,
@@ -757,6 +781,7 @@ The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
 
 
+\iffalse
 \begin{figure}[tb]
   \centering
   \begin{tikzpicture}
@@ -787,6 +812,7 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
   \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more}
   \label{fig:pde:bvp}
 \end{figure}
+\fi
 
 %% Error plot
 \begin{figure}[hbp]
