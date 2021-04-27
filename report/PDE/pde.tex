@@ -583,7 +583,8 @@ Thus,
 
 
 \subsection{The Fast Poisson Solver}
-TODO: cite \cite{Strang_2012} ?
+The procedure for the Fast Poisson Solver is based on the explanation in \cite{Strang_2012}.\\
+
 We are to solve the equation
 $$
 A U = F.
@@ -612,7 +613,7 @@ $$
 \sin\left( \frac{m k \pi}{N + 1} \right)
 \sin\left( \frac{n l \pi}{N + 1} \right).
 $$
-The discrete sine transform of type I $x(k)$ of $y(n)$ is defined as\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.} \cite{TODO}
+The Discrete Sine Transform of type I $x(k)$ of $y(n)$ is defined through\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.} \cite{scipy_dst}
 \begin{equation}
   y(n) =
   \sum_{k=1}^{N}
@@ -659,7 +660,7 @@ The two dimensional equivalent is simply to apply this transformation to the two
   }
   \right), ~ m = 1, \dots N, n = 1, \dots N.
 \end{equation}
-This prefectly corresonds to the eigenvectors of the stencils!
+This prefectly corresonds to the eigenvector expansion of the stencils!
 Therefore given $F(m, n)$ the 2D Discrete Sine Transform gives $x(k, l)$, corresponding to the coefficents $a_i$ introduced above (where now the subscript has two indices instead of one).
 As we know the eigenvalues $\lambda_{k,l}$ of the five and nine point stencils from section \ref{sec:pde:numerical_solution}, the solution $U$ is readily computed by the inverse Discrete Sine Transform, which calculates $y(m, n)$ given $x(k, l)$.
 
@@ -697,8 +698,9 @@ $$
 The mesh refinement is done with the same number of discretization points in $x$- and $y$-direction.
 The values used are $N = N_x = N_y = \{8, 16, 32, 64, 128, 256\}$.
 The solution is shown in figure \ref{fig:pde:order_solution}.
+The relative error as a function of $N$ is shown in figure \ref{fig:pde:order}.
 As expected, the error for the five point stencil goes as $h^2$ while the error for the nine point stencil goes as $h^4$.
-The absolute error as a function of $N$ is shown in figure \ref{fig:pde:order}.
+
 
 \begin{figure}[tb]
   \centering
@@ -808,7 +810,7 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
 \begin{tikzpicture}
   \begin{loglogaxis}[
       title={},
-      xlabel={$N = N_x = N_y$},
+      xlabel={$\text{DoF} = N^2$},
       ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert$},
       legend pos=south west,
       xmin=6^2, xmax=340^2,
@@ -835,22 +837,26 @@ e^{-(x-0.5)^2 - (y-0.5)^2}$.
 \begin{tikzpicture}
   \begin{loglogaxis}[
       title={},
-      xlabel={$N = N_x = N_y$},
+      xlabel={$\text{DoF} = N^2$},
       ylabel={Computation time [s]},
       legend pos=north west,
     ]
-    \addplot table[x={N}, y={FPS}] {PDE/comp_bvp_both.dat};
+    \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_no_fps.dat};
+    \addlegendentry{Scipy Sparse Solver};
+    \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_fps.dat};
     \addlegendentry{Fast Poisson Solver};
 
-    \addplot table[x={N}, y={NO_FPS}] {PDE/comp_bvp_both.dat};
-    \addlegendentry{Scipy Sparse Solver};
+    \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
+    \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
+    \addplot[domain=10^2:10^6, dashdotted] {1e-8 * x};
 
-    \addplot[domain=8:256] {0.0001 * x * ln(x)};
-    \addplot[domain=8:256] {0.0001 * x^2};
+    %% \addplot[domain=8:256] {0.0001 * x * ln(x)};
+    %% \addplot[domain=8:256] {0.0001 * x^2};
   \end{loglogaxis}
 \end{tikzpicture}
 \caption{
-  TODO: write
+  Computation time as a function of degrees of freedom, when solving the clamped Biharmonic equation.
+  Computation times for two solvers shown, the Scipy Sparse Solver\cite{scipy_sparse_linalg_spsolve} and our own Fast Poisson Solver.
 }
 \label{fig:pde:bvp_time}
 \end{figure}
