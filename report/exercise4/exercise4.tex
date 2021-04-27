@@ -10,7 +10,7 @@ where the solution $u = u(x,t)$ is subject to the periodic boundary condition
 u(x+L, t) = u(x, t).
 \label{ex5:eq:boundary_conditions}
 \end{equation}
-The equation is solved using the forward Euler and Crank-Nicholson method.
+The equation is solved using the forward Euler and Crank-Nicholson method, and we conduct a stabiity analysis, showing that -- in this paricular case -- the choice of method is crucial.
 
 \subsection{Analytical solution}
 
@@ -197,9 +197,9 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \begin{figure}
 \begin{tikzpicture}
 \begin{axis}[ymin=-1.2, ymax=+1.2, title={Forward Euler ($N=100000$)},ylabel={$U(x,1)$},cycle list={
-	{blue!100!black, mark=square*, mark size=0.75pt},
-	{blue!75!black, mark=square*, mark size=0.75pt},
-	{blue!50!black, mark=square*, mark size=0.75pt},
+	{blue!100!black, solid, mark=square*, mark size=0.75pt},
+	{blue!75!black, dashed, mark=square*, mark size=0.75pt},
+	{blue!50!black, dotted, mark=square*, mark size=0.75pt, line width=0.5pt},
 }]
 \addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100, forget plot] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
 \pgfplotsinvokeforeach{20,25,29} {
@@ -210,9 +210,9 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \end{tikzpicture}
 \begin{tikzpicture}
 \begin{axis}[ymin=-1.2, ymax=+1.2, title={Crank-Nicholson ($N=10$)},yticklabels={,,},cycle list={
-	{blue!100!black, mark=square*, mark size=0.75pt},
-	{blue!75!black,  mark=square*, mark size=0.75pt},
-	{blue!50!black,  mark=square*, mark size=0.75pt},
+	{blue!100!black, style=solid, mark=square*, mark size=0.75pt},
+	{blue!75!black, style=dashed, mark=square*, mark size=0.75pt},
+	{blue!50!black, style=dotted, mark=square*, mark size=0.75pt},
 }]
 \addplot [xlabel=$x$, color=black, domain=-1:+1, thick, samples=100, forget plot] {sin(deg(pi*(x-1)))} node [pos=0.5,pin={180:$u(x,1)$},inner sep=0pt] {};
 \pgfplotsinvokeforeach{25,50,75} {
@@ -231,9 +231,9 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \centering
 \begin{tikzpicture}
 \begin{loglogaxis}[xmin=4.5, xmax=46, ymin=1e-1, ymax=1e3,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend pos=north west,legend cell align=left,width=8.4cm,title=Forward Euler,xtick={5,10,15,20,25,30,35,40},xticklabels={5,10,15,20,25,30,35,40},cycle list={
-	{blue!100!black, mark=square*, mark size=1.5pt},
-	{blue!66!black, mark=square*, mark size=1.5pt},
-	{blue!33!black, mark=square*, mark size=1.5pt},
+	{cyan, mark=square*, mark size=1.5pt},
+	{blue, mark=*, mark size=1.5pt},
+	{teal, mark=triangle*, mark size=1.5pt},
 }]
 \addplot [black, dashed, samples=2, domain=1:100, forget plot] {280/x^2} node [pos=0.4, pin={45:$\Oh(h^2)$}] {};
 \pgfplotsinvokeforeach{10000,100000,1000000} {
@@ -244,10 +244,10 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \end{tikzpicture}
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$M$,legend pos=north east,legend cell align={left},width=8.4cm,title=Crank-Nicholson,xmin=5,xmax=2000,cycle list={
-	{blue!100!black, mark=square*, mark size=1.5pt},
-	{blue!75!black, mark=square*, mark size=1.5pt},
-	{blue!50!black, mark=square*, mark size=1.5pt},
-	{blue!25!black, mark=square*, mark size=1.5pt},
+	{cyan, mark=square*, mark size=1.5pt},
+	{teal, mark=*, mark size=1.5pt},
+	{blue, mark=triangle*, mark size=1.5pt},
+	{blue!30!black, mark=x, mark size=1.5pt},
 	{blue!0!black, mark=square*, mark size=1.5pt},
 }]
 \addplot [dashed, domain=1:3000, samples=2, black, forget plot] {270/x^2} node [pos=0.32,pin={0:$\Oh(h^2)$},inner sep=0pt] {};
