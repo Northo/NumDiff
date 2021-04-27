@@ -2368,7 +2368,8 @@
     <bcf:citekey order="16">scipy_kron</bcf:citekey>
     <bcf:citekey order="17">Laub_2004</bcf:citekey>
     <bcf:citekey order="19">tridiagonal</bcf:citekey>
-    <bcf:citekey order="20">TODO</bcf:citekey>
+    <bcf:citekey order="20">Strang_2012</bcf:citekey>
+    <bcf:citekey order="21">TODO</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
