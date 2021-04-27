@@ -596,7 +596,8 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclud
 \end{equation*}
 \end{proof}
 
-(TODO: a word on convergence and stability)
+We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - v) \rightarrow 0$ and global error $\Vert u - v \Vert \rightarrow 0$, so the schemes are consistent and convergent.
+By Lax' equivalence theorem \cite{owren}, they are then also stable.
 
 \subsubsection{Stability when solving the Biharmonic equation}
 Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
