@@ -160,8 +160,7 @@ However, we can also construct problems with a finite number of terms in the \em
 \subsection{Numerical solution}
 \label{sec:pde:numerical_solution}
 
-We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing $g = \nabla^2 u$:
-
+We transform the Biharmonic equation \ref{eq:PDE} into a system of Poisson equations by introducing $g = \nabla^2 u$:
 \begin{align}\label{eq:PDE-poisson}
   \begin{split}
     \nabla^2g &= f,\\
@@ -169,7 +168,12 @@ We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing
     g = u &= 0,\quad \text{ on } \partial \Omega.
   \end{split}
 \end{align}
-
+Instead of solving the Biharmonic equation directly with a stencil for $\nabla^4$, we will solve the two Poisson equations successively with a stencil $\nabla_n^2$ for $\nabla^2$ only:
+\begin{enumerate}
+	\item Solve $\nabla_n^2 G = F =    f$ numerically to obtain a numerical solution $G \approx g$. \label{pde:numstep1}
+	\item Solve $\nabla_n^2 U = G \neq g$ numerically to obtain a numerical solution $U \approx u$. \label{pde:numstep2}
+\end{enumerate}
+Note that the right hand side of \cref{pde:numstep1} is the true source $f$, but the right hand side of \cref{pde:numstep2} is only an approximation to the source $g$.
 
 %% c)
 In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
