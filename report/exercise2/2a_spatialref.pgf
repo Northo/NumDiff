@@ -6,20 +6,20 @@
             width=0.48\textwidth,
         ]
         \nextgroupplot[
-            title={$L_2$ discrete error}, 
+            title={$l_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$M$,
+            xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             xmin=5,
             xmax=3000,
-            legend style={at={(1.15,+1.40)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=-1, column sep=2ex, legend entries={
+            legend style={at={(1.16,+1.40)},anchor=north}, legend cell align=left,
+            transpose legend, legend columns=-1, column sep=1.25ex, legend entries={
                 {$\Oh(h^2)$},
-                {BE N=100},
-                {BE N=1000},
-                {CN N=100},
-                {CN N=1000},
+                {BE $N=100$},
+                {BE $N=1000$},
+                {CN $N=100$},
+                {CN $N=1000$},
             }, cycle list={
                 % {black, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
                 % {black, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
@@ -52,7 +52,7 @@
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             ]
             \addplot [black, dashed, domain=1:3000, samples=2] {0.0001/(x)^2};

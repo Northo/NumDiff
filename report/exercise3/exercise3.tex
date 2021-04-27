@@ -72,8 +72,6 @@ The total system to be solved is thus $M \times N$ points, as the boundaries are
 Rewriting Laplace's equation using central differences, we get
 \begin{equation*}
     \begin{split}
-    % TODO: What do you people think about this notation?
-    % I think the equations are a bit long, but relatively clear in return.
     \partial^2_x u(x_m, y_n) 
         &= \frac{1}{h^2}[u(x_{m-1},y_n) + 2u(x_m,y_n) + u(x_{m+1},y_n)] + \Oh(h^2)\\
         &= \frac{1}{h^2}\delta^2_x u(x_m,y_n) + \Oh(h^2),\\
@@ -87,7 +85,6 @@ Rewriting Laplace's equation using central differences, we get
     \end{split}
 \end{equation*}
 where $(x_m, y_n)$ denote the point $(m,n)$ in the grid. 
-%$i = 0,\ldots M_x$, and $j = 0,\ldots, M_y$.
 Adding these expressions, and naming our approximated solution with the shorthand notation $U_m^n := u(x_m,y_n)$, we find that the Laplace equation can be approximated 
 \begin{equation*}
     0 = \partial^2_x u(x_m,y_n) + \partial^2_y u(x_m,y_n)
@@ -101,7 +98,7 @@ or, simplifying the notation with the notation visualized in figure \ref{ex3:fig
 \begin{figure}[htb]
     \centering
     \input{./exercise3/stencil.pgf}
-    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction.}
+    \caption{The five-point stencil corresponding to central difference differentiation in both the $x$- and $y$-direction. In order to make this more concrete, one can imagine that this stencil is inserted into any point inside a grid such as the one in figure \ref{fig:2-uniform-grid}. Repeating this process will yield equations for all nodes in the grid, resulting in a solvable system of equations.}
     \label{ex3:fig:stencil}
 \end{figure}
 
@@ -176,9 +173,11 @@ We thus write
 which can be solved.
 Note that the matrix is \emph{not} Toeplitz!
 There are zeros on the upper and lower diagonal, correponding to the nodes that have less than four neighbours, ie. the nodes on the border.
-These nodes are handled with the boundary conditions from $b$, whose values are set in points corresponding to the borders of the system, as mentioned above.
+These nodes are handled with the boundary conditions, which come from $b$. 
+As was mentioned briefly above, the values in $b$ are set in points that correspond to the borders of the system.
+In this way, the edges of the system are determined with the boundary conditions.
 %Given initial conditions on the boundary $\partial\Omega$, these may easily be incorporated by adding them as an inhomogenity.
-Thus, the final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
+The final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}
 
 The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
@@ -203,9 +202,9 @@ The full matrix $A$ is then compactly written as
   A =
   \frac{1}{h^2} K_N \oplus \frac{1}{k^2} K_M
   = \frac{1}{h^2} K_N \otimes I_M
-  + I_N \otimes \frac{1}{k^2} K_M.
+  + I_N \otimes \frac{1}{k^2} K_M,
 \end{equation}
-This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
+which corresponds to the matrix illustrated in figure \ref{fig:laplace:stencil}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
@@ -232,17 +231,17 @@ This matrix is colorfully illustrated in figure \ref{fig:laplace:stencil}.
     \end{axis}
   \end{tikzpicture}
 
-  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure.}
+  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure, and the fact that some elements along the first off-diagonals are zero. 
+  These elements correspond to nodes along the edge of the system.}
   \label{fig:laplace:stencil}
 \end{figure}
 
-Using the method described above, we have computed the solution to equation \ref{ex3:eq:laplace}, and the results are shown in figure \ref{ex3:fig:heat_map}.
-An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
-
+Using the method described above, the solution to equation \ref{ex3:eq:laplace} has been computed, and the results are shown in figure \ref{ex3:fig:heat_map}.
 \begin{figure}[tbp]
     \centering
     \begin{tikzpicture}
         \begin{axis}[
+            title={Laplace equation, $N = M = 100$},
             colorbar,
             view={0}{90},
             colormap/jet,
@@ -260,13 +259,19 @@ An error analysis showing the error with varying grid resolutions in both the $x
             table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
-    \caption{The numerically computed solution to the Laplace equation, using $N = M = 100$.}
+    \caption{The numerically computed solution to the Laplace equation defined in equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, for a uniform grid with $N = M = 100$.}
     \label{ex3:fig:heat_map}
 \end{figure}
-
+An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
 \begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
-    \caption{Convergence plot for varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
+    \caption{Convergence plot showing the relative error in the computation of the Laplace equation -- equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, when varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
     \label{ex3:fig:convergence_plot}
 \end{figure}
+We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal -- that is, of the same order of magnitude -- and further to order $\Oh(h^0)$ as the difference grows.
+The convergence plot shows that varying the grid size in either direction when $M \approx N$, converges to first order.
+However, when $M \neq N$, varying the smaller one increases accuracy to second order, and increasing the largest one, yields almost no gain in accuracy.
+
+This error behaviour is intuitive: When the resolution is a lot higher in one direction than the other, then the error is almost entirely due to the direction with the lowest resolution.
+Thus, increasing the resolution in the most precise direction gives only insignificant increases in the overall error.

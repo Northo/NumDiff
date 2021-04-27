@@ -1,4 +1,4 @@
-\section{Linearized Korteweg-De Vries equation in one dimension}
+\section{Linearized Korteweg-de Vries equation in one dimension}
 
 In this section, we will study the one-dimensional linearized Korteweg-De Vries equation
 \begin{equation}
@@ -6,9 +6,11 @@ In this section, we will study the one-dimensional linearized Korteweg-De Vries 
 \label{kdv_equation}
 \end{equation}
 where the solution $u = u(x,t)$ is subject to the periodic boundary condition
-\begin{equation*}
+\begin{equation}
 u(x+L, t) = u(x, t).
-\end{equation*}
+\label{ex5:eq:boundary_conditions}
+\end{equation}
+The equation is solved using the forward Euler and Crank-Nicholson method.
 
 \subsection{Analytical solution}
 
@@ -46,6 +48,7 @@ which is a sum of plane waves propagating at different frequencies.
 
 To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Forward Euler method and the Crank-Nicholson method.
 We will find the solution on the periodic spatial grid
+\begin{figure}[htbp]
 \begin{center}
 \begin{tikzpicture}
 \def\centerarc[#1](#2)(#3:#4:#5)% [draw options] (center) (initial angle:final angle:radius)
@@ -71,6 +74,10 @@ We will find the solution on the periodic spatial grid
 \node [pin={[pin distance=0.05cm]345:$h$}] at ({3*cos(345)},{3*sin(345)}) {};
 \end{tikzpicture}
 \end{center}
+\label{ex4:fig:periodic_grid}
+\caption{A depiction of the one dimensional periodic grid on which the linearized Korteweg-de Vries equation is computed. 
+Since the boundary conditions -- equation \eqref{ex5:eq:boundary_conditions} -- are periodic, a circular grid is equivalent to an arbitrary number of successive linear grids.}
+\end{figure}
 of $M$ points.
 For the first spatial derivative, we use the central difference
 \begin{equation*}
@@ -397,21 +404,21 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 ]
 	\pgfplotscreateplotcyclelist{mycycle}{
 		{black,dotted},
-		{black,dashed},
+		{black,dashdotted},
 		{black,solid},
-		{blue!100!black,dotted},
-		{blue!80!black,dashed},
-		{blue!60!black,solid},
-		{green!100!black,dotted},
-		{green!80!black,dashed},
-		{green!60!black,solid},
-		{red!100!black,dotted},
-		{red!80!black,dashed},
-		{red!60!black,solid},
+		{blue,dotted},
+		{blue,dashdotted},
+		{blue,solid},
+		{green!80!black,dotted},
+		{green!80!black,dashdotted},
+		{green!80!black,solid},
+		{red,dotted},
+		{red,dashdotted},
+		{red,solid},
 	};
 
 	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east];
-	\addplot [forget plot, black, loosely dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\addplot {0}; \addlegendentry{$N=30000$};
 	\addplot {0}; \addlegendentry{$N=40000$};
 	\addplot {0}; \addlegendentry{$N=50000$};
@@ -422,7 +429,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	}
 
 	\draw [blue ] (0.90, 0.75) node {$M=15$};
-	\draw [green] (0.48, 0.95) node {$M=20$};
+	\draw [green!80!black] (0.48, 0.95) node {$M=20$};
 	\draw [red  ] (0.03, 0.89) node {$M=25$};
 
 	\pgfplotscreateplotcyclelist{mycyclee}{
@@ -432,7 +439,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 		{red,thick},{blue,semithick},{green,thin}
 	}, legend entries={$N=100$,$N=200$,$N=300$},
 	];
-	\addplot [forget plot, black, loosely dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\pgfplotsinvokeforeach{800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};

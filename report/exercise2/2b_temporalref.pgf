@@ -6,21 +6,21 @@
             width=0.48\textwidth,
         ]
         \nextgroupplot[
-            title={$L_2$ discrete error}, 
+            title={$l_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
-            legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=-1, column sep=0.8ex, legend entries={
+            legend style={at={(1.15,+1.40)},anchor=north}, legend cell align=left,
+            transpose legend, legend columns=2, column sep=9.2ex, legend entries={
                 {$\Oh(h)$},
                 {$\Oh(h^2)$},
-                {BE N=100},
-                {BE N=1000},
-                {CN N=100},
-                {CN N=1000},
+                {BE $M=100$},
+                {BE $M=1000$},
+                {CN $M=100$},
+                {CN $M=1000$},
             }, cycle list={
                 {black!75!black,  dashed},
                 {black!75!black,  dotted},
@@ -42,12 +42,12 @@
             {exercise2/data_ka/2b_CN_timeref_discrete_err_M10000_tend1.dat};
 
         \nextgroupplot[
-            title={$l_2$ continous error}, 
+            title={$L_2$ continous error}, 
             xmode=log, 
             ymode=log, 
             xmin=5,
             xmax=3000,
-            xlabel=$M$,
+            xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
         \addplot [black, dotted, domain=1:3000, samples=2] {17./x};

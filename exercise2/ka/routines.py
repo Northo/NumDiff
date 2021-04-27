@@ -151,7 +151,7 @@ def test_method(method, M, N, t_end):
 
 
 if __name__ == "__main__":
-    M = 10
+    M = 100
     N = 100
     N_FE = 10000
-    test_method("cn", M, N, 0.1)
+    test_method("cn", M, N, 0.3)

@@ -5,26 +5,39 @@
             height=7cm,
             width=0.48\textwidth,
         ]
-        \nextgroupplot[title=2b discrete, xmode=log, ymode=log, legend pos=south west]
-        \addplot[color=blue,mark=x] table[x={r}, y={err}] 
+        \nextgroupplot[
+            title={$l_2$ discrete error}, 
+            xmode=log, 
+            ymode=log, 
+            xlabel=$N_{dof}$,
+            ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
+            legend style={at={(1.16,+1.30)},anchor=north}, legend cell align=left,
+            transpose legend, legend columns=-1, column sep=5.5ex, legend entries={
+                {$\Oh(N_{dof}^{-1})$},
+                {$\Oh(N_{dof}^{-1/2})$},
+                {BE $c=1$},
+                {CN $c=1$},
+            }, cycle list={
+                {black!75!black,  dashed},
+                {black!75!black,  dotted},
+                {blue!100!black,  solid, mark=x,    mark size=1.0pt},
+                {red!75!black,    solid, mark=*,    mark size=1.0pt},
+            },
+        ]
+        \addplot [black, dashed, domain=1:1e6, samples=2] {20.0/(x)};
+        \addplot [black, dotted, domain=1:1e6, samples=2] {25.0/(x)^0.5};
+        \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_kchref_discrete_err_c1_tend1.dat};
-        \addplot[color=red,mark=*] table[x={r}, y={err}] 
+        \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_CN_kchref_discrete_err_c1_tend1.dat};
-        \addplot[color=black,mark=diamond] table[x={r}, y={err}] 
-            {exercise2/data_ka/2b_BE_kchref_discrete_err_c2_tend1.dat};
-        \addplot[color=gray,mark=triangle] table[x={r}, y={err}] 
-            {exercise2/data_ka/2b_CN_kchref_discrete_err_c1_tend1.dat};
-        \legend{BE c=1, CN c=1, BE c=2, CN c=2};
 
-        \nextgroupplot[title=2b continous, xmode=log, ymode=log, legend pos=south west]
-        \addplot[color=blue,mark=x] table[x={r}, y={err}] 
+        \nextgroupplot[title={$L_2$ continous error}, 
+        xmode=log, ymode=log, legend pos=south west]
+        \addplot [black, dashed, domain=1:1e6, samples=2] {20.0/(x)};
+        \addplot [black, dotted, domain=1:1e6, samples=2] {25.0/(x)^0.5};
+        \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_kchref_continous_err_c1_tend1.dat};
-        \addplot[color=red,mark=*] table[x={r}, y={err}] 
+        \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_CN_kchref_continous_err_c1_tend1.dat};
-        \addplot[color=black,mark=diamond] table[x={r}, y={err}] 
-            {exercise2/data_ka/2b_BE_kchref_continous_err_c2_tend1.dat};
-        \addplot[color=gray,mark=triangle] table[x={r}, y={err}] 
-            {exercise2/data_ka/2b_CN_kchref_continous_err_c1_tend1.dat};
-        \legend{BE c=1, CN c=1, BE c=2, CN c=2};
     \end{groupplot}
 \end{tikzpicture}

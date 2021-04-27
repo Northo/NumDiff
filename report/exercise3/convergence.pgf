@@ -2,23 +2,31 @@
   \begin{loglogaxis}[
       title={Convergence plot for Laplace equation.},
       xlabel={Grid size ($N \times M$)},
-      ylabel={Relative error },
+      ylabel={Relative error},
+      xmin=50,
+      xmax=200000,
     ]
     \addplot[color=blue,mark=triangle*]
     table[x={N}, y={error}]
     {exercise3/convergence/varNY.dat};
 
-    \addplot[color=red,mark=*]
+    \addplot[color=red,mark=square*]
     table[x={N}, y={error}]
     {exercise3/convergence/varNX.dat};
 
-    \addplot[dotted, mark=.]
+    \addplot[color=black, mark=o]
     table[x={N}, y={error}]
     {exercise3/convergence/both.dat};
+    
+    \addplot[black, dashed, domain=50:300000, samples=2] {10000/(x)^2};
+    \addplot[black, dotted, domain=50:200000, samples=2] {2.3/(x)};
+
     \legend{
       {$M = 100$, varying $N$},
       {$N = 100$, varying $M$},
       {Uniform ($N = M$)},
+      {$\Oh(h^2)$},
+      {$\Oh(h)$},
     };
   \end{loglogaxis}
 \end{tikzpicture}

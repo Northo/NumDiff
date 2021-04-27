@@ -100,6 +100,37 @@ def make_kch_convergence_plots(u0, bc1, bc2, error_type, analyt, c=1):
     )
 
 
+def make_r_convergence_plots(u0, bc1, bc2, error_type, analyt, r=1):
+    t_end = 1
+    outpath = f"{OUT_DIR}2b_BE_rref_{error_type}_err_r{r}_tend{t_end}.dat"
+    r_refinement(
+        backward_euler,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        r,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+    outpath = f"{OUT_DIR}2b_CN_rref_{error_type}_err_r{r}_tend{t_end}.dat"
+    r_refinement(
+        crank_nicolson,
+        analyt,
+        error_type,
+        bc1,
+        bc2,
+        u0,
+        r,
+        t_end,
+        plot=True,
+        outpath=outpath,
+    )
+
+
 if __name__ == "__main__":
 
     def u0(x):
@@ -119,14 +150,16 @@ if __name__ == "__main__":
 #    make_spatial_convergence_plots(u0, bc1, bc2, "continous", analytical, N=10000)
 #    make_temporal_convergence_plots(u0, bc1, bc2, "discrete", analytical, M=10000)
 #    make_temporal_convergence_plots(u0, bc1, bc2, "continous", analytical, M=10000)
-#    make_kch_convergence_plots(u0, bc1, bc2, "discrete", analytical, c=0.5)
-#    make_kch_convergence_plots(u0, bc1, bc2, "continous", analytical, c=0.5)
+    make_kch_convergence_plots(u0, bc1, bc2, "discrete", analytical, c=1)
+    make_kch_convergence_plots(u0, bc1, bc2, "continous", analytical, c=1)
+    make_r_convergence_plots(u0, bc1, bc2, "discrete", analytical, r=1)
+    make_r_convergence_plots(u0, bc1, bc2, "continous", analytical, r=1)
 
-    x = np.linspace(0, 1, 50)
-    t, U_final, sols = theta_heat(bc1, bc2, u0, x, 50, 0.25, method="cn")
-    outpath = f"{OUT_DIR}2b_surface.dat"
-    save_solution_surface_plot_data(x, t, sols, outpath)
+    #x = np.linspace(0, 1, 50)
+    #t, U_final, sols = theta_heat(bc1, bc2, u0, x, 50, 0.25, method="cn")
+    #outpath = f"{OUT_DIR}2b_surface.dat"
+    #save_solution_surface_plot_data(x, t, sols, outpath)
 
     # Animation
-    animation = animate_time_development(x, sols)
-    plt.show()
+    #animation = animate_time_development(x, sols)
+    #plt.show()

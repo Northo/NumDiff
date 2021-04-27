@@ -103,6 +103,25 @@ def solve_errors(Nxs, Nys):
         errors.append(err_func(U, u))
     return errors
 
+
+def absolute_errors(Nxs, Nys):
+    assert len(Nxs) == len(Nys)
+    errors = []
+    def err_func(approx, anal):
+        approx = approx.flatten()
+        anal = anal.flatten()
+        order = 2
+        return (
+            np.linalg.norm(approx - anal, ord=order)
+        )
+    for Nx, Ny in zip(Nxs, Nys):
+        x = np.linspace(0, 1, Nx+2)[1:-1]
+        y = np.linspace(0, 1, Ny+2)[1:-1]
+        xx, yy = np.meshgrid(x, y)
+        u = anal(xx, yy)
+        U = get_solution(Nx, Ny)
+        errors.append(err_func(U, u))
+    return errors
 def write_to_file(path, U, x, y):
     n = len(x)
     m = len(y)
@@ -155,9 +174,8 @@ def save_stencil(A, filename):
 def discretization_test():
     N0 = 100
     num_points = 12
-    var_low = 0.9
-    var_high = 0.99
-    N_var = np.geomspace(N0*(1-var_high), N0*(10), num_points).astype(int)
+    var_low = 0.99
+    N_var = np.geomspace(N0*(1-var_low), N0*(10), num_points).astype(int)
 
     def save(filename, errors, nxs, nys):
         data = np.stack([nxs*nys, nxs, nys, errors]).T

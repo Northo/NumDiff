@@ -320,14 +320,14 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 		% {blue,  solid,  line width=1.0pt, mark=*, mark size=1.3pt},
 		% {green, densely dashed, line width=1.0pt, mark=*, mark size=1.3pt},
 		% {green, solid,  line width=1.0pt, mark=*, mark size=1.3pt},
-		{red!75!black,    solid, mark=square*, mark size=1.0pt},
-		{red!100!black,   solid, mark=*,       mark size=1.0pt},
-		{cyan!75!black,   solid, mark=square*, mark size=1.0pt},
-		{cyan!100!black,  solid, mark=*,       mark size=1.0pt},
-		{green!75!black,  solid, mark=square*, mark size=1.0pt},
-		{green!100!black, solid, mark=*,       mark size=1.0pt},
-		{yellow!60!black, solid, mark=square*, mark size=1.0pt},
-		{yellow!80!black, solid, mark=*,       mark size=1.0pt},
+		{red,            solid, mark=x, mark size=1.2pt},
+		{red,            solid, mark=o, mark size=1.2pt},
+		{cyan!60!black,  solid, mark=x, mark size=1.2pt},
+		{cyan,           solid, mark=o, mark size=1.2pt},
+		{green!60!black, solid, mark=x, mark size=1.2pt},
+		{green,          solid, mark=o, mark size=1.2pt},
+		{yellow!60!black,solid, mark=x, mark size=1.2pt},
+		{yellow,         solid, mark=o, mark size=1.2pt},
 	},
 ]
 \addplot [black, dashed, domain=1:400, samples=2, forget plot] {1.8/x^2} node [pos=0.31,pin={-100:$\Oh(h^2)$}, inner sep=0pt] {};
@@ -343,5 +343,6 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 	Comparison between the convergence of the numerical solution $U(x)$ with uniform mesh refinement (UMR) and adaptive mesh refinement (AMR) on the problem $u_{xx} = f(x)$ on $x \in [0,1]$ with analytical solution $u(x) = \exp(-(x-1/2)^2/0.1)$.
 	The adaptive refinement is done using three different strategies that subdivide the interval with the largest absolute error $|u-U|$, largest truncation error $Lu - f(x)$ (where $L \approx \partial^2 / \partial x^2$ is the discretized differentiation operator) or largest amount of source $\int \dif x |f(x)|$.
 	Errors $\Vert u - U \Vert_2$ are measured with the continuous and discrete $L_2$-norm.
+    Note that a cross inside a circle means that the discrete and continous error measurements agree.
 }
 \end{figure}
