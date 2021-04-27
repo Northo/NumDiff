@@ -7,6 +7,7 @@ from scipy.special import erf
 from functools import partial
 from scipy.interpolate import NearestNDInterpolator
 import time
+from tqdm import tqdm
 
 def dst2D(x, **kwargs):
     """Discrete sine transform in 2D.
@@ -330,6 +331,7 @@ def get_analytical_solution(terms=5):
     return np.vectorize(analytical_solution)
 
 
+@np.vectorize
 def new_analytical_solution(x, y):
     return (
         4*(
@@ -352,7 +354,13 @@ def new_analytical_solution(x, y):
     )
 
 
-def exercise_h(ord=np.inf, use_fps=True, relative=False):
+def exercise_h(
+        ord=np.inf,
+        use_fps=True,
+        relative=False,
+        nminmax=(8, 256),
+        numN=8,
+):
     # def f(x, y):
     #     return (
     #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
@@ -393,13 +401,13 @@ def exercise_h(ord=np.inf, use_fps=True, relative=False):
     # G_anal = nine_point_solve(F)
     # U9_anal = nine_point_solve(G_anal)
     # anal = NearestNDInterpolator(list(zip(xx.flatten(), yy.flatten())), U9_anal.flatten())
-    print("Solve the 'analytical' solution")
     errors = []
     comp_time = []
-    Ns = np.geomspace(8, 256, 8, dtype=int)
+    Ns = np.geomspace(*nminmax, numN, dtype=int)
     use_fps = use_fps
     # anal = get_analytical_solution(terms=8)
     for N in Ns:
+        print(f"Running N = {N}...", end='')
         xx, yy, h = get_mesh(N, reth=True)
         F = f(xx, yy)
         start_time = time.time()
@@ -409,10 +417,11 @@ def exercise_h(ord=np.inf, use_fps=True, relative=False):
         errors.append(
             errfunc(U9, anal(xx, yy), ord=ord, relative=relative)
         )
+        print("O")
 
     # Save solution
-    data = np.array([d.flatten() for d in [xx, yy, U9]]).T
-    header = "x y U"
+    # data = np.array([d.flatten() for d in [xx, yy, U9]]).T
+    # header = "x y U"
 #    np.savetxt(f"biharmonic_solution_{Ns[-1]}.dat", data, header=header, comments="")
     plt.subplot(121)
     plt.imshow(anal(xx, yy), vmin=-1e-3, vmax=1e-3)
@@ -460,6 +469,8 @@ if __name__=="__main__":
         ord=2,
         use_fps=True,
         relative=True,
+        nminmax=(8, 256),
+        numN=8,
     )
     data = [Ns, errors]
     header = "N error"
