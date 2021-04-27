@@ -175,21 +175,36 @@ We may transform \eqref{eq:PDE} into a system of Poisson equation by introducing
 In solving the poisson equation $\nabla^2 u = f$ we will consider two discretization schemes, the five point stencil and nine point stencil, which we will denote $\nabla_5^2$ and $\nabla_9^2$.
 The approximated discrete solution is denoted by $v$.
 
+\newcommand{\crossStencilInternal}[5]{
+    \draw (0,-1) node{$#1$} -- (0,+1) node{$#2$};
+    \draw (-1,0) node{$#3$} -- (+1,0) node{$#4$};
+	\draw (0,0)  node{$#5$};
+}
+
+\newcommand{\xStencilInternal}[4]{
+    \draw (-1,-1) node{$#1$} -- (+1,+1) node{$#2$};
+    \draw (-1,+1) node{$#3$} -- (+1,-1) node{$#4$};
+}
+
 \newcommand{\crossStencil}[5]{%
-  \begin{tikzpicture}[scale=0.5,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=0.7,inner sep=0pt, minimum size=6ex, fill=white}, nodes={draw, circle}]
-    \draw node[below]{$#1$} (0,0) -- (0,2) node[above]{$#2$};
-    \draw (-1, 1) node[left]{$#3$} -- (1, 1) node[right]{$#4$};
-	\draw (0,1) node{$#5$};
-    % \node[center, draw=none] at (0,1) {$#5$};
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+    \crossStencilInternal{#1}{#2}{#3}{#4}{#5}
   \end{tikzpicture}
 }
 
 \newcommand{\xStencil}[4]{%
-  \begin{tikzpicture}[scale=0.5,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=0.7,inner sep=0pt, minimum size=6ex, fill=white}, nodes={draw, circle}]
-    \draw node[below left]{$#1$} (0,0) -- (2, 2) node[above right]{$#2$};
-    \draw (0, 2) node[above left]{$#3$} -- (2, 0) node[below right]{$#4$};
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+    \xStencilInternal{#1}{#2}{#3}{#4}
   \end{tikzpicture}
 }
+
+\newcommand{\boxStencil}[9]{
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+	\xStencilInternal{#6}{#7}{#8}{#9};
+	\crossStencilInternal{#1}{#2}{#3}{#4}{#5};
+  \end{tikzpicture}
+}
+
 
 Written in stencil diagrams, the five point stencil is given as \cite{part2}
 $$
@@ -197,6 +212,11 @@ v \left(\crossStencil{1}{1}{1}{1}{-4}\right) = h^2 f
 $$
 while the nine point stencil is given by
 $$
+v
+\left(
+\boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16}
+\right)
+=
 v
 \left(
 \xStencil{\frac16}{\frac16}{\frac16}{\frac16}
@@ -209,6 +229,11 @@ f
 \left(
 \crossStencil{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac1{12}}{\frac23}
 \right).
+$$
+
+$$
+\boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16}
+%\boxStencil{a}{a}{a}{a}{a}{a}{a}{a}{a}
 $$
 
 
