@@ -185,8 +185,17 @@ The resulting convergence rates from the refinement is plotted in figure\ref{fig
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_spatialref.pgf}
-    \caption{Convergence plot, h refinement (2a)}
     \label{fig:2a-convergence}
+    \caption{
+        Convergence plots from uniform mesh refinement 
+        in the spatial direction while keeping the number of time steps $N$ constant. 
+        The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
+        with the Neumann boundary conditions $u_x(0,t) = u_x(1,t)=0$ and initial condition 
+        as listed in equation \eqref{eq:2a}. 
+        The $l_2$ discrete and the $L_2$ continous relative errors is computed 
+        with respect to a numerical reference solution computed with $M_{ref}=10000$, 
+        since the analytical solution is not available on closed form. 
+    }
 \end{figure}
 
 From figure\ref{fig:2a-convergence} we see that \textbf{comment about results}
@@ -233,11 +242,24 @@ which is due to this method being less accurate in time.
 \begin{figure}
     \centering
     \label{fig:2b-spatial-temporal-ref}
-    \subfloat[Convergence plot, h refinement (2b)]{
+    \subfloat[Convergence plots from refinement in the spatial direction.]{
         \input{exercise2/2b_spatialref.pgf}
-    } \\
-    \subfloat[Convergence plot, t refinement (2b)]{
+        \label{fig:2b-spatial-ref}
+    } \\ \medskip
+    \subfloat[Convergence plots from refinement in the time direction.]{
         \input{exercise2/2b_temporalref.pgf}
+        \label{fig:2b-time-ref}
+    }
+    \caption{
+        Convergence plots from uniform mesh refinement. 
+        In \ref{fig:2b-spatial-ref} the spatial direction while keeping the number of time steps $N$ constant, 
+        then in \ref{fig:2b-time-ref} the time direction while keeping the number of spatial nodes $M$ constant. 
+        In both cases 
+        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
+        with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
+        on the boundaries, 
+        corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
 \end{figure}
 
@@ -247,11 +269,24 @@ As mentioned, Crank-Nicolson
 \begin{figure}
     \centering
     \label{fig:2b-kch-r-ref}
-    \subfloat[Convergence plot, kch refinement (2b)]{
+    \subfloat[Convergence plots from uniform refinement with constant $c=k/h$.]{
         \input{exercise2/2b_kchref.pgf}
-    } \\
-    \subfloat[Convergence plot, r refinement (2b)]{
+        \label{fig:2b-kch-ref}
+    } \\ \medskip
+    \subfloat[Convergence plots from uniform refinement with constant $r=k/h^2$.]{
         \input{exercise2/2b_rref.pgf}
+        \label{fig:2b-r-ref}
+    }
+    \caption{
+        Convergence plots from uniform mesh refinement in both the $x$- and $t$-direction simultaneously. 
+        In \ref{fig:2b-kch-ref} $c=k/h$ is kept constant, 
+        and in \ref{fig:2b-r-ref} it is $r=k/h^2$ that is kept constant. 
+        In both cases 
+        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
+        with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
+        on the boundaries, 
+        corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
 \end{figure}
 

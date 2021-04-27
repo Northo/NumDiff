@@ -14,9 +14,9 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.2}Convergence and mesh refinement}{12}{subsection.2.2}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3}Invicid Burgers' equation}{15}{section.3}%
+\contentsline {section}{\numberline {3}Invicid Burgers' equation}{14}{section.3}%
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.1}Time of breaking}{15}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.1}Time of breaking}{14}{subsection.3.1}%
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {4}Laplace equation in two dimensions}{18}{section.4}%
 \defcounter {refsection}{0}\relax 

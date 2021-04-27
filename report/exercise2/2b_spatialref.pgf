@@ -6,19 +6,19 @@
             width=0.48\textwidth,
         ]
         \nextgroupplot[
-            title={$L_2$ discrete error}, 
+            title={$l_2$ discrete error}, 
             xmode=log, ymode=log,
             xmin=5,
             xmax=3000,
             xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=-1, column sep=1ex, legend entries={
+            transpose legend, legend columns=-1, column sep=1.2ex, legend entries={
                 {$\Oh(h^2)$},
-                {BE N=100},
-                {BE N=1000},
-                {CN N=100},
-                {CN N=1000},
+                {BE $N=100$},
+                {BE $N=1000$},
+                {CN $N=100$},
+                {CN $N=1000$},
             }, cycle list={
                 {black!75!black,  dashed},
                 {blue!100!black,  solid, mark=x,        mark size=1.0pt},
@@ -38,7 +38,7 @@
             {exercise2/data_ka/2b_CN_spatialref_discrete_err_N10000_tend1.dat};
 
         \nextgroupplot[
-            title={$L_2$ discrete error}, 
+            title={$L_2$ continous error}, 
             xmode=log, 
             ymode=log, 
             xmin=5,
