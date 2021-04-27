@@ -527,10 +527,18 @@ $$
   \end{equation*}
 \end{definition}
 
+Taylor's theorem in 2D:
+\begin{equation*}
+\begin{split}
+	u(x+h,y+k) &= \sum_{m=0}^n \frac{1}{m!} \left( h \partial_x + k \partial_y \right)^m u(x,y) + \frac{1}{(m+1)!} u(x + \theta h, y + \eta k) \\
+	u(x+h,y+k) &= \sum_{m=0}^n \frac{1}{m!} D^m u(x,y) + \frac{1}{(m+1)!} u(x + \theta h, y + \eta k)
+\end{split}
+\end{equation*}
+
 \begin{theorem}[Five point stencil stability]\label{thm:five}
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq \frac{h^2}{48} \lvert D^4 v\rvert_\infty.
+\inorm{u - v} \leq C h^2 \abs{D^4 v}_\infty.
 $$
 \end{theorem}
 \begin{proof}
@@ -539,27 +547,28 @@ $$
 \inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
 $$
 Taylor expand all terms in $\nabla_5^2 u$ around $(x,y)$ to first order to get
-\begin{align*}
+\begin{equation}
+\begin{split}
   \nabla_5^2 u(x,y)
-  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h)\\
-  &\leq f(x,y)          + \frac{h^2}{6} \max_\Omega\left\{\abs{\partial_x^4 u}, \abs{\partial_y^4 u}\right\} \\
-  &\leq f(x,y)          + \frac{h^2}{6} \abs{D^4 u}_\infty.\\
-\end{align*}
-for some $0 \leq \theta, \eta \leq 1$.
+  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h) \qquad \qquad (0 \leq \theta, \eta \leq 1)  \\
+  &\leq f(x,y)          + C_1 h^2 \abs{D^4 u}_\infty.
+\end{split}
+\label{eq:pde:taylornabla2}
+\end{equation}
 Finally, substitute $f = \nabla_5^2 v$ to conclude that
 \begin{equation*}
   \inorm{u - v}
   \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
-  \leq \frac{h^2}{48} \abs{D^4 v}_\infty. \qedhere
+  \leq C h^2 \abs{D^4 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
 
 %% 3
 \begin{theorem}[Nine point stencil stability]\label{thm:nine}
-If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{h^2}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
+If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{1}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq \frac{11h^4}{2400} \lvert D^6 v\rvert_\infty.
+\inorm{u - v} \leq C h^4 \lvert D^6 v\rvert_\infty.
 $$
 \end{theorem}
 \begin{proof}
@@ -569,24 +578,21 @@ $$
 $$
 Taylor expand all terms in $\nabla_9^2 u$ around $(x,y)$ as in the former proof to get
 \begin{align*}
-  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \\
-                    &\leq f(x,y)          + \frac{h^2}{12} \nabla^2 f(x,y) + \frac{h^4}{30} \abs{D^6 u}_\infty.
+  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \qquad (0 \leq \theta, \eta \leq 1) \\
+                    &\leq f(x,y)       + \frac{h^2}{12} \nabla^2 f(x,y) + C_1 h^4 \abs{D^6 u}_\infty.
 \end{align*}
-for some $0 \leq \theta, \eta \leq 1$.
-From the Taylor expansion in the former proof with $u \rightarrow f$, we also know that
+From \cref{eq:pde:taylornabla2} with $u \rightarrow f$, we also know that
 \begin{align*}
-	\nabla^2 f(x,y) &= \nabla_5^2 f(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) f(x + \chi h,y + \psi h) \\
-	%= \nabla^2 f(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) \nabla^2 u(x'',y''),
-	&= \nabla_5^2 f(x,y) + \frac{h^2}{12} (\partial_x^6 + \partial_y^6 + \partial_x^4 \partial_y^2 + \partial_x^2 \partial_y^4) u(x + \chi h,y + \psi h) \\
-	&\leq \nabla_5^2 f(x,y) + \frac{h^2}{3} \abs{D^6 u}_\infty
+	\nabla^2 f(x,y) &\leq \nabla_5^2 f(x,y) + C_2 h^2 \abs{D^4 f}_\infty \\
+	                &\leq \nabla_5^2 f(x,y) + C_3 h^2 \abs{D^6 u}_\infty.
 \end{align*}
-for some $0 \leq \chi, \psi \leq 1$. Altogether
+Altogether,
 \begin{equation*}
-	\nabla_9^2 u(x,y) \leq f(x,y) + \frac{h^2}{12} \nabla_5^2 f(x,y) + \frac{11 h^4}{180} \abs{D^6 u}_\infty.
+	\nabla_9^2 u(x,y) \leq f(x,y) + \frac{h^2}{12} \nabla_5^2 f(x,y) + C_4 h^4 \abs{D^6 u}_\infty.
 \end{equation*}
 Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
 \begin{equation*}
-  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq \frac{11 h^4}{2400} \abs{D^6 u}_\infty. \qedhere
+  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
