@@ -51,7 +51,7 @@ and the value of $\theta$ determines the specific numerical scheme
 \end{equation*}
 We use a constant time step $k = 1/(N-1)$, 
 where $N$ denotes the number of time steps, 
-and the final uniform grid is illustrated in figure\ref{fig:2-uniform-grid}. 
+and the final uniform grid is illustrated in figure \ref{fig:2-uniform-grid}. 
 This gives the approximate solution of $v_m(t)$ at $t_n = nk$, 
 where $n = 0, \ldots N-1$, 
 and we denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
@@ -66,7 +66,7 @@ In the following we will as mentioned consider the Backward-Euler and Crank-Nico
 \begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
-    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods.}
+    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirchlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will, for $t>0$, need to compute values at the boundaries as well.}
     \label{fig:2-uniform-grid}
 \end{figure}
 
@@ -156,7 +156,7 @@ With the numerical schemes in hand we now solve the heat equation with the follo
     u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x). 
     \label{eq:2a}
 \end{equation}
-The computed solutions for $t \in [0, 0.5]$ is plotted in figure \ref{fig:task2-surface}, 
+The computed solutions for $t \in [0, 0.3]$ is plotted in figure \ref{fig:task2-surface}, 
 and qualitatively the solution behaves in accordance with what we expect for the heat equation. 
 To quantify and compare the accuracy of the numerical schemes we will now proceed to analyze convergence using mesh refinement, 
 similar to what we did in section \ref{task_1}. 
@@ -181,8 +181,8 @@ As in section \ref{task_1} we now analyze the convergence of the numerical solut
 by doing mesh refinement. 
 We restrict the analysis to just Backward Euler and Crank-Nicolson. 
 These are unconditionally stable, 
-whilst the Forward Euler method has the added criterion $r=k/h^2 < 1/2$ for stability, 
-imposing impractical restrictions on the grids and the refinement \cite{TODO}. 
+whilst the Forward Euler method is only stable if $r=k/h^2 < 1/2$, 
+which would impose impractical restrictions on the grids and the refinement.\cite{TODO}
 
 We start by refining the spatial grid $x_m$ sepparately, 
 and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
@@ -212,18 +212,18 @@ allowing us to analyze the spatial convergence isolated.
     }
 \end{figure}
 
-The resulting convergence rates from the refinement is plotted in figure\ref{fig:2a-convergence}, 
+The resulting convergence rates from the refinement is plotted in figure \ref{fig:2a-convergence}, 
 together with the expected convergence of $\Oh(h^2)$ in the spatial direction. 
 We see that the errors for the most part fail to follow the expected curve, 
-and instead they quickly flatten and remain about constant throughout the refinement. 
+instead they quickly flatten and remain about constant throughout the refinement. 
 Crank-Nicolson with $N=1000$ is the exception, 
 but even it's curve flattens towards the end of the refinement when $M$ gets large enough. 
 A flattend curve means that the error is dominated by the time step error, 
 and further refining the spatial grid gives in that case only diminishing returns. 
-We also see that the error of the solution computed with Crank-Nicolson and that it's curve flattens later than those of the solutions computed with Backward Euler. 
-This reflects the fact that Crank-Nicolson is one order more precise in the time step $k$, 
-also, 
-with a higher $N$ in figure we would be able to see the $\Oh(h^2)$ convergence better. 
+We also see that the error curve of the solution computed with Crank-Nicolson flattens later than those of the solutions computed with Backward Euler for the same value of $N$. 
+This reflects the fact that Crank-Nicolson is one order more precise in the time step $k$. 
+Also, 
+with a higher $N$ we would be able to see the spatial $\Oh(h^2)$ convergence better. 
 
 In in order to analyze the convergence further we now switch to a set of boundary and initial conditions for which we can solve the heat equation analytically and compute the error properly. 
 Specifically we consider 
@@ -233,7 +233,8 @@ Specifically we consider
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
-and the analytical solution, 
+and we have plotted the numerical solution in \ref{fig:task2-surface}. 
+The analytical solution, 
 which can be calculated using sepparation of variables\cite{TODO}, 
 is readily available as
 \begin{equation}
@@ -246,8 +247,8 @@ The resulting convergence plots are shown in figure \ref{fig:2b-spatial-ref},
 and here the characteristics we saw in \ref{fig:2a-convergence} are seen more clearly. 
 Again, Crank-Nicolson with $N=1000$ performs the best, 
 and displays here second order convergence througout the whole refinement. 
-The others starts out with second order convergence, 
-but flattens as the time error starts to dominate, 
+The others start out with second order convergence, 
+but flattens as the temporal error starts to dominate, 
 and also here we see that the error in Crank-Nicolson flattens later than the error in Backward Euler for the same value of $N$. 
 \begin{figure}
     \centering
