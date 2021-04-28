@@ -39,30 +39,32 @@ using for instance one of the many standard schemes for ODEs such as Euler's met
 For the sake of convenience we employ the $\theta$-method, 
 which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
-    y^{n+1} = y^n + \Delta t \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
+    \frac{y^{n+1} - y^n}{\Delta t} = \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
 \end{equation*}
-and the value of $\theta$ determines the specific numerical scheme 
-\begin{equation*}
-\begin{split}
+where $\Delta t$ is the time step and the value of $\theta$ determines the specific numerical scheme 
+\begin{align*}
     \text{Forward Euler} \quad \theta = 0 \\
     \text{Backward Euler} \quad \theta = 1 \\
-    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}. \\
-\end{split}
-\end{equation*}
+    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}.
+\end{align*}
 We use a constant time step $k = 1/(N-1)$, 
 where $N$ denotes the number of time steps, 
 and the final uniform grid is illustrated in figure \ref{fig:2-uniform-grid}. 
 This gives the approximate solution of $v_m(t)$ at $t_n = nk$, 
 where $n = 0, \ldots N-1$, 
 and we denote the fully discretized approximation of $u(x_m, t_n)$ as $U_{m}^{n}$. 
+For the heat equation  this results in the following finite difference formula
+\begin{equation} 
+    \frac{U_m^{n+1} - U_m^n}{k} = (1-\theta)\frac{1}{h^2}\delta_x^2 U_m^n + \theta\frac{1}{h^2}\delta_x^2 U_m^{n+1}. 
+    \label{eq:theta-heat-raw}
+\end{equation}
 After organizing the terms, 
-the $\theta$-method for the 1D heat equation is then written out as
+the $\theta$-method for the 1D heat equation is then written compactely as 
 \begin{equation}
     (1 - \theta r \delta_x^2)U_m^{n+1} = \left(1 + (1-\theta)r\delta_x^2\right)U_m^n, 
     \label{eq:theta-heat}
 \end{equation}
 where we have defined $r=k/h^2$. 
-In the following we will as mentioned consider the Backward-Euler and Crank-Nicolson methods. 
 \begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
@@ -72,15 +74,15 @@ In the following we will as mentioned consider the Backward-Euler and Crank-Nico
 
 To impose Dirchlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
 we substitute $U_0^{n+1} = \sigma$ and $U_{M+1}^{n+1} = \beta$ in equation \eqref{eq:theta-heat} for $m=1$ and $m=M$ to obtain 
-\begin{equation*}
-\begin{split}
+%\begin{equation*}
+\begin{align*}
     (1+2r\theta)U_1^{n+1} - r\theta U_2^{n+1} = \left(1-2r(1-\theta)\right)U_1^n + r(1-\theta)U_2^n + r\sigma
-    \quad (\text{for} \: m=1) \\
+    \quad (\text{for} \: m=1), \\
     (1+2r\theta)U_{M}^{n+1} - r\theta U_{M-1}^{n+1} = \left(1-2r(1-\theta)\right)U_{M}^n + r(1-\theta)U_{M-1}^n + r\beta
-    \quad (\text{for} \: m=M), 
-\end{split}
-\end{equation*}
-which we combine with equation \ref{eq:theta-heat} for the remaining spatial nodes to write the system of equations in matrix form
+    \quad (\text{for} \: m=M). 
+\end{align*}
+%\end{equation*}
+We combine this with equation \ref{eq:theta-heat} for the remaining spatial nodes to write the system of equations in matrix form
 \begin{equation}
     (I - \theta r A)U^{n+1} = (I + (1-\theta)r A)U^n+\rho, 
     \label{eq:theta-heat-matrix}
@@ -113,14 +115,14 @@ and approximate the first derivatives at the boundaries by
     \frac{U_{M+2} - U_{M}}{2h} = \beta. 
 \end{equation*}
 We then use these expressions to eliminate the fictitious nodes from equation \eqref{eq:theta-heat} for $m=0$ and $m=M+1$ to get
-\begin{equation*}
-\begin{split}
+%\begin{equation*}
+\begin{align*}
     (1+2r\theta)U_0^{n+1} - 2r\theta U_1^{n+1} = \left(1-2r(1-\theta)\right)U_0^n + 2r(1-\theta)U_1^n - 2hr\sigma
-    \quad (\text{for} \: m=0) \\
+    \quad (\text{for} \: m=0), \\
     (1+2r\theta)U_{M+1}^{n+1} - 2r\theta U_M^{n+1} = \left(1-2r(1-\theta)\right)U_{M+1}^n + 2r(1-\theta)U_M^n + 2rh\beta
     \quad (\text{for} \: m=M+1). 
-\end{split}
-\end{equation*}
+\end{align*}
+%\end{equation*}
 Now we can write the system of equations on the same matrix form \eqref{eq:theta-heat-matrix}, 
 but with 
 \begin{equation}
@@ -175,7 +177,26 @@ similar to what we did in section \ref{task_1}.
 %\end{figure}
 
 \subsection{Convergence and mesh refinement}
-\textbf{Upcomming: derivation of convergence order for theta method.}
+We denote the exact solution evaluated at the discrete grid points as $u_m^n = u(x_m, t_n)$. 
+Inserting this into the finite difference formula \eqref{eq:theta-heat-raw} gives rise to an additional term $\tau_m^n$, 
+since the difference formula is not satisfied by the exact solution. 
+The term $\tau_m^n$ is the \textit{local truncation error}, 
+and for our difference formula, the heat equation theta method, we get 
+\begin{align*}
+    k\tau_m^n = u_m^{n+1} - u_m^n - (1-\theta)\frac{k}{h^2}\delta_x^2 u_m^n - \theta\frac{k}{h^2}\delta_x^2 u_m^{n+1}\\
+    = (1 - \theta\frac{k}{h^2}\delta_x^2)u_m^{n+1} - u_m^n-\frac{k}{h^2}\delta_x^2 u_m^n + \theta\frac{k}{h^2}\delta_x^2u_m^n\\
+    = (1 - \theta\frac{k}{h^2}\delta_x^2)(u_m^{n+1} - u_m^n) - \frac{k}{h^2}\delta_x^2 u_m^n.
+\end{align*}
+
+Taylor expansion of all the terms around $(x_m, t_n)$ gives
+\begin{align*}
+    TBW. 
+\end{align*}
+Finally, dividing by $k$ we find that 
+\begin{align*}
+    \tau_m^n = \Oh(k+h^2) \quad for \theta\neq\frac{1}{2},\\
+    \tau_m^n = \Oh(k^2+h^2) \quad for \theta = \frac{1}{2}.
+\end{align*}
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
 by doing mesh refinement. 
