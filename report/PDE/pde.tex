@@ -559,7 +559,38 @@ Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude 
 
 We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - v) \rightarrow 0$ and global error $\Vert u - v \Vert \rightarrow 0$, so the schemes are consistent and convergent.
 By Lax' equivalence theorem \cite{owren}, they are then also stable.
+
 (TODO: this should really be in the proofs?)
+
+(TODO: using $v$ for discrete function is weird. using $u$ with $f$ is also weird. using $u$ with $g$ would be more consistent with what we already have)
+
+\begin{theorem}[Nine point stencil stability TODO biharmonic]
+TODO: make theorems for stability on biharmonic
+\end{theorem}
+\begin{proof}
+From \cref{thm:five}, we know that
+\begin{equation*}
+\inorm{u-U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = \frac18 \inorm{\nabla_5^2 u - G}
+\end{equation*}
+By the Taylor expansion \ref{eq:pde:taylornabla2},
+\begin{equation*}
+\nabla_5^2 u \leq \nabla^2 u + Ch^2 \inorm{D^4 u} = g + Ch^2 \inorm{D^4 u}.
+\end{equation*}
+Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:five} again to get
+\begin{equation*}
+\inorm{u-U} \leq C \inorm{g-G} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u}. \qedhere
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\inorm{u-U} &\leq \frac18 \inorm{\nabla_5^2(u-U)} \\
+            &\leq \frac18 \inorm{\nabla^2 u + Ch^2 \inorm{D^4 u} - \nabla_5^2 U} \\
+			&\leq \frac18 \inorm{g - G} + \frac18 Ch^2 \inorm{D^4 u} \\
+			&\leq C h^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \\
+			&\leq C h^2 \inorm{D^4 u}.
+\end{split}
+\end{equation*}
+\end{proof}
 
 \subsubsection{Stability when solving the Biharmonic equation}
 Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
