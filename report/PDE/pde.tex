@@ -375,17 +375,14 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 We know that $U = 0$ on the boundary, so we will only solve for $U$ in the interior grid points.
 But $F$ need \emph{not} be zero on the boundary, so we include the boundary points in the grid when calculating the right side of the $9$-point equation, \emph{then} cut away the boundary points.
 
+We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
+We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of Kroenecker products and sums.
+
 (TODO: use $U$ or $v$ for discrete approximtae solution?)
 
 (TODO: say the matrices are toeplitz and symmetric) (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
 
-(TODO: should we differentiate more between the discrete function and the vector describing it?)
-
-(TODO: Verify order (ie. not I x K + K x I) believe this is a convention thing).
-
 (TODO: check conventions on $h^2$)
-
-(TODO: This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.)
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
