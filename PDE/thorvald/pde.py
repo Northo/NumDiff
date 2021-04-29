@@ -8,6 +8,7 @@ from functools import partial
 from scipy.interpolate import NearestNDInterpolator
 import time
 from tqdm import tqdm
+import sympy
 
 def dst2D(x, **kwargs):
     """Discrete sine transform in 2D.
@@ -163,17 +164,82 @@ def demonstrate_order(plot=False, order=np.inf, relative=False):
         F = f(xx, yy, k, l)
         U_anal = F / (-np.pi**2 * (k**2 + l**2))
         ### Five point stencil ###
-        U5 = fps(
-            h**2  * F,
-            get_eigval_array(N, five_point_eigenval),
+        U5 = five_point_solve(
+            F,
+            use_fps=True,
             **fps_kwargs
         )
         ### Nine point stecnil ###
-        F_stencil = five_point_stencil(N, a=2/3, b=1/12)
-        F9 = (F_stencil @ F.flatten()).reshape(N, N)
-        U9 = fps(
-            h**2  * F9,
-            get_eigval_array(N, nine_point_eigenval),
+        U9 = nine_point_solve(
+            F,
+            use_fps=True,
+            **fps_kwargs
+        )
+
+        errors["five"].append(errfunc(U5, U_anal))
+        errors["five_roof"].append(
+            # 1/8 * 1/12 * h**2 * (k*np.pi)**2 * (l*np.pi)**2 / ((np.pi*k)**2 + (np.pi*l)**2)
+             h**2 * 0.1
+        )
+        errors["nine"].append(errfunc(U9, U_anal))
+        errors["nine_roof"].append(
+            h**4 * 0.1
+        )
+
+    if plot:
+        plot_errors(Ns, errors)
+
+    return errors
+
+
+def demonstrate_order_biharmonic(plot=False, order=np.inf, relative=False):
+    def errfunc(approx, anal):
+        if relative:
+            return (
+                np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
+                / np.linalg.norm(anal.flatten(), ord=order)
+            )
+        else:
+            return np.linalg.norm(anal.flatten() - approx.flatten(), ord=order)
+
+    def f(x, y, k=1, l=1):
+        """Manufactured solution"""
+        return np.sin(x * k * np.pi) * np.sin(y * l * np.pi)
+    Ns = np.geomspace(8, 256, num=6, dtype=int)
+    k = 3
+    l = 4
+    errors = {
+        "Ns": Ns,
+        "five": [],
+        "five_roof": [],
+        "nine": [],
+        "nine_roof": [],
+    }
+    fps_kwargs = {"type": 1, "norm": "ortho"}
+    for N in Ns:
+        xx, yy, h = get_mesh(N, reth=True)
+        F = f(xx, yy, k, l)
+        U_anal = F / ((k*np.pi)**2 + (l*np.pi)**2)**2
+        ### Five point stencil ###
+        G5 = five_point_solve(
+            F,
+            use_fps=True,
+            **fps_kwargs
+        )
+        U5 = five_point_solve(
+            G5,
+            use_fps=True,
+            **fps_kwargs
+        )
+        ### Nine point stecnil ###
+        G9 = nine_point_solve(
+            F,
+            use_fps=True,
+            **fps_kwargs
+        )
+        U9 = nine_point_solve(
+            G9,
+            use_fps=True,
             **fps_kwargs
         )
 
@@ -360,13 +426,10 @@ def exercise_h(
         relative=False,
         nminmax=(8, 256),
         numN=8,
+        stencil="nine",
 ):
-    # def f(x, y):
-    #     return (
-    #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
-    #         *
-    #         np.exp(-(x-0.5)**2 - (y-0.5)**2)
-    #     )
+
+    ### The updated formulation ###
     f = new_analytical_solution
     def anal(x,y):
         return (
@@ -375,23 +438,60 @@ def exercise_h(
             np.exp(-(x-0.5)**2 - (y-0.5)**2)
         )
 
-    def errfunc(u, v, ord=np.inf, relative=False):
+    ### Any formulation, solved with sympy ###
+    # x, y = sympy.var("x, y")
+    # u = (
+    #     (sympy.sin(sympy.pi * x) * sympy.sin(sympy.pi * y))**4
+    #     * sympy.exp(-(x-sympy.Rational(1,2))**2 - (y-sympy.Rational(1,2))**2)
+    # )
+    # u = sympy.sin(sympy.pi * x) * sympy.sin(sympy.pi * y) * sympy.exp(-(x-sympy.Rational(1,2))**2 - (y-sympy.Rational(1,2))**2)
+    # #    u = (sympy.sin(sympy.pi * x) * sympy.sin(sympy.pi * y)) * sympy.exp(x**2)
+    # f = u.diff(x, 4) + u.diff(y, 4) + 2 * u.diff(x, 2).diff(y, 2)
+    # f = f.simplify()
+    # print("f: ", f)
+    # f = sympy.lambdify([x,y], f, "numpy")
+    # anal = sympy.lambdify([x,y], u, "numpy")
+
+
+    ### The first formulation, which was wrong ###
+    # def f(x, y):
+    #     return (
+    #         (np.sin(np.pi*x) * np.sin(np.pi*y))**4
+    #         *
+    #         np.exp(-(x-0.5)**2 - (y-0.5)**2)
+    #     )
+    # anal = get_analytical_solution(terms=8)
+
+    ### Simple test case ###
+    # def f(x, y):
+    #     return (
+    #         np.sin(np.pi * x) * np.sin(np.pi * y * 3)
+    #         + np.sin(np.pi * x * 4) * np.sin(np.pi * y * 3)
+    #     )
+
+    # def anal(x, y):
+    #     return (
+    #         np.sin(np.pi * x) * np.sin(np.pi * y * 3) / ((np.pi)**2 + (np.pi * 3)**2)**2
+    #         + np.sin(np.pi * x * 4) * np.sin(np.pi * y * 3) / ((np.pi*4)**2 + (np.pi * 3)**2)**2
+    #     )
+
+    def errfunc(U, u, ord=np.inf, relative=False):
+        U = U.flatten()
         u = u.flatten()
-        v = v.flatten()
         if relative:
             return (
                 np.linalg.norm(
-                    u - v,
+                    U - u,
                     ord=ord,
                 )
                 / np.linalg.norm(
-                    v,
+                    u,
                     ord=ord,
                 )
             )
         else:
             return np.linalg.norm(
-                u - v,
+                U - u,
                 ord=ord,
             )
 
@@ -405,14 +505,37 @@ def exercise_h(
     comp_time = []
     Ns = np.geomspace(*nminmax, numN, dtype=int)
     use_fps = use_fps
-    # anal = get_analytical_solution(terms=8)
+
+    if stencil == "nine":
+        solver = nine_point_solve
+    elif stencil == "five":
+        solver = five_point_solve
+    else:
+        raise("Invalid stencil chosen")
+    print(solver)
     for N in Ns:
-        print(f"Running N = {N}...", end='')
+        print(f"Running N = {N}...", end="")
         xx, yy, h = get_mesh(N, reth=True)
         F = f(xx, yy)
+        print(" F ... ", end="")
         start_time = time.time()
-        G = nine_point_solve(F, use_fps=use_fps)
-        U9 = nine_point_solve(G, use_fps=use_fps)
+        F_stencil = five_point_stencil(N, a=2/3, b=1/12)
+        F9 = (F_stencil @ F.flatten()).reshape(N, N)
+        fps_kwargs = fps_kwargs = {"type": 1, "norm": "ortho"}
+        G9 = fps(
+            h**2  * F9,
+            get_eigval_array(N, nine_point_eigenval),
+            **fps_kwargs
+        )
+        U9 = fps(
+            h**2  * (G9 + h**2/12 * F),
+            get_eigval_array(N, nine_point_eigenval),
+            **fps_kwargs
+        )
+
+
+        # G = solver(F, use_fps=use_fps)
+        # U9 = solver(G, use_fps=use_fps)
         comp_time.append(time.time() - start_time)
         errors.append(
             errfunc(U9, anal(xx, yy), ord=ord, relative=relative)
@@ -424,14 +547,22 @@ def exercise_h(
     # header = "x y U"
 #    np.savetxt(f"biharmonic_solution_{Ns[-1]}.dat", data, header=header, comments="")
     plt.subplot(121)
-    plt.imshow(anal(xx, yy), vmin=-1e-3, vmax=1e-3)
+    plt.imshow(anal(xx, yy))#, vmin=-1e-3, vmax=1e-3)
     plt.colorbar()
     plt.subplot(122)
-    plt.imshow(U9, vmin=-1e-3, vmax=1e-3)
+    plt.imshow(U9)#, vmin=-1e-3, vmax=1e-3)
     plt.colorbar()
     plt.show()
-    plt.loglog(Ns, errors, '-x')
+
+    h0 = h
+    h = 1 / (Ns + 2 - 1)
+    print(h, h[0], h[1], h[-1])
+    plt.loglog(Ns, errors, '-x', label=stencil)
+    plt.loglog(Ns, h**2, label="h^2")
+    plt.loglog(Ns, h**4, label="h^4")
+    plt.legend()
     plt.show()
+
     plt.loglog(Ns, comp_time, '-x')
     plt.show()
 
@@ -453,7 +584,7 @@ def plot_fourier(m_max):
     plt.show()
 
 if __name__=="__main__":
-    # errors = demonstrate_order(True, order=2, relative=True)
+    # errors = demonstrate_order_biharmonic(True, order=2, relative=True)
     # data = [errors[error] for error in errors]
     # header = ' '.join(errors.keys())
     # np.savetxt(
@@ -471,11 +602,12 @@ if __name__=="__main__":
         relative=True,
         nminmax=(8, 256),
         numN=8,
+        stencil="nine",
     )
     data = [Ns, errors]
     header = "N error"
     np.savetxt(
-        "error_bvp_rel_2.dat",
+        "error_bvp_rel_2_five_stencil.dat",
         np.vstack(data).T,
         header=header,
         comments='',
