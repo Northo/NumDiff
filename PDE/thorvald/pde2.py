@@ -194,42 +194,78 @@ class BiharmonicSolver(Solver):
         return U
 
 
+class Series:
+    def __init__(self, u, f, solver, N_min, N_max, N_num, name="", store_solution_index=None):
+        self.Ns = np.geomspace(N_min, N_max, N_num, dtype=int)
+        self.hs = 1/(self.Ns + 2 - 1)
+        self.u = u
+        self.f = f
+        self.errors = {"five": [], "nine": []}
+        self.store_solution_index = store_solution_index % N_num
+        self.solver = solver
+
+    def run(self):
+        for i, N in enumerate(self.Ns):
+            store = (i == self.store_solution_index)
+            solver = self.solver(f, N=N, anal_u=u, store_solution=store)
+            solver.solve()
+            if store:
+                self.stored_solver = solver
+            for error in solver.errors:
+                self.errors[error].append(solver.errors[error])
+
+    def plot_error(self):
+        for error in self.errors:
+            plt.loglog(self.Ns, self.errors[error], label=error)
+        plt.loglog(self.Ns, self.hs**2, linestyle="dashed", label="h2")
+        plt.loglog(self.Ns, self.hs**4, linestyle="dashed", label="h4")
+        plt.legend()
+        plt.show()
+
+    def plot_solution(self):
+        if not self.stored_solver:
+            return
+        plt.imshow(self.stored_solver.U9)
+        plt.colorbar()
+        plt.show()
+
+    def write(self):
+        minmaxnum = f"{self.Ns[0]}:{self.Ns[-1]}:{len(self.Ns)}"
+        filename_error = f"error_{self.solver.__name__}_N_{minmaxnum}.dat"
+        data = np.array([self.Ns, self.errors["five"], self.errors["nine"]]).T
+        header = "N five nine"
+        np.savetxt(filename_error, data, header=header, comments="")
+
+        if self.store_solution_index is not None:
+            solver = self.stored_solver
+            xx, yy, U9 = solver.xx, solver.yy, solver.U9
+            xx = xx[1:-1, 1:-1]
+            yy = yy[1:-1, 1:-1]
+            data = np.array([d.flatten() for d in [xx, yy, U9]]).T
+            header = "x y U"
+            N = self.Ns[self.store_solution_index]
+            np.savetxt(f"solution_{solver.__class__.__name__}_N_{N}.dat", data, header=header, comments="")
+
 ######################
 ### Let's do this! ###
 ######################
-# u, f = problems.get_poisson_sin_problem()
-# p = PoissonSolver(
-#     f=f,
-#     N=9,
-#     anal_u=u,
-#     store_solution=True,
-# )
-# p.solve()
-# print(p.errors)
 
-# u, f = problems.get_biharmonic()
-# b = BiharmonicSolver(
-#     f=f,
-#     N=9,
-#     anal_u=u,
-#     store_solution=True,
-# )
-# b.solve()
-# plt.imshow(b.U5)
-# plt.show()
+CASE = 2
 
-Ns = np.geomspace(8, 256, 8, dtype=int)
-u, f = problems.get_biharmonic()
-errors = {"five": [], "nine": []}
-for N in Ns:
-    solver = BiharmonicSolver(f, N=N, anal_u=u, store_solution=False)
-    solver.solve()
-    for error in errors:
-        errors[error].append(solver.errors[error])
-h = 1 / (Ns + 2 - 1)
-plt.loglog(Ns, errors["five"], label="five")
-plt.loglog(Ns, errors["nine"], label="nine")
-plt.loglog(Ns, h ** 2, linestyle="dashed", label="h2")
-plt.loglog(Ns, h ** 4, linestyle="dashed", label="h4")
-plt.legend()
-plt.show()
+if CASE == 0:
+    u, f = problems.get_poisson_sin_problem(k=[1], l=[3, 4])
+    solver = PoissonSolver
+elif CASE == 1:
+    u, f = problems.get_poisson_exp_problem()
+    solver = PoissonSolver
+elif CASE == 2:
+    u, f = problems.get_biharmonic()
+    solver = BiharmonicSolver
+else:
+    raise("Invalid case!")
+
+s = Series(u, f, solver, *(8, 256, 8), name="", store_solution_index=-1)
+s.run()
+# s.plot_error()
+# s.plot_solution()
+s.write()
