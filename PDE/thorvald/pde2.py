@@ -250,11 +250,11 @@ class Series:
         plt.colorbar()
         plt.show()
 
-    def write(self):
+    def write(self, write_border=False):
         print("wrote", self.write_error())
         print("wrote", self.write_time())
         if self.store_solution_index is not None:
-            print("wrote", self.write_solution())
+            print("wrote", self.write_solution(write_border=write_border))
 
     def write_error(self):
         minmaxnum = f"{self.Ns[0]}:{self.Ns[-1]}:{len(self.Ns)}"
@@ -272,11 +272,14 @@ class Series:
         np.savetxt(filename, data, header=header, comments="")
         return filename
 
-    def write_solution(self):
+    def write_solution(self, write_border=False):
         solver = self.stored_solver
         xx, yy, U9 = solver.xx, solver.yy, solver.U9
-        xx = xx[1:-1, 1:-1]
-        yy = yy[1:-1, 1:-1]
+        if write_border:
+            U9 = np.pad(U9, ((1,1), (1,1)), 'constant', constant_values=0)
+        else:
+            xx = xx[1:-1, 1:-1]
+            yy = yy[1:-1, 1:-1]
         data = np.array([d.flatten() for d in [xx, yy, U9]]).T
         header = "x y U"
         N = self.Ns[self.store_solution_index]
@@ -304,7 +307,7 @@ else:
 
 s = Series(u, f, solver, *(20, 21, 1), name="", store_solution_index=0)
 s.run()
-s.plot_times()
+# s.plot_times()
 # s.plot_error()
 # s.plot_solution()
-s.write()
+s.write(write_border=True)

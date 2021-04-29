@@ -816,65 +816,33 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
 
-\newcommand{\biharmshowf}[1]{
+\newcommandx{\showSurf}[4][4=faceted]{  %% filename, N, labelZ, shader
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
         width=7.7cm,% height=7.5cm,
 		    xmin=0, xmax=1, ymin=0, ymax=1, zmin=0,
-        %	zmin=0.0,zmax=0.13,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
-        %       samples=50,
-        %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
-        %	scaled taicks=false,
         grid,
-	      % title={Test},
-        zlabel={$f(x, y)$},
+        zlabel={#3},
         mesh/ordering=x varies,
-        mesh/cols=100,
-        mesh/rows=100,
-        %        colormap name=redblue,
+        mesh/cols=#2,
+        mesh/rows=#2,
 	      view={20}{50},
       ]
 	    \addplot3 [
 		    surf,
         point meta=explicit,
-        opacity=0.85,%shader=interp,
-        %	    ] table[meta=U]{./PDE/biharmonic_solution_20.dat};
-      ] table[meta=U]{./PDE/testF.dat};
+        opacity=0.95,
+        shader=#4,
+      ] table[meta=U]{#1};
     \end{axis}
   \end{tikzpicture}
 }
-\newcommand{\biharmshowsol}[1]{
-  \begin{tikzpicture}
-    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
-    \begin{axis}[
-	      width=7.7cm,% height=7.5cm,
-        %	zmin=0.0,zmax=0.13,
-	      xlabel=$x$, xtick distance=0.25,
-	      ylabel=$y$, ytick distance=0.25,
-        %       samples=50,
-        %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
-        %	scaled taicks=false,
-        grid,
-	      % title={Test},
-        zlabel={$u(x, y)$},
-        mesh/ordering=x varies,
-        mesh/cols=#1,
-        mesh/rows=#1,
-	      view={20}{50},
-      ]
-	    \addplot3 [
-		    surf,
-        point meta=explicit,
-	    ] table[meta=U]{./PDE/solution_BiharmonicSolver_N_#1.dat};
-    \end{axis}
-  \end{tikzpicture}
   %% \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
   %% \label{fig:pde:bvp}
   %% \end{figure}
-}
 
 %% Error plot
 \begin{figure}[hbp]
@@ -882,15 +850,15 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
 
   \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \biharmshowf{20} % compiles with pdflatex
-    \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more TODO: does it work to have it here?}
+    \showSurf{./PDE/testF.dat}{100}{$f(x, y)$}[flat]
+    \caption{The inhomogenity $f(x, y)$ used when solving the Biharmonic equation. The function is not zero on the entire border of the domain.}
   \end{subfigure}
   ~
   %% Solution plot
   \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \biharmshowsol{20} % compiles with pdflatex
-    \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more TODO: does it work to have it here?}
+    \showSurf{./PDE/solution_BiharmonicSolver_N_20.dat}{22}{$u(x, y)$}
+    \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction.  TODO: does it work to have it here?}
     \label{fig:pde:bvp}
   \end{subfigure}
 
@@ -904,16 +872,21 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           xmin=6^2, xmax=10e6,%2400^2,
 		  width=7.7cm,
         ]
-        \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={nine}] {./PDE/error_BiharmonicSolver_N_8:256:8.dat};
         \addlegendentry{Nine point};
 
-        \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2_five_stencil.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={five}] {./PDE/error_BiharmonicSolver_N_8:256:8.dat};
         \addlegendentry{Five point};
 
 
-        \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {30/(sqrt(x)-1)^2}
+        \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {30/(sqrt(x)+1)^2}
+        node[pos=0.7,
+          pin={[pin edge={solid, out=45, in=-120}]above right:$\mathcal{O}(h^2)$},
+        ] {};
+
+        \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {80/(sqrt(x)+1)^4}
         node[pos=0.3,
-          pin={[pin edge={solid, out=75, in=-100}]above right:$\mathcal{O}(h^2)$},
+          pin={[pin edge={solid, out=-120, in=45}]below left:$\mathcal{O}(h^4)$},
         ] {};
       \end{loglogaxis}
     \end{tikzpicture}
