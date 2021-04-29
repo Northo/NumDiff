@@ -496,46 +496,33 @@ Thus
 \end{figure}
 
 %% 3
-\begin{definition}
-  We denote the maximum of all $n$-index derivatives of $u$ on $\Omega$ by
-  \begin{equation*}
-  \abs{D^n u}_\infty = \max_{m=0}^n \inorm{\partial_x^m \partial_y^{n-m} u}
-  \end{equation*}
-\end{definition}
-
-Taylor's theorem in 2D:
+In the following we will use Taylor expansions heavily.
+For simplicity, we \emph{define} $D^m = \sum_{n=0}^m c_n \partial_x^m \partial_y^{n-m}$ to be an arbitrary combination of $m$-derivatives and $C$ be a ``floating'' constant whose value can change between equations in such a way that they are consistent with the remainder term in Taylor's theorem \cite{owren}
 \begin{equation*}
-\begin{split}
-	u(x+h,y+k) &= \sum_{m=0}^n \frac{1}{m!} \left( h \partial_x + k \partial_y \right)^m u(x,y) + \frac{1}{(m+1)!} u(x + \theta h, y + \eta k) \\
-	u(x+h,y+k) &= \sum_{m=0}^n \frac{1}{m!} D^m u(x,y) + \frac{1}{(m+1)!} u(x + \theta h, y + \eta k)
-\end{split}
+	y(\boldsymbol{x}+\boldsymbol{h}) = \sum_{m=0}^n \frac{1}{m!} \left ( \boldsymbol{h} \cdot \nabla \right)^m y(\boldsymbol{x}) + C D^{n+1} y(\boldsymbol{x} + \boldsymbol{\theta}).
 \end{equation*}
 
 \begin{theorem}[Five point stencil stability]\label{thm:five}
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^2 \abs{D^4 v}_\infty.
+\inorm{u - v} \leq C h^2 \inorm{D^4 u}.
 $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound} with $\phi_5(x,y)$ from \ref{pde:equation:phi5},
+By lemma \ref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5},
 $$
 \inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
 $$
-Taylor expand all terms in $\nabla_5^2 u$ around $(x,y)$ to first order to get
+Taylor expand all terms in $\nabla_5^2 u$ around the center to first order to get
 \begin{equation}
-\begin{split}
-  \nabla_5^2 u(x,y)
-  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h) \quad (0 \leq \theta, \eta \leq 1)  \\
-  &\leq f(x,y)          + C_1 h^2 \abs{D^4 u}_\infty.
-\end{split}
+  \nabla_5^2 u = \nabla^2 u + C h^2 D^4 u \leq f + Ch^2 \inorm{D^4 u}.
 \label{eq:pde:taylornabla2}
 \end{equation}
 Finally, substitute $f = \nabla_5^2 v$ to conclude that
 \begin{equation*}
   \inorm{u - v}
   \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
-  \leq C h^2 \abs{D^4 u}_\infty. \qedhere
+  \leq C h^2 \inorm{D^4 u}. \qedhere
 \end{equation*}
 \end{proof}
 
@@ -544,7 +531,7 @@ Finally, substitute $f = \nabla_5^2 v$ to conclude that
 \begin{theorem}[Nine point stencil stability]\label{thm:nine}
 If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{1}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^4 \lvert D^6 v\rvert_\infty.
+\inorm{u - v} \leq C h^4 \inorm{D^6 u}.
 $$
 \end{theorem}
 \begin{proof}
@@ -552,28 +539,27 @@ By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
 $$
 \inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
 $$
-Taylor expand all terms in $\nabla_9^2 u$ around $(x,y)$ as in the former proof to get
-\begin{align*}
-  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \quad (0 \leq \theta, \eta \leq 1) \\
-                    &\leq f(x,y)       + \frac{h^2}{12} \nabla^2 f(x,y) + C_1 h^4 \abs{D^6 u}_\infty.
-\end{align*}
-From \cref{eq:pde:taylornabla2} with $u \rightarrow f$, we also know that
-\begin{align*}
-	\nabla^2 f(x,y) &\leq \nabla_5^2 f(x,y) + C_2 h^2 \abs{D^4 f}_\infty \\
-	                &\leq \nabla_5^2 f(x,y) + C_3 h^2 \abs{D^6 u}_\infty.
-\end{align*}
-Altogether,
+Taylor expand all terms in $\nabla_9^2 u$ around the center as in the former proof to get
 \begin{equation*}
-	\nabla_9^2 u(x,y) \leq f(x,y) + \frac{h^2}{12} \nabla_5^2 f(x,y) + C_4 h^4 \abs{D^6 u}_\infty.
+\nabla_9^2 u = \nabla^2 u + \frac{h^2}{12} \nabla^4 u + Ch^4 D^6 u \leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \inorm{D^6 u}.
 \end{equation*}
-Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
+From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \rightarrow f$, we also know that
 \begin{equation*}
-  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
+\nabla^2 f \leq \nabla_5^2 f + Ch^2 \inorm{D^4 f} \leq \nabla_5^2 f + Ch^2 \inorm{D^6 u}.
+\end{equation*}
+Together, the two Taylor expansions imply
+\begin{equation*}
+	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \inorm{D^6 u}.
+\end{equation*}
+Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
+\begin{equation*}
+  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \inorm{D^6 u}. \qedhere
 \end{equation*}
 \end{proof}
 
 We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - v) \rightarrow 0$ and global error $\Vert u - v \Vert \rightarrow 0$, so the schemes are consistent and convergent.
 By Lax' equivalence theorem \cite{owren}, they are then also stable.
+(TODO: this should really be in the proofs?)
 
 \subsubsection{Stability when solving the Biharmonic equation}
 Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
