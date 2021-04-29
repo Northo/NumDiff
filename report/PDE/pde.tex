@@ -316,6 +316,7 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 	&& \qquad \text{with} \qquad
 	K_9 = J_9 \oplus J_9 + \Sigma \otimes \Sigma.
 \end{alignedat}
+\label{eq:pde:matrixequations}
 \end{equation}
 
 (TODO: use $U$ or $v$ for discrete approximtae solution?)
@@ -331,81 +332,6 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 (TODO: This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.)
 
 (TODO: move eigenstuff to FPS section?)
-
-Let $\lambda_k, ~k\in[1, n]$ be the eigenvalues of the matrix $A$, and let $\mu_l, ~l\in [1, m]$ be the eigenvalues of the matrix $B$.
-As shown in for example \textcite{Laub_2004}, the eigenvalues of the Kronecker product $A \otimes B$ are the products of the eigenvalues of $A$ and $B$,
-$$
-%% \lambda_1 \mu_1, \dots, \lambda_1 \mu_m,
-%% \lambda_2 \mu_1, \dots, \lambda_2 \mu_m,
-%% \dots,
-%% \lambda_n \mu_1, \dots, \lambda_n \mu_m.
-\lambda_k\mu_l, \quad k \in [1, n], l\in [1,m].
-$$
-The eigenvalues of the Kronecker sum $A\oplus B$ are the sum of the eigenvalues of $A$ and $B$
-$$
-%% \lambda_1 + \mu_1, \dots, \lambda_1 + \mu_m,
-%% \lambda_2 + \mu_1, \dots, \lambda_2 + \mu_m,
-%% \dots,
-%% \lambda_n + \mu_1, \dots, \lambda_n + \mu_m.
-\lambda_k + \lambda_l, \quad k \in [1, n], l\in [1,m].
-$$
-Moreover, if $x_1, \dots, x_n$ are linearly independent eigenvectors of $A$ corresponding to $\lambda_1, \dots, \lambda_n$, and $z_1, \dots, z_n$ are linearly independent eigenvectors of $B$ corresponding to $\mu_1, \dots, \mu_n$, then $x_k \otimes z_l$ are linearly independent eigenvectors of $A\otimes B$ corresponding to $\lambda_k \mu_l$.
-%(TODO: these are non-obvious properties, need a reference, e.g. \url{http://www.siam.org/books/textbooks/OT91sample.pdf} theorem 13.12 and 13.16)
-% Some properties/proofs in https://www.uio.no/studier/emner/matnat/ifi/nedlagte-emner/INF-MAT3350/h07/undervisningsmateriale/chap9slides.pdf
-According to \cite{tridiagonal} the eigenvalues of a TST matrix where $a$ is the main diagonal and $b$ is the off diagonal are 
-\begin{equation*}
-	\lambda_k = a + 2 b \cos\left(\frac{k \pi}{N + 1}\right)
-\end{equation*}
-and the eigenvectors are
-\begin{equation*}
-  y_k(m) = \sin\frac{m k \pi}{N+1}.
-\end{equation*}
-Thus, $K_{2D}, \tilde{K}_{2D}^{(9)}, \text{ and } \Sigma_{2D}$ share the same eigenvectors, (TODO: consider to argue more explicitly for this)
-\begin{equation}\label{eq:pde:eigenvec}
-y_{kl}(m, n) = \sin\frac{m k \pi}{N+1}\sin\frac{n l \pi}{N+1}.
-\end{equation}
-As a result, $K_{2D}^{(9)}$ also share these eigenvectors.
-%% Thus the eigenvalues of $K$ are
-%% $$
-%% \lambda_k = -2
-%% \left(1 - \cos\left(\frac{k \pi}{N + 1}\right)\right)
-%% $$
-%% and the eigevalues of $\Sigma$ are
-%% $$
-%% \gamma_k = -\frac{2}{\sqrt{6}}\cos\left(\frac{k \pi}{N + 1}\right).
-%% $$
-The eigenvalues of $K_{2D}$ are then
-$$
-\left(-2 + 2\cos\left(\frac{k \pi}{N + 1}\right)\right)
-+
-\left(-2 + 2\cos\left(\frac{l \pi}{N + 1}\right)\right).
-$$
-The eigenvalues of $\tilde{K}_{2D}^{(9)}$ are
-$$
-\frac13\left(-10 + 4\cos\left(\frac{k \pi}{N + 1}\right)\right)
-+
-\frac13\left(-10 + 4\cos\left(\frac{l \pi}{N + 1}\right)\right)
-$$
-and the eigenvalues of $\Sigma_{2D}$ are
-$$
-\frac46
-\cos\left(\frac{k \pi}{N+1}\right)
-\cos\left(\frac{l \pi}{N+1}\right).
-$$
-The eigenvalues of the nine point stencil $K_{2D}$ are thus
-\begin{equation}
-  -\frac{10}{3}
-  + \frac43
-  \left(
-  \cos(\frac{k \pi}{N+1})
-  + \cos(\frac{l \pi}{N+1})
-  \right)
-  +
-  \frac46
-  \cos(\frac{k \pi}{N+1})
-  \cos(\frac{l \pi}{N+1}).
-\end{equation}
-TODO: Consider writing all of these eigenvalues in a more structured manner.
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
@@ -643,105 +569,110 @@ Thus,
 
 
 \subsection{The Fast Poisson Solver}
-The procedure for the Fast Poisson Solver is based on the explanation in \cite{Strang_2012}.\\
+\Cref{eq:pde:matrixequations} can of course be solved directly with (sparse) matrix solvers like before, but there is a more efficient way.
+The \emph{Fast Poisson Solver} exploits properties of the eigenvectors of $K_5$ and $K_9$ to compute the solution efficiently.
+In this section, we will explain how this works based on \cite{Strang_2012}.
 
-We are to solve the equation
+Just like in \cref{eq:pde:matrixequations}, suppose one is to solve the matrix equation 
 $$
-A U = F.
+K U = F
 $$
-Assuming that the eigenvectors of $A$ form a complete set, we may write
+for $U$ and that one knows the eigenvectors $y_1, \dots, y_n$ and corresponding eigenvalues $\lambda_1, \dots, \lambda_n$ of $K$.
+If $K = K^T$ is invertible and symmetric, the eigenvectors are complete and orthogonal \cite{owren}, so we may write
 $$
-F = a_1 y_1 + a_2 y_2 + ...,
+F = c_1 y_1 + c_2 y_2 + \dots + c_n y_n
+\qquad \text{with} \qquad
+c_i = y_i \cdot F.
 $$
-where $y_1, y_2, \dots$ are the eigenvectors of $A$.
-A similar expansion must exist for $U$, as the eigenvectors are assumed to be complete.
-One may verify simply by insertion that the solution $U$ is then of course
+One may now easily verify by insertion that the solution is
 $$
 U =
-\frac{a_1}{\lambda_1} y_1
-+ \frac{a_2}{\lambda_2} y_2
-+ \dots,
+\frac{c_1}{\lambda_1} y_1
++ \frac{c_2}{\lambda_2} y_2
++ \dots
++ \frac{c_n}{\lambda_n} y_n.
 $$
-where $\lambda_i$ is the eigenvalue corresponding to $y_i$.
-In general, however, this is not a viable way to solve the problem, as it requires knowing all the eigenvalues and eigenvectors, as well as finding the coefficients $a_i$.
-However, for the set of eigenvectors in this problem, which are sines, we have a very efficient algorithm for computing the coefficients, the discrete fast sine transform.
-We also have simple analytical expressions for the eigenvalues.
-The idea behind the Fast Poisson Solver is to given $F$ find its expansion coefficients $a_i$, divide these by the corresponding eigenvalues $\lambda_i$, and then use this to express $U$.
 
-According to \eqref{eq:pde:eigenvec} the $(m, n)$ compontent of the eigenvector corresponding to $\lambda_{k,l}$ is
+We want to solve \cref{eq:pde:matrixequations}, so let us find the eigenvalues and eigenvectors of $K_5$ and $K_9$.
+\newcommand{\kroeneckerlemmatext}[2]{
+	Let $\alpha_1, \dots, \alpha_m$ be eigenvalues of $A$ with corresponding eigenvectors $x_1, \dots, x_m$.
+	Let $\beta_1, \dots, \beta_n$ be eigenvalues of $B$ with corresponding eigenvectors $y_1, \dots, y_n$.
+	Then $\alpha_m #2 \beta_n$ are eigenvalues of $A #1 B$ with corresponding eigenvectors $x_m \otimes y_n$.
+	In other words,
+	\begin{equation*}
+		A x_m = \alpha_m x_m
+		\quad \text{and} \quad
+		B y_n = \beta_n y_n
+		\quad \implies \quad
+		(A #1 B) (x_m \otimes y_n) = (\alpha_m #2 \beta_n) (x_m \otimes y_n)
+		.
+	\end{equation*}
+}
+
+\begin{lemma}[Eigenvalues of Kroenecker product]\label{pde:lemma:eigkronprod}
+\kroeneckerlemmatext{\otimes}{\,}
+\end{lemma}
+(TODO: pull together above and below to one lemma?)
+\begin{lemma}[Eigenvalues of Kroenecker sum]\label{pde:lemma:eigkronsum}
+\kroeneckerlemmatext{\oplus}{\,}
+\end{lemma}
+(TODO: are these correct, should it be $\otimes$ in both eigenvectors?)
+\begin{lemma}[TODO: name?]\label{pde:lemma:eigsum}
+Let $\alpha_1, \dots, \alpha_m$ be eigenvalues of $A$ with corresponding eigenvectors $x_1, \dots, x_m$.
+Let $\beta_1, \dots, \beta_m$ be eigenvalues of $B$ with the same corresponding eigenvectors.
+Then $\alpha_m + \beta_m$ are eigenvalues of $A+B$ with the same eigenvectors.
+\end{lemma}
+\begin{lemma}\label{pde:lemma:eigtst}
+Let $A = \text{tridiag}(b,a,b)$ be a $N \times N$ TST matrix with $a$ on the diagonal and $b$ on the off-diagonal.
+Then the eigenvalues $\alpha_1, \dots, \alpha_N$ and eigenvectors $x_1, \dots, x_N$ of $A$ are
 $$
-\sin\left( \frac{m k \pi}{N + 1} \right)
-\sin\left( \frac{n l \pi}{N + 1} \right).
+\alpha_m = a + 2b \cos \left( \frac{m\pi}{N+1} \right)
+\quad \text{and} \quad
+x_m(k) = \sin \frac{mk\pi}{N+1}.
 $$
-The Discrete Sine Transform of type I $x(k)$ of $y(n)$ is defined through\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.} \cite{scipy_dst}
-\begin{equation}
-  y(n) =
-  \sum_{k=1}^{N}
-  x(k)
-  \sin\left(
-  \frac{
-    \pi k n
-  }{
-    N + 1
-  }
-  \right), ~ n = 1, \dots N.
-\end{equation}
-%% Given a discrete function $y_k$, the discrete sine transform (of type I) in one dimension, $x[n]$, is defined as\cite{scipy_dst} (TODO: figure out prefactors)
-%% $$
-%% y_k =
-%% 2 \sum_{n=0}^{N-1}
-%% x[n]
-%% \sin\left(
-%% \frac{
-%%   \pi (k+1) (n+1)
-%% }{
-%%   N + 1
-%% }
-%% \right), ~0 \leq k < N.
-%% $$
-The two dimensional equivalent is simply to apply this transformation to the two directions sequentially.
-\begin{equation}
-  y(m, n) =
-  \sum_{k=1}^{N}
-  \sum_{l=1}^{N}
-  x(k, l)
-  \sin\left(
-  \frac{
-    \pi k m
-  }{
-    N + 1
-  }
+\end{lemma}
+(TODO: add/refer to proofs)
+
+With these lemmas (TODO: theorems?) in hand, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
+
+Note that by \cref{pde:lemma:eigtst}, the eigen\emph{vectors} are the same for \emph{any} TST matrix.
+As $J_5$, $J_9$ and $\Sigma$ are all tridiagonal and $K_5$ and $K_9$ involve (sums of) Kroenecker sums and products of these matrices, \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum,pde:lemma:eigsum} ensure that $K_5$ and $K_9$ share the \emph{common} eigenvectors
+\newcommand{\eigvecexpr}{\sin \left( \frac{mk\pi}{N+1} \right) \sin \left( \frac{nl\pi}{N+1} \right)}
+$$ y_{kl}(m,n)= \eigvecexpr \qquad (1 \leq k,l,m,n \leq M).$$
+For $K_5$, first use \cref{pde:lemma:eigtst} on $J_5$ and then \cref{pde:lemma:eigkronsum} on $J_5 \oplus J_5$ to obtain the corresponding eigenvalues
+$$ \lambda_{kl} = -4 + 2 \cos \left( \frac{k\pi}{N+1} \right) + 2 \cos \left( \frac{l\pi}{N+1} \right).$$
+For $K_9$, first use \cref{pde:lemma:eigtst} on $J_5$ and $\Sigma$, then \cref{pde:lemma:eigkronsum} on $J_9 \oplus J_9$, \cref{pde:lemma:eigkronprod} on $\Sigma \otimes \Sigma$ and finally \cref{pde:lemma:eigsum} on $J_9 \oplus J_9 + \Sigma \otimes \Sigma$ to get the corresponding eigenvalues
+$$
+  \lambda_{kl} = 
+  -\frac{10}{3}
+  + \frac43
+  \left(
+  \cos\left(\frac{k \pi}{N+1}\right)
+  + \cos\left(\frac{l \pi}{N+1}\right)
   \right)
-  \sin\left(
-  \frac{
-    \pi l n
-  }{
-    N + 1
-  }
-  \right), ~ m = 1, \dots N, n = 1, \dots N.
-\end{equation}
-This prefectly corresonds to the eigenvector expansion of the stencils!
-Therefore given $F(m, n)$ the 2D Discrete Sine Transform gives $x(k, l)$, corresponding to the coefficents $a_i$ introduced above (where now the subscript has two indices instead of one).
-As we know the eigenvalues $\lambda_{k,l}$ of the five and nine point stencils from section \ref{sec:pde:numerical_solution}, the solution $U$ is readily computed by the inverse Discrete Sine Transform, which calculates $y(m, n)$ given $x(k, l)$.
-
-Formulating the Fast Poisson Solver more directly with regards to implementing the solver, we have that the solution is
+  +
+  \frac46
+  \cos\left(\frac{k \pi}{N+1}\right)
+  \cos\left(\frac{l \pi}{N+1}\right).
 $$
-U = \text{IFST}(\text{FST}(F) / \Lambda),
+(TODO: establish one index convention etc.)
+
+With this,
 $$
-where $\text{IFST}, \text{FST}$ are the inverse and normal Fast Sine Tranform in two dimensions, and $\Lambda$ are the eigenvalues of the stencil for which we solve.
-These eigenvalues were given in section \ref{sec:pde:numerical_solution}.
-
-
-%% Written as matrix expressions
-%% (TODO: this could probably be removed?)
-%% \begin{align*}
-%%   A U &= F\\
-%%   S\Lambda S U &= F\\
-%%   &\Rightarrow\\
-%%   U &= S\Lambda^{-1} S F,
-%% \end{align*}
-%% where we used the fact that $S^{-1} = S$. TODO: Justify
-
+c_{kl} = \sum_{m,n} F(m,n) y_{kl}(m,n) 
+       = \sum_{m,n} F(m,n) \eigvecexpr
+$$
+and
+$$
+U(m,n) = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} y_{kl}(m,n) 
+       = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} \eigvecexpr
+$$
+But this corresponds \emph{perfectly} to the Discrete Sine Transform of type I (DST-I) and Inverse Discrete Sine Transform (IDST-I), for which very efficient implementations exist in for example \cite{scipy_dst} (apart from some normalization factors and variable index offsets).
+\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.}
+By introducing the diagonal eigenvalue matrix $\Lambda$, we can finally express the solution in an elegant way suitable for computations,
+$$
+U = \text{IDST}(\text{DST}(F) / \Lambda).
+$$
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
