@@ -302,7 +302,7 @@ elif CASE == 2:
 else:
     raise("Invalid case!")
 
-s = Series(u, f, solver, *(8, 256, 8), name="", store_solution_index=-1)
+s = Series(u, f, solver, *(20, 21, 1), name="", store_solution_index=0)
 s.run()
 s.plot_times()
 # s.plot_error()

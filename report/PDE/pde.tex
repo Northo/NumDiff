@@ -816,12 +816,12 @@ In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the 
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
 
-\newcommand{\biharmshowsol}[1]{
+\newcommand{\biharmshowf}[1]{
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
-	      width=15.2cm, height=12.5cm,
-		  xmin=0, xmax=1, ymin=0, ymax=1, zmin=0,
+        width=7.7cm,% height=7.5cm,
+		    xmin=0, xmax=1, ymin=0, ymax=1, zmin=0,
         %	zmin=0.0,zmax=0.13,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
@@ -845,10 +845,12 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
       ] table[meta=U]{./PDE/testF.dat};
     \end{axis}
   \end{tikzpicture}
+}
+\newcommand{\biharmshowsol}[1]{
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
-	      width=8.2cm, height=7.5cm,
+	      width=7.7cm,% height=7.5cm,
         %	zmin=0.0,zmax=0.13,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
@@ -866,21 +868,28 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
 	    \addplot3 [
 		    surf,
         point meta=explicit,
-	    ] table[meta=U]{./PDE/biharmonic_solution_#1.dat};
+	    ] table[meta=U]{./PDE/solution_BiharmonicSolver_N_#1.dat};
     \end{axis}
   \end{tikzpicture}
-  \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
-  \label{fig:pde:bvp}
-\end{figure}
+  %% \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
+  %% \label{fig:pde:bvp}
+  %% \end{figure}
+}
 
 %% Error plot
 \begin{figure}[hbp]
   \centering
 
-  %% Solution plot
-  \begin{subfigure}[t]{\textwidth}
+  \begin{subfigure}[t]{0.49\textwidth}
     \centering
-    \biharmshowsol{32} % compiles with pdflatex
+    \biharmshowf{20} % compiles with pdflatex
+    \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more TODO: does it work to have it here?}
+  \end{subfigure}
+  ~
+  %% Solution plot
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \biharmshowsol{20} % compiles with pdflatex
     \caption{The solution $u(x, y)$ to the Biharmonic equation. TODO:write more TODO: does it work to have it here?}
     \label{fig:pde:bvp}
   \end{subfigure}
