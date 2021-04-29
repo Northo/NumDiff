@@ -5,7 +5,7 @@ In this section, we consider the one-dimensional heat equation for $u = u(x, t)$
     u_t = u_{xx}, \quad u(x, 0) = f(x), \quad x \in [0,1] := \Omega, 
     \label{eq:heat-eq}
 \end{equation*}
-with either Neumann or Dirchlet boundary conditions, 
+with either Neumann or Dirichlet boundary conditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are, 
 as we will later see, 
@@ -68,11 +68,11 @@ where we have defined $r=k/h^2$.
 \begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
-    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirchlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will need to compute values at the boundaries as well.}
+    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirichlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will need to compute values at the boundaries as well.}
     \label{fig:2-uniform-grid}
 \end{figure}
 
-To impose Dirchlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
+To impose Dirichlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
 we substitute $U_0^{n+1} = \sigma$ and $U_{M+1}^{n+1} = \beta$ in equation \eqref{eq:theta-heat} for $m=1$ and $m=M$ to obtain 
 %\begin{equation*}
 \begin{align*}
@@ -103,7 +103,7 @@ with
         r\sigma \\ 0 \\ \vdots \\ 0 \\ r\beta
     \end{bmatrix}
     .
-    \label{eq:theta-heat-matrix-dirchlet}
+    \label{eq:theta-heat-matrix-Dirichlet}
 \end{equation}
 
 For Neumann boundary conditions, $u_x(0, t) = \sigma, \: u_x(1, t) = \beta$, 
@@ -143,7 +143,7 @@ but with
     \label{eq:theta-heat-matrix-neumann}
 \end{equation}
 
-Note that with Dirchlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-dirchlet} is an $M \times M$ matrix. 
+Note that with Dirichlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-Dirichlet} is an $M \times M$ matrix. 
 With Neumann conditions however we also need to solve for the boundary nodes, 
 and $A$ is in \eqref{eq:theta-heat-matrix-neumann} an $(M+2) \times (M+2)$ matrix. 
 In both cases though, all quantities on the right hand sides in \eqref{eq:theta-heat-matrix} are known, 
@@ -174,7 +174,7 @@ similar to what we did in section \ref{task_1}.
         \input{exercise2/2a_surface_plot.pgf}
         \label{fig:2a-surface}
     } 
-    \subfloat[Dirchlet boundary conditions.]{
+    \subfloat[Dirichlet boundary conditions.]{
         \input{exercise2/2b_surface_plot.pgf}
         \label{fig:2b-surface}
     }
@@ -212,7 +212,7 @@ Taylor expansion of all the terms around $(x_m, t_n)$ gives
     -k\left(\partial_x^2+\frac{1}{12}h^2\partial_x^4+\dots\right)u_m^n\\
     & = \left(k\partial_x^2+\frac{1}{2}k^2\partial_t^2+\frac{1}{6}k^3\partial_t
     -\theta k^2 \partial_t^2 - \frac{1}{2} k^3 \partial_t^3 - k \partial_x^2 - \frac{1}{12} kh^2 \partial_x^4 + \dots \right)u_m^n + \dots\\
-    & = (\frac{1}{2}-\theta)k^2\partial_t^2-\frac{1}{12}kh^2\partial_x^4u_m^n+(\frac{1}{6}-\frac{1}{2}\theta)k^3\partial_t^3u_m^n+\dots
+    & = \left(\frac{1}{2}-\theta\right)k^2\partial_t^2-\frac{1}{12}kh^2\partial_x^4u_m^n+\left(\frac{1}{6}-\frac{1}{2}\theta\right)k^3\partial_t^3u_m^n+\dots
 \end{align*}
 Finally, dividing by $k$ we find that 
 \begin{align*}
@@ -278,7 +278,7 @@ Specifically we consider
     \label{eq:2b-manufactured}
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
-Note that we now have Dirchlet boundary conditions, 
+Note that we now have Dirichlet boundary conditions, 
 and we have plotted the numerical solution in \ref{fig:2b-surface}. 
 The analytical solution, 
 which can be calculated using sepparation of variables
@@ -443,7 +443,7 @@ despite Crank-Nicolson having better precision in the time step $k$.
 \newpage
 \section{Inviscid Burgers' equation}
 
-In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
+In this section we turn to solve the inviscid Burgers' equation with given Dirichlet boundary conditions and initial condition
 \begin{equation}
     u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp\left(-400(x-1/2)^2\right).
     \label{eq:burger}
@@ -498,8 +498,9 @@ and figure \ref{fig:burgers-samples} shows the solution sampled around the time 
         Numerically computed solution to the inviscid Burgers' equation around the time of breaking, 
         displaying the shock formation. 
         The initial condition is $u\left(x, 0\right) = \exp\left(-400(x-1/2)^2\right)$, 
-        and the boundaries are fixed at $0$ by the Dirchlet conditions, 
+        and the boundaries are fixed at $0$ by the Dirichlet conditions, 
         as specified in \eqref{eq:burger}. 
+        The upper right plot with $t \approx 0.055$ is at the time of breaking. 
     }
     \label{fig:burgers-samples}
 \end{figure}
