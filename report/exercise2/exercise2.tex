@@ -5,7 +5,7 @@ In this section, we consider the one-dimensional heat equation for $u = u(x, t)$
     u_t = u_{xx}, \quad u(x, 0) = f(x), \quad x \in [0,1] := \Omega, 
     \label{eq:heat-eq}
 \end{equation*}
-with either Neumann or Dirchlet boundary conditions, 
+with either Neumann or Dirichlet boundary conditions, 
 and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
 These are, 
 as we will later see, 
@@ -41,7 +41,7 @@ which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
     \frac{y^{n+1} - y^n}{k} = \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
 \end{equation*}
-where $k$ is the time step and the value of $\theta$ determines the specific numerical scheme 
+where $k$ is the time step, and the value of $\theta$ determines the specific numerical scheme 
 \begin{align*}
     & \text{Forward Euler} \quad \theta = 0 \\
     & \text{Backward Euler} \quad \theta = 1 \\
@@ -68,11 +68,11 @@ where we have defined $r=k/h^2$.
 \begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
-    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirchlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will need to compute values at the boundaries as well.}
+    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirichlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will need to compute values at the boundaries as well.}
     \label{fig:2-uniform-grid}
 \end{figure}
 
-To impose Dirchlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
+To impose Dirichlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$, 
 we substitute $U_0^{n+1} = \sigma$ and $U_{M+1}^{n+1} = \beta$ in equation \eqref{eq:theta-heat} for $m=1$ and $m=M$ to obtain 
 %\begin{equation*}
 \begin{align*}
@@ -103,7 +103,7 @@ with
         r\sigma \\ 0 \\ \vdots \\ 0 \\ r\beta
     \end{bmatrix}
     .
-    \label{eq:theta-heat-matrix-dirchlet}
+    \label{eq:theta-heat-matrix-Dirichlet}
 \end{equation}
 
 For Neumann boundary conditions, $u_x(0, t) = \sigma, \: u_x(1, t) = \beta$, 
@@ -143,14 +143,14 @@ but with
     \label{eq:theta-heat-matrix-neumann}
 \end{equation}
 
-Note that with Dirchlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-dirchlet} is an $M \times M$ matrix. 
+Note that with Dirichlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-Dirichlet} is an $M \times M$ matrix. 
 With Neumann conditions however we also need to solve for the boundary nodes, 
 and $A$ is in \eqref{eq:theta-heat-matrix-neumann} an $(M+2) \times (M+2)$ matrix. 
 In both cases though, all quantities on the right hand sides in \eqref{eq:theta-heat-matrix} are known, 
 i.e. the equations are on the form $A\vec{x}=\vec{b}$, 
 and the known $\vec{b}$ is just written via a matrix-vector product for notational convenience. 
 To solve the problem we now solve this system of equations at each time step, 
-and since matrices in both cases are tridiagonal, 
+and since the matrices in both cases are tridiagonal, 
 we represent them as sparse matrices and use a solver for sparse systems to save both memory and time. 
 
 With the numerical schemes in hand we now solve the heat equation with the following Neumann boundary conditions and initial condition, 
@@ -174,14 +174,14 @@ similar to what we did in section \ref{task_1}.
         \input{exercise2/2a_surface_plot.pgf}
         \label{fig:2a-surface}
     } 
-    \subfloat[Dirchlet boundary conditions.]{
+    \subfloat[Dirichlet boundary conditions.]{
         \input{exercise2/2b_surface_plot.pgf}
         \label{fig:2b-surface}
     }
     \caption{
-        Numerical solution of the one dimensional heat equation with different sets of boundary and initial initial conditions computed with Crank-Nicolson. 
-        Subfigure \ref{fig:2a-surface} shows the solution with the conditions given in \eqref{eq:2a}, 
-        and subfigure \ref{fig:2b-surface} is from solving with the conditions in \eqref{eq:2b-manufactured}. 
+        Numerical solution of the one dimensional heat equation with different sets of boundary and initial conditions computed with Crank-Nicolson. 
+        Subfigure \ref{fig:2a-surface} shows the solution with the conditions specified in \eqref{eq:2a}, 
+        and subfigure \ref{fig:2b-surface} is from solving with the conditions given in \eqref{eq:2b-manufactured}. 
     }
 \end{figure}
 
@@ -212,7 +212,7 @@ Taylor expansion of all the terms around $(x_m, t_n)$ gives
     -k\left(\partial_x^2+\frac{1}{12}h^2\partial_x^4+\dots\right)u_m^n\\
     & = \left(k\partial_x^2+\frac{1}{2}k^2\partial_t^2+\frac{1}{6}k^3\partial_t
     -\theta k^2 \partial_t^2 - \frac{1}{2} k^3 \partial_t^3 - k \partial_x^2 - \frac{1}{12} kh^2 \partial_x^4 + \dots \right)u_m^n + \dots\\
-    & = (\frac{1}{2}-\theta)k^2\partial_t^2-\frac{1}{12}kh^2\partial_x^4u_m^n+(\frac{1}{6}-\frac{1}{2}\theta)k^3\partial_t^3u_m^n+\dots
+    & = \left(\frac{1}{2}-\theta\right)k^2\partial_t^2-\frac{1}{12}kh^2\partial_x^4u_m^n+\left(\frac{1}{6}-\frac{1}{2}\theta\right)k^3\partial_t^3u_m^n+\dots
 \end{align*}
 Finally, dividing by $k$ we find that 
 \begin{align*}
@@ -225,10 +225,10 @@ by doing mesh refinement.
 We restrict the analysis to just Backward Euler and Crank-Nicolson, 
 which have different convergence order in the temporal direction. 
 The reason for which we exclude the forward Euler method is that it is only stable under the condition that $r=k/h^2 < 1/2$, 
-whilst backward Euler and Crank-Nicolson are unconditionally stable \cite{owren}. 
+and such a condition would impose impractical restrictions on the grids and the refinement \cite{owren}. 
+Backward Euler and Crank-Nicolson however, are unconditionally stable \cite{owren}. 
 Later on when we study the Linearized Kortweg-de Vries equation in section \ref{task4}, 
 we show this by applying Von Neumann analysis on the forward Euler and Crank-Nicolson methods. 
-Such a stability criterion would impose impractical restrictions on the grids and the refinement. 
 
 We start by refining the spatial grid $x_m$ sepparately, 
 and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
@@ -246,14 +246,14 @@ allowing us to analyze the spatial convergence isolated.
     \centering
     \input{exercise2/2a_spatialref.pgf}
     \caption{
-        Convergence plots from uniform mesh refinement 
+        Convergence plots from uniformly refining the mesh 
         in the spatial direction while keeping the number of time steps $N$ constant. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with the Neumann boundary conditions $u_x(0,t) = u_x(1,t)=0$ and initial condition 
         as listed in equation \eqref{eq:2a}. 
         The $l_2$ discrete and the $L_2$ continous relative errors is computed 
         with respect to a numerical reference solution computed with $M_{ref}=10000$, 
-        since the analytical solution is not available on closed form. 
+        since the analytical solution for this problem is not available on closed form. 
     }
     \label{fig:2a-convergence}
 \end{figure}
@@ -278,7 +278,7 @@ Specifically we consider
     \label{eq:2b-manufactured}
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
-Note that we now have Dirchlet boundary conditions, 
+Note that we now have Dirichlet boundary conditions, 
 and we have plotted the numerical solution in \ref{fig:2b-surface}. 
 The analytical solution, 
 which can be calculated using sepparation of variables
@@ -312,10 +312,9 @@ and also here we see that the error in Crank-Nicolson flattens later than the er
     }
     \caption{
         Convergence plots from uniform mesh refinement. 
-        In \ref{fig:2b-spatial-ref} the spatial direction while keeping the number of time steps $N$ constant, 
-        then in \ref{fig:2b-time-ref} the time direction while keeping the number of spatial nodes $M$ constant. 
-        In both cases 
-        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In \ref{fig:2b-spatial-ref} we refine in the spatial direction while keeping the number of time steps $N$ constant, 
+        then in \ref{fig:2b-time-ref} we refine in the temporal direction while keeping the number of spatial nodes $M$ constant. 
+        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
@@ -328,7 +327,7 @@ while keeping the spatial step size constant.
 I.e. we do the same as in the spatial refinement, 
 but instead we fix $M$ and vary $N$. 
 The resulting convergence plot is show in figure \ref{fig:2b-time-ref}, 
-and here the different in convergence orders of the two methods in the time step becomes very apparent. 
+and here the difference in the temporal convergence of the two methods becomes very apparent. 
 The chosen fixed values for $M$ are large enough so that the spatial error does not dominate, 
 and we avoid the error curves flattening as $N$ gets large. 
 The error curves also seem to follow the expected convergence order. 
@@ -375,8 +374,7 @@ is shown in figure \ref{fig:2b-kch-ref}.
         Convergence plots from uniform mesh refinement in both the $x$- and $t$-direction simultaneously. 
         In \ref{fig:2b-kch-ref} $c=k/h$ is kept constant, 
         and in \ref{fig:2b-r-ref} it is $r=k/h^2$ that is kept constant. 
-        In both cases 
-        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
@@ -413,7 +411,7 @@ while being suboptimal for Backward Euler which is $\Oh(k + h^2)$.
 On the other hand, keeping $r=k/h^2$ works well for Backward Euler, 
 while being suboptimal for Crank-Nicolson, 
 and results in the same convergence order for the two methods, 
-despite Crank-Nicolson having better presicion in the time step $k$. 
+despite Crank-Nicolson having better precision in the time step $k$. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % AMR data was likely to change.
@@ -443,24 +441,25 @@ despite Crank-Nicolson having better presicion in the time step $k$.
 %\end{figure}
 
 \newpage
-\section{Invicid Burgers' equation}
+\section{Inviscid Burgers' equation}
 
-In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
+In this section we turn to solve the inviscid Burgers' equation with given Dirichlet boundary conditions and initial condition
 \begin{equation}
-    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp(-400(x-1/2)^2).
+    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp\left(-400(x-1/2)^2\right).
     \label{eq:burger}
 \end{equation}
 This equation exhibits breaking; 
 after some point in time $t_b$ the solution breaks, 
 and the unique solution does not exist, 
-leading to the formation of a \textit{shock wave}. (TODO: source burgers)
-The time $t_b$ before this can happen is given by
+leading to the formation of a \textit{shock wave} \cite{LeVeque}. 
+The time $t_b$ before this happens can be found exactly using the method of characteristics, 
+and is given as 
 \begin{equation}
 % I am not sure if this is the exact time of breaking or just the earliest possible breaking time. 
     t_b = \frac{-1}{\min f'(x)}, 
     \label{eq:t_break}
 \end{equation}
-where $f(x)$ is the given initial condition $u(x, 0) = f(x)$. (TODO: source burgers)
+where $f(x)$ is the given initial condition $u(x, 0) = f(x)$ \cite{LeVeque}. 
 
 \subsection*{Numerical solution method}
 To solve equation \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 
@@ -472,21 +471,36 @@ The resulting system of ODEs is
 which we, after imposing the boundary conditions, 
 integrate using an explicit Runge-Kutta method of order 4(5). 
 
+%\begin{figure}
+%    \input{exercise2/2c_surface_plot.pgf}
+%    \label{fig:2c-surface}
+%\end{figure}
+
 \subsection{Time of breaking}
 Insertion of $u(x, 0)$ for $f$ in \eqref{eq:t_break}, 
 gives $t_b \approx 0.058$. 
-To get a criterion for when the numerical solution has broken down, 
+As criterion for when the numerical solution has broken down, 
 we use that the stable solution should be strictly increasing from $x=0$ to towards the apex, 
 and then strictly decreasing from the apex towards the right boundary at $x=1$. 
-When this is no longer the case we say that the solution has broken, 
-and the time for which this happened for our solution was at $t^* \approx 0.055$. 
-Figure \ref{fig:burgers-samples} shows the solution sampled around the time of breaking. 
+When this is no longer the case, 
+or equivalently, 
+when there exists a point $U_m$ such that $U_m < U_{m-1}$ and $U_m < U_{m+1}$, 
+we say that the numerical solution has broken down. 
+The time for which this happened for our solution was at $t^* \approx 0.055$, 
+and figure \ref{fig:burgers-samples} shows the solution sampled around the time of breaking. 
 % Not sure what to make of this result, also varying M seems to affect 
 % the breaking time. I made a function wich calculates the :
 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2c_samples.pgf}
-    \caption{Numerically computed solution to the Invicid Burgers' equation around the time of breaking.}
+    \caption{
+        Numerically computed solution to the inviscid Burgers' equation around the time of breaking, 
+        displaying the shock formation. 
+        The initial condition is $u\left(x, 0\right) = \exp\left(-400(x-1/2)^2\right)$, 
+        and the boundaries are fixed at $0$ by the Dirichlet conditions, 
+        as specified in \eqref{eq:burger}. 
+        The upper right plot with $t \approx 0.055$ is at the time of breaking. 
+    }
     \label{fig:burgers-samples}
 \end{figure}

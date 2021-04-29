@@ -227,7 +227,7 @@ def save_solution_surface_plot_data(x, t, sols, outpath):
     np.savetxt(outpath, table, header="x t U", comments="")
 
 
-def save_solution_sample_plot(x, t, sols, outpath)
+def save_solution_sample_plot(x, t, sols, outpath):
     num_samples = 8
     for i in range(num_samples):
         j = i * N // num_samples

@@ -4,7 +4,7 @@
         xlabel={$t$},
         ylabel={$x$},
         zlabel={$U$},
-        view={30}{30},
+        view={30}{20},
         height=6.5cm,
     ]
         \addplot3[surf, mesh/cols=50, shader=flat, opacity=0.9] table[x={t}, y={x}, z={U}] 
