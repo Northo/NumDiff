@@ -10,16 +10,18 @@
             xlabel={$t$},
             ylabel={$x$},
             zlabel={$U$},
+            view={30}{30},
             ]
-            \addplot3[surf, mesh/cols=50] table[x={t}, y={x}, z={U}] 
+            \addplot3[surf, mesh/cols=50, shader=interp, opacity=1.0] table[x={t}, y={x}, z={U}] 
                 {exercise2/data_ka/2a_surface.dat};
         \nextgroupplot[
             title={2b surface solution plot},
-            xlabel={$t$},
-            ylabel={$x$},
+            xlabel={$x$},
+            ylabel={$t$},
             zlabel={$U$},
+            view={135}{30},
             ]
-            \addplot3[surf, mesh/cols=50] table[x={t}, y={x}, z={U}] 
+            \addplot3[surf, mesh/cols=50, shader=interp, opacity=1.0] table[x={x}, y={t}, z={U}] 
                 {exercise2/data_ka/2b_surface.dat};
     \end{groupplot}
 \end{tikzpicture}

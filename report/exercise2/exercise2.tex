@@ -39,15 +39,15 @@ using for instance one of the many standard schemes for ODEs such as Euler's met
 For the sake of convenience we employ the $\theta$-method, 
 which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
-    \frac{y^{n+1} - y^n}{\Delta t} = \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
+    \frac{y^{n+1} - y^n}{k} = \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
 \end{equation*}
-where $\Delta t$ is the time step and the value of $\theta$ determines the specific numerical scheme 
+where $k$ is the time step and the value of $\theta$ determines the specific numerical scheme 
 \begin{align*}
-    \text{Forward Euler} \quad \theta = 0 \\
-    \text{Backward Euler} \quad \theta = 1 \\
-    \text{Crank-Nicolson} \quad \theta = \frac{1}{2}.
+    & \text{Forward Euler} \quad \theta = 0 \\
+    & \text{Backward Euler} \quad \theta = 1 \\
+    & \text{Crank-Nicolson} \quad \theta = \frac{1}{2}.
 \end{align*}
-We use a constant time step $k = 1/(N-1)$, 
+We use a constant stepsize $k = 1/(N-1)$ in time, 
 where $N$ denotes the number of time steps, 
 and the final uniform grid is illustrated in figure \ref{fig:2-uniform-grid}. 
 This gives the approximate solution of $v_m(t)$ at $t_n = nk$, 
@@ -68,7 +68,7 @@ where we have defined $r=k/h^2$.
 \begin{figure}[ht!]
     \centering
     \input{exercise2/grid_figure.pgf}
-    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirchlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will, for $t>0$, need to compute values at the boundaries as well.}
+    \caption{An illustration of how we divide the temporally and spatially continuous domain into a discrete, uniform grid. The filled circles correspond to values known through the initial and Dirchlet boundary conditions, and the empty circles to unknown values, to be determined using the finite difference methods. In the case of Neumann boundary conditions we will need to compute values at the boundaries as well.}
     \label{fig:2-uniform-grid}
 \end{figure}
 
@@ -76,15 +76,15 @@ To impose Dirchlet boundary conditions, $u(0, t) = \sigma, \: u(1, t) = \beta$,
 we substitute $U_0^{n+1} = \sigma$ and $U_{M+1}^{n+1} = \beta$ in equation \eqref{eq:theta-heat} for $m=1$ and $m=M$ to obtain 
 %\begin{equation*}
 \begin{align*}
-    (1+2r\theta)U_1^{n+1} - r\theta U_2^{n+1} = \left(1-2r(1-\theta)\right)U_1^n + r(1-\theta)U_2^n + r\sigma
-    \quad (\text{for} \: m=1), \\
-    (1+2r\theta)U_{M}^{n+1} - r\theta U_{M-1}^{n+1} = \left(1-2r(1-\theta)\right)U_{M}^n + r(1-\theta)U_{M-1}^n + r\beta
-    \quad (\text{for} \: m=M). 
+    \left(1+2r\theta\right)U_1^{n+1} - r\theta U_2^{n+1} = \left(1-2r(1-\theta)\right)U_1^n + r\left(1-\theta\right)U_2^n + r\sigma
+    \quad & (\text{for} \: m=1), \\
+    \left(1+2r\theta\right)U_{M}^{n+1} - r\theta U_{M-1}^{n+1} = \left(1-2r(1-\theta)\right)U_{M}^n + r\left(1-\theta\right)U_{M-1}^n + r\beta
+    \quad & (\text{for} \: m=M). 
 \end{align*}
 %\end{equation*}
 We combine this with equation \ref{eq:theta-heat} for the remaining spatial nodes to write the system of equations in matrix form
 \begin{equation}
-    (I - \theta r A)U^{n+1} = (I + (1-\theta)r A)U^n+\rho, 
+    \left(I - \theta r A\right)U^{n+1} = \left(I + (1-\theta)r A\right)U^n+\rho, 
     \label{eq:theta-heat-matrix}
 \end{equation}
 with 
@@ -117,10 +117,10 @@ and approximate the first derivatives at the boundaries by
 We then use these expressions to eliminate the fictitious nodes from equation \eqref{eq:theta-heat} for $m=0$ and $m=M+1$ to get
 %\begin{equation*}
 \begin{align*}
-    (1+2r\theta)U_0^{n+1} - 2r\theta U_1^{n+1} = \left(1-2r(1-\theta)\right)U_0^n + 2r(1-\theta)U_1^n - 2hr\sigma
-    \quad (\text{for} \: m=0), \\
-    (1+2r\theta)U_{M+1}^{n+1} - 2r\theta U_M^{n+1} = \left(1-2r(1-\theta)\right)U_{M+1}^n + 2r(1-\theta)U_M^n + 2rh\beta
-    \quad (\text{for} \: m=M+1). 
+    \left(1+2r\theta\right)U_0^{n+1} - 2r\theta U_1^{n+1} = \left(1-2r(1-\theta)\right)U_0^n + 2r\left(1-\theta\right)U_1^n - 2hr\sigma
+    \quad & (\text{for} \: m=0), \\
+    \left(1+2r\theta\right)U_{M+1}^{n+1} - 2r\theta U_M^{n+1} = \left(1-2r(1-\theta)\right)U_{M+1}^n + 2r\left(1-\theta\right)U_M^n + 2rh\beta
+    \quad & (\text{for} \: m=M+1). 
 \end{align*}
 %\end{equation*}
 Now we can write the system of equations on the same matrix form \eqref{eq:theta-heat-matrix}, 
@@ -144,7 +144,7 @@ but with
 \end{equation}
 
 Note that with Dirchlet conditions at both boundaries we only solve the equations for the internal spatial nodes $x_1 \dots x_M$ so that $A$ in \eqref{eq:theta-heat-matrix-dirchlet} is an $M \times M$ matrix. 
-With Neumann conditions however we still need to solve for the boundary nodes, 
+With Neumann conditions however we also need to solve for the boundary nodes, 
 and $A$ is in \eqref{eq:theta-heat-matrix-neumann} an $(M+2) \times (M+2)$ matrix. 
 In both cases though, all quantities on the right hand sides in \eqref{eq:theta-heat-matrix} are known, 
 i.e. the equations are on the form $A\vec{x}=\vec{b}$, 
@@ -158,16 +158,32 @@ With the numerical schemes in hand we now solve the heat equation with the follo
     u_x(0,t) = u_x(1,t) = 0, \quad u(x,0) = 2\pi x - \sin(2\pi x). 
     \label{eq:2a}
 \end{equation}
-The computed solutions for $t \in [0, 0.3]$ is plotted in figure \ref{fig:task2-surface}, 
+The computed solutions for $t \in [0, 0.3]$ is plotted in figure \ref{fig:2a-surface}, 
 and qualitatively the solution behaves in accordance with what we expect for the heat equation. 
 To quantify and compare the accuracy of the numerical schemes we will now proceed to analyze convergence using mesh refinement, 
 similar to what we did in section \ref{task_1}. 
 
-\begin{figure}
-    \input{exercise2/surface_plot_combined.pgf}
-    \caption{I am a surface plot, Hooray :)}
-    \label{fig:task2-surface}
+%\begin{figure}[hb]
+%    \input{exercise2/surface_plot_combined.pgf}
+%    \caption{I am a surface plot, Hooray :)}
+%    \label{fig:task2-surface}
+%\end{figure}
+
+\begin{figure}[hb]
+    \label{fig:2b-spatial-temporal-ref}
+    \subfloat[Neumann boundary conditions.]{
+        \input{exercise2/2a_surface_plot.pgf}
+        \label{fig:2a-surface}
+    } 
+    \subfloat[Dirchlet boundary conditions.]{
+        \input{exercise2/2b_surface_plot.pgf}
+        \label{fig:2b-surface}
+    }
+    \caption{
+        Numerical solution of the one dimensional heat equation with different sets of boundary and initial initial conditions computed with Crank-Nicolson. 
+    }
 \end{figure}
+
 
 % Not worth it:
 %\begin{figure}
@@ -181,29 +197,35 @@ We denote the exact solution evaluated at the discrete grid points as $u_m^n = u
 Inserting this into the finite difference formula \eqref{eq:theta-heat-raw} gives rise to an additional term $\tau_m^n$, 
 since the difference formula is not satisfied by the exact solution. 
 The term $\tau_m^n$ is the \textit{local truncation error}, 
-and for our difference formula, the heat equation theta method, we get 
+and for our difference formula it is expressed as follows 
 \begin{align*}
-    k\tau_m^n = u_m^{n+1} - u_m^n - (1-\theta)\frac{k}{h^2}\delta_x^2 u_m^n - \theta\frac{k}{h^2}\delta_x^2 u_m^{n+1}\\
-    = (1 - \theta\frac{k}{h^2}\delta_x^2)u_m^{n+1} - u_m^n-\frac{k}{h^2}\delta_x^2 u_m^n + \theta\frac{k}{h^2}\delta_x^2u_m^n\\
-    = (1 - \theta\frac{k}{h^2}\delta_x^2)(u_m^{n+1} - u_m^n) - \frac{k}{h^2}\delta_x^2 u_m^n.
+    k\tau_m^n & = u_m^{n+1} - u_m^n - (1-\theta)\frac{k}{h^2}\delta_x^2 u_m^n - \theta\frac{k}{h^2}\delta_x^2 u_m^{n+1}\\
+    & = (1 - \theta\frac{k}{h^2}\delta_x^2)u_m^{n+1} - u_m^n-\frac{k}{h^2}\delta_x^2 u_m^n + \theta\frac{k}{h^2}\delta_x^2u_m^n\\
+    & = (1 - \theta\frac{k}{h^2}\delta_x^2)(u_m^{n+1} - u_m^n) - \frac{k}{h^2}\delta_x^2 u_m^n.
 \end{align*}
 
 Taylor expansion of all the terms around $(x_m, t_n)$ gives
 \begin{align*}
-    TBW. 
+    k\tau_m^n & = \left(1-\theta k(\partial_x^2+\frac{1}{12}h^2\partial_x^4+\dots) \right)
+    \left(k\partial_t+\frac{1}{2}k^2\partial_t^2+\frac{1}{6}k^3\partial_t^3\right)u_m^n
+    -k\left(\partial_x^2+\frac{1}{12}h^2\partial_x^4+\dots\right)u_m^n\\
+    & = \left(k\partial_x^2+\frac{1}{2}k^2\partial_t^2+\frac{1}{6}k^3\partial_t
+    -\theta k^2 \partial_t^2 - \frac{1}{2} k^3 \partial_t^3 - k \partial_x^2 - \frac{1}{12} kh^2 \partial_x^4 + \dots \right)u_m^n + \dots\\
+    & = (\frac{1}{2}-\theta)k^2\partial_t^2-\frac{1}{12}kh^2\partial_x^4u_m^n+(\frac{1}{6}-\frac{1}{2}\theta)k^3\partial_t^3u_m^n+\dots
 \end{align*}
 Finally, dividing by $k$ we find that 
 \begin{align*}
-    \tau_m^n = \Oh(k+h^2) \quad for \theta\neq\frac{1}{2},\\
-    \tau_m^n = \Oh(k^2+h^2) \quad for \theta = \frac{1}{2}.
+    \tau_m^n & = \Oh(k+h^2) \quad for \theta\neq\frac{1}{2},\\
+    \tau_m^n & = \Oh(k^2+h^2) \quad for \theta = \frac{1}{2}.
 \end{align*}
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
 by doing mesh refinement. 
-We restrict the analysis to just Backward Euler and Crank-Nicolson. 
-These are unconditionally stable, 
-whilst the Forward Euler method is only stable if $r=k/h^2 < 1/2$, 
-which would impose impractical restrictions on the grids and the refinement.\cite{TODO}
+We restrict the analysis to just Backward Euler and Crank-Nicolson, 
+which have different convergence order in the temporal direction. 
+The reason for which we exclude the forward Euler method is that it is only stable under the condition that $r=k/h^2 < 1/2$, 
+whilst backward Euler and Crank-Nicolson are unconditionally stable \cite{TODO}. 
+Such a stability criterion would impose impractical restrictions on the grids and the refinement. 
 
 We start by refining the spatial grid $x_m$ sepparately, 
 and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
@@ -254,7 +276,7 @@ Specifically we consider
 \end{equation}
 on the same domain $x \in [0,1] := \Omega$ and $t > 0$. 
 Note that we now have Dirchlet boundary conditions, 
-and we have plotted the numerical solution in \ref{fig:task2-surface}. 
+and we have plotted the numerical solution in \ref{fig:2b-surface}. 
 The analytical solution, 
 which can be calculated using sepparation of variables\cite{TODO}, 
 is readily available as
@@ -403,6 +425,7 @@ The resulting convergence plot for this final refinement is shown in figure \ref
 %    \input{exercise2/2b_AMR_combined.pgf}
 %\end{figure}
 
+\newpage
 \section{Invicid Burgers' equation}
 
 In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
