@@ -1,4 +1,5 @@
 \documentclass{article}
+\overfullrule=5pt % mark overfull boxes with black TODO: should remove before handing in
 
 \usepackage{fullpage} % decrease page margins
 \usepackage[parfill]{parskip} % change new paragraph indent to new line
@@ -10,8 +11,12 @@
 \usepackage{caption} % for captions
 \usepackage{ifthen} % for if/else statements (in plots)
 
-\usepackage{biblatex}
+\usepackage[block=space,language=australian]{biblatex}
+%\DeclareFieldFormat{url}{\url{#1}} % drop URL prefix
+\DeclareFieldFormat{urldate}{(visted #1)}
 \addbibresource{bib.bib}
+%\urlstyle{sf}
+\renewcommand{\UrlFont}{\footnotesize\ttfamily}
 
 \usepackage{siunitx}
 
@@ -95,7 +100,7 @@
 
 \newpage
 \appendix
-\section{The inhomogenity $f$}
+\section{The inhomogenity \texorpdfstring{$f$}{f}}
 In section \ref{sec:pde:solving} the Fast Poisson Solver was applied on the manufactured solution $u$.
 The inhomogenity $f = \nabla^4 u$ was ommited in the text, due to it being lengthy.
 It is here shown in full, together with the code used to find it, using the Sage CAS.

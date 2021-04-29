@@ -323,7 +323,7 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 
 (TODO: say the matrices are toeplitz and symmetric) (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
 
-(TODO: should we more clearly differentiate between the discrete function and the vector describing it?)
+(TODO: should we differentiate more between the discrete function and the vector describing it?)
 
 (TODO: Verify order (ie. not I x K + K x I) believe this is a convention thing).
 
@@ -389,13 +389,13 @@ $$
 $$
 Since $\nabla_n^2$ is a proper stencil, $v + \phi_n M$ attains its maximum value on $\partial \Omega$ by lemma \ref{pde:lemma:max}.
 Thus
-$$
+\begin{equation*}
 \inorm{v}
 \leq \inorm{v + \phi_n M}
 \leq \max_{\partial \Omega} \lvert v + \phi_n M\rvert
 = \max_{\partial\Omega} \lvert \phi_n \rvert M
 = \max_{\partial\Omega} \lvert \phi_n \rvert \inorm{\nabla_n^2 v}. \qedhere
-$$
+\end{equation*}
 \end{proof}
 
 \begin{remark}
@@ -476,7 +476,7 @@ Taylor expand all terms in $\nabla_5^2 u$ around $(x,y)$ to first order to get
 \begin{equation}
 \begin{split}
   \nabla_5^2 u(x,y)
-  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h) \qquad \qquad (0 \leq \theta, \eta \leq 1)  \\
+  &=    \nabla^2 u(x,y) + \frac{h^2}{12} (\partial_x^4 + \partial_y^4) u(x + \theta h, y + \eta h) \quad (0 \leq \theta, \eta \leq 1)  \\
   &\leq f(x,y)          + C_1 h^2 \abs{D^4 u}_\infty.
 \end{split}
 \label{eq:pde:taylornabla2}
@@ -504,7 +504,7 @@ $$
 $$
 Taylor expand all terms in $\nabla_9^2 u$ around $(x,y)$ as in the former proof to get
 \begin{align*}
-  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \qquad (0 \leq \theta, \eta \leq 1) \\
+  \nabla_9^2 u(x,y) &= \nabla^2 u(x,y) + \frac{h^2}{12} \nabla^4 u(x,y) + \frac{h^4}{360} \left( \partial_x^6 + \partial_y^6 + 5 \partial_x^2 \partial_y^4 + 5 \partial_x^4 \partial_y^2 \right) u(x + \theta h,y + \eta h) \quad (0 \leq \theta, \eta \leq 1) \\
                     &\leq f(x,y)       + \frac{h^2}{12} \nabla^2 f(x,y) + C_1 h^4 \abs{D^6 u}_\infty.
 \end{align*}
 From \cref{eq:pde:taylornabla2} with $u \rightarrow f$, we also know that
@@ -695,7 +695,7 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
 
 \begin{figure}[tb]
   \centering
-  \begin{subfigure}[t]{0.49\textwidth}
+  \begin{subfigure}[t]{0.48\textwidth}
     \begin{tikzpicture}
       \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
       \begin{axis}[
@@ -724,7 +724,7 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
     \label{fig:pde:order_solution}
   \end{subfigure}
   ~
-  \begin{subfigure}[t]{0.49\textwidth}
+  \begin{subfigure}[t]{0.48\textwidth}
 
     \centering \input{./PDE/order.pgf}
     \caption{Relative error.
@@ -822,6 +822,7 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
           legend pos=south west,
           xmin=6^2, xmax=10e6,%2400^2,
+		  width=7.7cm,
         ]
         \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
         \addlegendentry{Nine point};
@@ -846,6 +847,7 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           xlabel={$\text{DoF} = N^2$},
           ylabel={Computation time [s]},
           legend pos=north west,
+		  width=7.7cm
         ]
         \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_no_fps.dat};
         \addlegendentry{Scipy Sparse Solver};

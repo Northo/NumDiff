@@ -3,7 +3,7 @@
         [
             group style={group size=2 by 1, horizontal sep=2cm},
             height=7cm,
-            width=0.48\textwidth,
+            width=0.47\textwidth,
         ]
         \nextgroupplot[
             title={$l_2$ discrete error}, 
@@ -12,7 +12,7 @@
             xlabel=$N_{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.16,+1.30)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=-1, column sep=5.5ex, legend entries={
+            transpose legend, legend columns=-1, column sep=5.4ex, legend entries={
                 {$\Oh(N_{dof}^{-1})$},
                 {$\Oh(N_{dof}^{-1/2})$},
                 {BE $c=1$},

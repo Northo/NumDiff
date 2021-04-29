@@ -1,4 +1,4 @@
-\section{Poisson equation in one dimension using finite element method}
+\section{Poisson equation in one dimension with finite elements}
 
 \newcommand\basisexpand[2]{\sum_{i=0}^{M+1} #1_i \varphi_i(#2)}
 
@@ -67,9 +67,9 @@ Similarly to $u(x)$, we split the approximate solution into
 		\beta  \dfrac{x-x_M}{b-x_M} & (x_M \leq x \leq b)   \\
 	\end{cases}
 	.
-	\label{weak_form_approximate}
+	\label{splitting_approximate}
 \end{equation}
-Now again insert \ref{weak_form_approximate} into \ref{poisson_equation2}, multiply by an arbitrary trial function $V(x)$ that vanishes at $a$ and $b$, integrate from $a$ to $b$ and drop a boundary term.
+Now again insert \ref{splitting_approximate} into \ref{poisson_equation2}, multiply by an arbitrary trial function $V(x)$ that vanishes at $a$ and $b$, integrate from $a$ to $b$ and drop a boundary term.
 This leads to the weak formulation for the approximate solution:
 \begin{equation}
 	\weakform{U}{V}{R}.
@@ -295,7 +295,7 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 
 \figureseries{exercise5/data/AMR}{femamr}{Adaptive mesh refinement on four problems with the average strategy, showing the evolution of an initial uniform mesh as it is refined over three iterations. Elements whose $L_2$-error lie above the reference error \protect\begin{tikzpicture}[baseline=-0.5ex]\protect\draw[black, dashed] (0,0.0) -- (4ex,0.0);\protect\end{tikzpicture} are split in half.}
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
 \centering
 \begin{tikzpicture}
 \begin{groupplot}[

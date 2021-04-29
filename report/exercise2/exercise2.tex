@@ -181,7 +181,6 @@ similar to what we did in section \ref{task_1}.
     \caption{
         Numerical solution of the one dimensional heat equation with different sets of boundary and initial initial conditions computed with Crank-Nicolson. 
     }
-    \label{fig:2b-spatial-temporal-ref}
 \end{figure}
 
 
@@ -320,7 +319,6 @@ and also here we see that the error in Crank-Nicolson flattens later than the er
         on the boundaries, 
         corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
-    \label{fig:2b-spatial-temporal-ref}
 \end{figure}
 
 Now we proceed to do refinement in the $t$-direction, 
@@ -453,14 +451,14 @@ In this section we turn to solve the inviscid Burgers' equation with given Dirch
 This equation exhibits breaking; 
 after some point in time $t_b$ the solution breaks, 
 and the unique solution does not exist, 
-leading to the formation of a \textit{shock wave}.\cite{burgers} 
+leading to the formation of a \textit{shock wave}. (TODO: source burgers)
 The time $t_b$ before this can happen is given by
 \begin{equation}
 % I am not sure if this is the exact time of breaking or just the earliest possible breaking time. 
     t_b = \frac{-1}{\min f'(x)}, 
     \label{eq:t_break}
 \end{equation}
-where $f(x)$ is the given initial condition $u(x, 0) = f(x)$.\cite{burgers} 
+where $f(x)$ is the given initial condition $u(x, 0) = f(x)$. (TODO: source burgers)
 
 \subsection*{Numerical solution method}
 To solve equation \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 

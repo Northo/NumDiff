@@ -5,7 +5,7 @@
       ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
       legend pos=south west,
       xmin=6^2, xmax=340^2,
-      width=8.2cm, height=6cm,
+      width=7.5cm, height=6cm,
     ]
     %% \addplot[mark=none, dashed] table[x={Ns}, y={five_roof}] {PDE/order.dat};
     %% \addlegendentry{$C h^2$};
