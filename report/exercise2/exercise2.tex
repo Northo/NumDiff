@@ -41,7 +41,7 @@ which for general ODEs $y' = g(y, t)$ is given as
 \begin{equation*}
     \frac{y^{n+1} - y^n}{k} = \left((1-\theta)g(y^n, t_n)+\theta g(y^{n+1}, t_{n+1})\right), 
 \end{equation*}
-where $k$ is the time step and the value of $\theta$ determines the specific numerical scheme 
+where $k$ is the time step, and the value of $\theta$ determines the specific numerical scheme 
 \begin{align*}
     & \text{Forward Euler} \quad \theta = 0 \\
     & \text{Backward Euler} \quad \theta = 1 \\
@@ -150,7 +150,7 @@ In both cases though, all quantities on the right hand sides in \eqref{eq:theta-
 i.e. the equations are on the form $A\vec{x}=\vec{b}$, 
 and the known $\vec{b}$ is just written via a matrix-vector product for notational convenience. 
 To solve the problem we now solve this system of equations at each time step, 
-and since matrices in both cases are tridiagonal, 
+and since the matrices in both cases are tridiagonal, 
 we represent them as sparse matrices and use a solver for sparse systems to save both memory and time. 
 
 With the numerical schemes in hand we now solve the heat equation with the following Neumann boundary conditions and initial condition, 
@@ -225,10 +225,10 @@ by doing mesh refinement.
 We restrict the analysis to just Backward Euler and Crank-Nicolson, 
 which have different convergence order in the temporal direction. 
 The reason for which we exclude the forward Euler method is that it is only stable under the condition that $r=k/h^2 < 1/2$, 
-whilst backward Euler and Crank-Nicolson are unconditionally stable \cite{owren}. 
+and such a condition would impose impractical restrictions on the grids and the refinement \cite{owren}. 
+Backward Euler and Crank-Nicolson however, are unconditionally stable \cite{owren}. 
 Later on when we study the Linearized Kortweg-de Vries equation in section \ref{task4}, 
 we show this by applying Von Neumann analysis on the forward Euler and Crank-Nicolson methods. 
-Such a stability criterion would impose impractical restrictions on the grids and the refinement. 
 
 We start by refining the spatial grid $x_m$ sepparately, 
 and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
@@ -327,7 +327,7 @@ while keeping the spatial step size constant.
 I.e. we do the same as in the spatial refinement, 
 but instead we fix $M$ and vary $N$. 
 The resulting convergence plot is show in figure \ref{fig:2b-time-ref}, 
-and here the different in convergence orders of the two methods in the time step becomes very apparent. 
+and here the difference in the temporal convergence of the two methods becomes very apparent. 
 The chosen fixed values for $M$ are large enough so that the spatial error does not dominate, 
 and we avoid the error curves flattening as $N$ gets large. 
 The error curves also seem to follow the expected convergence order. 
@@ -445,13 +445,13 @@ despite Crank-Nicolson having better precision in the time step $k$.
 
 In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
 \begin{equation}
-    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp(-400(x-1/2)^2).
+    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp\left(-400(x-1/2)^2\right).
     \label{eq:burger}
 \end{equation}
 This equation exhibits breaking; 
 after some point in time $t_b$ the solution breaks, 
 and the unique solution does not exist, 
-leading to the formation of a \textit{shock wave}.\cite{LeVeque} 
+leading to the formation of a \textit{shock wave} \cite{LeVeque}. 
 The time $t_b$ before this happens can be found exactly using the method of characteristics, 
 and is given as 
 \begin{equation}
@@ -459,7 +459,7 @@ and is given as
     t_b = \frac{-1}{\min f'(x)}, 
     \label{eq:t_break}
 \end{equation}
-where $f(x)$ is the given initial condition $u(x, 0) = f(x)$.\cite{LeVeque} 
+where $f(x)$ is the given initial condition $u(x, 0) = f(x)$ \cite{LeVeque}. 
 
 \subsection*{Numerical solution method}
 To solve equation \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 
@@ -497,7 +497,7 @@ and figure \ref{fig:burgers-samples} shows the solution sampled around the time 
     \caption{
         Numerically computed solution to the inviscid Burgers' equation around the time of breaking, 
         displaying the shock formation. 
-        The initial condition is $u(x, 0) = \exp(-400(x-1/2)^2)$, 
+        The initial condition is $u\left(x, 0\right) = \exp\left(-400(x-1/2)^2\right)$, 
         and the boundaries are fixed at $0$ by the Dirchlet conditions, 
         as specified in \eqref{eq:burger}. 
     }
