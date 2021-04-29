@@ -632,39 +632,55 @@ $ (A + B) x_i = A x_i + B x_i = \alpha_i x_i + \beta_i x_i = (\alpha_i + \beta_i
 \begin{lemma}\label{pde:lemma:eigtst}
 Let $A = \text{tridiag}(b,a,b)$ be a $N \times N$ TST matrix with $a$ on the diagonal and $b$ on the off-diagonal.
 Then the eigenvalues $\alpha_1, \dots, \alpha_N$ and eigenvectors $x_1, \dots, x_N$ of $A$ are
-$$
+\begin{equation}
 \alpha_m = a + 2b \cos \left( \frac{m\pi}{N+1} \right)
 \quad \text{and} \quad
-x_m(k) = \sin \frac{mk\pi}{N+1}.
-$$
+x_m(k) = \sin \left( \frac{mk\pi}{N+1} \right).
+\label{eq:pde:eigtst}
+\end{equation}
 \end{lemma}
 \begin{proof}
 See ``The eigenvalues and vectors of a common tridiagonal matrix'' on page 154 in \cite{Smith}.
 \end{proof}
 
-(TODO: make this 3 theorems, otherwise it is weird to have the lemmas)
 With these lemmas in hand, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
 
-Note that by \cref{pde:lemma:eigtst}, the eigen\emph{vectors} are the same for \emph{any} TST matrix.
-As $J_5$, $J_9$ and $\Sigma$ are all tridiagonal and $K_5$ and $K_9$ involve (sums of) Kroenecker sums and products of these matrices, \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum,pde:lemma:eigsum} ensure that $K_5$ and $K_9$ share the \emph{common} eigenvectors
 \newcommand{\eigvecexpr}{\sin \left( \frac{mk\pi}{N+1} \right) \sin \left( \frac{nl\pi}{N+1} \right)}
-$$ y_{kl}(m,n)= \eigvecexpr \qquad (1 \leq k,l,m,n \leq M).$$
-For $K_5$, first use \cref{pde:lemma:eigtst} on $J_5$ and then \cref{pde:lemma:eigkronsum} on $J_5 \oplus J_5$ to obtain the corresponding eigenvalues
-$$ \lambda_{kl} = -4 + 2 \cos \left( \frac{k\pi}{N+1} \right) + 2 \cos \left( \frac{l\pi}{N+1} \right).$$
-For $K_9$, first use \cref{pde:lemma:eigtst} on $J_5$ and $\Sigma$, then \cref{pde:lemma:eigkronsum} on $J_9 \oplus J_9$, \cref{pde:lemma:eigkronprod} on $\Sigma \otimes \Sigma$ and finally \cref{pde:lemma:eigsum} on $J_9 \oplus J_9 + \Sigma \otimes \Sigma$ to get the corresponding eigenvalues
-$$
-  \lambda_{kl} = 
-  -\frac{10}{3}
-  + \frac43
-  \left(
-  \cos\left(\frac{k \pi}{N+1}\right)
-  + \cos\left(\frac{l \pi}{N+1}\right)
-  \right)
-  +
-  \frac46
-  \cos\left(\frac{k \pi}{N+1}\right)
-  \cos\left(\frac{l \pi}{N+1}\right).
-$$
+\begin{theorem}
+	The matrices $K_5$ and $K_9$ in \cref{eq:pde:matrixequations} have common eigenvectors
+	\begin{equation}
+		y_{kl}(m,n)= \eigvecexpr \qquad (1 \leq k,l,m,n \leq M).
+		\label{eq:pde:eigenvectors}
+	\end{equation}
+\end{theorem}
+\begin{proof}
+	By \cref{pde:lemma:eigtst}, $J_5$, $J_9$ and $\Sigma$ have common eigenvectors given by \cref{eq:pde:eigtst}.
+	By \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum}, $J_5 \oplus J_5$, $J_9 \oplus J_9$ and $\Sigma \otimes \Sigma$ have common eigenvectors given by \cref{eq:pde:eigenvectors}.
+	By \cref{pde:lemma:eigsum}, the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$ does not change the eigenvectors.
+\end{proof}
+\begin{theorem}
+The eigenvalues of $K_5$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
+\begin{equation*}
+	\lambda_{kl} = -4 + 2 \cos \left( \frac{k\pi}{N+1} \right) + 2 \cos \left( \frac{l\pi}{N+1} \right).
+\end{equation*}
+\end{theorem}
+\begin{proof}
+	Use \cref{pde:lemma:eigtst} on $J_5$ with appropriate $a$ and $b$.
+	Then use \cref{pde:lemma:eigkronsum} on $J_5 \oplus J_5$.
+\end{proof}
+\begin{theorem}
+The eigenvalues of $K_9$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
+\begin{equation*}
+  \lambda_{kl} = -\frac{10}{3} + \frac43 \left( 
+                   \cos\left(\frac{k \pi}{N+1}\right) + \cos\left(\frac{l \pi}{N+1}\right) 
+               \right) + \frac46 \cos\left(\frac{k \pi}{N+1}\right) \cos\left(\frac{l \pi}{N+1}\right).
+\end{equation*}
+\end{theorem}
+\begin{proof}
+	Use \cref{pde:lemma:eigtst} on $J_9$ and $\Sigma$ with appropriate $a$ and $b$.
+	Then use \cref{pde:lemma:eigkronprod} on $\Sigma \otimes \Sigma$ and \cref{pde:lemma:eigkronsum} on $J_9 \oplus J_9$.
+	Finally, use \cref{pde:lemma:eigsum} on the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$.
+\end{proof}
 (TODO: establish one index convention etc.)
 
 With this,
