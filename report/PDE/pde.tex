@@ -16,6 +16,7 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
   \end{equation}
   \begin{equation}
     u = 0, \nabla^2u = 0 \quad, (x, y) \in \partial\Omega.
+	\label{eq:pde:boundaryconditions}
   \end{equation}
 \end{subequations}
 
@@ -173,6 +174,66 @@ First, we solve $\nabla^2 g = f$ to obtain an intermediate numerical solution $G
 Then we solve $\nabla^2 u = g$ to obtain the final numerical solution $U \approx u$.
 In the first step we will use the exactly known source $f$, but in the second step we will only use the approximate source $G \approx g$.
 
+We divide $[0,1] \times [0,1]$ into the uniformly spaced two-dimensional grid
+\begin{center}
+\begin{tikzpicture}
+\newcommand{\drawboxx}[3]{
+	\draw [#3] (#1,#2) -- (#1+2,#2);
+	\draw [#3] (#1,#2) -- (#1,#2+2);
+	\draw [#3] (#1+2,#2) -- (#1+2,#2+2);
+	\draw [#3] (#1,#2+2) -- (#1+2,#2+2);
+	\draw [#3] (#1+1,#2) -- (#1+1,#2+2);
+	\draw [#3] (#1,#2+1) -- (#1+2,#2+1);
+}
+
+\drawboxx{0}{0}{solid}
+\drawboxx{0}{4}{solid}
+\drawboxx{4}{0}{solid}
+\drawboxx{4}{4}{solid}
+
+\drawboxx{0}{2}{dotted}
+\drawboxx{2}{0}{dotted}
+\drawboxx{4}{2}{dotted}
+\drawboxx{2}{4}{dotted}
+
+\drawboxx{2}{2}{dotted}
+
+\foreach \x in {0,1,2,3,4,5,6} {
+	\foreach \y in {0,1,2,3,4,5,6} {
+		\node at (\x, \y) [circle, fill, inner sep=1.2pt] {};
+	}
+}
+\node at (0,0) [below, yshift=-2mm] {$x_0$};
+\node at (1,0) [below, yshift=-2mm] {$x_1$};
+\node at (2,0) [below, yshift=-2mm] {$x_2$};
+\node at (3,0) [below, yshift=-2mm] {$x_m$};
+\node at (4,0) [below, yshift=-2mm] {$x_{N-1}$};
+\node at (5,0) [below, yshift=-2mm] {$x_{N  }$};
+\node at (6,0) [below, yshift=-2mm] {$x_{N+1}$};
+
+\node at (0,0) [left, xshift=-2mm] {$y_0$};
+\node at (0,1) [left, xshift=-2mm] {$y_1$};
+\node at (0,2) [left, xshift=-2mm] {$y_2$};
+\node at (0,3) [left, xshift=-2mm] {$y_n$};
+\node at (0,4) [left, xshift=-2mm] {$y_{N-1}$};
+\node at (0,5) [left, xshift=-2mm] {$y_{N  }$};
+\node at (0,6) [left, xshift=-2mm] {$y_{N+1}$};
+
+\node at (6,0.5) [right, xshift=+2mm] {$h$};
+\node at (6,1.5) [right, xshift=+2mm] {$h$};
+\node at (6,4.5) [right, xshift=+2mm] {$h$};
+\node at (6,5.5) [right, xshift=+2mm] {$h$};
+
+\node at (0.5,6) [above, yshift=+2mm] {$h$};
+\node at (1.5,6) [above, yshift=+2mm] {$h$};
+\node at (4.5,6) [above, yshift=+2mm] {$h$};
+\node at (5.5,6) [above, yshift=+2mm] {$h$};
+
+\end{tikzpicture}
+.
+\end{center}
+The boundary conditions \ref{eq:pde:boundaryconditions} already tell us that $g = u = 0$ on $\partial \Omega$, so we will only solve for $U$ on the grid $1 \leq m,n \leq N$.
+
 %% c)
 \newcommand{\crossStencilInternal}[5]{
     \draw (0,-1) node{$#1$} -- (0,+1) node{$#2$};
@@ -199,15 +260,14 @@ In the first step we will use the exactly known source $f$, but in the second st
 	\crossStencilInternal{#1}{#2}{#3}{#4}{#5};
   \end{tikzpicture}
 }
-
-For the Laplacian $\nabla^2$, we will use both a $5$-point stencil and a $9$-point stencil:
+We approximate the Laplacian $\nabla^2$ with the $5$-point and $9$-point stencils
 \begin{equation*}
 	\nabla_5^2 = \crossStencil{1}{1}{1}{1}{-4}
 	\qquad \text{and} \qquad
 	\nabla_9^2 = \boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16} 
 	\,.
 \end{equation*}
-They are defined by their action on some function.
+The diagrams define the stencils by their action on some function.
 For example,
 \begin{equation*}
 	\nabla_5^2 u(x,y) = \frac{-4u(x,y) + u(x+h,y) + u(x-h,y) + u(x,y+h) + u(x,y-h)}{h^2},
@@ -318,6 +378,9 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 \end{alignedat}
 \label{eq:pde:matrixequations}
 \end{equation}
+\emph{Warning:} 
+We know that $U = 0$ on the boundary, so we will only solve for $U$ in the interior grid points.
+But $F$ need \emph{not} be zero on the boundary, so we include the boundary points in the grid when calculating the right side of the $9$-point equation, \emph{then} cut away the boundary points.
 
 (TODO: use $U$ or $v$ for discrete approximtae solution?)
 
