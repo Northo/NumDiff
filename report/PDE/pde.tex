@@ -579,19 +579,21 @@ K U = F
 $$
 for $U$ and that one knows the eigenvectors $y_1, \dots, y_n$ and corresponding eigenvalues $\lambda_1, \dots, \lambda_n$ of $K$.
 If $K = K^T$ is invertible and symmetric, the eigenvectors are complete and orthogonal \cite{owren}, so we may write
-$$
+\begin{equation}
 F = c_1 y_1 + c_2 y_2 + \dots + c_n y_n
 \qquad \text{with} \qquad
 c_i = y_i \cdot F.
-$$
+\label{eq:pde:fexpansion}
+\end{equation}
 One may now easily verify by insertion that the solution is
-$$
+\begin{equation}
 U =
 \frac{c_1}{\lambda_1} y_1
 + \frac{c_2}{\lambda_2} y_2
 + \dots
 + \frac{c_n}{\lambda_n} y_n.
-$$
+\label{eq:pde:insertionsolution}
+\end{equation}
 
 We want to solve \cref{eq:pde:matrixequations}, so let us find the eigenvalues and eigenvectors of $K_5$ and $K_9$.
 \newcommand{\kroeneckerlemmatext}[2]{
@@ -683,7 +685,8 @@ The eigenvalues of $K_9$ corresponding to the eigenvectors \ref{eq:pde:eigenvect
 \end{proof}
 (TODO: establish one index convention etc.)
 
-With this,
+It is now straightforward to compute \ref{eq:pde:fexpansion} and \ref{eq:pde:insertionsolution}.
+Inserting the eigenvectors \cref{eq:pde:eigenvectors}, we get
 $$
 c_{kl} = \sum_{m,n} F(m,n) y_{kl}(m,n) 
        = \sum_{m,n} F(m,n) \eigvecexpr
@@ -693,8 +696,15 @@ $$
 U(m,n) = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} y_{kl}(m,n) 
        = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} \eigvecexpr
 $$
-But this corresponds \emph{perfectly} to the Discrete Sine Transform of type I (DST-I) and Inverse Discrete Sine Transform (IDST-I), for which very efficient implementations exist in for example \cite{scipy_dst} (apart from some normalization factors and variable index offsets).
-\footnote{Most literature uses a convention where $n\in[0, N-1]~ k\in[0, N-1]$. We have altered it here to comply with the rest of the report.}
+Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete Sine Transform of type I (DST-I) and Inverse Discrete Sine Transform (IDST-I), for which very efficient implementations exist in for example \cite{scipy_dst}.
+\footnote{
+	Note that \cite{scipy_dst} uses different normalization factors and summation indices from \ref{eq:pde:eigenvectors}, but this is easy to handle.
+	In addition, it only implements the one-dimensional transform, but this can simply be applied twice to give the two-dimensional transform
+	$$
+		\sum_{m,n} F(m,n) \eigvecexpr 
+		= \underbrace{\sum_m \underbrace{\left(\sum_n F(m,n) \sin\left(\frac{nl\pi}{N+1}\right)\right)}_{\text{1D transform with $m$ fixed}} \sin\left(\frac{mk\pi}{N+1}\right)}_{\text{1D transform}}.
+	$$
+}
 By introducing the diagonal eigenvalue matrix $\Lambda$, we can finally express the solution in an elegant way suitable for computations,
 $$
 U = \text{IDST}(\text{DST}(F) / \Lambda).
