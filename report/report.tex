@@ -8,7 +8,7 @@
 \usetikzlibrary{external} % cache figures to reduce compilation times
 \tikzexternalize[prefix=figurecache/] % cache figures into ./figurecache/ (WARNING: directory must exist and pdflatex must be run with --shell-escape)
 
-\usepackage{caption} % for captions
+\usepackage[labelfont=bf]{caption} % for captions
 \usepackage{ifthen} % for if/else statements (in plots)
 
 \usepackage[block=space,language=australian]{biblatex}
@@ -21,9 +21,11 @@
 \usepackage{siunitx}
 
 \usepackage{amsmath}
-\usepackage{amsthm}
 \usepackage{commath}
 \usepackage{todonotes}
+
+\usepackage{amsthm}
+\theoremstyle{definition}
 
 \usepackage{hyperref}
 
