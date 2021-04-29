@@ -1,10 +1,14 @@
 \begin{tikzpicture}
-    \begin{axis}[
+    \begin{axis}
+    [
         title={2a surface solution plot},
         xlabel={$t$},
         ylabel={$x$},
         zlabel={$U$},
-        ]
-        \addplot3[surf, mesh/cols=100] table[x={t}, y={x}, z={U}] {exercise2/data_ka/2a_surface.dat};
+        view={30}{30},
+        height=6cm,
+    ]
+        \addplot3[surf, mesh/cols=50, shader=flat, opacity=0.9] table[x={t}, y={x}, z={U}] 
+            {exercise2/data_ka/2a_surface.dat};
     \end{axis}
 \end{tikzpicture}
