@@ -179,9 +179,9 @@ similar to what we did in section \ref{task_1}.
         \label{fig:2b-surface}
     }
     \caption{
-        Numerical solution of the one dimensional heat equation with different sets of boundary and initial initial conditions computed with Crank-Nicolson. 
-        Subfigure \ref{fig:2a-surface} shows the solution with the conditions given in \eqref{eq:2a}, 
-        and subfigure \ref{fig:2b-surface} is from solving with the conditions in \eqref{eq:2b-manufactured}. 
+        Numerical solution of the one dimensional heat equation with different sets of boundary and initial conditions computed with Crank-Nicolson. 
+        Subfigure \ref{fig:2a-surface} shows the solution with the conditions specified in \eqref{eq:2a}, 
+        and subfigure \ref{fig:2b-surface} is from solving with the conditions given in \eqref{eq:2b-manufactured}. 
     }
 \end{figure}
 
@@ -246,14 +246,14 @@ allowing us to analyze the spatial convergence isolated.
     \centering
     \input{exercise2/2a_spatialref.pgf}
     \caption{
-        Convergence plots from uniform mesh refinement 
+        Convergence plots from uniformly refining the mesh 
         in the spatial direction while keeping the number of time steps $N$ constant. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with the Neumann boundary conditions $u_x(0,t) = u_x(1,t)=0$ and initial condition 
         as listed in equation \eqref{eq:2a}. 
         The $l_2$ discrete and the $L_2$ continous relative errors is computed 
         with respect to a numerical reference solution computed with $M_{ref}=10000$, 
-        since the analytical solution is not available on closed form. 
+        since the analytical solution for this problem is not available on closed form. 
     }
     \label{fig:2a-convergence}
 \end{figure}
@@ -312,10 +312,9 @@ and also here we see that the error in Crank-Nicolson flattens later than the er
     }
     \caption{
         Convergence plots from uniform mesh refinement. 
-        In \ref{fig:2b-spatial-ref} the spatial direction while keeping the number of time steps $N$ constant, 
-        then in \ref{fig:2b-time-ref} the time direction while keeping the number of spatial nodes $M$ constant. 
-        In both cases 
-        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In \ref{fig:2b-spatial-ref} we refine in the spatial direction while keeping the number of time steps $N$ constant, 
+        then in \ref{fig:2b-time-ref} we refine in the temporal direction while keeping the number of spatial nodes $M$ constant. 
+        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
@@ -375,8 +374,7 @@ is shown in figure \ref{fig:2b-kch-ref}.
         Convergence plots from uniform mesh refinement in both the $x$- and $t$-direction simultaneously. 
         In \ref{fig:2b-kch-ref} $c=k/h$ is kept constant, 
         and in \ref{fig:2b-r-ref} it is $r=k/h^2$ that is kept constant. 
-        In both cases 
-        both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
@@ -443,7 +441,7 @@ despite Crank-Nicolson having better precision in the time step $k$.
 %\end{figure}
 
 \newpage
-\section{Invicid Burgers' equation}
+\section{Inviscid Burgers' equation}
 
 In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
 \begin{equation}
@@ -496,6 +494,12 @@ and figure \ref{fig:burgers-samples} shows the solution sampled around the time 
 \begin{figure}[ht]
     \centering
     \input{exercise2/2c_samples.pgf}
-    \caption{Numerically computed solution to the Invicid Burgers' equation around the time of breaking.}
+    \caption{
+        Numerically computed solution to the inviscid Burgers' equation around the time of breaking, 
+        displaying the shock formation. 
+        The initial condition is $u(x, 0) = \exp(-400(x-1/2)^2)$, 
+        and the boundaries are fixed at $0$ by the Dirchlet conditions, 
+        as specified in \eqref{eq:burger}. 
+    }
     \label{fig:burgers-samples}
 \end{figure}
