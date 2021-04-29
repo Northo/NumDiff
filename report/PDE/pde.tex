@@ -331,8 +331,6 @@ Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde
 
 (TODO: This may also be useful when working with sparse matricies, as efficient methods for the Kronecker product are implemented in frameworks such as Scipy\cite{scipy_kron}.)
 
-(TODO: move eigenstuff to FPS section?)
-
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
 \lVert #1 \rVert_\infty
@@ -645,7 +643,7 @@ x_m(k) = \sin \left( \frac{mk\pi}{N+1} \right).
 See ``The eigenvalues and vectors of a common tridiagonal matrix'' on page 154 in \cite{Smith}.
 \end{proof}
 
-With these lemmas in hand, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
+With these lemmas, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
 
 \newcommand{\eigvecexpr}{\sin \left( \frac{mk\pi}{N+1} \right) \sin \left( \frac{nl\pi}{N+1} \right)}
 \begin{theorem}
@@ -662,9 +660,10 @@ With these lemmas in hand, it is now straightforward to obtain the eigenvalues a
 \end{proof}
 \begin{theorem}
 The eigenvalues of $K_5$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
-\begin{equation*}
+\begin{equation}
 	\lambda_{kl} = -4 + 2 \cos \left( \frac{k\pi}{N+1} \right) + 2 \cos \left( \frac{l\pi}{N+1} \right).
-\end{equation*}
+	\label{eq:pde:eigvals5}
+\end{equation}
 \end{theorem}
 \begin{proof}
 	Use \cref{pde:lemma:eigtst} on $J_5$ with appropriate $a$ and $b$.
@@ -672,21 +671,22 @@ The eigenvalues of $K_5$ corresponding to the eigenvectors \ref{eq:pde:eigenvec
 \end{proof}
 \begin{theorem}
 The eigenvalues of $K_9$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
-\begin{equation*}
+\begin{equation}
   \lambda_{kl} = -\frac{10}{3} + \frac43 \left( 
                    \cos\left(\frac{k \pi}{N+1}\right) + \cos\left(\frac{l \pi}{N+1}\right) 
                \right) + \frac46 \cos\left(\frac{k \pi}{N+1}\right) \cos\left(\frac{l \pi}{N+1}\right).
-\end{equation*}
+  \label{eq:pde:eigvals9}
+\end{equation}
 \end{theorem}
 \begin{proof}
 	Use \cref{pde:lemma:eigtst} on $J_9$ and $\Sigma$ with appropriate $a$ and $b$.
 	Then use \cref{pde:lemma:eigkronprod} on $\Sigma \otimes \Sigma$ and \cref{pde:lemma:eigkronsum} on $J_9 \oplus J_9$.
 	Finally, use \cref{pde:lemma:eigsum} on the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$.
 \end{proof}
-(TODO: establish one index convention etc.)
+(TODO: establish one index convention etc., explain the two indices on the eigenvalues)
 
-It is now straightforward to compute \ref{eq:pde:fexpansion} and \ref{eq:pde:insertionsolution}.
-Inserting the eigenvectors \cref{eq:pde:eigenvectors}, we get
+It is now straightforward to compute $U$ from \ref{eq:pde:fexpansion} and \ref{eq:pde:insertionsolution}.
+Inserting the eigenvectors \ref{eq:pde:eigenvectors}, we get
 $$
 c_{kl} = \sum_{m,n} F(m,n) y_{kl}(m,n) 
        = \sum_{m,n} F(m,n) \eigvecexpr
@@ -705,10 +705,16 @@ Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete 
 		= \underbrace{\sum_m \underbrace{\left(\sum_n F(m,n) \sin\left(\frac{nl\pi}{N+1}\right)\right)}_{\text{1D transform with $m$ fixed}} \sin\left(\frac{mk\pi}{N+1}\right)}_{\text{1D transform}}.
 	$$
 }
-By introducing the diagonal eigenvalue matrix $\Lambda$, we can finally express the solution in an elegant way suitable for computations,
-$$
-U = \text{IDST}(\text{DST}(F) / \Lambda).
-$$
+Instead of solving the systems \ref{eq:pde:matrixequations}, we can instead calculate
+\begin{equation*}
+U_n = \text{IDST}(\text{DST}(F_n) / \Lambda)
+\qquad \text{with} \quad
+F_5 = F
+\quad \text{or} \quad
+F_9 = \left (I + \frac{h^2}{12} K_5 \right) F,
+\end{equation*}
+where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
+(TODO: establish the convention with $F_n$ already in \ref{eq:pde:matrixequations}?)
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
