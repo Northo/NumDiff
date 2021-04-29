@@ -107,14 +107,15 @@ if __name__ == "__main__":
     ######################
     ### System of ODEs ###
     ######################
-    M = 1000
+    M = 200
     x, h = np.linspace(0, 1, M, retstep=True)
     t0 = 0
-    tf = 0.06
+    tf = 0.065
 
     # Solve ivp/bvp
-    sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.001)
+    sol = solve_ivp(Fm, (t0, tf), u0(x), max_step=0.0013)
     t, ut = sol.t, sol.y.T
+    print(len(t))
 
     # Time of breaking analytical
     t_breaking_analyt = -1 / np.min(ddx_u0(x))
@@ -129,8 +130,10 @@ if __name__ == "__main__":
     header = "x"
     for ti in t:
         header += f" {ti}"
-    outpath = OUT_DIR + f"2c_sols_M{M}_tf{tf}_tbreak{t_breaking}.dat"
+    #outpath = OUT_DIR + f"2c_sols_M{M}_tf{tf}_tbreak{t_breaking}.dat"
     # np.savetxt(outpath, table, header=header, comments="")
+    #outpath = OUT_DIR + f"2c_surface.dat"
+    #save_solution_surface_plot_data(x, t, ut, outpath)
 
     # Plot solutions at all times in [0, tf]
     for (i, ti) in enumerate(t):

@@ -8,22 +8,21 @@
         \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
         \addplot[color=blue] table[x={x}, y={0.05400000000000004}] 
             {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
-        \legend{one timestep before t break}
+        \node at (0.52, 0.98) {$t \approx 0.054 $};
 
         \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
         \addplot[color=blue] table[x={x}, y={0.05500000000000004}] 
             {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
-        \legend{t break}
+        \node at (0.52, 0.98) {$t \approx 0.055 $};
 
         \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
         \addplot[color=blue] table[x={x}, y={0.05600000000000004}] 
             {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
-        \legend{one timestep after t break}
+        \node at (0.52, 0.98) {$t \approx 0.056 $};
 
         \nextgroupplot[title=2c, legend pos=south west, ymin=0.8, xmin=0.5, xmax=0.6]
         \addplot[color=blue] table[x={x}, y={0.06}] 
             {exercise2/data_ka/2c_sols_M1000_tf0.06_tbreak0.05500000000000004.dat};
-        \legend{t final, 0.06}
-
+        \node at (0.52, 1.08) {$t \approx 0.06 $};
     \end{groupplot}
 \end{tikzpicture}

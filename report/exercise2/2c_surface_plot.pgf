@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+    \begin{axis}
+    [
+        xlabel={$x$},
+        ylabel={$t$},
+        zlabel={$U$},
+        view={10}{30},
+        height=6.5cm,
+    ]
+        \addplot3[surf, mesh/cols=200, shader=flat, opacity=1.0] table[x={x}, y={t}, z={U}] 
+            {exercise2/data_ka/2c_surface.dat};
+    \end{axis}
+\end{tikzpicture}
