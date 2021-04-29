@@ -182,29 +182,7 @@ The final equation will be on the form $AU = b$, where $b$ and $U$ are flattened
 
 The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
 By noticing its recursive structure, one may realize that the matrix can be constructed by a Kronecker sum.
-This procedure is discussed in depth in \ref{sec:PDE} where the Biharmonic equation is solved using the fast Poisson solver.
-For now however, we will only take the observation about the Kronecker sum as a convenient way to implement the construction of our matrix.
-Let $K_M$ be the system matrix of the one dimensional finite central difference scheme of size $m$ introduced as $A'$ in equation \eqref{ex3:eq:simple_matrix}.
-That is, the $M\times M$ matrix
-$$
-K_M =
-\begin{bmatrix}
-  -2& 1 \\
-  1 & -2 & 1 &   \\
-  & \ddots & \ddots & \ddots & \\
-  %&   & 1 & -2 & 1 \\
-  &   & 1 & -2 & 1 \\
-  &   &  & 1 & -2 \\
-\end{bmatrix}.
-$$
-The full matrix $A$ is then compactly written as
-\begin{equation}
-  A =
-  \frac{1}{h^2} K_N \oplus \frac{1}{k^2} K_M
-  = \frac{1}{h^2} K_N \otimes I_M
-  + I_N \otimes \frac{1}{k^2} K_M,
-\end{equation}
-which corresponds to the matrix illustrated in figure \ref{fig:laplace:stencil}.
+This procedure is discussed in depth in \cref{sec:PDE}, where we show that the stencil can be represented by the Kroenecker sum \ref{eq:pde:fivepointkroeneckersum}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
