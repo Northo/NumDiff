@@ -20,6 +20,7 @@ Consider the inhomogeneous Biharmonic equation with clamped boundary conditions 
 \end{subequations}
 
 \subsection{Analytical solution}
+TODO: Trenger vi å skrive ut $\nabla^4$ noe sted, slik de gjør i oppgaven, eller er det for basic?
 \label{sec:pde:anal}
 \begin{figure}[b!]
 \centering
@@ -824,16 +825,42 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
         %	zmin=0.0,zmax=0.13,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
- %       samples=50,
+        %       samples=50,
         %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
         %	scaled taicks=false,
-        %	grid,
+        grid,
+	      % title={Test},
+        zlabel={$f(x, y)$},
+        mesh/ordering=x varies,
+        mesh/cols=100,
+        mesh/rows=100,
+        %        colormap name=redblue,
+	      view={20}{50},
+      ]
+	    \addplot3 [
+		    surf,
+        point meta=explicit,
+        opacity=0.85,%shader=interp,
+        %	    ] table[meta=U]{./PDE/biharmonic_solution_20.dat};
+      ] table[meta=U]{./PDE/testF.dat};
+    \end{axis}
+  \end{tikzpicture}
+  \begin{tikzpicture}
+    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
+    \begin{axis}[
+	      width=8.2cm, height=7.5cm,
+        %	zmin=0.0,zmax=0.13,
+	      xlabel=$x$, xtick distance=0.25,
+	      ylabel=$y$, ytick distance=0.25,
+        %       samples=50,
+        %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
+        %	scaled taicks=false,
+        grid,
 	      % title={Test},
         zlabel={$u(x, y)$},
         mesh/ordering=x varies,
         mesh/cols=#1,
         mesh/rows=#1,
-%        colormap name=redblue,
 	      view={20}{50},
       ]
 	    \addplot3 [
@@ -842,7 +869,9 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
 	    ] table[meta=U]{./PDE/biharmonic_solution_#1.dat};
     \end{axis}
   \end{tikzpicture}
-}
+  \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
+  \label{fig:pde:bvp}
+\end{figure}
 
 %% Error plot
 \begin{figure}[hbp]
@@ -868,6 +897,11 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
         ]
         \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2.dat};
         \addlegendentry{Nine point};
+
+        \addplot table[x expr=\thisrow{N}^2, y={error}] {PDE/error_bvp_rel_2_five_stencil.dat};
+        \addlegendentry{Five point};
+
+
         \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {30/(sqrt(x)-1)^2}
         node[pos=0.3,
           pin={[pin edge={solid, out=75, in=-100}]above right:$\mathcal{O}(h^2)$},
