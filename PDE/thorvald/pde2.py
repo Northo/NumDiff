@@ -5,6 +5,7 @@ import scipy.sparse.linalg
 from scipy.fft import dst, idst
 import sympy
 import problems
+import time
 
 ########################
 ### Helper functions ###
@@ -137,6 +138,7 @@ class Solver:
 
         self.errfunc = errfunc
         self.errors = {}
+        self.times = {}
 
     def solve(self):
         print("\tSolving five point...")
@@ -160,13 +162,19 @@ class PoissonSolver(Solver):
         # We only want to solve for internal points,
         # as border is assumed zero.
         F_internal = self.F[1:-1, 1:-1]
-        return fps(self.h ** 2 * F_internal, get_eigval(self.N, five_point_eigenval))
+        start_time = time.time()
+        U = fps(self.h ** 2 * F_internal, get_eigval(self.N, five_point_eigenval))
+        self.times.update({"five": time.time() - start_time})
+        return U
 
     def solve_nine(self):
         F_stencil = five_point_stencil(self.N + 2, a=2 / 3, b=1 / 12)
         F = (F_stencil @ self.F.flatten()).reshape(self.N + 2, self.N + 2)
         F_internal = F[1:-1, 1:-1]
-        return fps(self.h ** 2 * F_internal, get_eigval(self.N, nine_point_eigenval))
+        start_time = time.time()
+        U = fps(self.h ** 2 * F_internal, get_eigval(self.N, nine_point_eigenval))
+        self.times.update({"nine": time.time() - start_time})
+        return U
 
 
 class BiharmonicSolver(Solver):
@@ -177,8 +185,10 @@ class BiharmonicSolver(Solver):
         # as border is assumed zero.
         F_internal = self.F[1:-1, 1:-1]
         eigval = get_eigval(self.N, five_point_eigenval)
+        start_time = time.time()
         G = fps(self.h ** 2 * F_internal, eigval)
         U = fps(self.h ** 2 * G, eigval)
+        self.times.update({"five": time.time() - start_time})
         return U
 
     def solve_nine(self):
@@ -186,11 +196,13 @@ class BiharmonicSolver(Solver):
         F_stencil = five_point_stencil(self.N + 2, a=2 / 3, b=1 / 12)
         F = (F_stencil @ self.F.flatten()).reshape(self.N + 2, self.N + 2)
         F_internal = F[1:-1, 1:-1]
+        G_stencil = five_point_stencil(self.N, a=2 / 3, b=1 / 12)
+        start_time = time.time()
         G = fps(self.h ** 2 * F_internal, eigval)
         # TODO: better to use F, instead of F_stencil @ G
-        G_stencil = five_point_stencil(self.N, a=2 / 3, b=1 / 12)
         G = (G_stencil @ G.flatten()).reshape(self.N, self.N)
         U = fps(self.h ** 2 * G, eigval)
+        self.times.update({"nine": time.time() - start_time})
         return U
 
 
@@ -201,6 +213,7 @@ class Series:
         self.u = u
         self.f = f
         self.errors = {"five": [], "nine": []}
+        self.times = {"five": [], "nine": []}
         self.store_solution_index = store_solution_index % N_num
         self.solver = solver
 
@@ -213,12 +226,20 @@ class Series:
                 self.stored_solver = solver
             for error in solver.errors:
                 self.errors[error].append(solver.errors[error])
+            for time in solver.times:
+                self.times[time].append(solver.times[time])
 
     def plot_error(self):
         for error in self.errors:
             plt.loglog(self.Ns, self.errors[error], label=error)
         plt.loglog(self.Ns, self.hs**2, linestyle="dashed", label="h2")
         plt.loglog(self.Ns, self.hs**4, linestyle="dashed", label="h4")
+        plt.legend()
+        plt.show()
+
+    def plot_times(self):
+        for time in self.times:
+            plt.loglog(self.Ns, self.times[time], label=time)
         plt.legend()
         plt.show()
 
@@ -230,21 +251,38 @@ class Series:
         plt.show()
 
     def write(self):
+        print("wrote", self.write_error())
+        print("wrote", self.write_time())
+        if self.store_solution_index is not None:
+            print("wrote", self.write_solution())
+
+    def write_error(self):
         minmaxnum = f"{self.Ns[0]}:{self.Ns[-1]}:{len(self.Ns)}"
-        filename_error = f"error_{self.solver.__name__}_N_{minmaxnum}.dat"
+        filename = f"error_{self.solver.__name__}_N_{minmaxnum}.dat"
         data = np.array([self.Ns, self.errors["five"], self.errors["nine"]]).T
         header = "N five nine"
-        np.savetxt(filename_error, data, header=header, comments="")
+        np.savetxt(filename, data, header=header, comments="")
+        return filename
 
-        if self.store_solution_index is not None:
-            solver = self.stored_solver
-            xx, yy, U9 = solver.xx, solver.yy, solver.U9
-            xx = xx[1:-1, 1:-1]
-            yy = yy[1:-1, 1:-1]
-            data = np.array([d.flatten() for d in [xx, yy, U9]]).T
-            header = "x y U"
-            N = self.Ns[self.store_solution_index]
-            np.savetxt(f"solution_{solver.__class__.__name__}_N_{N}.dat", data, header=header, comments="")
+    def write_time(self):
+        minmaxnum = f"{self.Ns[0]}:{self.Ns[-1]}:{len(self.Ns)}"
+        filename = f"time_{self.solver.__name__}_N_{minmaxnum}.dat"
+        data = np.array([self.Ns, self.times["five"], self.times["nine"]]).T
+        header = "N five nine"
+        np.savetxt(filename, data, header=header, comments="")
+        return filename
+
+    def write_solution(self):
+        solver = self.stored_solver
+        xx, yy, U9 = solver.xx, solver.yy, solver.U9
+        xx = xx[1:-1, 1:-1]
+        yy = yy[1:-1, 1:-1]
+        data = np.array([d.flatten() for d in [xx, yy, U9]]).T
+        header = "x y U"
+        N = self.Ns[self.store_solution_index]
+        filename = f"solution_{solver.__class__.__name__}_N_{N}.dat"
+        np.savetxt(filename, data, header=header, comments="")
+        return filename
 
 ######################
 ### Let's do this! ###
@@ -266,6 +304,7 @@ else:
 
 s = Series(u, f, solver, *(8, 256, 8), name="", store_solution_index=-1)
 s.run()
+s.plot_times()
 # s.plot_error()
 # s.plot_solution()
 s.write()
