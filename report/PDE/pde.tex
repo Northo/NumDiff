@@ -381,8 +381,6 @@ We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \
 
 (TODO: use $U$ or $v$ for discrete approximtae solution?)
 
-(TODO: say the matrices are toeplitz and symmetric) (TODO: Is this correct? I believe it is not Teoplitz, due to the zeros on the off diagonals), where the main diagonal has -4 and the $\pm 1$ and $\pm N$ off diagonals have 1.
-
 (TODO: check conventions on $h^2$)
 
 %% Let us defne an infinity norm for convenience
@@ -712,6 +710,8 @@ With these lemmas, it is now straightforward to obtain the eigenvalues and eigen
 	By \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum}, $J_5 \oplus J_5$, $J_9 \oplus J_9$ and $\Sigma \otimes \Sigma$ have common eigenvectors given by \cref{eq:pde:eigenvectors}.
 	By \cref{pde:lemma:eigsum}, the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$ does not change the eigenvectors.
 \end{proof}
+Note that it is only $J_5$, $J_9$ and $\Sigma$ that are on the form $\text{tridiag}(b,a,b)$ and are suitable for \cref{pde:lemma:eigtst}.
+Like we discussed in \cref{fig:laplace:stencil}, the matrices $K_5$ and $K_9$ themselves are \emph{not}.
 \begin{theorem}
 The eigenvalues of $K_5$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
 \begin{equation}
