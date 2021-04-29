@@ -612,16 +612,23 @@ We want to solve \cref{eq:pde:matrixequations}, so let us find the eigenvalues a
 \begin{lemma}[Eigenvalues of Kroenecker product]\label{pde:lemma:eigkronprod}
 \kroeneckerlemmatext{\otimes}{\,}
 \end{lemma}
-(TODO: pull together above and below to one lemma?)
+\begin{proof}
+See theorem 13.12 on page 141 in \cite{Laub_2004}.
+\end{proof}
 \begin{lemma}[Eigenvalues of Kroenecker sum]\label{pde:lemma:eigkronsum}
-\kroeneckerlemmatext{\oplus}{\,}
+\kroeneckerlemmatext{\oplus}{+}
 \end{lemma}
-(TODO: are these correct, should it be $\otimes$ in both eigenvectors?)
-\begin{lemma}[TODO: name?]\label{pde:lemma:eigsum}
+\begin{proof}
+See theorem 13.16 on page 143 in \cite{Laub_2004}.
+\end{proof}
+\begin{lemma}[Eigenvalues of sum of matrices with equal eigenvectors]\label{pde:lemma:eigsum}
 Let $\alpha_1, \dots, \alpha_m$ be eigenvalues of $A$ with corresponding eigenvectors $x_1, \dots, x_m$.
 Let $\beta_1, \dots, \beta_m$ be eigenvalues of $B$ with the same corresponding eigenvectors.
 Then $\alpha_m + \beta_m$ are eigenvalues of $A+B$ with the same eigenvectors.
 \end{lemma}
+\begin{proof}
+$ (A + B) x_i = A x_i + B x_i = \alpha_i x_i + \beta_i x_i = (\alpha_i + \beta_i) x_i.$
+\end{proof}
 \begin{lemma}\label{pde:lemma:eigtst}
 Let $A = \text{tridiag}(b,a,b)$ be a $N \times N$ TST matrix with $a$ on the diagonal and $b$ on the off-diagonal.
 Then the eigenvalues $\alpha_1, \dots, \alpha_N$ and eigenvectors $x_1, \dots, x_N$ of $A$ are
@@ -631,9 +638,12 @@ $$
 x_m(k) = \sin \frac{mk\pi}{N+1}.
 $$
 \end{lemma}
-(TODO: add/refer to proofs)
+\begin{proof}
+See ``The eigenvalues and vectors of a common tridiagonal matrix'' on page 154 in \cite{Smith}.
+\end{proof}
 
-With these lemmas (TODO: theorems?) in hand, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
+(TODO: make this 3 theorems, otherwise it is weird to have the lemmas)
+With these lemmas in hand, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
 
 Note that by \cref{pde:lemma:eigtst}, the eigen\emph{vectors} are the same for \emph{any} TST matrix.
 As $J_5$, $J_9$ and $\Sigma$ are all tridiagonal and $K_5$ and $K_9$ involve (sums of) Kroenecker sums and products of these matrices, \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum,pde:lemma:eigsum} ensure that $K_5$ and $K_9$ share the \emph{common} eigenvectors
