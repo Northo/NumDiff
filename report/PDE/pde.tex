@@ -870,12 +870,13 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
           legend pos=south west,
           xmin=6^2, xmax=10e6,%2400^2,
-		  width=7.7cm,
+          ymin=10e-12, ymax=2,
+		      width=7.7cm,
         ]
-        \addplot table[x expr=\thisrow{N}^2, y={nine}] {./PDE/error_BiharmonicSolver_N_8:256:8.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={nine}] {./PDE/error_BiharmonicSolver_N_8:1300:10.dat};
         \addlegendentry{Nine point};
 
-        \addplot table[x expr=\thisrow{N}^2, y={five}] {./PDE/error_BiharmonicSolver_N_8:256:8.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={five}] {./PDE/error_BiharmonicSolver_N_8:1300:10.dat};
         \addlegendentry{Five point};
 
 
@@ -884,7 +885,7 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           pin={[pin edge={solid, out=45, in=-120}]above right:$\mathcal{O}(h^2)$},
         ] {};
 
-        \addplot[black, dashed, domain = 6^2:2600^2, samples=2] {80/(sqrt(x)+1)^4}
+        \addplot[black, dashed, domain = 6^2:2400^2, samples=2] {80/(sqrt(x)+1)^4}
         node[pos=0.3,
           pin={[pin edge={solid, out=-120, in=45}]below left:$\mathcal{O}(h^4)$},
         ] {};
@@ -907,14 +908,29 @@ We were able to solve the equation with a maximal discretization of $N = 3000$ i
           legend pos=north west,
 		  width=7.7cm
         ]
-        \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_no_fps.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={time}] {PDE/comp_bvp_no_fps.dat};
         \addlegendentry{Scipy Sparse Solver};
-        \addplot table[x expr=\thisrow{N}^2, y={comp_time}] {PDE/comp_bvp_fps.dat};
+        \addplot table[x expr=\thisrow{N}^2, y={time}] {PDE/comp_bvp_fps.dat};
         \addlegendentry{Fast Poisson Solver};
 
-        \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
-        \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
-        \addplot[domain=10^2:10^6, dashdotted] {1e-8 * x};
+        \addplot[mark=none] table[x expr=\thisrow{N}^2,
+          y={create col/linear regression={
+              y=time,
+              variance list={1000,1000,1000,1000}, %% Ignore first points
+        }}]  {PDE/comp_bvp_fps.dat}
+        node[pos=0.3,
+          pin={[pin edge={solid}]below right:$a = \pgfplotstableregressiona$},
+        ] {};
+
+        \addplot[mark=none, dashed] table[x expr=\thisrow{N}^2,
+          y={create col/linear regression={
+              y=time,
+              variance list={1000,1000,1000}, %% Ignore first points
+        }}] {PDE/comp_bvp_no_fps.dat};
+
+        %% \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
+        %% \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
+        %% \addplot[domain=10^2:10^6, dashdotted] {1e-8 * x};
 
         %% \addplot[domain=8:256] {0.0001 * x * ln(x)};
         %% \addplot[domain=8:256] {0.0001 * x^2};
