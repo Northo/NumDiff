@@ -9,16 +9,10 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
-Consider the inhomogeneous Biharmonic equation with clamped boundary conditions on the unit square $\Omega = [0, 1]^2$:
-\begin{subequations}\label{eq:PDE}
-  \begin{equation}
-    \nabla^4 u = f \quad, (x, y) \in \Omega,
-  \end{equation}
-  \begin{equation}
-    u = 0, \nabla^2u = 0 \quad, (x, y) \in \partial\Omega.
-	\label{eq:pde:boundaryconditions}
-  \end{equation}
-\end{subequations}
+Consider the inhomogeneous Biharmonic equation with clamped boundary conditions on $\Omega = [0, 1]^2$:
+\begin{equation}\label{eq:PDE}
+	\nabla^4 u = f \,\,\, \text{in} \,\,\, \Omega , \qquad u = \nabla^2 u = 0 \,\,\, \text{on} \,\,\, \partial\Omega.
+\end{equation}
 
 \subsection{Analytical solution}
 \label{sec:pde:anal}
@@ -161,18 +155,42 @@ However, we can also construct problems with a finite number of terms in the \em
 \subsection{Finite difference method}
 \label{sec:pde:numerical_solution}
 
-We transform the Biharmonic equation \ref{eq:PDE} into a system of Poisson equations by introducing $g = \nabla^2 u$:
-\begin{align}\label{eq:PDE-poisson}
-  \begin{split}
-    \nabla^2g &= f,\\
-    \nabla^2u &= g,\\
-    g = u &= 0,\quad \text{ on } \partial \Omega.
-  \end{split}
+\newcommand{\crossStencilInternal}[5]{
+    \draw (0,-1) node{$#1$} -- (0,+1) node{$#2$};
+    \draw (-1,0) node{$#3$} -- (+1,0) node{$#4$};
+	\draw (0,0)  node{$#5$};
+}
+\newcommand{\xStencilInternal}[4]{
+    \draw (-1,-1) node{$#1$} -- (+1,+1) node{$#2$};
+    \draw (-1,+1) node{$#3$} -- (+1,-1) node{$#4$};
+}
+\newcommand{\crossStencil}[5]{%
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+    \crossStencilInternal{#1}{#2}{#3}{#4}{#5}
+  \end{tikzpicture}
+}
+\newcommand{\xStencil}[4]{%
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+    \xStencilInternal{#1}{#2}{#3}{#4}
+  \end{tikzpicture}
+}
+\newcommand{\boxStencil}[9]{
+  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
+	\xStencilInternal{#6}{#7}{#8}{#9};
+	\crossStencilInternal{#1}{#2}{#3}{#4}{#5};
+  \end{tikzpicture}
+}
+
+The Biharmonic equation \ref{eq:PDE} can be transformed to a system of Poisson equations
+\begin{subequations}\label{eq:PDE-poisson}
+\begin{align}
+	&\nabla^2 g = f \,\,\, \text{in} \,\,\, \Omega, \qquad g = 0 \,\,\, \text{on} \,\,\, \partial\Omega  \label{eq:pde:poissonsystem1} \\
+	&\nabla^2 u = g \,\,\, \text{in} \,\,\, \Omega, \qquad u = 0 \,\,\, \text{on} \,\,\, \partial\Omega. \label{eq:pde:poissonsystem2}
 \end{align}
-Instead of solving the Biharmonic equation directly with a stencil for $\nabla^4$, we will solve the two Poisson equations successively with a stencil $\nabla_n^2$ for $\nabla^2$ only.
-First, we solve $\nabla^2 g = f$ to obtain an intermediate numerical solution $G \approx g$.
-Then we solve $\nabla^2 u = g$ to obtain the final numerical solution $U \approx u$.
-In the first step we will use the exactly known source $f$, but in the second step we will only use the approximate source $G \approx g$.
+\end{subequations}
+Instead of solving the Biharmonic equation directly with a stencil for $\nabla^4$, we will solve the two Poisson equations successively with a Poisson stencil $\nabla_n^2 \approx \nabla^2$ only.
+First, we solve \ref{eq:pde:poissonsystem1} numerically with the exact known source $f$ to obtain an intermediate solution $G \approx g$.
+Then we solve \ref{eq:pde:poissonsystem2} numerically to obtain the final solution $U \approx u$, but this time we only have access to the approximate source $G \approx g$.
 
 We divide $[0,1] \times [0,1]$ into the uniformly spaced two-dimensional grid
 \begin{center}
@@ -232,35 +250,10 @@ We divide $[0,1] \times [0,1]$ into the uniformly spaced two-dimensional grid
 \end{tikzpicture}
 .
 \end{center}
-The boundary conditions \ref{eq:pde:boundaryconditions} already tell us that $g = u = 0$ on $\partial \Omega$, so we will only solve for $U$ on the grid $1 \leq m,n \leq N$.
 
-%% c)
-\newcommand{\crossStencilInternal}[5]{
-    \draw (0,-1) node{$#1$} -- (0,+1) node{$#2$};
-    \draw (-1,0) node{$#3$} -- (+1,0) node{$#4$};
-	\draw (0,0)  node{$#5$};
-}
-\newcommand{\xStencilInternal}[4]{
-    \draw (-1,-1) node{$#1$} -- (+1,+1) node{$#2$};
-    \draw (-1,+1) node{$#3$} -- (+1,-1) node{$#4$};
-}
-\newcommand{\crossStencil}[5]{%
-  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
-    \crossStencilInternal{#1}{#2}{#3}{#4}{#5}
-  \end{tikzpicture}
-}
-\newcommand{\xStencil}[4]{%
-  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
-    \xStencilInternal{#1}{#2}{#3}{#4}
-  \end{tikzpicture}
-}
-\newcommand{\boxStencil}[9]{
-  \begin{tikzpicture}[scale=1.0,baseline={([yshift=-0.5ex]current bounding box.center)}, every node/.style={scale=1.0,inner sep=0pt, minimum size=5.5ex, fill=white}, nodes={draw, circle}]
-	\xStencilInternal{#6}{#7}{#8}{#9};
-	\crossStencilInternal{#1}{#2}{#3}{#4}{#5};
-  \end{tikzpicture}
-}
-We approximate the Laplacian $\nabla^2$ with the $5$-point and $9$-point stencils
+% task c)
+The boundary conditions in \ref{eq:PDE} already tell us that $g = u = 0$ on $\partial \Omega$, so we will only solve for $U$ in the interior $1 \leq m,n \leq N$.
+To do so, we approximate the Laplacian $\nabla^2$ with the $5$-point and $9$-point stencils % task c
 \begin{equation*}
 	\nabla_5^2 = \crossStencil{1}{1}{1}{1}{-4}
 	\qquad \text{and} \qquad
