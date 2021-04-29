@@ -47,7 +47,7 @@ where $k$ is the time step and the value of $\theta$ determines the specific num
     & \text{Backward Euler} \quad \theta = 1 \\
     & \text{Crank-Nicolson} \quad \theta = \frac{1}{2}.
 \end{align*}
-We use a constant stepsize $k = 1/(N-1)$ in time, 
+We use a constant step size $k = 1/(N-1)$ in time, 
 where $N$ denotes the number of time steps, 
 and the final uniform grid is illustrated in figure \ref{fig:2-uniform-grid}. 
 This gives the approximate solution of $v_m(t)$ at $t_n = nk$, 
@@ -170,7 +170,6 @@ similar to what we did in section \ref{task_1}.
 %\end{figure}
 
 \begin{figure}[hb]
-    \label{fig:2b-spatial-temporal-ref}
     \subfloat[Neumann boundary conditions.]{
         \input{exercise2/2a_surface_plot.pgf}
         \label{fig:2a-surface}
@@ -182,6 +181,7 @@ similar to what we did in section \ref{task_1}.
     \caption{
         Numerical solution of the one dimensional heat equation with different sets of boundary and initial initial conditions computed with Crank-Nicolson. 
     }
+    \label{fig:2b-spatial-temporal-ref}
 \end{figure}
 
 
@@ -215,8 +215,8 @@ Taylor expansion of all the terms around $(x_m, t_n)$ gives
 \end{align*}
 Finally, dividing by $k$ we find that 
 \begin{align*}
-    \tau_m^n & = \Oh(k+h^2) \quad for \theta\neq\frac{1}{2},\\
-    \tau_m^n & = \Oh(k^2+h^2) \quad for \theta = \frac{1}{2}.
+    \tau_m^n & = \Oh(k+h^2) \quad \text{for} \: \theta\neq\frac{1}{2},\\
+    \tau_m^n & = \Oh(k^2+h^2) \quad \text{for} \: \theta = \frac{1}{2}.
 \end{align*}
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
@@ -224,7 +224,9 @@ by doing mesh refinement.
 We restrict the analysis to just Backward Euler and Crank-Nicolson, 
 which have different convergence order in the temporal direction. 
 The reason for which we exclude the forward Euler method is that it is only stable under the condition that $r=k/h^2 < 1/2$, 
-whilst backward Euler and Crank-Nicolson are unconditionally stable \cite{TODO}. 
+whilst backward Euler and Crank-Nicolson are unconditionally stable \cite{owren}. 
+Later on when we study the Linearized Kortweg-de Vries equation in section \ref{task4}, 
+we show this by applying Von Neumann analysis on the forward Euler and Crank-Nicolson methods. 
 Such a stability criterion would impose impractical restrictions on the grids and the refinement. 
 
 We start by refining the spatial grid $x_m$ sepparately, 
@@ -242,7 +244,6 @@ allowing us to analyze the spatial convergence isolated.
 \begin{figure}[ht]
     \centering
     \input{exercise2/2a_spatialref.pgf}
-    \label{fig:2a-convergence}
     \caption{
         Convergence plots from uniform mesh refinement 
         in the spatial direction while keeping the number of time steps $N$ constant. 
@@ -253,6 +254,7 @@ allowing us to analyze the spatial convergence isolated.
         with respect to a numerical reference solution computed with $M_{ref}=10000$, 
         since the analytical solution is not available on closed form. 
     }
+    \label{fig:2a-convergence}
 \end{figure}
 
 The resulting convergence rates from the refinement is plotted in figure \ref{fig:2a-convergence}, 
@@ -278,7 +280,11 @@ on the same domain $x \in [0,1] := \Omega$ and $t > 0$.
 Note that we now have Dirchlet boundary conditions, 
 and we have plotted the numerical solution in \ref{fig:2b-surface}. 
 The analytical solution, 
-which can be calculated using sepparation of variables\cite{TODO}, 
+which can be calculated using sepparation of variables
+\footnote{
+    We ommit the calculation since this is a very standard introductory problem for solving 
+    partial differential equations with sepparation of variables. 
+} \cite{Kreyszig}, 
 is readily available as
 \begin{equation}
     u(x,t) = \sin(\pi x)  e^{- \pi^2 t}.
@@ -295,7 +301,6 @@ but flattens as the temporal error starts to dominate,
 and also here we see that the error in Crank-Nicolson flattens later than the error in Backward Euler for the same value of $N$. 
 \begin{figure}
     \centering
-    \label{fig:2b-spatial-temporal-ref}
     \subfloat[Convergence plots from refinement in the spatial direction.]{
         \input{exercise2/2b_spatialref.pgf}
         \label{fig:2b-spatial-ref}
@@ -315,6 +320,7 @@ and also here we see that the error in Crank-Nicolson flattens later than the er
         on the boundaries, 
         corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
+    \label{fig:2b-spatial-temporal-ref}
 \end{figure}
 
 Now we proceed to do refinement in the $t$-direction, 
@@ -339,10 +345,10 @@ we can write $N_{dof} = M^*N$.
 Using that $M^*=1/h+1$ and $N=1/k+1$ as well as our refinement restriction $c = k/h$, we get that 
 \begin{equation*}
 \begin{split}
-    N_{dof} = M^* N = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
-    \\ = \left(\frac{1}{h}+1\right)\left(\frac{1}{ch}+1\right)
-    \\ = \frac{1}{ch^2} + \frac{1}{ch} + \frac{1}{h} + 1 
-    \\ = \Oh(\frac{1}{h^2}).
+    N_{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    \\ & = \left(\frac{1}{h}+1\right)\left(\frac{1}{ch}+1\right)
+    \\ & = \frac{1}{ch^2} + \frac{1}{ch} + \frac{1}{h} + 1 
+    \\ & = \Oh(\frac{1}{h^2}).
 \end{split}
 \end{equation*}
 To relate this to the convergence rates we again use that $c=k/h$ to get 
@@ -357,7 +363,6 @@ as well as the expected convergence rates,
 is shown in figure \ref{fig:2b-kch-ref}. 
 \begin{figure}
     \centering
-    \label{fig:2b-kch-r-ref}
     \subfloat[Convergence plots from uniform refinement with constant $c=k/h$.]{
         \input{exercise2/2b_kchref.pgf}
         \label{fig:2b-kch-ref}
@@ -377,19 +382,20 @@ is shown in figure \ref{fig:2b-kch-ref}.
         on the boundaries, 
         corresponding to the conditions listed in equation \eqref{eq:2b-manufactured}. 
     }
+    \label{fig:2b-kch-r-ref}
 \end{figure}
 
 Finally we will do simultaneous refinement where we keep $r=k/h^2$ constant. 
 For the degrees of freedom $N_{dof}$ we now get 
 \begin{equation*}
 \begin{split}
-    N_{dof} = M^* N = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
-    \\ = \left(\frac{1}{h}+1\right)\left(\frac{1}{rh^2}+1\right)
-    \\ = \frac{1}{rh^3} + \frac{1}{rh^2} + \frac{1}{h} + 1 
-    \\ = \Oh(\frac{1}{h^3}), 
+    N_{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    \\ & = \left(\frac{1}{h}+1\right)\left(\frac{1}{rh^2}+1\right)
+    \\ & = \frac{1}{rh^3} + \frac{1}{rh^2} + \frac{1}{h} + 1 
+    \\ & = \Oh(\frac{1}{h^3}), 
 \end{split}
 \end{equation*}
-and for the convergence rate we get 
+and for the convergence rates we get 
 \begin{equation*}
 \begin{split}
     \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(rh^2+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-2/3})\\
@@ -397,6 +403,17 @@ and for the convergence rate we get
 \end{split}
 \end{equation*}
 The resulting convergence plot for this final refinement is shown in figure \ref{fig:2b-r-ref}. 
+
+We see from the convergence plots in figure \ref{fig:2b-kch-ref} and figure \ref{fig:2b-r-ref}, 
+that our solver gives the expected convergence. 
+The take home point from here is that the order of convergence when doing simultaneous refinement in both directions depends on the refinement strategy. 
+We see that keeping $c=k/h$ constant is appropriate for Crank-Nicolson, 
+which has the same order of convergence in both $h$ and $k$, 
+while being suboptimal for Backward Euler which is $\Oh(k + h^2)$. 
+On the other hand, keeping $r=k/h^2$ works well for Backward Euler, 
+while being suboptimal for Crank-Nicolson, 
+and results in the same convergence order for the two methods, 
+despite Crank-Nicolson having better presicion in the time step $k$. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % AMR data was likely to change.
@@ -430,7 +447,7 @@ The resulting convergence plot for this final refinement is shown in figure \ref
 
 In this section we turn to solve the inviscid Burgers' equation with given Dirchlet boundary conditions and initial condition
 \begin{equation}
-    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = exp(-400(x-1/2)^2).
+    u_t = -uu_x, \quad u(0, t) = u(1, t) = 0, \quad u(x, 0) = \exp(-400(x-1/2)^2).
     \label{eq:burger}
 \end{equation}
 This equation exhibits breaking; 
@@ -440,22 +457,20 @@ leading to the formation of a \textit{shock wave}.\cite{burgers}
 The time $t_b$ before this can happen is given by
 \begin{equation}
 % I am not sure if this is the exact time of breaking or just the earliest possible breaking time. 
-    t_b = \frac{-1}{min f'(x)}, 
+    t_b = \frac{-1}{\min f'(x)}, 
     \label{eq:t_break}
 \end{equation}
 where $f(x)$ is the given initial condition $u(x, 0) = f(x)$.\cite{burgers} 
 
 \subsection*{Numerical solution method}
-To solve \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 
+To solve equation \eqref{eq:burger} numerically we perform semidiscretization in the same way as we did for the heat equation in section \ref{heat-equation}, 
 also on a uniform spatial grid as described in section \ref{task_1}. 
 The resulting system of ODEs is
 \begin{equation*}
-    \frac{\partial v_m}{\partial t} = -v_m \frac{1}{2h} (v_{m+1} - v_{m-1}). 
+    \frac{\partial v_m}{\partial t} = -v_m \frac{1}{2h} (v_{m+1} - v_{m-1}), 
 \end{equation*}
-We impose the Dirchlet boundary conditions and integrate the ODEs using \textit{solve\_ivp} from the SciPy library, 
-with the default explicit Runge-Kutta method of order 4(5)\cite{solve_ivp}. \\
-\textbf{Comment/question:} Is it fine to use scipy.integrate.solve\_ivp, 
-or should it be all home cooking? 
+which we, after imposing the boundary conditions, 
+integrate using an explicit Runge-Kutta method of order 4(5). 
 
 \subsection{Time of breaking}
 Insertion of $u(x, 0)$ for $f$ in \eqref{eq:t_break}, 

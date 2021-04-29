@@ -27,9 +27,9 @@
 \contentsline {section}{\numberline {7}Biharmonic equation}{41}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Analytical solution}{41}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Numerical solution}{43}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Stability and order of the five and nine point stencils}{46}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}Stability when solving the Biharmonic equation}{48}{subsubsection.7.3.1}%
-\contentsline {subsection}{\numberline {7.4}The Fast Poisson Solver}{49}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.3}Stability and order of the five and nine point stencils}{45}{subsection.7.3}%
+\contentsline {subsubsection}{\numberline {7.3.1}Stability when solving the Biharmonic equation}{47}{subsubsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.4}The Fast Poisson Solver}{48}{subsection.7.4}%
 \contentsline {subsection}{\numberline {7.5}Demonstration of order}{50}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}Solving the Biharmonic equation}{51}{subsection.7.6}%
-\contentsline {section}{\numberline {A}The inhomogenity $f$}{52}{appendix.A}%
+\contentsline {subsection}{\numberline {7.6}Solving the Biharmonic equation}{50}{subsection.7.6}%
+\contentsline {section}{\numberline {A}The inhomogenity $f$}{53}{appendix.A}%
