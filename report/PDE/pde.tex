@@ -380,8 +380,6 @@ When calculating the right side of the $9$-point equation, we must therefore \em
 We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
 We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of Kroenecker products and sums.
 
-(TODO: use $U$ or $v$ for discrete approximtae solution?)
-
 (TODO: check conventions on $h^2$)
 
 %% Let us defne an infinity norm for convenience
@@ -425,27 +423,27 @@ Repeating the argument at each neighbour $x_i$, and then to their neighbours and
 \end{proof}
 
 \begin{lemma}\label{pde:lemma:bound}
-  If there exists a function $\phi_n(x,y) \geq 0$ such that $\nabla_n^2 \phi_n = 1$ on $\Omega$ for a proper stencil $\nabla_n^2$, and $v$ is a discrete function that equals zero on $\partial \Omega$, then
+  If there exists a function $\phi_n(x,y) \geq 0$ such that $\nabla_n^2 \phi_n = 1$ on $\Omega$ for a proper stencil $\nabla_n^2$, and $U$ is a discrete function that equals zero on $\partial \Omega$, then
   \begin{equation}
-    \inorm{v} \leq \max_{\partial\Omega} \lvert \phi_n \rvert
-    \inorm{\nabla_n^2 v}.
+    \inorm{U} \leq \max_{\partial\Omega} \lvert \phi_n \rvert
+    \inorm{\nabla_n^2 U}.
   \end{equation}
 \end{lemma}
 \begin{proof}
 
-Let $\inorm{\nabla_n^2 v} = M$.
+Let $\inorm{\nabla_n^2 U} = M$.
 Then
 $$
-\nabla_n^2 (v + \phi_n M) = \nabla_n^2 v +  M \geq 0.
+\nabla_n^2 (U + \phi_n M) = \nabla_n^2 U +  M \geq 0.
 $$
-Since $\nabla_n^2$ is a proper stencil, $v + \phi_n M$ attains its maximum value on $\partial \Omega$ by lemma \ref{pde:lemma:max}.
+Since $\nabla_n^2$ is a proper stencil, $U + \phi_n M$ attains its maximum value on $\partial \Omega$ by lemma \ref{pde:lemma:max}.
 Thus
 \begin{equation*}
-\inorm{v}
-\leq \inorm{v + \phi_n M}
-\leq \max_{\partial \Omega} \lvert v + \phi_n M\rvert
+\inorm{U}
+\leq \inorm{U + \phi_n M}
+\leq \max_{\partial \Omega} \lvert U + \phi_n M\rvert
 = \max_{\partial\Omega} \lvert \phi_n \rvert M
-= \max_{\partial\Omega} \lvert \phi_n \rvert \inorm{\nabla_n^2 v}. \qedhere
+= \max_{\partial\Omega} \lvert \phi_n \rvert \inorm{\nabla_n^2 U}. \qedhere
 \end{equation*}
 \end{proof}
 
@@ -498,16 +496,16 @@ Thus
 
 %% 3
 \begin{theorem}[Five point stencil stability]\label{thm:five}
-If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
+If $\nabla^2 u = f$ and $\nabla_5^2 U = f$ and $u = U$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^2 \abs{D^4 u}_\infty,
+\inorm{u - U} \leq C h^2 \abs{D^4 u}_\infty,
 $$
 where $C$ is some constant and $\abs{D^4 u}_\infty = \max_{m=0}^4 \abs{\partial_x^m \partial_y^{4-m} u}$.
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5},
 $$
-\inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
+\inorm{u - U} \leq \frac18 \inorm{\nabla_5^2 (u  - U)}.
 $$
 Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to get
 \begin{equation}
@@ -516,10 +514,10 @@ Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to ge
 \end{equation}
 where $\Oh(\partial^4 u)$ is the combination of $4$-derivatives that appear in the expansion.
 Terms with odd powers of $h$ vanish due to the symmetry of the stencil.
-Finally, substitute $f = \nabla_5^2 v$ to conclude that
+Finally, substitute $f = \nabla_5^2 U$ to conclude that
 \begin{equation*}
-  \inorm{u - v}
-  \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
+  \inorm{u - U}
+  \leq \frac18 \inorm{\nabla_5^2 (u  - U)}
   \leq C h^2 \abs{D^4 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
@@ -527,16 +525,16 @@ Finally, substitute $f = \nabla_5^2 v$ to conclude that
 
 %% 3
 \begin{theorem}[Nine point stencil stability]\label{thm:nine}
-If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{1}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
+If $\nabla^2 u = f$ and $\nabla_9^2 U = f + \frac{1}{12} \nabla_5^2 f$ and $u = U$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^4 \abs{D^6 u}_\infty,
+\inorm{u - U} \leq C h^4 \abs{D^6 u}_\infty,
 $$
 where $C$ is some constant and $\abs{D^6 u}_\infty = \max_{m=0}^6 \abs{\partial_x^m \partial_y^{6-m} u}$.
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
 $$
-\inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
+\inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - U)}.
 $$
 Taylor expand all terms in $\nabla_9^2 u$ around the center of the stencil as in the former proof to get
 \begin{equation*}
@@ -551,18 +549,18 @@ Together, the two Taylor expansions imply
 \begin{equation*}
 	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \abs{D^6 u}_\infty.
 \end{equation*}
-Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
+Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 U$ to conclude that
 \begin{equation*}
-  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
+  \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
-We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - v) \rightarrow 0$ and global error $\Vert u - v \Vert \rightarrow 0$, so the schemes are consistent and convergent.
+We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - U) \rightarrow 0$ and global error $\Vert u - U \Vert \rightarrow 0$, so the schemes are consistent and convergent.
 By Lax' equivalence theorem \cite{owren}, they are then also stable.
 
 (TODO: this should really be in the proofs?)
 
-(TODO: using $v$ for discrete function is weird. using $u$ with $f$ is also weird. using $u$ with $g$ would be more consistent with what we already have)
+(TODO: using $u$ with $f$ is also weird. using $u$ with $g$ would be more consistent with what we already have)
 
 \begin{theorem}[Nine point stencil stability TODO biharmonic]
 TODO: make theorems for stability on biharmonic
