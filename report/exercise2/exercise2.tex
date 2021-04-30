@@ -193,10 +193,12 @@ similar to what we did in section \ref{task_1}.
 %\end{figure}
 
 \subsection{Convergence and mesh refinement}
-We will now demonstrate how how the methods used in this section converge, depending on the mesh refinement.
+We will now demonstrate how the methods used in this section converge, depending on the mesh refinement strategy. 
 
+To find the expected convergence we start by finding the \textit{local truncation error}. 
 We denote the exact solution evaluated at the discrete grid points as $u_m^n = u(x_m, t_n)$. 
-Inserting this into the finite difference formula \eqref{eq:theta-heat-raw} gives rise to an additional term $\tau_m^n$, 
+As mentioned in \ref{task_1}, 
+inserting this into the finite difference formula \eqref{eq:theta-heat-raw} gives rise to an additional term $\tau_m^n$, 
 since the difference formula is not satisfied by the exact solution. 
 The term $\tau_m^n$ is the \textit{local truncation error}, 
 and for our difference formula it is expressed as follows 
@@ -220,6 +222,13 @@ Finally, dividing by $k$ we find that
     \tau_m^n & = \Oh(k+h^2) \quad \text{for} \: \theta\neq\frac{1}{2},\\
     \tau_m^n & = \Oh(k^2+h^2) \quad \text{for} \: \theta = \frac{1}{2}.
 \end{align*}
+
+By repeating the same discussion as we did for the global discretization error in section \ref{task_1}, 
+just extended to include also the temporal dimension, 
+one can show the same result. 
+Namely that the global error is expected to converge with the same rate as the local error $\tau_m^n$, 
+and so we end up with the convergence orders of $\Oh(k+h^2)$ for Backwar Euler and $\Oh(k^2+h^2)$, 
+as advertised. 
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
 by doing mesh refinement. 
