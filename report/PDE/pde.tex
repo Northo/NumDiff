@@ -271,7 +271,7 @@ We will solve Poisson equations with
 \begin{equation}
 	\nabla_5^2 U = F
 	\qquad \text{and} \qquad
-	\nabla_9^2 U = \left( 1 + \frac{1}{12} \nabla_5^2 \right) F
+	\nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) F
 	,
 \label{eq:pde:stencilequation}
 \end{equation}
@@ -495,12 +495,9 @@ Thus
 \end{figure}
 
 %% 3
-\begin{theorem}[Five point stencil stability]\label{thm:five}
-If $\nabla^2 u = f$ and $\nabla_5^2 U = f$ and $u = U$ on $\partial \Omega$, then
-$$
-\inorm{u - U} \leq C h^2 \abs{D^4 u}_\infty,
-$$
-where $C$ is some constant and $\abs{D^4 u}_\infty = \max_{m=0}^4 \abs{\partial_x^m \partial_y^{4-m} u}$.
+\begin{theorem}[Five-point stencil stability on Poisson equation]\label{thm:five}
+If $\nabla^2 u = f$ and $\nabla_5^2 U = f$ in $\Omega$, $u = U$ on $\partial \Omega$ and $D^4 u < \infty$ in $\Omega$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
+$$ \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = Ch^2. $$
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5},
@@ -509,50 +506,63 @@ $$
 $$
 Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to get
 \begin{equation}
-  \nabla_5^2 u = \nabla^2 u + h^2 \Oh(\partial^4 u) + \Oh(h^4) \leq f + Ch^2 \abs{D^4 u}_\infty,
+\begin{split}
+	\nabla_5^2 u &= \nabla^2 u + C h^2 D^4 u  \\
+	             &\leq f + Ch^2 \abs{D^4 u}_\infty \\
+	             &\leq f + Ch^2.\\
+\end{split}
 \label{eq:pde:taylornabla2}
 \end{equation}
-where $\Oh(\partial^4 u)$ is the combination of $4$-derivatives that appear in the expansion.
-Terms with odd powers of $h$ vanish due to the symmetry of the stencil.
+The second term is the remainder term, where by $D^m u$ we mean \emph{some} combination $\sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ of $m$-derivatives evaluated \emph{somewhere} inside $\Omega$.
+By $\abs{D^m u}_\infty$, we mean the maximum value of any $m$-derivative $\max_{n=0}^m \abs{\partial_x^n \partial_y^{m-n} u}$ in $\Omega$.
+Note that terms with odd powers of $h$ vanish due to the symmetry of the stencil.
 Finally, substitute $f = \nabla_5^2 U$ to conclude that
 \begin{equation*}
   \inorm{u - U}
   \leq \frac18 \inorm{\nabla_5^2 (u  - U)}
-  \leq C h^2 \abs{D^4 u}_\infty. \qedhere
+  \leq C h^2 \abs{D^4 u}_\infty
+  \leq C h^2. \qedhere
 \end{equation*}
 \end{proof}
 
 
 %% 3
-\begin{theorem}[Nine point stencil stability]\label{thm:nine}
-If $\nabla^2 u = f$ and $\nabla_9^2 U = f + \frac{1}{12} \nabla_5^2 f$ and $u = U$ on $\partial \Omega$, then
+\begin{theorem}[Nine-point stencil stability on Poisson equation]\label{thm:nine}
+If $\nabla^2 u = f$ and $\nabla_9^2 U = f + \frac{h^2}{12} \nabla_5^2 f$ in $\Omega$, $u = U$ on $\partial \Omega$ and $D^4 u, D^6 u < \infty$ in $\Omega$,
+then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 $$
-\inorm{u - U} \leq C h^4 \abs{D^6 u}_\infty,
+\inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} \leq C h^4.
 $$
-where $C$ is some constant and $\abs{D^6 u}_\infty = \max_{m=0}^6 \abs{\partial_x^m \partial_y^{6-m} u}$.
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
 $$
 \inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - U)}.
 $$
-Taylor expand all terms in $\nabla_9^2 u$ around the center of the stencil as in the former proof to get
+Taylor expand all terms in $\nabla_9^2 u$ around the center of the stencil to get
 \begin{equation*}
-\nabla_9^2 u = \nabla^2 u + \frac{h^2}{12} \nabla^4 u + h^4 \Oh(\partial^6 u) + \Oh(h^6) \leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \abs{D^6 u}_\infty,
+\begin{split}
+\nabla_9^2 u &= \nabla^2 u + \frac{h^2}{12} \nabla^4 u + C h^4 D^6 u \\
+             &\leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \abs{D^6 u}_\infty \\
+             &\leq f + \frac{h^2}{12} \nabla^2 f + Ch^4.\\
+\end{split}
 \end{equation*}
-where $\Oh(\partial^6 u)$ is the combination of $6$-derivatives that appear in the extension.
 From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \leftrightarrow f$, we also know that
 \begin{equation*}
-\nabla^2 f \leq \nabla_5^2 f + Ch^2 \abs{D^4 f}_\infty \leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty.
+\begin{split}
+\nabla^2 f &\leq \nabla_5^2 f + Ch^2 \abs{D^4 f}_\infty \\
+           &\leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty \\
+           &\leq \nabla_5^2 f + Ch^2.
+\end{split}
 \end{equation*}
 Together, the two Taylor expansions imply
 \begin{equation}
-	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \abs{D^6 u}_\infty.
-	\label{eq:pde:taylornabla22}
+	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4
+\label{eq:pde:taylornabla22}
 \end{equation}
-Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 U$ to conclude that
+Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2$ to get
 \begin{equation*}
-  \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
+  \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4. \qedhere
 \end{equation*}
 \end{proof}
 
@@ -582,7 +592,7 @@ Insert the latter inequality into the former, use the triangle inequality and th
             &\leq \frac18 \inorm{(g-G)} + \inorm{Ch^2 \abs{D^4u}_\infty} \\
 \end{split}
 \end{equation*}
-Now use \cref{pde:lemma:five} again with $f \rightarrow g$ to get
+Now use \cref{thm:five} again with $f \rightarrow g$ to get
 \begin{equation*}
 \begin{split}
 \inorm{u-U} &\leq \frac18 \inorm{(\nabla^2 u - \nabla_5^2 U) + Ch^2 \abs{D^4u}_\infty} \\
