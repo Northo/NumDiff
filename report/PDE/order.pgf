@@ -15,10 +15,10 @@
     % \addplot table[x={Ns}, y expr=1/(\thisrow{Ns}-1)^2] {PDE/order.dat};
           
 
-    \addplot table[x expr=\thisrow{Ns}^2, y={five}] {PDE/order_rel_norm2.dat};
+    \addplot table[x={dof}, y={five}] {PDE/error_PoissonSolver_N_8:256:10.dat};
     \addlegendentry{Five point};
 
-    \addplot table[x expr=\thisrow{Ns}^2, y={nine}] {PDE/order_rel_norm2.dat};
+    \addplot table[x={dof}, y={nine}] {PDE/error_PoissonSolver_N_8:256:10.dat};
     \addlegendentry{Nine point};
 
     \addplot [black, loosely dashdotted, domain = 6^2:356^2, samples=2] {30/(sqrt(x)-1)^2}
