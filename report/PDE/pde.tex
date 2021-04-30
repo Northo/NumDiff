@@ -498,7 +498,7 @@ Thus
 
 %% 3
 In the following we will use Taylor expansions heavily.
-For simplicity, we \emph{define} $D^m = \sum_{n=0}^m c_n \partial_x^m \partial_y^{n-m}$ to be an arbitrary combination of $m$-derivatives and $C$ be a ``floating'' constant whose value can change between equations in such a way that they are consistent with the remainder term in Taylor's theorem \cite{owren}
+For simplicity, we \emph{define} $D^m = \sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n}$ to be an arbitrary combination of $m$-derivatives and $C$ be a ``floating'' constant whose value can change between equations in such a way that they are consistent with the remainder term in Taylor's theorem \cite{owren}
 \begin{equation*}
 	y(\boldsymbol{x}+\boldsymbol{h}) = \sum_{m=0}^n \frac{1}{m!} \left ( \boldsymbol{h} \cdot \nabla \right)^m y(\boldsymbol{x}) + C D^{n+1} y(\boldsymbol{x} + \boldsymbol{\theta}).
 \end{equation*}
@@ -506,24 +506,27 @@ For simplicity, we \emph{define} $D^m = \sum_{n=0}^m c_n \partial_x^m \partial_y
 \begin{theorem}[Five point stencil stability]\label{thm:five}
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^2 \inorm{D^4 u}.
+\inorm{u - v} \leq C h^2 \abs{D^4 u}_\infty,
 $$
+where $C$ is some constant and $\abs{D^4 u}_\infty = \max_{m=0}^4 \abs{\partial_x^m \partial_y^{4-m} u}$.
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5},
 $$
 \inorm{u - v} \leq \frac18 \inorm{\nabla_5^2 (u  - v)}.
 $$
-Taylor expand all terms in $\nabla_5^2 u$ around the center to first order to get
+Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to get
 \begin{equation}
-  \nabla_5^2 u = \nabla^2 u + C h^2 D^4 u \leq f + Ch^2 \inorm{D^4 u}.
+  \nabla_5^2 u = \nabla^2 u + h^2 \Oh(\partial^4 u) + \Oh(h^4) \leq f + Ch^2 \abs{D^4 u}_\infty,
 \label{eq:pde:taylornabla2}
 \end{equation}
+where $\Oh(\partial^4 u)$ is the combination of $4$-derivatives that appear in the expansion.
+Terms with odd powers of $h$ vanish due to the symmetry of the stencil.
 Finally, substitute $f = \nabla_5^2 v$ to conclude that
 \begin{equation*}
   \inorm{u - v}
   \leq \frac18 \inorm{\nabla_5^2 (u  - v)}
-  \leq C h^2 \inorm{D^4 u}. \qedhere
+  \leq C h^2 \abs{D^4 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
@@ -532,29 +535,31 @@ Finally, substitute $f = \nabla_5^2 v$ to conclude that
 \begin{theorem}[Nine point stencil stability]\label{thm:nine}
 If $\nabla^2 u = f$ and $\nabla_9^2 v = f + \frac{1}{12} \nabla_5^2 f$ and $u = v$ on $\partial \Omega$, then
 $$
-\inorm{u - v} \leq C h^4 \inorm{D^6 u}.
+\inorm{u - v} \leq C h^4 \abs{D^6 u}_\infty,
 $$
+where $C$ is some constant and $\abs{D^6 u}_\infty = \max_{m=0}^6 \abs{\partial_x^m \partial_y^{6-m} u}$.
 \end{theorem}
 \begin{proof}
 By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
 $$
 \inorm{u - v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - v)}.
 $$
-Taylor expand all terms in $\nabla_9^2 u$ around the center as in the former proof to get
+Taylor expand all terms in $\nabla_9^2 u$ around the center of the stencil as in the former proof to get
 \begin{equation*}
-\nabla_9^2 u = \nabla^2 u + \frac{h^2}{12} \nabla^4 u + Ch^4 D^6 u \leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \inorm{D^6 u}.
+\nabla_9^2 u = \nabla^2 u + \frac{h^2}{12} \nabla^4 u + h^4 \Oh(\partial^6 u) + \Oh(h^6) \leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \abs{D^6 u}_\infty,
 \end{equation*}
-From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \rightarrow f$, we also know that
+where $\Oh(\partial^6 u)$ is the combination of $6$-derivatives that appear in the extension.
+From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \leftrightarrow f$, we also know that
 \begin{equation*}
-\nabla^2 f \leq \nabla_5^2 f + Ch^2 \inorm{D^4 f} \leq \nabla_5^2 f + Ch^2 \inorm{D^6 u}.
+\nabla^2 f \leq \nabla_5^2 f + Ch^2 \abs{D^4 f}_\infty \leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty.
 \end{equation*}
 Together, the two Taylor expansions imply
 \begin{equation*}
-	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \inorm{D^6 u}.
+	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \abs{D^6 u}_\infty.
 \end{equation*}
 Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 v$ to conclude that
 \begin{equation*}
-  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \inorm{D^6 u}. \qedhere
+  \inorm{u-v} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - v)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
