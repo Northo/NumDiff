@@ -418,7 +418,7 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 		{red,solid},
 	};
 
-	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=north east];
+	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=south east];
 	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\addplot {0}; \addlegendentry{$N=30000$};
 	\addplot {0}; \addlegendentry{$N=40000$};
@@ -438,7 +438,7 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 
 	\nextgroupplot[title={Crank-Nicolson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={
 		{red,thick},{blue,semithick},{green,thin}
-	}, legend entries={$N=100$,$N=200$,$N=300$},
+	}, legend entries={$N=100$,$N=200$,$N=300$}, legend pos=south east,
 	];
 	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\pgfplotsinvokeforeach{800} {
