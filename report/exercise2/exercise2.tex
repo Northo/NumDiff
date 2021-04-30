@@ -1,21 +1,20 @@
 \section{Heat equation in one dimension}
 \label{heat-equation}
-In this section, we consider the one-dimensional heat equation for $u = u(x, t)$, 
+In this section, we consider the heat equation for $u = u(x, t)$ in one spatial dimension, 
 \begin{equation*}
     u_t = u_{xx}, \quad u(x, 0) = f(x), \quad x \in [0,1] := \Omega, 
     \label{eq:heat-eq}
 \end{equation*}
-with either Neumann or Dirichlet boundary conditions, 
-and solve it numerically using both the Backward Euler method and Crank-Nicolson method. 
-These are, 
-as we will later see, 
-$\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively, 
-and we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. 
+with either Neumann or Dirichlet boundary conditions. 
+We solve it numerically using both the Backward Euler method and the Crank-Nicolson method, 
+which as we will later see, 
+are $\mathcal{O}(k+h^2)$ and $\mathcal{O}(k^2+h^2)$ methods respectively. 
+Then we will analyze and compare their convergence using mesh refinement as we did in section \ref{task_1}. 
 We will do refinement of the grids in both the $x$-direction and the $t$-direction, 
 however we will here restrict our attention to uniform grids only. 
 
 \subsection{Numerical solution method}
-To solve the heat equation numerically we first perform semi-discretization, 
+To solve the heat equation numerically, we first perform semi-discretization, 
 i.e. we do spatial discretization and keep the time continous. 
 As in section \ref{task_1}, 
 we divide the interval $\Omega$ into $M+2$ equidistant nodes with separation $h=1/(M+1)$, 
@@ -194,6 +193,8 @@ similar to what we did in section \ref{task_1}.
 %\end{figure}
 
 \subsection{Convergence and mesh refinement}
+We will now demonstrate how how the methods used in this section converge, depending on the mesh refinement.
+
 We denote the exact solution evaluated at the discrete grid points as $u_m^n = u(x_m, t_n)$. 
 Inserting this into the finite difference formula \eqref{eq:theta-heat-raw} gives rise to an additional term $\tau_m^n$, 
 since the difference formula is not satisfied by the exact solution. 

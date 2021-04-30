@@ -9,10 +9,12 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
-Consider the inhomogeneous Biharmonic equation with clamped boundary conditions on $\Omega = [0, 1]^2$:
+In this section, we will consider the inhomogeneous, two-dimensional Biharmonic equation, with clamped boundary conditions on the domain $\Omega = [0, 1]^2$:
 \begin{equation}\label{eq:PDE}
 	\nabla^4 u = f \,\,\, \text{in} \,\,\, \Omega , \qquad u = \nabla^2 u = 0 \,\,\, \text{on} \,\,\, \partial\Omega.
 \end{equation}
+We will use finite difference methods, building on the work from all previous sections, and implementing a specialized \emph{Fast Poisson Solver} to demonstrate a highly efficient approach to the problem.
+
 
 \subsection{Analytical solution}
 TODO: Trenger vi å skrive ut $\nabla^4$ noe sted, slik de gjør i oppgaven, eller er det for basic?
@@ -115,7 +117,7 @@ Plug this Fourier series into \cref{eq:PDE} and act with the biharmonic operator
 \begin{equation*}
 \nabla^4 u(x,y) = \fourierseries{\left((m\pi)^2+(n\pi)^2\right)^2 \hat{u}_{mn}}{m}{n} = f(x,y).
 \end{equation*}
-For simplicity, we \textbf{restrict ourselves to sources that can also be written}
+For simplicity, we \emph{restrict ourselves to sources that can also be written}
 \begin{equation}
 	f(x,y) = \fourierexpand{f}.
 \end{equation}
@@ -917,19 +919,43 @@ The result, which was found using a computer algebra system, is somewhat lengthy
 
 
 According to equation \eqref{eq:PDE-poisson} we split the equation into a system of poisson equations by introducing a new function $g$:
-\begin{align*}
+\begin{align}\label{eq:biharmonic_poisson}
   \begin{split}
     \nabla^2g &= f,\\
     \nabla^2u &= g,\\
     g = u &= 0,\quad \text{ on } \partial \Omega.
   \end{split}
-\end{align*}
+\end{align}
 It is now simply a matter of applying the described Fast Poisson Solver sequentially for the two equations.
 
 The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
+\subsubsection{Possible improvement to the Biharmonic solver with nine point stencil}
+The fourth order nine point stencil may be written as
+\begin{equation}\label{eq:nine_point_stencil}
+  \nabla_9^2 U
+  = \left(I + \frac{h^2}{12} \nabla_5^2\right) F.
+\end{equation}
+Recall that the five point stencil on the right hand side emerged as a consequence of
+$\inorm{(\nabla^2 - \nabla_5^2)u} = \frac{h^2}{12}\nabla^2 f$
+to order $h^2$.
+The laplace operator was later approximated using the five point stencil, after it was shown that this conserved the fourth order convergence, resulting in \eqref{eq:nine_point_stencil}.
+
+Return now to the Biharmonic equation.
+Upon solving the second Poisson equation in \eqref{eq:biharmonic_poisson}, the nine point stencil equation is
+\begin{equation}
+    \nabla_9^2 U
+    = \left(I + \frac{h^2}{12} \nabla_5^2\right) G.
+\end{equation}
+However, we already have an exact expression for $\nabla^2 g$ -- the inhomogenity $f$!
+Thus, we may solve the equation 
+\begin{equation}
+    \nabla_9^2 U
+    = \left(G + \frac{h^2}{12} F\right),
+\end{equation}
+and have thus eluded the computation of $\nabla_5^2 G$.
 
 \newcommandx{\showSurf}[4][4=faceted]{  %% filename, N, labelZ, shader
   \begin{tikzpicture}

@@ -1,4 +1,4 @@
-\section{Poisson equation in one dimension with finite elements}
+\section{Poisson equation in one dimension using finite elements}
 
 \newcommand\basisexpand[2]{\sum_{i=0}^{M+1} #1_i \varphi_i(#2)}
 
@@ -8,6 +8,7 @@ In this section, we will again solve the Poisson equation
 	\label{poisson_equation2}
 \end{equation}
 subject to Dirichlet conditions, but this time using finite elements instead of finite differences.
+Both uniform and adaptive approaches to the grid refinement will be implemented, and we will compare these methods.
 
 \subsection{Analytical solution}
 
@@ -19,18 +20,18 @@ u(x) = C_1 + C_2 x - \int^x \dif x' \int^{x'} \dif x'' f(x'').
 
 \subsection{Weak formulation for the exact solution}
 
-To derive a finite element method, we will first derive a \textbf{weak formulation} of \ref{poisson_equation2} in a way inspired by \cite{curry}.
+To derive a finite element method, we will first derive a \emph{weak formulation} of \ref{poisson_equation2} in a way inspired by \cite{curry}.
 First, we split the solution into two terms
 \begin{equation}
 	u(x) = \hat{u}(x) + r(x), \quad \text{with} \quad \hat{u}(a) = \hat{u}(b) = 0 \quad \text{and} \quad r(x) = \alpha \frac{x-b}{a-b} + \beta \frac{x-a}{b-a}.
 	\label{splitting_exact}
 \end{equation}
 Note that $u''(x) = \hat{u}''(x)$ and $r(a) = \alpha$ and $r(b) = \beta$.
-The purpose of this splitting is that $\hat{u}$ solves \ref{poisson_equation2} with homogenuous Dirichlet boundary conditions, while $r(x)$ \textbf{lifts} the values at the boundaries to satisfy the inhomogenuous boundary conditions.
+The purpose of this splitting is that $\hat{u}$ solves \ref{poisson_equation2} with homogenuous Dirichlet boundary conditions, while $r(x)$ \emph{lifts} the values at the boundaries to satisfy the inhomogenuous boundary conditions.
 
-Now insert \ref{splitting_exact} into \cref{poisson_equation2}, multiply it by an arbitrary \textbf{trial function} $v(x)$ and integrate both sides from $a$ to $b$.
+Now insert \ref{splitting_exact} into \cref{poisson_equation2}, multiply it by an arbitrary \emph{trial function} $v(x)$ and integrate both sides from $a$ to $b$.
 We let $v(a) = v(b) = 0$ and use integration by parts on the left, dropping the boundary term $-[u'(x) v(x)]_a^b$.
-This gives the \textbf{weak formulation} of the problem:
+This gives the \emph{weak formulation} of the problem:
 \newcommand{\weakform}[3]{
 \text{Find} \,\, \hat{#1}(x) \,\, \text{such that}
 \quad
@@ -47,8 +48,7 @@ Any $u(x)$ that solves \ref{poisson_equation2} also solves \ref{weak_form_exact
 
 \subsection{Weak formulation for the approximate solution}
 
-We have not made any approximations yet.
-The approximation lies in seeking a solution $U(x) \approx u(x)$ that belongs to a function space different from the one in which the exact solution $u(x)$ belongs.
+We have not made any approximations yet, but we will now do so, by seeking a solution $U(x) \approx u(x)$ that belongs to a function space different from the one in which the exact solution $u(x)$ belongs.
 Here, we suppose $U(x)$ lies in the space of piecewise linear functions.
 We will then repeat the process above to derive a weak formulation for $U(x)$, similarly as for the exact solution.
 
@@ -57,7 +57,7 @@ To see how this works, we first divide the interval $[a, b]$ into the grid
 	a = x_0 < x_1 < \dots < x_M < x_{M+1} = b
 	\label{fem_grid}
 \end{equation}
-and let $U(x)$ be piecewise linear in each \textbf{finite element} $[x_i, x_{i+1}]$.
+and let $U(x)$ be piecewise linear in each \emph{finite element} $[x_i, x_{i+1}]$.
 Similarly to $u(x)$, we split the approximate solution into
 \begin{equation}
 	U(x) = \hat{U}(x) + R(x), \quad \text{with} \quad \hat{U}(a) = \hat{U}(b) = 0 \quad \text{and} \quad R(x) = 
@@ -142,7 +142,7 @@ This is the matrix equation we will solve to find $U(x)$.
 After finding $\hat{U}$, we simply sum \ref{expansion} and add $R(x)$ to find $U(x)$.
 Note that our particular choice of basis \ref{basisfunction} gives the convenient property $U(x_i) = U_i$, so summing is not necessary in practice, and we can instead interpolate $U_i$ between $x_i$ to obtain $U(x)$.
 
-To solve \ref{fem_matrixeq}, we must first calculate the so-called \textbf{stiffness matrix} $A$ and the \textbf{load vector} F.
+To solve \ref{fem_matrixeq}, we must first calculate the so-called \emph{stiffness matrix} $A$ and the \emph{load vector} F.
 The former involves only the known basis functions and gives nonzero entries
 \begin{align*}
 	A_{00} = \frac{1}{x_1 - x_0}                           \qquad & \qquad A_{M+1 M+1} = \frac{1}{x_{M+1}-x_M} \\
@@ -231,7 +231,8 @@ $f(x) = 2x^{-4/3}/9$, \quad $u(0) = 0$, \quad $u(1) = 1$
 
 \subsubsection{Uniform refinement}
 
-We test our method on four problems, shown in \cref{femumr}, with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
+We now test our method on four problems, all with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
+The results are shown in \cref{femumr}.
 
 The approximate solutions resembles the exact solution with few points.
 For the symmetric Gaussian problems, it is vital to choose an odd number of grid points to capture the spike in the center.
@@ -313,26 +314,26 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.19/x^2} node [pos=0.38,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f1-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f1-convergence.dat};
-	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f1-convergence.dat};
+	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f1-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$}];
 	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {22/x^2} node [pos=0.45,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f2-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f2-convergence.dat};
-	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f2-convergence.dat};
+	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f2-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$}, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
 	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {122/x^2} node [pos=0.55,pin={0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f3-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f3-convergence.dat};
-	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f3-convergence.dat};
+	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f3-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
 	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.37,pin={30:$\Oh(h^{1.15})$}] {};
 	%\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.25/x^2} node [pos=0.45,pin={270:$\Oh(h^{2})$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f4-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f4-convergence.dat};
-	\addplot table [x=M3, y=E3] {exercise5/data/convergence/f4-convergence.dat};
+	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f4-convergence.dat};
 
 \end{groupplot}
 \end{tikzpicture}
