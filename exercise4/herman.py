@@ -108,9 +108,14 @@ def animate_solution(x, t, u1, u2=None):
 
 def norm_evolution(plot=False, write=False):
     runs = [
-        {"method": "forward-euler", "M": 15, "N": [30000, 40000, 50000]},
-        {"method": "forward-euler", "M": 20, "N": [30000, 40000, 50000]},
-        {"method": "forward-euler", "M": 25, "N": [30000, 40000, 50000]},
+        #{"method": "forward-euler", "M": 15, "N": [30000, 40000, 50000]},
+        #{"method": "forward-euler", "M": 20, "N": [30000, 40000, 50000]},
+        #{"method": "forward-euler", "M": 25, "N": [30000, 40000, 50000]},
+        {"method": "crank-nicholson", "M": 20, "N": [100, 200, 300]},
+        {"method": "crank-nicholson", "M": 30, "N": [100, 200, 300]},
+        {"method": "crank-nicholson", "M": 100, "N": [100, 200, 300]},
+        {"method": "crank-nicholson", "M": 200, "N": [100, 200, 300]},
+        {"method": "crank-nicholson", "M": 400, "N": [100, 200, 300]},
         {"method": "crank-nicholson", "M": 800, "N": [100, 200, 300]},
     ]
 
