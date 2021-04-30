@@ -105,7 +105,7 @@ Now $u(x,y) = u(x+2,y) = u(x,y+2)$ is periodic in both directions with period $
 \begin{equation*}
 	u(x,y) = \sum_{m=-\infty}^{+\infty} \sum_{n=-\infty}^{+\infty} \hat{u}_{mn} e^{i 2 \pi m x / 2} e^{i 2 \pi n y / 2}.
 \end{equation*}
-Multiply by $e^{i 2 \pi m' x / 2} e^{i 2 \pi n' y / 2}$, integrate over $x$ and $y$ and use orthogonality to find the coefficients
+Multiply by $e^{-i 2 \pi m' x / 2} e^{-i 2 \pi n' y / 2}$, integrate over $x$ and $y$ and use orthogonality to find the coefficients
 \begin{equation*}
 	\hat{u}_{mn} = \frac{1}{4} \integraltwo{u(x,y) e^{-i 2 \pi m x / 2} e^{-i 2 \pi n y / 2}}{x}{y}{-1}{+1}{-1}{+1}.
 \end{equation*}
@@ -857,17 +857,17 @@ Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete 
 	$$
 }
 Instead of solving the systems \ref{eq:pde:matrixequations}, we can instead calculate
-\begin{equation*}
+\begin{equation}
 U = h^2 \text{IDST}(\text{DST}(F_n) / \Lambda)
-\end{equation*}
+\label{eq:pde:fpsequations}
+\end{equation}
 where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
 This is the awaited and much more efficient Fast Poisson Solver.
 Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or contiuous source and basis functions.
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
-(TODO: do we know this from section \ref{sec:pde:anal}?)
-From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
+The solution to this manufactured problem is
 $$
 u(x, y) =
 \frac{
@@ -880,7 +880,7 @@ $$
 The mesh refinement is done with the same number of discretization points in $x$- and $y$-direction.
 The values used are $N = N_x = N_y = \{8, 16, 32, 64, 128, 256\}$.
 The solution is shown in figure \ref{fig:pde:order_solution}.
-The relative error as a function of $N$ is shown in figure \ref{fig:pde:order}.
+The relative error as a function of $N^2$ is shown in figure \ref{fig:pde:order}.
 As expected, the error for the five point stencil goes as $h^2$ while the error for the nine point stencil goes as $h^4$.
 
 
@@ -888,31 +888,30 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
   \centering
   \begin{subfigure}[t]{0.48\textwidth}
     \showSurf{./PDE/solution_PoissonSolver_N_37.dat}{39}{$U(x, y)$}
-    \caption{The approximated solution $U(x, y)$.}
+    \caption{The numerical solution $U(x, y)$ on a $37 \times 37$ grid.}
     \label{fig:pde:order_solution}
   \end{subfigure}
   ~
   \begin{subfigure}[t]{0.48\textwidth}
 
     \centering \input{./PDE/order.pgf}
-    \caption{Relative error.
-      Also shown are $Ch^2$ and $Ch^4$, which are the expected convergence rates of the five and nine point stencil respectively.
-      The constants are chosen such that the $h^2$ and $h^4$ line appears close to the stencil errors.
-      First axis shows degrees of freedom $N^2$, where $N$ is the number of internal discretization points in one direction.
+    \caption{
+	  Relative errors for the $5$-point and $9$-point stencil with fitted lines showing the expected $\Oh(h^2)$ and $\Oh(h^4)$ convergence rates.
+	  $N^2$ is the degrees of freedom.
     }
     \label{fig:pde:order}
   \end{subfigure}
-  \caption{Solving the Poisson equation on the manufactured problem $f=-\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$, with analytical solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2)$.
-    Solved with equal number of discretization points in $x$ and $y$ direction.
-    Subfigure \subref{fig:pde:order_solution} shows the analytical solution $u$, while \subref{fig:pde:order} shows the relative error for the five and nine point stencil.
+  \caption{
+    Numerical solution of the Poisson equation on the problem $f=-\sin(m \pi x)\sin(n\pi y), m = 3, n=4$, on a $N \times N$ grid.
+	The analytical solution is $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2)$.
+    Subfigure \subref{fig:pde:order_solution} shows the analytical solution $u$, while \subref{fig:pde:order} shows the relative errors from the five and nine point stencil.
   }
 \end{figure}
 
 
 \subsection{Solving the Biharmonic equation}
 \label{sec:pde:solving}
-We will now solve \eqref{eq:PDE} numerically on a manufactured problem.
-Let
+We will now solve \eqref{eq:PDE} numerically on the manufactured problem with the solution
 $$
 u(x, y) =
 \left(
@@ -921,25 +920,13 @@ u(x, y) =
 \right)^4
 e^{-(x-0.5)^2 - (y-0.5)^2}.
 $$
-The inhomogenity $f$ is simply found by calculating $\nabla^4 u$.
-The result, which was found using a computer algebra system, is somewhat lengthy, and therefore only included as an appendix for the sake of readability.
+We find the inhomogenity $f$ by simply calculating $\nabla^4 u$ with a CAS.
+The result is long and shown in the appendix.
+We find the numerical solution $U$ by solving one of the traditional matrix equations \ref{eq:pde:matrixequations} twice or using the Fast Poisson Solver \ref{eq:pde:fpsequations} twice.
+First we solve $\nabla^2 g = f$ to find $G \approx g$, then we solve $\nabla^2 u = G$ to find $U \approx u$.
 
-
-
-According to equation \eqref{eq:PDE-poisson} we split the equation into a system of poisson equations by introducing a new function $g$:
-\begin{align}\label{eq:biharmonic_poisson}
-  \begin{split}
-    \nabla^2g &= f,\\
-    \nabla^2u &= g,\\
-    g = u &= 0,\quad \text{ on } \partial \Omega.
-  \end{split}
-\end{align}
-It is now simply a matter of applying the described Fast Poisson Solver sequentially for the two equations.
-
-The numerical solution is shown in figure \ref{fig:pde:bvp}.
-In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
-(TODO: we could probably have solved for higher numbers... maybe change to ``we solved for ...'')
-We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
+In \cref{fig:pde:lasttask}, we present the inhomogenity $f$, the numerical solution $U$, the relative errors between $u$ and $U$ from both stencils and compare computation times from a sparse matrix solver and the Fast Poisson Solver.
+We solved the equation on grids ranging in size from $N \times N = 8 \times 8$ to $3000 \times 3000$.
 
 \subsubsection{A possible improvement to the Biharmonic solver with nine point stencil}
 The fourth order nine point stencil may be written as
@@ -1077,6 +1064,7 @@ and have thus eluded the computation of $\nabla_5^2 G$.
     e^{-(x-0.5)^2 - (y-0.5)^2}$.
     Figure \subref{fig:pde:bvp_convergence} shows the relative error using the nine point stencil, while figure \subref{fig:pde:bvp_time} shows the computation time.
     Both are plottet with degrees of freedom on the first axis, the total number of internal points $N^2$.
+    \label{fig:pde:lasttask}
   }
 \end{figure}
 
