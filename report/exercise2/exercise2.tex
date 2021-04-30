@@ -227,7 +227,7 @@ By repeating the same discussion as we did for the global discretization error i
 just extended to include also the temporal dimension, 
 one can show the same result. 
 Namely that the global error is expected to converge with the same rate as the local error $\tau_m^n$, 
-and so we end up with the convergence orders of $\Oh(k+h^2)$ for Backwar Euler and $\Oh(k^2+h^2)$, 
+and so we end up with the convergence orders of $\Oh(k+h^2)$ for Backward Euler and $\Oh(k^2+h^2)$, 
 as advertised. 
 
 As in section \ref{task_1} we now analyze the convergence of the numerical solution methods 
@@ -238,7 +238,7 @@ The reason for which we exclude the forward Euler method is that it is only stab
 and such a condition would impose impractical restrictions on the grids and the refinement \cite{owren}. 
 Backward Euler and Crank-Nicolson however, are unconditionally stable \cite{owren}. 
 Later on when we study the Linearized Kortweg-de Vries equation in section \ref{task4}, 
-we show this by applying Von Neumann analysis on the forward Euler and Crank-Nicolson methods. 
+we show this by applying Von Neumann stability analysis on the forward Euler and Crank-Nicolson methods. 
 
 We start by refining the spatial grid $x_m$ sepparately, 
 and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 

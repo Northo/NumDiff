@@ -240,13 +240,45 @@ Using the method described above, the solution to equation \ref{ex3:eq:laplace} 
     \caption{The numerically computed solution to the Laplace equation defined in equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, for a uniform grid with $N = M = 100$.}
     \label{ex3:fig:heat_map}
 \end{figure}
-An error analysis showing the error with varying grid resolutions in both the $x$- and the $y$-direction is presented in \ref{ex3:fig:convergence_plot}.
+
+Now, as before, we want to perform uniform mesh refinement to analyze the convergence of the difference scheme. 
+To find the expected convergence rate we first find the local error by following the same procedure of inserting the analytical solution into the difference scheme, 
+and taking the arising discrepancy term as the local truncation error $\tau_m^n$. 
+Then we Taylor expand $\tau_m^n$, and we do this now using the computer algebra tool \textit{sagemath}. 
+The result is 
+\begin{align*}
+    \tau_m^n & = \frac{1}{12}h^2\partial_x^4 u_m^n + \frac{1}{12}k^2\partial_y^4 u_m^n + \Oh(k^4 + h^4)\\
+             & = \Oh(k^2 + h^2). 
+\end{align*}
+With this we are ready perform an error analysis by refinement of the grid resolutions in both the $x$- and the $y$-direction. 
+We start by refining solely in the $x$-direction, varying $M$ and keeping $N$ constant, 
+then we switch it around, refining the in the $y$-direction, i.e. keep $M$ constant while varying $N$. 
+Finally we do simultaneous refinement in both directions, keeping $c = N/M$ constant, 
+and specifically we set $c=1$ so that $N = M$. 
+
+For the three refinment cases, 
+we get that the number of degrees of freedom scales as 
+\begin{align*}
+    N_{\text{dof}} & = MN = \Oh\left(\frac{1}{c}\frac{1}{h}\right) = \Oh(h^{-1}) & \text{for} \: N = c = constant, \\
+    N_{\text{dof}} & = MN = \Oh\left(\frac{1}{k}\frac{1}{c}\right) = \Oh(k^{-1}) & \text{for} \: M = c = constant, \\
+    N_{\text{dof}} & = MN = \Oh\left(\frac{1}{h}\frac{1}{h}\right) = \Oh(h^{-2}) & \text{for} \: 1 = \frac{N}{M}.
+\end{align*}
+Which in turn lets us express the order of convergence as 
+\begin{align*}
+    \Oh(h^2) & = \Oh(N_{\text{dof}}^{-2}) & \text{for} \: N = constant, \\
+    \Oh(k^2) & = \Oh(N_{\text{dof}}^{-2}) & \text{for} \: M = constant, \\
+    \Oh(h^2 + k^2) & = \Oh(h^2 + h^2) = \Oh(h^2) = \Oh(N_{\text{dof}}^{-1}) & \text{for} \: 1 = \frac{N}{M}.
+\end{align*}
+
 \begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
     \caption{Convergence plot showing the relative error in the computation of the Laplace equation -- equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, when varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
     \label{ex3:fig:convergence_plot}
 \end{figure}
+
+\textbf{Will revise this to soon:}
+The resulting convergence plot is presented in \ref{ex3:fig:convergence_plot}. 
 We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal -- that is, of the same order of magnitude -- and further to order $\Oh(h^0)$ as the difference grows.
 The convergence plot shows that varying the grid size in either direction when $M \approx N$, converges to first order.
 However, when $M \neq N$, varying the smaller one increases accuracy to second order, and increasing the largest one, yields almost no gain in accuracy.
