@@ -364,12 +364,16 @@ The second stencil picks out neighbours located diagonally from the center point
 
 Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde:stencilequation} that we will solve are
 \begin{equation}
-\begin{alignedat}{2}
-	K_5 U &= h^2 F
+\begin{alignedat}{4}
+	K_5 U &= h^2 F_5
 	&& \qquad \text{with} \qquad
+	F_5 = F
+	&& \qquad \text{and} \qquad
 	K_5 = J_5 \oplus J_5 \\
-	K_9 U &= h^2 \left(I + \frac{1}{12} K_5 \right) F 
+	K_9 U &= h^2 F_9
 	&& \qquad \text{with} \qquad
+	F_9 = \left( I + \frac{1}{12}K_5 \right) F
+	&& \qquad \text{and} \qquad
 	K_9 = J_9 \oplus J_9 + \Sigma \otimes \Sigma.
 \end{alignedat}
 \label{eq:pde:matrixequations}
@@ -825,14 +829,11 @@ Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete 
 }
 Instead of solving the systems \ref{eq:pde:matrixequations}, we can instead calculate
 \begin{equation*}
-U_n = \frac{1}{h^2} \text{IDST}(\text{DST}(F_n) / \Lambda)
-\qquad \text{with} \quad
-F_5 = F
-\quad \text{or} \quad
-F_9 = \left (I + \frac{1}{12} K_5 \right) F,
+U = \frac{1}{h^2} \text{IDST}(\text{DST}(F_n) / \Lambda)
 \end{equation*}
 where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
-(TODO: establish the convention with $F_n$ already in \ref{eq:pde:matrixequations}?)
+This is the awaited and much more efficient Fast Poisson Solver.
+Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or contiuous source and basis functions.
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
