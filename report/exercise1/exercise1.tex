@@ -156,14 +156,16 @@ To the right of each solution plot is the corresponding convergence plot,
 resulting from refinement of the uniform grid. 
 The convergence plots show the computed relative errors at varying grid resolution, 
 together with the expected convergence rate. 
-We find the expected convergence rate by inserting the exact solution into the finite difference formula \eqref{eq:task1-finite-diff-approx}. 
+
+To find the expected convergence rate, we start by insert the exact solution into the finite difference formula \eqref{eq:task1-finite-diff-approx}. 
 This gives rise to an additional term, 
 the \textit{local truncation error} $\tau_m$, 
 since the equality in the formula does not hold for the exact solution. 
 We get that 
-\begin{equation*}
+\begin{equation}
     \tau_m = \frac{u_{m-1}-2u_m+u_{m+1}}{h^2} - f_m. 
-\end{equation*}
+    \label{eq:task1-truncation-error}
+\end{equation}
 We now Taylor expand the terms around $u_m$, 
 and the only difference between the expansion of $u_{m-1} = u(x_m - h)$ and the expansion of $u_{m+1}=u(x_m+h)$, 
 is the sign in front of the odd-order terms, which therefore cancel. 
@@ -172,9 +174,29 @@ The expansion of the truncation error is thus
     \tau_m & = \frac{1}{h^2}\left(-2u_m + 2u_m + 2\frac{h^2}{2}\partial_x^2 u_m + 2\frac{h^4}{24}\partial_x^4 u_m + \Oh(h^6) \right) - f_m\\
            & = \partial_x^2 u_m + \frac{h^2}{12}\partial_x^4 u_m + \Oh(h^4) - f_m \\
            & = \frac{h^2}{12}\partial_x^4 u_m + \Oh(h^4) \\
-           & = \Oh(h^2), 
+           & = \Oh(h^2). 
 \end{align*} 
-and the convergence is therefore expected to be of second order. 
+
+For relating the local error $\tau_m$ to the global error and the expected convergence rate, 
+we will for brievety just provide a slightly rough discussion. 
+By rearanging \eqref{eq:task1-truncation-error} and subtracting it from equation \eqref{eq:task1-finite-diff-approx}, 
+we can express the discretization error $e_m = U_m - u_m$ implicitly by 
+\begin{equation*}
+    \frac{1}{h^2}\delta^2(u_{m} - U_m) = \frac{1}{h^2}\delta^2e_m = \tau_m. 
+\end{equation*}
+Defining the vectors $E = [e_1, \dots, e_m]$ and $\tau = [\tau_1, \dots, \tau_m]$, 
+we can write this on matrix form so that 
+\begin{equation*}
+    A'E = \tau. 
+\end{equation*}
+The matrix $A'$ can be shown to be invertible, 
+and for matrix norms subordinate to both the $L_2$ continous function norm, and the $l_2$ discrete vector norm, 
+on can also show that $\|(A')^{-1}\|$ is bounded. 
+This means that 
+\begin{equation*}
+    \|E\| = \| (A')^{-1} \tau_m \| \leq \| (A')^{-1} \| \dot \| \tau_m \| = C\|\tau\|. 
+\end{equation*}
+Thus we can expect that the global error converges as the local truncation error. 
 
 Our approach to handling the boundary conditions is not the only possible approach.
 The system of equations is equivalent if we remove the first row and column of $A$ and the first entries in $U$ and $b$, but simultaneously modify the entry $f(x_1) \rightarrow f(x_1) - a/h^2$.
