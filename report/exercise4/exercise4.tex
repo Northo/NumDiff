@@ -179,14 +179,17 @@ Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to
 \node at ($(group c3r1) + (0,-2.5cm)$) {\pgfplotslegendfromname{thelegend}};
 \end{tikzpicture}
 %\caption{\label{sine_evolution}Time evolution of the numerical solution from the Crank-Nicolson method compared with the exact solution $\sin(\pi(x-t))$. The numerical solution is calculated using $M=800$ spatial grid points and $N=100$ temporal grid points.}
-\caption{\label{sine_evolution}Comparison between the time evolution of the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicolson method with $h=1/799$ and $k=1/99$.}
+\caption{\label{sine_evolution}
+  Comparison between exact and numerical solution to the Linearized Korteweg-de Vries equation in one dimension.
+  Shown are the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicolson method with $h=1/799$ and $k=1/99$.
+}
 \end{figure}
 
 Next, we test our numerical solution on the problem defined by the initial condition $u(x, 0) = \sin(\pi x)$ on $x \in [-1, +1]$ with $L = 2$.
 The analytical solution \ref{fourier_series} then gets nonzero contributions only from $n = \pm 1$, which gives the analytical solution $u(x, t) = \sin(\pi(x-t))$.
 As shown in \cref{sine_evolution}, the solution represents a sine wave traveling with velocity $1$ to the right.
 
-In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Forward Euler method and the Crank-Nicolson method.
+In \cref{ex4_euler_vs_crank_snapshtos}, we compare snapshots of the numerical solution at $t = 1$ from the Forward Euler method and the Crank-Nicolson method.
 Note that the Crank-Nicolson method approaches the exact solution with only $N=10$ time steps and under hundred spatial grid points $M$.
 In contrast, the Forward Euler method seems to become unstable as the spatial resolution is increased, even with $N=100000$ time steps.
 
@@ -223,7 +226,8 @@ The Crank-Nicolson method remains stable with much fewer time steps and much fin
 \end{axis}
 \end{tikzpicture}
 \caption{\label{ex4_euler_vs_crank_snapshots}
-	Snapshots of the numerical solution $U(x,1)$ and the exact solution $u(x,1)$ for a constant number of time steps $N$, but varying number of grid points $M$ with the Forward Euler and Crank-Nicolson method.
+	Snapshots of the numerical solution $U(x,1)$ and the exact solution $u(x,1)$ to the Linearized Korteweg-de Vries equation in one dimension for a constant number of time steps $N$, but varying number of grid points $M$.
+  Both the Forward Euler and Crank-Nicolson method was used.
 	The left plot is meant to demonstrate the downfall of the Euler method and is not supposed to look pretty.
 }
 \end{figure}
@@ -258,7 +262,8 @@ The Crank-Nicolson method remains stable with much fewer time steps and much fin
 }
 \end{loglogaxis}
 \end{tikzpicture}
-\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots with the discrete $L_2$ error of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicolson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
+\caption{\label{ex4_euler_vs_crank_convergence}
+  Convergence plots with the discrete $L_2$ error for the Forward Euler and Crank-Nicolson method applied on the Linearized Korteweg-de Vries equation in one dimension, with the manufactured solution  $u(x,t) = \sin(\pi(x-t))$.}
 \end{figure}
 
 \subsection{Stability analysis}
@@ -376,10 +381,10 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
         ]
 	      \pgfplotsinvokeforeach{0,1,...,11} {
 		      \ifthenelse{\equal{#1}{0}}{
-		        \nextgroupplot[ylabel={$u(x,t)$}];
+		        \nextgroupplot[ylabel={$U(x,t)$}];
 		      }{
 			      \ifthenelse{\equal{#1}{6}}{
-				      \nextgroupplot[ylabel={$u(x,t)$},xlabel=$x$];
+				      \nextgroupplot[ylabel={$U(x,t)$},xlabel=$x$];
 			      }{
 				      \ifthenelse{#1>6}{
 					      \nextgroupplot[xlabel=$x$];
@@ -427,7 +432,10 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
       \end{axis}
     \end{tikzpicture}
   \end{subfigure}
-  \caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(-x^2/0.1)$ computed from the Crank-Nicolson method on a grid with $M=800$ points in space and $N=100$ points in time.}
+  \caption{\label{gaussian_evolution}Time evolution of the Linearized Korteweg-de Vries equation in one dimension with an initial gaussian $u(x,0)=\exp(-x^2/0.1)$ computed from the Crank-Nicolson method on a grid with $M=800$ points in space and $N=100$ points in time.
+    The upper subfigure shows twelve snapshots of the approximated solution $U(x, t)$.
+    The waterfall plot is included to offer a simpler and more intuitive image of how $U$ evolves in time, and shows the first six snapshots.
+  }
 \end{figure}
 
 \begin{figure}[!ht]
@@ -454,7 +462,7 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 		{red,solid},
 	};
 
-	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=south east];
+	\nextgroupplot[title={Forward Euler}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=south east];
 	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\addplot {0}; \addlegendentry{$N=30000$};
 	\addplot {0}; \addlegendentry{$N=40000$};
@@ -472,20 +480,33 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 	\pgfplotscreateplotcyclelist{mycyclee}{
 	};
 
-	\nextgroupplot[title={Crank-Nicolson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={
-		{red,thick},{blue,semithick},{green,thin}
-	}, legend entries={$N=100$,$N=200$,$N=300$}, legend pos=south east,
+	\nextgroupplot[title={Crank-Nicolson}, xlabel=$t$,yticklabels={,,},cycle list name=mycycle, cycle list shift=3, legend pos=south east,
 	];
-	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
-	\pgfplotsinvokeforeach{800} {
+  \addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot {0}; \addlegendentry{$N=100$};
+	\addplot {0}; \addlegendentry{$N=200$};
+	\addplot {0}; \addlegendentry{$N=300$};
+	\pgfplotsinvokeforeach{20,800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N300}] {exercise4/norm-evolution.dat};
 	}
+
+	\draw [green!80!black] (0.7, 0.74) node {$M=20$};
+	\draw [red] (0.20, 0.7) node {$M=800$};
+	%% \addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
+	%% \pgfplotsinvokeforeach{20} {
+	%% 	\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
+	%% 	\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};
+	%% 	\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N300}] {exercise4/norm-evolution.dat};
+	%% }
 % \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Euler and the Crank-Nicolson method, on different grids.}
+\caption{\label{norm_evolution}
+  Time evolution of the discrete $L_2$-norm for the Forward Euler and Crank-Nicolson method applied to the Linearized Korteweg-de Vries equation in one dimension, with the manufactured solution  $u(x,t) = \sin(\pi(x-t))$.
+  Spatial discretization resolution $M$ and temporal discretization resolution $N$ is varied.
+}
 \end{figure}
 
 The stability of the Crank-Nicolson method and the property that it preserves the amplitude of Fourier modes make it an optimal method for equations like the Korteweg-De Vries equation, where the analytical solution is known to have a constant norm.

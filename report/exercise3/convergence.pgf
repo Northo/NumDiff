@@ -32,7 +32,7 @@
     \legend{
       {$M = 100$, varying $N$},
       {$N = 100$, varying $M$},
-      {Uniform ($N = M$)},
+      {$\frac{N}{M} = 1$},
     };
   \end{loglogaxis}
 \end{tikzpicture}
