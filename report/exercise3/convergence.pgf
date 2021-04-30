@@ -2,7 +2,7 @@
   \begin{loglogaxis}[
 %      title={Convergence plot for Laplace equation.},
       xlabel={$N_{\text{dof}} = N \times M$},
-      ylabel={Relative error},
+      ylabel={Relative error $\lVert U - u\rVert_2 / \lVert u\rVert_2$},
       xmin=50,
       xmax=200000,
       width=15cm, height=9cm,

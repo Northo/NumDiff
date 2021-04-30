@@ -947,8 +947,7 @@ The fourth order nine point stencil may be written as
   \nabla_9^2 U
   = \left(I + \frac{h^2}{12} \nabla_5^2\right) F.
 \end{equation}
-Recall that the five point stencil on the right hand side emerged as a consequence of
-$\inorm{(\nabla^2 - \nabla_5^2)u} = \frac{h^2}{12}\nabla^2 f$
+Recall from the proof of theorem \ref{thm:nine} that the five point stencil on the right hand side emerged as a consequence of $\inorm{(\nabla^2 - \nabla_9^2)u} = \frac{h^2}{12}\nabla^2 f$
 to order $h^2$.
 The laplace operator was later approximated using the five point stencil, after it was shown that this conserved the fourth order convergence, resulting in \eqref{eq:nine_point_stencil}.
 
@@ -958,13 +957,14 @@ Upon solving the second Poisson equation in \eqref{eq:biharmonic_poisson}, the n
     \nabla_9^2 U
     = \left(I + \frac{h^2}{12} \nabla_5^2\right) G.
 \end{equation}
-However, we already have an exact expression for $\nabla^2 g$ -- the inhomogenity $f$!
-Thus, we may solve the equation 
+However, we already have an exact expression for $\nabla^2 g$ -- the inhomogenity $F$!
+We replace $\nabla_5^2 G$ with $\nabla^2 g = F$, and thus, we may solve the equation
 \begin{equation}
     \nabla_9^2 U
-    = \left(G + \frac{h^2}{12} F\right),
+    = \left(G + \frac{h^2}{12} F\right)
 \end{equation}
-and have thus eluded the computation of $\nabla_5^2 G$.
+instead.
+We have thus eluded the computation of $\nabla_5^2 G$.
 
 
   %% \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
