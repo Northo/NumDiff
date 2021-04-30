@@ -9,7 +9,7 @@
             title={$l_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_{dof}$,
+            xlabel=$N_\text{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.16,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=5.2ex, legend entries={
@@ -39,7 +39,7 @@
             title={$L_2$ continous error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_{dof}$,
+            xlabel=$N_\text{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
         \addplot [black, dashed, domain=1:1e6, samples=2, forget plot] {20.0/(x)} node
