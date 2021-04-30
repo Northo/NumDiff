@@ -9,15 +9,15 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
-In this section, we will consider the inhomogeneous, two-dimensional Biharmonic equation, with clamped boundary conditions on the domain $\Omega = [0, 1]^2$:
+In this section, we will consider the inhomogeneous, two-dimensional Biharmonic equation, with clamped boundary conditions on the domain $\Omega = [0, 1]^2$,
 \begin{equation}\label{eq:PDE}
-	\nabla^4 u = f \,\,\, \text{in} \,\,\, \Omega , \qquad u = \nabla^2 u = 0 \,\,\, \text{on} \,\,\, \partial\Omega.
+	\nabla^4 u = f \,\,\, \text{in} \,\,\, \Omega , \qquad u = \nabla^2 u = 0 \,\,\, \text{on} \,\,\, \partial\Omega,
 \end{equation}
-We will use finite difference methods, building on the work from all previous sections, and implementing a specialized \emph{Fast Poisson Solver} to demonstrate a highly efficient approach to the problem.
-
+where $\nabla^2 = \partial_x^2 + \partial_y^2$ and $\nabla^4 = (\nabla^2)^2$.
+We will solve it with finite difference schemes of both second and fourth order by solving the resulting matrix equations.
+Then we will describe and implement a specialized \emph{Fast Poisson Solver} that solves the matrix equations very efficiently compared to general solvers.
 
 \subsection{Analytical solution}
-TODO: Trenger vi å skrive ut $\nabla^4$ noe sted, slik de gjør i oppgaven, eller er det for basic?
 \label{sec:pde:anal}
 \begin{figure}[b!]
 \centering
