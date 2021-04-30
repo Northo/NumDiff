@@ -283,7 +283,7 @@ With $\theta = 1/2$, the Crank-Nicolson method gives
 	G_l = \frac{1 + i k f(q_l) / 2}{1 - i k f(q_l) / 2} \quad \implies \quad \abs{G_l} = 1.
 	\label{crank_Nicolson_amplification_factor}
 \end{equation}
-The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicolson method is \textbf{unconditionally stable}.
+The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicolson method is \emph{unconditionally stable}.
 
 The Euler method has $\theta = 0$ and gives
 \begin{equation}
@@ -295,7 +295,7 @@ Since $\abs{\sin(q_l h)} \leq 1$ for all $q_l$, we can bound $f(q_l)$ by
 	\abs{f(q_l)} \leq \frac{(1+\pi^2)}{h} + \frac{1}{h^3} = \frac{1}{h^3} \left( (1+\pi^2) h^2 + 1 \right) \leq \frac{1}{h^3} \left( (1+\pi^2) L^2 + 1 \right).
 \end{equation*}
 Then $\abs{G_l} = \sqrt{1 + O(k^2 / h^6)} > 1$ for all $h$ and $k$, so each Fourier mode is amplified over time.
-But the Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} is still attained with $k \leq O(h^6)$, so the Forward Euler method is \textbf{conditionally stable}.
+But the Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} is still attained with $k \leq O(h^6)$, so the Forward Euler method is \emph{conditionally stable}.
 Only if $k/h^6 << 1$ does it remain stable, which explains the divergence for decreasing $h$ and fixed $k$ we found in \cref{ex4_euler_vs_crank_convergence} and why this is delayed by also decreasing $k$.
 
 Thus, while the Euler method in theory is stable, it is unstable for practical combinations of $k$ and $h$.
