@@ -11,7 +11,7 @@ where the solution $u = u(x,t)$ is subject to the periodic boundary condition
 u(x+L, t) = u(x, t).
 \label{ex5:eq:boundary_conditions}
 \end{equation}
-The equation will be solved using the forward Euler and Crank-Nicolson method, and we will conduct a stabiity analysis, showing that -- in this paricular case -- the choice of method is crucial.
+The equation will be solved using the forward Euler and Crank-Nicolson method, and we will conduct a stability analysis, showing that -- in this particular case -- the choice of method is crucial.
 
 \subsection{Analytical solution}
 
@@ -166,7 +166,7 @@ Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to
 	\pgfplotsinvokeforeach{0,1,...,4} {
 		\ifthenelse{\equal{#1}{0}}{
 		\nextgroupplot[ylabel={$u(x,t)$},xlabel=$x$,title={$t=#1/4$},
-		legend columns=2, legend to name=thelegend, legend entries={exact solution, numerical solution}, legend style={column sep=2pt},
+		legend columns=2, legend to name=thelegend, legend entries={Exact solution, Numerical solution}, legend style={column sep=2pt},
 		];
 		}{
 		\nextgroupplot[xlabel=$x$,title={$t=#1/4$}];
@@ -362,11 +362,11 @@ Now insert the solution \ref{fourier_series} and use orthogonality of the comple
 \end{equation*}
 The final sum is independent of time, so the $L_2$-norm is indeed conserved.
 
-We now investigate the norm of the numerical solution with the initial gaussian $u(x, 0) = \exp \left( -x^2 / 0.1 \right)$.
+We now investigate the norm of the numerical solution with the initial Gaussian $u(x, 0) = \exp \left( -x^2 / 0.1 \right)$.
 The time evolution illustrated in \cref{gaussian_evolution} shows how multiple modes are activated.
 In \cref{norm_evolution}, we show how the norm of the numerical solution evolves over time.
 The Euler method diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
-In contrast, the Crank-Nicolson metohd is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_Nicolson_amplification_factor}.
+In contrast, the Crank-Nicolson method is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_Nicolson_amplification_factor}.
 
 \begin{figure}[t]
   \centering

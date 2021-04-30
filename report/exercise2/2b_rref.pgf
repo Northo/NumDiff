@@ -9,7 +9,7 @@
             title={$l_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_\text{dof}$,
+            xlabel={$N_\text{dof} = M* \times N$},
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=2ex, legend entries={
@@ -34,7 +34,7 @@
             title={$L_2$ continous error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_\text{dof}$,
+            xlabel={$N_\text{dof} = M* \times N$},
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
         \addplot [black, dashed, domain=1:1e7, samples=2, forget plot] {(x)^(-2/3)} node

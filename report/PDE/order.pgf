@@ -1,7 +1,7 @@
 \begin{tikzpicture}
   \begin{loglogaxis}[
 %      title={Demonstration of order of the five and nine point stencil.},
-      xlabel={$N^2$},
+      xlabel={$N_\text{dof}=N^2$},
       ylabel={Relative error, $\lVert u - v \rVert_2 / \lVert u \rVert_2$},
       legend pos=south west,
       xmin=6^2, xmax=340^2,

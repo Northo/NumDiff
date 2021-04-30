@@ -15,7 +15,7 @@ however we will here restrict our attention to uniform grids only.
 
 \subsection{Numerical solution method}
 To solve the heat equation numerically, we first perform semi-discretization, 
-i.e. we do spatial discretization and keep the time continous. 
+i.e. we do spatial discretization and keep the time continuous. 
 As in section \ref{task_1}, 
 we divide the interval $\Omega$ into $M+2$ equidistant nodes with separation $h=1/(M+1)$, 
 so that we get a uniform grid with $M$ internal nodes and two boundary nodes. 
@@ -58,7 +58,7 @@ For the heat equation  this results in the following finite difference formula
     \label{eq:theta-heat-raw}
 \end{equation}
 After organizing the terms, 
-the $\theta$-method for the 1D heat equation is then written compactely as 
+the $\theta$-method for the 1D heat equation is then written compactly as 
 \begin{equation}
     (1 - \theta r \delta_x^2)U_m^{n+1} = \left(1 + (1-\theta)r\delta_x^2\right)U_m^n, 
     \label{eq:theta-heat}
@@ -240,11 +240,11 @@ Backward Euler and Crank-Nicolson however, are unconditionally stable \cite{owre
 Later on when we study the Linearized Kortweg-de Vries equation in section \ref{task4}, 
 we show this by applying Von Neumann stability analysis on the forward Euler and Crank-Nicolson methods. 
 
-We start by refining the spatial grid $x_m$ sepparately, 
-and we compute both the $l2$ discrete and the $L_2$ continous relative errors. 
+We start by refining the spatial grid $x_m$ separately, 
+and we compute both the $l2$ discrete and the $L_2$ continuous relative errors. 
 For \eqref{eq:2a}, however, the the analytical solution is not available in closed form, 
 so we cannot compute the exact errors. 
-In order to analyze convergence we therfore compute a reference solution, 
+In order to analyze convergence we therefore compute a reference solution, 
 using a high resolution spatial grid with $M_{ref}=10000$ spatial nodes, 
 which we use in place of the analytical solution when computing the error. 
 Since we are only refining in the spatial direction, 
@@ -261,7 +261,7 @@ allowing us to analyze the spatial convergence isolated.
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with the Neumann boundary conditions $u_x(0,t) = u_x(1,t)=0$ and initial condition 
         as listed in equation \eqref{eq:2a}. 
-        The $l_2$ discrete and the $L_2$ continous relative errors is computed 
+        The $l_2$ discrete and the $L_2$ continuous relative errors is computed 
         with respect to a numerical reference solution computed with $M_{ref}=10000$, 
         since the analytical solution for this problem is not available on closed form. 
     }
@@ -274,7 +274,7 @@ We see that the errors for the most part fail to follow the expected curve,
 instead they quickly flatten and remain about constant throughout the refinement. 
 Crank-Nicolson with $N=1000$ is the exception, 
 but even it's curve flattens towards the end of the refinement when $M$ gets large enough. 
-A flattend curve means that the error is dominated by the time step error, 
+A flattened curve means that the error is dominated by the time step error, 
 and further refining the spatial grid gives in that case only diminishing returns. 
 We also see that the error curve of the solution computed with Crank-Nicolson flattens later than those of the solutions computed with Backward Euler for the same value of $N$. 
 This reflects the fact that Crank-Nicolson is one order more precise in the time step $k$. 
@@ -291,10 +291,10 @@ on the same domain $x \in [0,1] := \Omega$ and $t > 0$.
 Note that we now have Dirichlet boundary conditions, 
 and we have plotted the numerical solution in \ref{fig:2b-surface}. 
 The analytical solution, 
-which can be calculated using sepparation of variables
+which can be calculated using separation of variables
 \footnote{
-    We ommit the calculation since this is a very standard introductory problem for solving 
-    partial differential equations with sepparation of variables. 
+    We omit the calculation since this is a very standard introductory problem for solving 
+    partial differential equations with separation of variables. 
 } \cite{Kreyszig}, 
 is readily available as
 \begin{equation}
@@ -306,7 +306,7 @@ however now we compute the errors with respect to the analytical solution.
 The resulting convergence plots are shown in figure \ref{fig:2b-spatial-ref}, 
 and here the characteristics we saw in \ref{fig:2a-convergence} are seen more clearly. 
 Again, Crank-Nicolson with $N=1000$ performs the best, 
-and displays here second order convergence througout the whole refinement. 
+and displays here second order convergence throughout the whole refinement. 
 The others start out with second order convergence, 
 but flattens as the temporal error starts to dominate, 
 and also here we see that the error in Crank-Nicolson flattens later than the error in Backward Euler for the same value of $N$. 
@@ -324,7 +324,7 @@ and also here we see that the error in Crank-Nicolson flattens later than the er
         Convergence plots from uniform mesh refinement. 
         In \ref{fig:2b-spatial-ref} we refine in the spatial direction while keeping the number of time steps $N$ constant, 
         then in \ref{fig:2b-time-ref} we refine in the temporal direction while keeping the number of spatial nodes $M$ constant. 
-        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In both cases both the $l_2$ discrete and the $L_2$ continuous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
@@ -342,7 +342,7 @@ The chosen fixed values for $M$ are large enough so that the spatial error does 
 and we avoid the error curves flattening as $N$ gets large. 
 The error curves also seem to follow the expected convergence order. 
 
-Having investigated the spatial and temporal convergence sepparately, 
+Having investigated the spatial and temporal convergence separately, 
 we now look at the convergence when refining in the $x$- and $t$-directions simultaneously. 
 We start with refinement where the time step and spatial step are varied at equal rates, 
 by keeping $c = k/h$ constant. 
@@ -384,7 +384,7 @@ is shown in figure \ref{fig:2b-kch-ref}.
         Convergence plots from uniform mesh refinement in both the $x$- and $t$-direction simultaneously. 
         In \ref{fig:2b-kch-ref} $c=k/h$ is kept constant, 
         and in \ref{fig:2b-r-ref} it is $r=k/h^2$ that is kept constant. 
-        In both cases both the $l_2$ discrete and the $L_2$ continous relative errors is computed. 
+        In both cases both the $l_2$ discrete and the $L_2$ continuous relative errors is computed. 
         The equation solved is the one-dimensional heat equation $u_t=u_{xx}$ 
         with a sinusoidal initial temperature distribution and the temperature kept fixed at $0$ 
         on the boundaries, 
