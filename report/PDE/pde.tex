@@ -666,7 +666,7 @@ $$ \nabla^2 u = g, \,\,\, \nabla_9^2 U = \left( 1+\frac{h^2}{12} \nabla_5^2 \rig
 and $u=U$ and $g=G$ on $\partial \Omega$,
 then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 \begin{equation*}
-	\inorm{u-U} \leq Ch^2 \max \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].
+	\inorm{u-U} \leq Ch^4 \max \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].
 \end{equation*}
 \end{theorem}
 \begin{proof}
@@ -682,16 +682,18 @@ First, use the triangle inequality to split
 Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound9} to the second term to get
 \begin{equation*}
 \begin{split}
-	\inorm{u-U} &\leq Ch^4 + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
-				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)+\frac{h^2}{12} \inorm{\nabla_5^2 (G-g)}}\\
-				&\leq Ch^4 + \frac{3}{40} \inorm{G-g} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
+	\inorm{u-U} &\leq Ch^4 \abs{D^6 u}_\infty + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
+				&\leq Ch^4 \abs{D^6 u}_\infty + \frac{3}{40} \inorm{(G-g)+\frac{h^2}{12} \inorm{\nabla_5^2 (G-g)}}\\
+				&\leq Ch^4 \abs{D^6 u}_\infty + \frac{3}{40} \inorm{G-g} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
 \end{split}
 \end{equation*}
-Finally, apply \cref{thm:nine} again on the two last terms to get
+Finally, apply \cref{thm:nine} again on the second term and \cref{thm:five} on the last term to get
 %show that they are also $\Oh(h^4)$, so $\inorm{u-U} \leq Ch^4$ and $(\nabla_9^2)^2$ is $\Oh(h^2)$.
 \begin{equation*}
 \begin{split}
-	\inorm{u-U} \leq Ch^4 + Ch^4 + \frac{3}{40} \frac{h^2}{12} Ch^2 \leq Ch^4.
+	\inorm{u-U} &\leq Ch^4 \abs{D^6 u}_\infty + Ch^4 \abs{D^6 g}_\infty + Ch^4 \abs{D^4 g}_\infty \\
+	            &\leq Ch^4 \abs{D^6 u}_\infty + Ch^4 \abs{D^8 u}_\infty \\
+	            &\leq Ch^4 \max \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].\\
 \end{split}
 \end{equation*}
 
@@ -713,7 +715,7 @@ We have showed our results using the $\infty$-norm, but they still hold with the
 \subsection{The Fast Poisson Solver}
 \Cref{eq:pde:matrixequations} can of course be solved directly with (sparse) matrix solvers like before, but there is a more efficient way.
 The \emph{Fast Poisson Solver} exploits properties of the eigenvectors of $K_5$ and $K_9$ to compute the solution efficiently.
-In this section, we will explain how this works based on \cite{Strang_2012}.
+In this section, we will explain how this works with inspiration from \cite{Strang_2012}.
 
 Just like in \cref{eq:pde:matrixequations}, suppose one is to solve the matrix equation 
 $$
@@ -730,7 +732,7 @@ c_i = y_i \cdot F.
 One may now easily verify by insertion that the solution is
 \begin{equation}
 U =
-\frac{1}{h^2} \left[
+h^2 \left[
 	\frac{c_1}{\lambda_1} y_1
 	+ \frac{c_2}{\lambda_2} y_2
 	+ \dots
@@ -776,7 +778,7 @@ Then $\alpha_m + \beta_m$ are eigenvalues of $A+B$ with the same eigenvectors.
 $ (A + B) x_i = A x_i + B x_i = \alpha_i x_i + \beta_i x_i = (\alpha_i + \beta_i) x_i.$
 \end{proof}
 \begin{lemma}\label{pde:lemma:eigtst}
-Let $A = \text{tridiag}(b,a,b)$ be a $N \times N$ TST matrix with $a$ on the diagonal and $b$ on the off-diagonal.
+Let $A = \text{tridiag}(b,a,b)$ be a $N \times N$ matrix with $a$ on the diagonal and $b$ on the off-diagonal.
 Then the eigenvalues $\alpha_1, \dots, \alpha_N$ and eigenvectors $x_1, \dots, x_N$ of $A$ are
 \begin{equation}
 \alpha_m = a + 2b \cos \left( \frac{m\pi}{N+1} \right)
@@ -790,6 +792,7 @@ See ``The eigenvalues and vectors of a common tridiagonal matrix'' on page 154 i
 \end{proof}
 
 With these lemmas, it is now straightforward to obtain the eigenvalues and eigenvectors of $K_5$ and $K_9$.
+For convenience, we will index the eigenvectors $y_{kl}$ and eigenvalues $\lambda_{kl}$ with \emph{two} indices, and denote the $(m,n)$-th entry of the eigenvector by $y_{kl}(m,n)$.
 
 \newcommand{\eigvecexpr}{\sin \left( \frac{mk\pi}{N+1} \right) \sin \left( \frac{nl\pi}{N+1} \right)}
 \begin{theorem}
@@ -800,12 +803,12 @@ With these lemmas, it is now straightforward to obtain the eigenvalues and eigen
 	\end{equation}
 \end{theorem}
 \begin{proof}
-	By \cref{pde:lemma:eigtst}, $J_5$, $J_9$ and $\Sigma$ have common eigenvectors given by \cref{eq:pde:eigtst}.
-	By \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum}, $J_5 \oplus J_5$, $J_9 \oplus J_9$ and $\Sigma \otimes \Sigma$ have common eigenvectors given by \cref{eq:pde:eigenvectors}.
-	By \cref{pde:lemma:eigsum}, the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$ does not change the eigenvectors.
+	By \cref{pde:lemma:eigtst}, $J_5$, $J_9$ and $\Sigma$ have common eigenvectors \ref{eq:pde:eigtst}.
+	By \cref{pde:lemma:eigkronprod,pde:lemma:eigkronsum}, $J_5 \oplus J_5$, $J_9 \oplus J_9$ and $\Sigma \otimes \Sigma$ have common eigenvectors \ref{eq:pde:eigenvectors}.
+	By \cref{pde:lemma:eigsum}, the sum $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$ does not change the eigenvectors.
 \end{proof}
 Note that it is only $J_5$, $J_9$ and $\Sigma$ that are on the form $\text{tridiag}(b,a,b)$ and are suitable for \cref{pde:lemma:eigtst}.
-Like we discussed in \cref{fig:laplace:stencil}, the matrices $K_5$ and $K_9$ themselves are \emph{not}.
+Like we see in \cref{fig:laplace:stencil}, the matrices $K_5$ and $K_9$ themselves are \emph{not}.
 \begin{theorem}
 The eigenvalues of $K_5$ corresponding to the eigenvectors \ref{eq:pde:eigenvectors} are
 \begin{equation}
@@ -829,7 +832,7 @@ The eigenvalues of $K_9$ corresponding to the eigenvectors \ref{eq:pde:eigenvect
 \begin{proof}
 	Use \cref{pde:lemma:eigtst} on $J_9$ and $\Sigma$ with appropriate $a$ and $b$.
 	Then use \cref{pde:lemma:eigkronprod} on $\Sigma \otimes \Sigma$ and \cref{pde:lemma:eigkronsum} on $J_9 \oplus J_9$.
-	Finally, use \cref{pde:lemma:eigsum} on the sum in $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$.
+	Finally, use \cref{pde:lemma:eigsum} on the sum $(J_9 \oplus J_9) + (\Sigma \otimes \Sigma)$.
 \end{proof}
 
 It is now straightforward to compute $U$ from \ref{eq:pde:fexpansion} and \ref{eq:pde:insertionsolution}.
@@ -840,10 +843,10 @@ c_{kl} = \sum_{m,n} F(m,n) y_{kl}(m,n)
 $$
 and
 $$
-U(m,n) = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} y_{kl}(m,n) 
-       = \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} \eigvecexpr
+U(m,n) = h^2 \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} y_{kl}(m,n) 
+       = h^2 \sum_{k,l} \frac{c_{kl}}{\lambda_{kl}} \eigvecexpr
 $$
-Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete Sine Transform of type I (DST-I) and Inverse Discrete Sine Transform (IDST-I), for which very efficient implementations exist in for example \cite{scipy_dst}.
+Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete Sine Transform of type I (DST-I) and corresponding Inverse Discrete Sine Transform (IDST-I), for which very efficient implementations exist in for example \cite{scipy_dst}.
 \footnote{
 	Note that \cite{scipy_dst} uses different normalization factors and summation indices from \ref{eq:pde:eigenvectors}, but this is easy to handle.
 	In addition, it only implements the one-dimensional transform, but this can simply be applied twice to give the two-dimensional transform
@@ -854,14 +857,14 @@ Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete 
 }
 Instead of solving the systems \ref{eq:pde:matrixequations}, we can instead calculate
 \begin{equation*}
-U = \frac{1}{h^2} \text{IDST}(\text{DST}(F_n) / \Lambda)
+U = h^2 \text{IDST}(\text{DST}(F_n) / \Lambda)
 \end{equation*}
 where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
 This is the awaited and much more efficient Fast Poisson Solver.
 Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or contiuous source and basis functions.
 
 \subsection{Demonstration of order}
-To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
+To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
 (TODO: do we know this from section \ref{sec:pde:anal}?)
 From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
 $$
