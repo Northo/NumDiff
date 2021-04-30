@@ -430,7 +430,6 @@ Repeating the argument at each neighbour $x_i$, and then to their neighbours and
   \end{equation}
 \end{lemma}
 \begin{proof}
-
 Let $\inorm{\nabla_n^2 U} = M$.
 Then
 $$
@@ -566,74 +565,66 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2$ to get
 \end{equation*}
 \end{proof}
 
-We have just shown that as $h \rightarrow 0$, the truncation error $\nabla_n^2 (u - U) \rightarrow 0$ and global error $\Vert u - U \Vert \rightarrow 0$, so the schemes are consistent and convergent.
-By Lax' equivalence theorem \cite{owren}, they are then also stable.
-
-(TODO: this should really be in the proofs?)
-
 (TODO: using $u$ with $f$ is also weird. using $u$ with $g$ would be more consistent with what we already have)
 
-(TODO: write theorems for biharmonic, too)
+(TODO: improve biharmonic theorems, make simpler?)
 
-\begin{theorem}[Five point stencil order and stability on biharmonic]
-TODO: make theorems for stability on biharmonic
+\begin{theorem}[Five-point stencil order and stability on Biharmonic equation]
+If $\nabla^2 u = g$, $\nabla_5^2 U = G$, $\nabla^2 g = f$, $\nabla_5^2 G = f$ in $\Omega$ and $u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $6$-th order of $u$ are bounded,
+then the $5$-point stencil $(\nabla_5^2)^2$ is consistent, stable and convergent of order $h^2$ on the Biharmonic equation.
+\label{pde:lemma:fivebi}
 \end{theorem}
 \begin{proof}
-From \cref{thm:five}, we know that
-\begin{equation*}
-\inorm{u-U} \leq \frac18 \inorm{\nabla_5^2(u-U)}
-\end{equation*}
-By the Taylor expansion \ref{eq:pde:taylornabla2} with $f \rightarrow g$, $\nabla_5^2 u \leq g + Ch^2$.
-Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:five} again to get
+We \emph{cannot} apply \cref{thm:five} to $\nabla^2 u = g$ and $\nabla_5^2 U = G$ since $g \neq G$.
+But we \emph{can} apply \cref{thm:five} to $\nabla^2 u = g$ and $\nabla_5^2 U' = g$.
+This gives
 \begin{equation*}
 \begin{split}
-\inorm{u-U} &\leq \frac18 \inorm{(\nabla^2 u - \nabla_5^2 U) + Ch^2 \abs{D^4u}_\infty} \\
-            &=    \frac18 \inorm{(g-G) + Ch^2 \abs{D^4u}_\infty} \\
-            &\leq \frac18 \inorm{(g-G)} + \inorm{Ch^2 \abs{D^4u}_\infty} \\
+	\inorm{u-U} &= \inorm{(u-U') - (U-U')} \\
+                &\leq \inorm{u-U'} + \inorm{U-U'} \\
 \end{split}
 \end{equation*}
-Now use \cref{thm:five} again with $f \rightarrow g$ to get
+Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5} to the second term to get
 \begin{equation*}
 \begin{split}
-\inorm{u-U} &\leq \frac18 \inorm{(\nabla^2 u - \nabla_5^2 U) + Ch^2 \abs{D^4u}_\infty} \\
-            &=    \frac18 \inorm{(g-G) + Ch^2 \abs{D^4u}_\infty} \\
-            &\leq \frac18 \inorm{(g-G)} + \inorm{Ch^2 \abs{D^4u}_\infty} \\
+	\inorm{u-U} &\leq \frac18 \inorm{\nabla_5^2(u-U')} + \frac18 \inorm{\nabla_5^2(U-U')} \\
+				&\leq Ch^2 + \frac18 \inorm{G-g}. \\
 \end{split}
 \end{equation*}
+Finally, apply \cref{thm:five} again to $\nabla^2 g = \nabla_5^2 G = f$ to show that also $\inorm{g-G} \leq Ch^2$, so $\inorm{u-U} \leq Ch^2$ and $(\nabla_5^2)^2$ is $\Oh(h^2)$.
 
-
-
-To use \cref{thm:five} again, we must replace $\nabla_5^2 u$ by $\nabla^2 u = g$.
-\begin{equation*}
-\nabla_5^2 u \leq \nabla^2 u + Ch^2 \abs{D^4 u}_\infty.
-\end{equation*}
-Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:five} again to get
-\begin{equation*}
-\inorm{u-U} \leq \frac18 \inorm{g-G} + \frac18 C h^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u}. \qedhere
-\end{equation*}
+To show consistency, note that \cref{thm:five} already ensures consistency for the Poisson equation.
+But if $\nabla_5^2(u-U) \rightarrow 0$ as $h \rightarrow 0$, then also $\nabla_5^2 \nabla_5^2 (u-U) \rightarrow 0$, so $(\nabla_5^2)^2$ is also consistent on the Biharmonic equation.
+By Lax' equivalence lemma, it is therefore also stable.
 \end{proof}
 
-\begin{theorem}[Nine point stencil order and stability on biharmonic]
-TODO
+\begin{theorem}[Nine-point stencil order and stability on Biharmonic equation]
+If $\nabla^2 u = g$, $\nabla_9^2 U = (1+\frac{h^2}{12} \nabla_5^2 ) G$, $\nabla^2 g = f$, $\nabla_9^2 G = (1+\frac{h^2}{12} \nabla_5^2) f$ in $\Omega$ and $u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $8$-th order of $u$ are bounded, 
+then the $9$-point stencil $(\nabla_9^2)^2$ is consistent, stable and convergent of order $h^4$ on the Biharmonic equation.
 \end{theorem}
 \begin{proof}
-From \cref{thm:nine}, we know that
-\begin{equation*}
-\inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} = \frac{3}{40} \inorm{\nabla_9^2 u - G - \frac{\nabla_5^2}{12} G}
-\end{equation*}
-To use \cref{thm:five} again, we must replace $\nabla_9^2 u$ by $\nabla^2 u = g$.
-By the Taylor expansion \ref{eq:pde:taylornabla22} with $f \rightarrow g$,
-\begin{equation*}
-\nabla_9^2 u \leq g + \frac{h^2}{12} \nabla_5^2 g + Ch^4 \abs{D^6 u}_\infty.
-\end{equation*}
-Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:nine,thm:five} again to get
+We \emph{cannot} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U = (1 + \frac{h^2}{12} \nabla_5^2) G$, since $g \neq G$.
+But we \emph{can} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U' = (1 + \frac{h^2}{12} \nabla_5^2) g$.
+This gives
+
+(use \cref{pde:lemma:bound}!)
 \begin{equation*}
 \begin{split}
-\inorm{u-U} &\leq \frac{3}{40} \inorm{g-G} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2(g-G)} + \frac{3}{40} C h^4 \inorm{D^6 u} \\
-            &\leq Ch^2 \inorm{D^4 g} + Ch^2 \inorm{D^4 g} \\
-            &\leq Ch^2 \inorm{D^6 u} \qedhere
+	\inorm{u-U} &=    \inorm{(u-U') - (U-U')} \\
+                &\leq \inorm{u-U'} + \inorm{U-U'} \\
 \end{split}
 \end{equation*}
+Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9} to the second term to get
+\begin{equation*}
+\begin{split}
+	\inorm{u-U} &\leq \frac{3}{40} \inorm{\nabla_9^2(u-U')} + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
+				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)+\frac{h^2}{12} \inorm{\nabla_5^2 (G-g)}}\\
+				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
+\end{split}
+\end{equation*}
+Finally, apply \cref{thm:nine} again on the two last terms to show that they are also $\Oh(h^4)$, so $\inorm{u-U} \leq Ch^4$ and $(\nabla_9^2)^2$ is $\Oh(h^2)$.
+
+Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 \end{proof}
 
 \begin{equation*}
