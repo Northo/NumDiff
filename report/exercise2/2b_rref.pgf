@@ -13,7 +13,6 @@
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=2ex, legend entries={
-                {$\Oh(N_{dof}^{-2/3})$},
                 {BE $r=1$},
                 {CN $r=1$},
             }, cycle list={
@@ -22,7 +21,10 @@
                 {red!75!black,    solid, mark=*,    mark size=1.0pt},
             },
         ]
-        \addplot [black, dashed, domain=1:1e7, samples=2] {(x)^(-2/3)};
+        \addplot [black, dashed, domain=1:1e7, samples=2, forget plot] {(x)^(-2/3)} node
+             [pos=0.56,
+               pin={[pin edge={solid}]-100:$\Oh(N_\text{dof}^{-2/3})$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_rref_discrete_err_r1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
@@ -35,7 +37,10 @@
             xlabel=$N_{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
-        \addplot [black, dashed, domain=1:1e7, samples=2] {(x)^(-2/3)};
+        \addplot [black, dashed, domain=1:1e7, samples=2, forget plot] {(x)^(-2/3)} node
+             [pos=0.56,
+               pin={[pin edge={solid}]-100:$\Oh(N_\text{dof}^{-2/3})$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_rref_continous_err_r1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 

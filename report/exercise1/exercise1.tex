@@ -104,15 +104,19 @@ To handle the singular matrix, we instead find the least-squares solution to the
 			group style={group size=2 by 3,horizontal sep=2cm,vertical sep=2.2cm},
 			height=6cm,
 			width=0.48\textwidth,
-			clip marker paths=true
+			clip marker paths=true,
+      legend style={at={(0.5,+1.2)},anchor=north}, legend columns=-1,
 			]
 			\nextgroupplot[title={$u(0)=0, \quad u_x(1)=1$},xmode=normal,ymode=normal,xlabel=$x$,ylabel=$u(x)$,legend entries={$u(x)$,$U(x)$}];
 			% \addplot [color=black, line width=4pt] table [x=x,y=u] {exercise1/dir_neu.dat};
 			% \addplot [color=red, mark=*, mark size=1pt, line width=1pt, each nth point=1] table [x=x,y=U] {exercise1/dir_neu.dat};
 			\addplot [color=black, thick] table [x=x,y=u] {exercise1/dir_neu.dat};
 			\addplot [color=blue, mark=square*, mark size=1pt, thin] table [x=x,y=U] {exercise1/dir_neu.dat};
-			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$\Oh(h^2)$,$L_2$ (cont.),$L_2$ (disc.)},xmin=5,xmax=2000];
-			\addplot [black, dashed, domain=1:3000, samples=2] {1.45/(x)^2};
+			\nextgroupplot[xmode=log,ymode=log,xlabel=$M$,ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},legend entries={$L_2$ (cont.),$L_2$ (disc.)},xmin=5,xmax=2000];
+			\addplot [black, dashed, domain=1:3000, samples=2, forget plot] {1.45/(x)^2} node
+             [pos=0.47,
+               pin={[pin edge={solid}]-95:$\Oh(h^2)$},
+               inner sep=0pt] {};
 			\addplot [red!75!black, mark=square*] table [x=M,y=cont] {exercise1/dir_neu_err.dat};
 			\addplot [red!100!black, mark=*] table [x=M,y=disc] {exercise1/dir_neu_err.dat};
 
@@ -326,7 +330,7 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 \begin{figure}[tb]
 \centering
 \begin{tikzpicture}
-\begin{loglogaxis}[
+  \begin{loglogaxis}[
 	width=16.5cm, height=12cm,
 	xlabel=$M$, ylabel=$\Ltwoerror{u - U}/\Ltwoerror{u}$,
 	log basis x=2, xticklabel=\pgfmathparse{2^\tick}\pgfmathprintnumber\pgfmathresult,
@@ -361,7 +365,10 @@ This will be equivalent to jumping directly from one local minimum in the oscill
 		{yellow,         solid, mark=o, mark size=1.2pt},
 	},
 ]
-\addplot [black, dashed, domain=1:400, samples=2, forget plot] {1.8/x^2} node [pos=0.31,pin={-100:$\Oh(h^2)$}, inner sep=0pt] {};
+    \addplot [black, dashed, domain=1:400, samples=2, forget plot] {1.8/x^2} node
+             [pos=0.31,
+               pin={[pin edge={solid}]-100:$\Oh(h^2)$},
+               inner sep=0pt] {};
 \pgfplotsinvokeforeach{UMR,AMRE,AMRT,AMRS} {
 \addplot table [x=#1-M,y=#1-ED] {exercise1/amr_errors.dat};
 \addplot table [x=#1-M,y=#1-EC] {exercise1/amr_errors.dat};

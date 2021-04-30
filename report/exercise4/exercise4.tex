@@ -236,7 +236,7 @@ The Crank-Nicolson method remains stable with much fewer time steps and much fin
 	{blue, mark=*, mark size=1.5pt},
 	{teal, mark=triangle*, mark size=1.5pt},
 }]
-\addplot [black, dashed, samples=2, domain=1:100, forget plot] {280/x^2} node [pos=0.4, pin={45:$\Oh(h^2)$}] {};
+\addplot [black, dashed, samples=2, domain=1:100, forget plot] {280/x^2} node [pos=0.4, pin={[pin edge={solid}]45:$\Oh(h^2)$}] {};
 \pgfplotsinvokeforeach{10000,100000,1000000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-forward-euler.dat};
 	\addlegendentry{$N=#1$};
@@ -251,7 +251,7 @@ The Crank-Nicolson method remains stable with much fewer time steps and much fin
 	{blue!30!black, mark=x, mark size=1.5pt},
 	{blue!0!black, mark=square*, mark size=1.5pt},
 }]
-\addplot [dashed, domain=1:3000, samples=2, black, forget plot] {270/x^2} node [pos=0.32,pin={0:$\Oh(h^2)$},inner sep=0pt] {};
+\addplot [dashed, domain=1:3000, samples=2, black, forget plot] {270/x^2} node [pos=0.32,pin={[pin edge={solid}]0:$\Oh(h^2)$},inner sep=0pt] {};
 \pgfplotsinvokeforeach{10,100,1000,10000} {
 	\addplot table [x=M, y=E#1] {exercise4/convergence-crank-nicholson.dat};
 	\addlegendentry{$N=#1$};
@@ -455,7 +455,7 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 	};
 
 	\nextgroupplot[title={Forward Euler (varying $N$)}, xlabel=$t$,ylabel={$\Vert U(t=1) \Vert_2$},cycle list name=mycycle,legend pos=south east];
-	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\addplot {0}; \addlegendentry{$N=30000$};
 	\addplot {0}; \addlegendentry{$N=40000$};
 	\addplot {0}; \addlegendentry{$N=50000$};
@@ -476,7 +476,7 @@ In contrast, the Crank-Nicolson metohd is always stable and preserves the norm o
 		{red,thick},{blue,semithick},{green,thin}
 	}, legend entries={$N=100$,$N=200$,$N=300$}, legend pos=south east,
 	];
-	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={280:{$\Ltwoerror{u(x,t)}$}}] {};
+	\addplot [forget plot, black, dashed, samples=2, domain=-1:2] {0.63} node [pos=0.31, pin={[pin edge={solid}]280:{$\Ltwoerror{u(x,t)}$}}] {};
 	\pgfplotsinvokeforeach{800} {
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N100}] {exercise4/norm-evolution.dat};
 		\addplot table [x expr=\coordindex/100, y={crank-nicholson-M#1-N200}] {exercise4/norm-evolution.dat};

@@ -13,10 +13,8 @@
             xmax=3000,
             xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
-            legend style={at={(1.15,+1.40)},anchor=north}, legend cell align=left,
-            transpose legend, legend columns=2, column sep=9.2ex, legend entries={
-                {$\Oh(h)$},
-                {$\Oh(h^2)$},
+            legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
+            transpose legend, legend columns=-1, column sep=1.2ex,  legend entries={
                 {BE $M=100$},
                 {BE $M=1000$},
                 {CN $M=100$},
@@ -30,8 +28,14 @@
                 {gray!75!black,   solid, mark=triangle, mark size=1.0pt},
             },
         ]
-        \addplot [black, dotted, domain=1:3000, samples=2] {17./x};
-        \addplot [black, dashed, domain=1:3000, samples=2] {14./(x)^2};
+        \addplot [black, dotted, domain=1:3000, samples=2, forget plot] {17./x} node
+             [pos=0.93,
+               pin={[pin edge={solid, bend right}, pin distance=1cm]96:$\Oh(k)$},
+               inner sep=0pt] {};
+        \addplot [black, dashed, domain=1:3000, samples=2, forget plot] {14./(x)^2} node
+             [pos=0.71,
+               pin={[pin edge={solid}]-100:$\Oh(k^2)$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={N}, y={err}] 
             {exercise2/data_ka/2b_BE_timeref_discrete_err_M1000_tend1.dat};
         \addplot[color=red,mark=*] table[x={N}, y={err}] 
@@ -50,8 +54,14 @@
             xlabel=$N$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
-        \addplot [black, dotted, domain=1:3000, samples=2] {17./x};
-        \addplot [black, dashed, domain=1:3000, samples=2] {14/(x)^2};
+        \addplot [black, dotted, domain=1:3000, samples=2] {17./x} node
+             [pos=0.93,
+               pin={[pin edge={solid, bend right}, pin distance=1cm]96:$\Oh(k)$},
+               inner sep=0pt] {};;
+        \addplot [black, dashed, domain=1:3000, samples=2] {14/(x)^2} node
+             [pos=0.71,
+               pin={[pin edge={solid}]-100:$\Oh(k^2)$},
+               inner sep=0pt] {};;
         \addplot[color=blue,mark=x] table[x={N}, y={err}] 
             {exercise2/data_ka/2b_BE_timeref_continous_err_M1000_tend1.dat};
         \addplot[color=red,mark=*] table[x={N}, y={err}] 

@@ -338,14 +338,14 @@ we now look at the convergence when refining in the $x$- and $t$-directions simu
 We start with refinement where the time step and spatial step are varied at equal rates, 
 by keeping $c = k/h$ constant. 
 Since we are now refining in both time and space, 
-we want to express the convergence in terms of the system's number of degrees of freedom $N_{dof}$, 
+we want to express the convergence in terms of the system's number of degrees of freedom $N_\text{dof}$, 
 which we also will have on the $x$-axis in the convergence plot to plot the error up against. 
 Defining $M^* = M+2$ denoting the total number of spatial nodes, 
-we can write $N_{dof} = M^*N$. 
+we can write $N_\text{dof} = M^*N$. 
 Using that $M^*=1/h+1$ and $N=1/k+1$ as well as our refinement restriction $c = k/h$, we get that 
 \begin{equation*}
 \begin{split}
-    N_{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    N_\text{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
     \\ & = \left(\frac{1}{h}+1\right)\left(\frac{1}{ch}+1\right)
     \\ & = \frac{1}{ch^2} + \frac{1}{ch} + \frac{1}{h} + 1 
     \\ & = \Oh(\frac{1}{h^2}).
@@ -354,8 +354,8 @@ Using that $M^*=1/h+1$ and $N=1/k+1$ as well as our refinement restriction $c = 
 To relate this to the convergence rates we again use that $c=k/h$ to get 
 \begin{equation*}
 \begin{split}
-    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(ch+h^2) = \Oh(h) = \Oh(N_{dof}^{-1/2})\\
-    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(c^2 h^2+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-1}). 
+    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(ch+h^2) = \Oh(h) = \Oh(N_\text{dof}^{-1/2})\\
+    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(c^2 h^2+h^2) = \Oh(h^2) = \Oh(N_\text{dof}^{-1}). 
 \end{split}
 \end{equation*}
 The resulting convergence plots with computed error curves, 
@@ -385,10 +385,10 @@ is shown in figure \ref{fig:2b-kch-ref}.
 \end{figure}
 
 Finally we will do simultaneous refinement where we keep $r=k/h^2$ constant. 
-For the degrees of freedom $N_{dof}$ we now get 
+For the degrees of freedom $N_\text{dof}$ we now get 
 \begin{equation*}
 \begin{split}
-    N_{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
+    N_\text{dof} = M^* N & = \left(\frac{1}{k}+1\right)\left(\frac{1}{h}+1\right)
     \\ & = \left(\frac{1}{h}+1\right)\left(\frac{1}{rh^2}+1\right)
     \\ & = \frac{1}{rh^3} + \frac{1}{rh^2} + \frac{1}{h} + 1 
     \\ & = \Oh(\frac{1}{h^3}), 
@@ -397,8 +397,8 @@ For the degrees of freedom $N_{dof}$ we now get
 and for the convergence rates we get 
 \begin{equation*}
 \begin{split}
-    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(rh^2+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-2/3})\\
-    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(r^2 h^4+h^2) = \Oh(h^2) = \Oh(N_{dof}^{-2/3}). 
+    \text{Backward Euler:} \quad \Oh(k+h^2) = \Oh(rh^2+h^2) = \Oh(h^2) = \Oh(N_\text{dof}^{-2/3})\\
+    \text{Crank-Nicolson:} \quad \Oh(k^2+h^2) = \Oh(r^2 h^4+h^2) = \Oh(h^2) = \Oh(N_\text{dof}^{-2/3}). 
 \end{split}
 \end{equation*}
 The resulting convergence plot for this final refinement is shown in figure \ref{fig:2b-r-ref}. 
