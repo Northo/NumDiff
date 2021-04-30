@@ -166,7 +166,7 @@ Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to
 	\pgfplotsinvokeforeach{0,1,...,4} {
 		\ifthenelse{\equal{#1}{0}}{
 		\nextgroupplot[ylabel={$u(x,t)$},xlabel=$x$,title={$t=#1/4$},
-		legend columns=2, legend to name=thelegend, legend entries={exact solution, numerical solution}, legend style={column sep=2pt},
+		legend columns=2, legend to name=thelegend, legend entries={Exact solution, Numerical solution}, legend style={column sep=2pt},
 		];
 		}{
 		\nextgroupplot[xlabel=$x$,title={$t=#1/4$}];

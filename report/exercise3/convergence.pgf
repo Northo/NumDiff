@@ -1,6 +1,6 @@
 \begin{tikzpicture}
   \begin{loglogaxis}[
-      title={Convergence plot for Laplace equation.},
+%      title={Convergence plot for Laplace equation.},
       xlabel={Grid size ($N \times M$)},
       ylabel={Relative error},
       xmin=50,
@@ -21,12 +21,12 @@
     
     \addplot[black, dashed, domain=50:300000, samples=2, forget plot] {10000/(x)^2} node
              [pos=0.05,
-               pin={[pin distance=0.6cm, pin edge={solid, out=15, in=-160}]8:$\Oh\left(N_\text{dof}^{-1}\right)$},
+               pin={[pin distance=0.6cm, pin edge={solid, out=15, in=-160}]8:$\Oh\left(N_\text{dof}^{-2}\right)$},
                inner sep=0pt] {};
 
     \addplot[black, dotted, domain=50:200000, samples=2, forget plot] {2.3/(x)} node
              [pos=0.1,
-               pin={[pin edge={solid}]below:$\Oh\left(N_\text{dof}^{-\frac12}\right)$},
+               pin={[pin edge={solid}]below:$\Oh\left(N_\text{dof}^{-1}\right)$},
                inner sep=0pt] {};
 
     \legend{
