@@ -700,6 +700,15 @@ Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 
 Thus, the $\Oh(h^2)$ and $\Oh(h^4)$ convergence holds also for the Biharmonic equation!
 
+We have showed our results using the $\infty$-norm, but they still hold with the $L_2$-norm, since
+\begin{equation*}
+	\lvert \lvert x \rvert \rvert_2 =    \sqrt{\sum_{i=1}^N x_i^2 }
+	                  \leq \sqrt{\sum_{i=1}^N \inorm{x_i^2}}
+	                  =    \sqrt{\sum_{i=1}^N \inorm{x_i}^2}
+	                  =    \sqrt{N            \inorm{x_i}^2}
+	                  =    \sqrt{N}           \inorm{x_i}.
+\end{equation*}
+
 
 \subsection{The Fast Poisson Solver}
 \Cref{eq:pde:matrixequations} can of course be solved directly with (sparse) matrix solvers like before, but there is a more efficient way.
