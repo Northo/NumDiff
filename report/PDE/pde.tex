@@ -1,6 +1,31 @@
 \section{Biharmonic equation}
 \label{sec:PDE}
 
+\newcommandx{\showSurf}[4][4=faceted]{  %% filename, N, labelZ, shader
+  \begin{tikzpicture}
+    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
+    \begin{axis}[
+        width=7.7cm,% height=7.5cm,
+		    xmin=0, xmax=1, ymin=0, ymax=1,
+	      xlabel=$x$, xtick distance=0.25,
+	      ylabel=$y$, ytick distance=0.25,
+        grid,
+        zlabel={#3},
+        mesh/ordering=x varies,
+        mesh/cols=#2,
+        mesh/rows=#2,
+	      view={20}{50},
+      ]
+	    \addplot3 [
+		    surf,
+        point meta=explicit,
+        opacity=0.95,
+        shader=#4,
+      ] table[meta=U]{#1};
+    \end{axis}
+  \end{tikzpicture}
+}
+
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \theoremstyle{remark}
@@ -268,7 +293,7 @@ For example,
 \begin{equation*}
 	\nabla_5^2 u(x,y) = \frac{-4u(x,y) + u(x+h,y) + u(x-h,y) + u(x,y+h) + u(x,y-h)}{h^2},
 \end{equation*}
-and $\nabla_9^2$ acts similarly but also includes terms like $u(x+h, y+h)$.
+and $\nabla_9^2$ acts similarly, but also includes terms like $u(x+h, y+h)$.
 We will solve Poisson equations with
 \begin{equation}
 	\nabla_5^2 U = F
@@ -836,7 +861,8 @@ This is the awaited and much more efficient Fast Poisson Solver.
 Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or contiuous source and basis functions.
 
 \subsection{Demonstration of order}
-To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = \sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
+To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation, with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
+(TODO: do we know this from section \ref{sec:pde:anal}?)
 From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
 $$
 u(x, y) =
@@ -857,31 +883,8 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
 \begin{figure}[tb]
   \centering
   \begin{subfigure}[t]{0.48\textwidth}
-    \begin{tikzpicture}
-      \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
-      \begin{axis}[
-	        % width=8.2cm, height=7.5cm,
-          width=7cm, height=6cm,
-          %	zmin=0.0,zmax=0.13,
-	        xlabel=$x$, xtick distance=0.25,
-	        ylabel=$y$, ytick distance=0.25,
-          samples=50,
-          %	ztick={0,#2, 1/8}, zticklabels={0,#2, 1/8},
-          %	scaled taicks=false,
-          grid,
-	        % title={Test},
-          zlabel={$u(x, y)$},
-          colormap name=redblue,
-	        view={20}{50},
-        ]
-	      \addplot3 [
-		      surf,
-		      domain=0:1,
-          opacity=0.85,%shader=interp,
-	      ] {sin(deg(3 * pi * x)) * sin(deg(4 * pi * y)) / pi^2 * (3^2 + 4^2)};
-      \end{axis}
-    \end{tikzpicture}
-    \caption{The analytical solution $u(x, y)$.}
+    \showSurf{./PDE/solution_PoissonSolver_N_37.dat}{39}{$U(x, y)$}
+    \caption{The approximated solution $U(x, y)$.}
     \label{fig:pde:order_solution}
   \end{subfigure}
   ~
@@ -895,7 +898,7 @@ As expected, the error for the five point stencil goes as $h^2$ while the error 
     }
     \label{fig:pde:order}
   \end{subfigure}
-  \caption{Solving the Biharmonic equation on the manufactured problem $f=\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$, with analytical solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2)$.
+  \caption{Solving the Poisson equation on the manufactured problem $f=-\sin(m \pi x)\sin(n\pi y), ~m = 3, n=4$, with analytical solution $u(x, y) = \sin(m \pi x)\sin(n \pi y) / ((n\pi)^2 + (m\pi)^2)$.
     Solved with equal number of discretization points in $x$ and $y$ direction.
     Subfigure \subref{fig:pde:order_solution} shows the analytical solution $u$, while \subref{fig:pde:order} shows the relative error for the five and nine point stencil.
   }
@@ -931,9 +934,10 @@ It is now simply a matter of applying the described Fast Poisson Solver sequenti
 
 The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
+(TODO: we could probably have solved for higher numbers... maybe change to ``we solved for ...'')
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
-\subsubsection{Possible improvement to the Biharmonic solver with nine point stencil}
+\subsubsection{A possible improvement to the Biharmonic solver with nine point stencil}
 The fourth order nine point stencil may be written as
 \begin{equation}\label{eq:nine_point_stencil}
   \nabla_9^2 U
@@ -958,30 +962,7 @@ Thus, we may solve the equation
 \end{equation}
 and have thus eluded the computation of $\nabla_5^2 G$.
 
-\newcommandx{\showSurf}[4][4=faceted]{  %% filename, N, labelZ, shader
-  \begin{tikzpicture}
-    \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
-    \begin{axis}[
-        width=7.7cm,% height=7.5cm,
-		    xmin=0, xmax=1, ymin=0, ymax=1, zmin=0,
-	      xlabel=$x$, xtick distance=0.25,
-	      ylabel=$y$, ytick distance=0.25,
-        grid,
-        zlabel={#3},
-        mesh/ordering=x varies,
-        mesh/cols=#2,
-        mesh/rows=#2,
-	      view={20}{50},
-      ]
-	    \addplot3 [
-		    surf,
-        point meta=explicit,
-        opacity=0.95,
-        shader=#4,
-      ] table[meta=U]{#1};
-    \end{axis}
-  \end{tikzpicture}
-}
+
   %% \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction. TODO:write more}
   %% \label{fig:pde:bvp}
   %% \end{figure}
@@ -1055,20 +1036,20 @@ and have thus eluded the computation of $\nabla_5^2 G$.
         \addplot table[x expr=\thisrow{N}^2, y={time}] {PDE/comp_bvp_fps.dat};
         \addlegendentry{Fast Poisson Solver};
 
-        \addplot[mark=none] table[x expr=\thisrow{N}^2,
-          y={create col/linear regression={
-              y=time,
-              variance list={1000,1000,1000,1000}, %% Ignore first points
-        }}]  {PDE/comp_bvp_fps.dat}
-        node[pos=0.3,
-          pin={[pin edge={solid}]below right:$a = \pgfplotstableregressiona$},
-        ] {};
+        %% \addplot[mark=none] table[x expr=\thisrow{N}^2,
+        %%   y={create col/linear regression={
+        %%       y=time,
+        %%       variance list={1000,1000,1000,1000}, %% Ignore first points
+        %% }}]  {PDE/comp_bvp_fps.dat}
+        %% node[pos=0.3,
+        %%   pin={[pin edge={solid}]below right:$a = \pgfplotstableregressiona$},
+        %% ] {};
 
-        \addplot[mark=none, dashed] table[x expr=\thisrow{N}^2,
-          y={create col/linear regression={
-              y=time,
-              variance list={1000,1000,1000}, %% Ignore first points
-        }}] {PDE/comp_bvp_no_fps.dat};
+        %% \addplot[mark=none, dashed] table[x expr=\thisrow{N}^2,
+        %%   y={create col/linear regression={
+        %%       y=time,
+        %%       variance list={1000,1000,1000}, %% Ignore first points
+        %% }}] {PDE/comp_bvp_no_fps.dat};
 
         %% \addplot[domain=10^2:10^6] {1e-6 * x^(3/2)};
         %% \addplot[domain=10^2:10^6, dashed] {1e-8 * x * ln(x)};
