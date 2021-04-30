@@ -866,7 +866,7 @@ Note the strong similarity with the analytical solution \ref{pde:equation:fourie
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
-(TODO: do we know this from section \ref{sec:pde:anal}?)
+%(TODO: do we know this from section \ref{sec:pde:anal}?)
 From section \ref{sec:pde:anal} we know that the solution to this manufactured problem is
 $$
 u(x, y) =
@@ -938,7 +938,7 @@ It is now simply a matter of applying the described Fast Poisson Solver sequenti
 
 The numerical solution is shown in figure \ref{fig:pde:bvp}.
 In figure \ref{fig:pde:bvp_convergence} a convergence plot as a function of the degrees of freedom is shown, and the computation time is shown in figure \ref{fig:pde:bvp_time}.
-(TODO: we could probably have solved for higher numbers... maybe change to ``we solved for ...'')
+%(TODO: we could probably have solved for higher numbers... maybe change to ``we solved for ...'')
 We were able to solve the equation with a maximal discretization of $N = 3000$ in one direction, so about \num{1e7} grid points.
 
 \subsubsection{A possible improvement to the Biharmonic solver with nine point stencil}
@@ -985,7 +985,8 @@ and have thus eluded the computation of $\nabla_5^2 G$.
   \begin{subfigure}[t]{0.49\textwidth}
     \centering
     \showSurf{./PDE/solution_BiharmonicSolver_N_20.dat}{22}{$u(x, y)$}
-    \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction.  TODO: does it work to have it here?}
+    \caption{The numerical solution $U(x, y)$ to the Biharmonic equation, using the nine point stencil with discretization $N=20$ in each direction.  %TODO: does it work to have it here?
+    }
     \label{fig:pde:bvp}
   \end{subfigure}
 
@@ -1020,7 +1021,8 @@ and have thus eluded the computation of $\nabla_5^2 G$.
     \end{tikzpicture}
     \caption{
       The relative error of the numerical solution.
-      TODO: Could add five point for comparison?}
+      %TODO: Could add five point for comparison?
+      }
     \label{fig:pde:bvp_convergence}
   \end{subfigure}
   ~
