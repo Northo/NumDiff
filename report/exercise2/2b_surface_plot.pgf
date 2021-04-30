@@ -4,10 +4,13 @@
         xlabel={$x$},
         ylabel={$t$},
         zlabel={$U$},
-        view={135}{30},
+        view={90+60}{20},
         height=6.5cm,
+        xtick={0,0.5,1},
+        xticklabels={1, 0.5, 0},
+        grid,
     ]
-        \addplot3[surf, mesh/cols=50, shader=flat, opacity=0.9] table[x={x}, y={t}, z={U}] 
+        \addplot3[surf, mesh/cols=50, shader=faceted, opacity=0.6] table[x={x}, y={t}, z={U}] 
             {exercise2/data_ka/2b_surface.dat};
     \end{axis}
 \end{tikzpicture}
