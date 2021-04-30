@@ -311,25 +311,25 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},title={$f(x) = -2$},
 		legend entries={uniform, adaptive (avg. strategy), adaptive (max strategy)}, legend style={at={(1.95,+1.35),anchor=center}, legend columns=-1},
 	];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.19/x^2} node [pos=0.38,pin={0:$\Oh(h^2)$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.19/x^2} node [pos=0.38,pin={[pin edge={solid}]0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f1-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f1-convergence.dat};
 	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f1-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, title={$f(x) = -(40000x^2 - 200) \exp(-100x^2)$}];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {22/x^2} node [pos=0.45,pin={0:$\Oh(h^2)$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {22/x^2} node [pos=0.45,pin={[pin edge={solid}]0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f2-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f2-convergence.dat};
 	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f2-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$}, title={$f(x) = -(4000000x^2 - 2000) \exp(-1000x^2)$}];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {122/x^2} node [pos=0.55,pin={0:$\Oh(h^2)$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {122/x^2} node [pos=0.55,pin={[pin edge={solid}]0:$\Oh(h^2)$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f3-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f3-convergence.dat};
 	\addplot [lime, mark=triangle*] table [x=M3, y=E3] {exercise5/data/convergence/f3-convergence.dat};
 
 	\nextgroupplot[xlabel=$M+1$, title={$f(x) = 2x^{-4/3}/9$}];
-	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.37,pin={30:$\Oh(h^{1.15})$}] {};
+	\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.10/x^1.15} node [pos=0.37,pin={[pin edge={solid}]30:$\Oh(h^{1.15})$}] {};
 	%\addplot [domain=0.1:4000, dashed, samples=2, black, forget plot] {0.25/x^2} node [pos=0.45,pin={270:$\Oh(h^{2})$}] {};
 	\addplot table [x=M1, y=E1] {exercise5/data/convergence/f4-convergence.dat};
 	\addplot table [x=M2, y=E2] {exercise5/data/convergence/f4-convergence.dat};
@@ -337,5 +337,5 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{femconvergence}Convergence plots for four problems that compare uniform mesh refinement with the two adaptive mesh refinement strategies.}
+\caption{\label{femconvergence}Convergence plots for four problems that compare uniform mesh refinement with the two adaptive mesh refinement strategies. See main text for details.}
 \end{figure}

@@ -14,7 +14,6 @@
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.15,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=1.2ex, legend entries={
-                {$\Oh(h^2)$},
                 {BE $N=100$},
                 {BE $N=1000$},
                 {CN $N=100$},
@@ -27,7 +26,10 @@
                 {gray!75!black,   solid, mark=triangle, mark size=1.0pt},
             },
         ]
-        \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
+        \addplot [black, dashed, domain=1:3000, samples=2, forget plot] {1.4/(x)^2} node
+             [pos=0.41,
+               pin={[pin edge={solid}]-100:$\Oh(h^2)$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={M}, y={err}] 
             {exercise2/data_ka/2b_BE_spatialref_discrete_err_N1000_tend1.dat};
         \addplot[color=black,mark=diamond] table[x={M}, y={err}] 
@@ -46,7 +48,10 @@
             xlabel=$M+2$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
-        \addplot [black, dashed, domain=1:3000, samples=2] {1.4/(x)^2};
+        \addplot [black, dashed, domain=1:3000, samples=2, forget plot] {1.4/(x)^2} node
+             [pos=0.41,
+               pin={[pin edge={solid}]-100:$\Oh(h^2)$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={M}, y={err}] 
             {exercise2/data_ka/2b_BE_spatialref_continous_err_N1000_tend1.dat};
         \addplot[color=black,mark=diamond] table[x={M}, y={err}] 

@@ -9,12 +9,10 @@
             title={$l_2$ discrete error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_{dof}$,
+            xlabel=$N_\text{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
             legend style={at={(1.16,+1.30)},anchor=north}, legend cell align=left,
             transpose legend, legend columns=-1, column sep=5.2ex, legend entries={
-                {$\Oh(N_{dof}^{-1})$},
-                {$\Oh(N_{dof}^{-1/2})$},
                 {BE $c=1$},
                 {CN $c=1$},
             }, cycle list={
@@ -24,8 +22,14 @@
                 {red!75!black,    solid, mark=*,    mark size=1.0pt},
             },
         ]
-        \addplot [black, dashed, domain=1:1e6, samples=2] {20.0/(x)};
-        \addplot [black, dotted, domain=1:1e6, samples=2] {25.0/(x)^0.5};
+        \addplot [black, dashed, domain=1:1e6, samples=2, forget plot] {20.0/(x)} node
+             [pos=0.41,
+               pin={[pin edge={solid}]-100:$\Oh(N_\text{dof}^{-1})$},
+               inner sep=0pt] {};
+        \addplot [black, dotted, domain=1:1e6, samples=2, forget plot] {25.0/(x)^0.5} node
+             [pos=0.56,
+               pin={[pin edge={solid}]60:$\Oh(N_\text{dof}^{-1/2})$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_kchref_discrete_err_c1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 
@@ -35,11 +39,17 @@
             title={$L_2$ continous error}, 
             xmode=log, 
             ymode=log, 
-            xlabel=$N_{dof}$,
+            xlabel=$N_\text{dof}$,
             ylabel={$\Ltwoerror{u-U}/\Ltwoerror{u}$},
         ]
-        \addplot [black, dashed, domain=1:1e6, samples=2] {20.0/(x)};
-        \addplot [black, dotted, domain=1:1e6, samples=2] {25.0/(x)^0.5};
+        \addplot [black, dashed, domain=1:1e6, samples=2, forget plot] {20.0/(x)} node
+             [pos=0.41,
+               pin={[pin edge={solid}]-100:$\Oh(N_\text{dof}^{-1})$},
+               inner sep=0pt] {};
+        \addplot [black, dotted, domain=1:1e6, samples=2] {25.0/(x)^0.5} node
+             [pos=0.56,
+               pin={[pin edge={solid}]60:$\Oh(N_\text{dof}^{-1/2})$},
+               inner sep=0pt] {};
         \addplot[color=blue,mark=x] table[x={Ndof}, y={err}] 
             {exercise2/data_ka/2b_BE_kchref_continous_err_c1_tend1.dat};
         \addplot[color=red,mark=*] table[x={Ndof}, y={err}] 

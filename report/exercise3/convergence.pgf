@@ -5,6 +5,7 @@
       ylabel={Relative error},
       xmin=50,
       xmax=200000,
+      width=15cm, height=9cm,
     ]
     \addplot[color=blue,mark=triangle*]
     table[x={N}, y={error}]
@@ -18,15 +19,20 @@
     table[x={N}, y={error}]
     {exercise3/convergence/both.dat};
     
-    \addplot[black, dashed, domain=50:300000, samples=2] {10000/(x)^2};
-    \addplot[black, dotted, domain=50:200000, samples=2] {2.3/(x)};
+    \addplot[black, dashed, domain=50:300000, samples=2, forget plot] {10000/(x)^2} node
+             [pos=0.05,
+               pin={[pin distance=0.6cm, pin edge={solid, out=15, in=-160}]8:$\Oh\left(N_\text{dof}^{-1}\right)$},
+               inner sep=0pt] {};
+
+    \addplot[black, dotted, domain=50:200000, samples=2, forget plot] {2.3/(x)} node
+             [pos=0.1,
+               pin={[pin edge={solid}]below:$\Oh\left(N_\text{dof}^{-\frac12}\right)$},
+               inner sep=0pt] {};
 
     \legend{
       {$M = 100$, varying $N$},
       {$N = 100$, varying $M$},
       {Uniform ($N = M$)},
-      {$\Oh(h^2)$},
-      {$\Oh(h)$},
     };
   \end{loglogaxis}
 \end{tikzpicture}
