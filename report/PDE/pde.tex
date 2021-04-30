@@ -5,12 +5,13 @@
   \begin{tikzpicture}
     \pgfplotsset{colormap={redblue}{rgb=(0,0,1) rgb=(1,1,1) rgb=(1,0,0)}}
     \begin{axis}[
+        title={#3},
         width=7.7cm,% height=7.5cm,
 		    xmin=0, xmax=1, ymin=0, ymax=1,
 	      xlabel=$x$, xtick distance=0.25,
 	      ylabel=$y$, ytick distance=0.25,
         grid,
-        zlabel={#3},
+%        zlabel={#3},
         mesh/ordering=x varies,
         mesh/cols=#2,
         mesh/rows=#2,
@@ -63,8 +64,8 @@ Then we will describe and implement a specialized \emph{Fast Poisson Solver} tha
 ]
 \addplot3 [surf, domain=-1:1, contour filled={number=50}] {myfunc(x,y)};
 \draw (+0.5, +0.5) node {$u(x,y)$};
-\draw (-0.5, +0.5) node {$-u(x+1,y)$};
-\draw (+0.5, -0.5) node {$-u(x,y+1)$};
+\draw (-0.5, +0.5) node[text=white] {$-u(x+1,y)$};
+\draw (+0.5, -0.5) node[text=white] {$-u(x,y+1)$};
 \draw (-0.5, -0.5) node {$u(x+1,y+1)$};
 \draw [->, thick] (+0.1, +0.5) -- (-0.1, +0.5);
 \draw [->, thick] (+0.5, +0.1) -- (+0.5, -0.1);

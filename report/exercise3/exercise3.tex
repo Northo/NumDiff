@@ -209,7 +209,8 @@ This procedure is discussed in depth in \cref{sec:PDE}, where we show that the s
     \end{axis}
   \end{tikzpicture}
 
-  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure, and the fact that some elements along the first off-diagonals are zero. 
+  \caption{The five point stencil matrix for the case $M=4$, $N=5$. Notice the recursive structure, and that the block indicated with a dashed line is repeated $N=5$ times, while the block itself consist of $M=4$ elements on the diagonal.
+    Also note the fact that some elements along the first off-diagonals are zero.
   These elements correspond to nodes along the edge of the system.}
   \label{fig:laplace:stencil}
 \end{figure}
@@ -219,25 +220,28 @@ Using the method described above, the solution to equation \ref{ex3:eq:laplace} 
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            title={Laplace equation, $N = M = 100$},
-            colorbar,
-            view={0}{90},
+%            colorbar,
+            view={145}{20},
             colormap/jet,
             mesh/ordering=x varies,
             mesh/cols=100,
             mesh/rows=100,
             xlabel=x,
             ylabel=y,
+            grid,
         ]
-            \addplot[
+            \addplot3[
                 surf,
-                shader=flat,
+                shader=faceted,
                 point meta=explicit,
             ] 
             table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
-    \caption{The numerically computed solution to the Laplace equation defined in equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, for a uniform grid with $N = M = 100$.}
+    \caption{The numerical solution $U(x, y)$ to the Laplace equation with dirichlet boundary conditions, on a uniform grid with $N = M = 100$.
+      The boundary conditions are $U = 0$ everywhere on the boundary, except for $y=1$ where $U(x,y) = \sin 2 \pi x$.
+      See main text for details.
+    }
     \label{ex3:fig:heat_map}
 \end{figure}
 
@@ -273,7 +277,7 @@ Which in turn lets us express the order of convergence as
 \begin{figure}[tbp]
     \centering
     \input{exercise3/convergence.pgf}
-    \caption{Convergence plot showing the relative error in the computation of the Laplace equation -- equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, when varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
+    \caption{Convergence plot of the relative error in the computation of the Laplace equation -- equation \eqref{ex3:eq:laplace} and \eqref{ex3:eq:boundary_conditions}, when varying $N$ and $M$, corresponding to the $y$- and the $x$-direction, respectively.}
     \label{ex3:fig:convergence_plot}
 \end{figure}
 
