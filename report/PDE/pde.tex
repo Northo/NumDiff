@@ -531,7 +531,9 @@ As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_9 \leq 3/40$
 
 %% 3
 \begin{theorem}[Five-point stencil stability on Poisson equation]\label{thm:five}
-If $\nabla^2 u = f$ and $\nabla_5^2 U = f$ in $\Omega$, $u = U$ on $\partial \Omega$ and $D^4 u < \infty$ in $\Omega$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
+If 
+$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_5^2 U = f \,\,\, \text{in} \,\,\, \Omega,$$
+$u = U$ on $\partial \Omega$ and $D^4 u < \infty$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
 $$ \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = Ch^2. $$
 \end{theorem}
 \begin{proof}
@@ -548,7 +550,7 @@ Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to ge
 \end{split}
 \label{eq:pde:taylornabla2}
 \end{equation}
-The second term is the remainder term, where by $D^m u$ we mean \emph{some} combination $\sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ of $m$-derivatives evaluated \emph{somewhere} inside $\Omega$.
+The second term on the first line is the remainder term, where by $D^m u$ we mean \emph{some} combination $\sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ of $m$-derivatives evaluated \emph{somewhere} inside $\Omega$.
 By $\abs{D^m u}_\infty$, we mean the maximum value of any $m$-derivative $\max_{n=0}^m \abs{\partial_x^n \partial_y^{m-n} u}$ in $\Omega$.
 Note that terms with odd powers of $h$ vanish due to the symmetry of the stencil.
 Finally, substitute $f = \nabla_5^2 U$ to conclude that
@@ -563,8 +565,9 @@ Finally, substitute $f = \nabla_5^2 U$ to conclude that
 
 %% 3
 \begin{theorem}[Nine-point stencil stability on Poisson equation]\label{thm:nine}
-If $\nabla^2 u = f$ and $\nabla_9^2 U = f + \frac{h^2}{12} \nabla_5^2 f$ in $\Omega$, $u = U$ on $\partial \Omega$ and $D^4 u, D^6 u < \infty$ in $\Omega$,
-then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
+If 
+$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
+$u = U$ on $\partial \Omega$ and $D^4 u, D^6 u < \infty$, then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 $$
 \inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} \leq C h^4.
 $$
@@ -595,7 +598,7 @@ Together, the two Taylor expansions imply
 	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4
 \label{eq:pde:taylornabla22}
 \end{equation}
-Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2$ to get
+Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 U$ to get
 \begin{equation*}
   \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4. \qedhere
 \end{equation*}
@@ -606,7 +609,9 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2$ to get
 (TODO: improve biharmonic theorems, make simpler?)
 
 \begin{theorem}[Five-point stencil order and stability on Biharmonic equation]
-If $\nabla^2 u = g$, $\nabla_5^2 U = G$, $\nabla^2 g = f$, $\nabla_5^2 G = f$ in $\Omega$ and $u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $6$-th order of $u$ are bounded,
+If 
+$$ \nabla^2 u = g, \,\,\, \nabla_5^2 U = G, \,\,\, \nabla^2 g = f \,\,\, \text{and} \,\,\, \nabla_5^2 G = f \,\,\, \text{in} \,\,\, \Omega,$$
+$u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $6$-th order of $u$ are bounded,
 then the $5$-point stencil $(\nabla_5^2)^2$ is consistent, stable and convergent of order $h^2$ on the Biharmonic equation.
 \label{pde:lemma:fivebi}
 \end{theorem}
@@ -623,11 +628,11 @@ This gives
 Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound5} to the second term to get
 \begin{equation*}
 \begin{split}
-	\inorm{u-U} &\leq \frac18 \inorm{\nabla_5^2(u-U')} + \frac18 \inorm{\nabla_5^2(U-U')} \\
+	\inorm{u-U} &\leq Ch^2 + \frac18 \inorm{\nabla_5^2(U-U')} \\
 				&\leq Ch^2 + \frac18 \inorm{G-g}. \\
 \end{split}
 \end{equation*}
-Finally, apply \cref{thm:five} again to $\nabla^2 g = \nabla_5^2 G = f$ to show that also $\inorm{g-G} \leq Ch^2$, so $\inorm{u-U} \leq Ch^2$ and $(\nabla_5^2)^2$ is $\Oh(h^2)$.
+Finally, apply \cref{thm:five} again to to show that also $\inorm{g-G} \leq Ch^2$, so $\inorm{u-U} \leq Ch^2$ and $(\nabla_5^2)^2$ is $\Oh(h^2)$.
 
 To show consistency, note that \cref{thm:five} already ensures consistency for the Poisson equation.
 But if $\nabla_5^2(u-U) \rightarrow 0$ as $h \rightarrow 0$, then also $\nabla_5^2 \nabla_5^2 (u-U) \rightarrow 0$, so $(\nabla_5^2)^2$ is also consistent on the Biharmonic equation.
@@ -635,15 +640,15 @@ By Lax' equivalence lemma, it is therefore also stable.
 \end{proof}
 
 \begin{theorem}[Nine-point stencil order and stability on Biharmonic equation]
-If $\nabla^2 u = g$, $\nabla_9^2 U = (1+\frac{h^2}{12} \nabla_5^2 ) G$, $\nabla^2 g = f$, $\nabla_9^2 G = (1+\frac{h^2}{12} \nabla_5^2) f$ in $\Omega$ and $u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $8$-th order of $u$ are bounded, 
+If 
+$$ \nabla^2 u = g, \,\,\, \nabla_9^2 U = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) G, \,\,\, \nabla^2 g = f, \,\,\, \nabla_9^2 G = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
+$u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $8$-th order of $u$ are bounded, 
 then the $9$-point stencil $(\nabla_9^2)^2$ is consistent, stable and convergent of order $h^4$ on the Biharmonic equation.
 \end{theorem}
 \begin{proof}
 We \emph{cannot} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U = (1 + \frac{h^2}{12} \nabla_5^2) G$, since $g \neq G$.
 But we \emph{can} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U' = (1 + \frac{h^2}{12} \nabla_5^2) g$.
 This gives
-
-(use \cref{pde:lemma:bound}!)
 \begin{equation*}
 \begin{split}
 	\inorm{u-U} &=    \inorm{(u-U') - (U-U')} \\
@@ -653,7 +658,7 @@ This gives
 Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound9} to the second term to get
 \begin{equation*}
 \begin{split}
-	\inorm{u-U} &\leq \frac{3}{40} \inorm{\nabla_9^2(u-U')} + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
+	\inorm{u-U} &\leq Ch^4 + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
 				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)+\frac{h^2}{12} \inorm{\nabla_5^2 (G-g)}}\\
 				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
 \end{split}
@@ -662,58 +667,6 @@ Finally, apply \cref{thm:nine} again on the two last terms to show that they are
 
 Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 \end{proof}
-
-\begin{equation*}
-\begin{split}
-\inorm{u-U} &\leq \frac18 \inorm{\nabla_5^2(u-U)} \\
-            &\leq \frac18 \inorm{\nabla^2 u + Ch^2 \inorm{D^4 u} - \nabla_5^2 U} \\
-			&\leq \frac18 \inorm{g - G} + \frac18 Ch^2 \inorm{D^4 u} \\
-			&\leq C h^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \\
-			&\leq C h^2 \inorm{D^4 u}.
-\end{split}
-\end{equation*}
-
-\subsubsection{Stability when solving the Biharmonic equation}
-Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
-We will here show that the order of the solution to the system of Poisson equations in \eqref{eq:PDE-poisson} will be of the same order.
-
-We will begin with the five point stencil.
-One must show that
-$$
-\inorm{U - u} \leq Ch^2,
-$$
-where $u$ is the exact solution $\nabla^4 u = f$.
-Solving the Biharmonic equation as a system of Poisson equations consists of two steps 1) $\nabla^2 g = f$ and 2) $\nabla^2 u = g$.
-We find an approximation $G$ to $g$, where by theroem \ref{thm:five}
-$$
-\inorm{G - g} \leq C h^2.
-$$
-When solving step 2) we would ideally solve
-$$
-\nabla_5^2 U_e = g,
-$$
-in which case theorem \ref{thm:five} implies that
-$$
-\inorm{U_e - u} \leq C h^2.
-$$
-However we end up solving
-$$
-\nabla_5^2 U = G = g + \gamma(x, y) h^2.
-$$
-We have that
-\begin{equation}
-  \nabla_5^2 (U - U_e) = \gamma(x, y) h^2,
-\end{equation}
-By lemma \ref{pde:lemma:bound}
-$$
-\inorm{U - U_e} \leq \frac18 \inorm{\nabla_5^2 (U - U_e)} = \frac18 \inorm{\gamma(x, y) h^2} \leq C h^2.
-$$
-Thus,
-\begin{align*}
-  \inorm{U - u} &= \inorm{U - U_e + U_e - u}\\
-  &\leq \inorm{U - U_e} + \inorm{U_e - u}\\
-  &\leq C h^2.
-\end{align*}
 
 
 \subsection{The Fast Poisson Solver}
