@@ -48,8 +48,7 @@ Any $u(x)$ that solves \ref{poisson_equation2} also solves \ref{weak_form_exact
 
 \subsection{Weak formulation for the approximate solution}
 
-We have not made any approximations yet.
-The approximation lies in seeking a solution $U(x) \approx u(x)$ that belongs to a function space different from the one in which the exact solution $u(x)$ belongs.
+We have not made any approximations yet, but we will now do so, by seeking a solution $U(x) \approx u(x)$ that belongs to a function space different from the one in which the exact solution $u(x)$ belongs.
 Here, we suppose $U(x)$ lies in the space of piecewise linear functions.
 We will then repeat the process above to derive a weak formulation for $U(x)$, similarly as for the exact solution.
 
@@ -232,7 +231,8 @@ $f(x) = 2x^{-4/3}/9$, \quad $u(0) = 0$, \quad $u(1) = 1$
 
 \subsubsection{Uniform refinement}
 
-We test our method on four problems, shown in \cref{femumr}, with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
+We now test our method on four problems, all with uniform elements $x_i - x_{i-1} = (b-a)/(M+1)$.
+The results are shown in \cref{femumr}.
 
 The approximate solutions resembles the exact solution with few points.
 For the symmetric Gaussian problems, it is vital to choose an odd number of grid points to capture the spike in the center.
