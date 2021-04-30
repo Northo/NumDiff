@@ -328,7 +328,7 @@ $$
 The first term can be handled like the $5$-point stencil and is represented by $J_9 \oplus J_9$ with
 \begin{equation*}
 J_9 = 
-\frac13
+\frac{1}{3}
 \begin{bmatrix}
   -5 & 2 &   \\
   2 & -5 & 2 &  \\
@@ -381,8 +381,6 @@ When calculating the right side of the $9$-point equation, we must therefore \em
 
 We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
 We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of Kroenecker products and sums.
-
-(TODO: check conventions on $h^2$ TODO: this breaks symmetry of many equations)
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
@@ -689,7 +687,7 @@ In this section, we will explain how this works based on \cite{Strang_2012}.
 
 Just like in \cref{eq:pde:matrixequations}, suppose one is to solve the matrix equation 
 $$
-K U = F
+K U = h^2 F
 $$
 for $U$ and that one knows the eigenvectors $y_1, \dots, y_n$ and corresponding eigenvalues $\lambda_1, \dots, \lambda_n$ of $K$.
 If $K = K^T$ is invertible and symmetric, the eigenvectors are complete and orthogonal \cite{owren}, so we may write
@@ -702,10 +700,12 @@ c_i = y_i \cdot F.
 One may now easily verify by insertion that the solution is
 \begin{equation}
 U =
-\frac{c_1}{\lambda_1} y_1
-+ \frac{c_2}{\lambda_2} y_2
-+ \dots
-+ \frac{c_n}{\lambda_n} y_n.
+\frac{1}{h^2} \left[
+	\frac{c_1}{\lambda_1} y_1
+	+ \frac{c_2}{\lambda_2} y_2
+	+ \dots
+	+ \frac{c_n}{\lambda_n} y_n
+\right].
 \label{eq:pde:insertionsolution}
 \end{equation}
 
@@ -825,11 +825,11 @@ Incidentally, this corresponds \emph{perfectly} to the two-dimensional Discrete 
 }
 Instead of solving the systems \ref{eq:pde:matrixequations}, we can instead calculate
 \begin{equation*}
-U_n = \text{IDST}(\text{DST}(F_n) / \Lambda)
+U_n = \frac{1}{h^2} \text{IDST}(\text{DST}(F_n) / \Lambda)
 \qquad \text{with} \quad
 F_5 = F
 \quad \text{or} \quad
-F_9 = \left (I + \frac{h^2}{12} K_5 \right) F,
+F_9 = \left (I + \frac{1}{12} K_5 \right) F,
 \end{equation*}
 where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
 (TODO: establish the convention with $F_n$ already in \ref{eq:pde:matrixequations}?)
