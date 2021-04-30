@@ -529,6 +529,16 @@ As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_9 \leq 3/40$
 \caption{\label{pde:figure:phi}The functions $\phi_5(x,y)$ and $\phi_9(x,y)$ range from $\phi_5(\frac12,\frac12)=\phi_9(\frac12,\frac12)=0$ at the center to $\phi_5(0,0) = 1/8$ and $\phi_9(0,0)=3/40$ at the boundaries of $[0,1]\times[0,1]$.}
 \end{figure}
 
+Let us now move on to analyze the order, consistency, convergence and stability of the stencils.
+But first, we will make a couple of definitions.
+\begin{definition}
+Let $D^m u = \sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ be \emph{some} combination of $m$-derivatives evaluated \emph{somewhere} in $\Omega$.
+\end{definition}
+\begin{definition}
+Let $\abs{D^m u}_\infty = \max_{n=0}^m \abs{\partial_x^n \partial_y^{m-n} u}$ be the maximum value of \emph{some} $m$-derivative in $\Omega$.
+\end{definition}
+These definitions may seem a bit vague or odd at this stage, but they will allow us to write reminders of Taylor's theorem very efficiently in the following.
+
 %% 3
 \begin{theorem}[Order, consistency, convergence and stability of five-point stencil on Poisson equation]\label{thm:five}
 If 
@@ -545,13 +555,11 @@ Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to ge
 \begin{equation}
 \begin{split}
 	\nabla_5^2 u &= \nabla^2 u + C h^2 D^4 u  \\
-	             &\leq f + Ch^2 \abs{D^4 u}_\infty.\\
+	             &\leq f + Ch^2 \abs{D^4 u}_\infty,\\
 \end{split}
 \label{eq:pde:taylornabla2}
 \end{equation}
-The second term on the first line is the remainder term, where by $D^m u$ we mean \emph{some} combination $\sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ of $m$-derivatives evaluated \emph{somewhere} inside $\Omega$.
-By $\abs{D^m u}_\infty$, we mean the maximum value of any $m$-derivative $\max_{n=0}^m \abs{\partial_x^n \partial_y^{m-n} u}$ in $\Omega$.
-Note that terms with odd powers of $h$ vanish due to the symmetry of the stencil.
+where the last term is the remainder term evaluated not at the center of the stencil, but still somewhere inside $\Omega$.
 Finally, substitute $f = \nabla_5^2 U$ to conclude that
 \begin{equation*}
   \inorm{u - U}
@@ -678,7 +686,6 @@ Finally, apply \cref{thm:nine} again on the two last terms to get
 	\inorm{u-U} \leq Ch^4 + Ch^4 + \frac{3}{40} \frac{h^2}{12} Ch^2 \leq Ch^4.
 \end{split}
 \end{equation*}
-
 
 Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 \end{proof}
