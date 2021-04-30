@@ -530,11 +530,11 @@ As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_9 \leq 3/40$
 \end{figure}
 
 %% 3
-\begin{theorem}[Five-point stencil stability on Poisson equation]\label{thm:five}
+\begin{theorem}[Order, consistency, convergence and stability of five-point stencil on Poisson equation]\label{thm:five}
 If 
-$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_5^2 U = f \,\,\, \text{in} \,\,\, \Omega,$$
-$u = U$ on $\partial \Omega$ and $D^4 u < \infty$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
-$$ \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = Ch^2. $$
+$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_5^2 U = f \,\,\, \text{in} \,\,\, \Omega $$
+and $u = U$ on $\partial \Omega$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
+$$ \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = Ch^2 \abs{D^4 u}_\infty. $$
 \end{theorem}
 \begin{proof}
 By \cref{pde:lemma:bound5},
@@ -545,8 +545,7 @@ Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to ge
 \begin{equation}
 \begin{split}
 	\nabla_5^2 u &= \nabla^2 u + C h^2 D^4 u  \\
-	             &\leq f + Ch^2 \abs{D^4 u}_\infty \\
-	             &\leq f + Ch^2.\\
+	             &\leq f + Ch^2 \abs{D^4 u}_\infty.\\
 \end{split}
 \label{eq:pde:taylornabla2}
 \end{equation}
@@ -557,17 +556,16 @@ Finally, substitute $f = \nabla_5^2 U$ to conclude that
 \begin{equation*}
   \inorm{u - U}
   \leq \frac18 \inorm{\nabla_5^2 (u  - U)}
-  \leq C h^2 \abs{D^4 u}_\infty
-  \leq C h^2. \qedhere
+  \leq C h^2 \abs{D^4 u}_\infty. \qedhere
 \end{equation*}
 \end{proof}
 
 
 %% 3
-\begin{theorem}[Nine-point stencil stability on Poisson equation]\label{thm:nine}
+\begin{theorem}[Order, consistency, convergence and stability of nine-point stencil on Poisson equation]\label{thm:nine}
 If 
-$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
-$u = U$ on $\partial \Omega$ and $D^4 u, D^6 u < \infty$, then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
+$$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega $$
+and $u = U$ on $\partial \Omega$, then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 $$
 \inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} \leq C h^4.
 $$
@@ -581,21 +579,19 @@ Taylor expand all terms in $\nabla_9^2 u$ around the center of the stencil to ge
 \begin{equation*}
 \begin{split}
 \nabla_9^2 u &= \nabla^2 u + \frac{h^2}{12} \nabla^4 u + C h^4 D^6 u \\
-             &\leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \abs{D^6 u}_\infty \\
-             &\leq f + \frac{h^2}{12} \nabla^2 f + Ch^4.\\
+             &\leq f + \frac{h^2}{12} \nabla^2 f + Ch^4 \abs{D^6 u}_\infty.\\
 \end{split}
 \end{equation*}
 From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \leftrightarrow f$, we also know that
 \begin{equation*}
 \begin{split}
 \nabla^2 f &\leq \nabla_5^2 f + Ch^2 \abs{D^4 f}_\infty \\
-           &\leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty \\
-           &\leq \nabla_5^2 f + Ch^2.
+           &\leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty.\\
 \end{split}
 \end{equation*}
 Together, the two Taylor expansions imply
 \begin{equation}
-	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4
+	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \abs{D^6 u}_\infty.
 \label{eq:pde:taylornabla22}
 \end{equation}
 Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 U$ to get
@@ -608,11 +604,14 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 U$ to get
 
 (TODO: improve biharmonic theorems, make simpler?)
 
-\begin{theorem}[Five-point stencil order and stability on Biharmonic equation]
+\begin{theorem}[Order, consistency, convergence and stability of five-point stencil on Biharmonic equation]
 If 
-$$ \nabla^2 u = g, \,\,\, \nabla_5^2 U = G, \,\,\, \nabla^2 g = f \,\,\, \text{and} \,\,\, \nabla_5^2 G = f \,\,\, \text{in} \,\,\, \Omega,$$
-$u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $6$-th order of $u$ are bounded,
-then the $5$-point stencil $(\nabla_5^2)^2$ is consistent, stable and convergent of order $h^2$ on the Biharmonic equation.
+$$ \nabla^2 u = g, \,\,\, \nabla_5^2 U = G, \,\,\, \nabla^2 g = f \,\,\, \text{and} \,\,\, \nabla_5^2 G = f \,\,\, \text{in} \,\,\, \Omega $$
+and $u=U$ and $g=G$ on $\partial \Omega$,
+then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
+\begin{equation*}
+	\inorm{u-U} \leq Ch^2 \min \left[ \abs{D^4 u}_\infty, \abs{D^6 u}_\infty \right].
+\end{equation*}
 \label{pde:lemma:fivebi}
 \end{theorem}
 \begin{proof}
@@ -628,22 +627,31 @@ This gives
 Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound5} to the second term to get
 \begin{equation*}
 \begin{split}
-	\inorm{u-U} &\leq Ch^2 + \frac18 \inorm{\nabla_5^2(U-U')} \\
-				&\leq Ch^2 + \frac18 \inorm{G-g}. \\
+	\inorm{u-U} &\leq Ch^2 \abs{D^4 u}_\infty + \frac18 \inorm{\nabla_5^2(U-U')} \\
+				&=    Ch^2 \abs{D^4 u}_\infty + \frac18 \inorm{G-g}. \\
 \end{split}
 \end{equation*}
-Finally, apply \cref{thm:five} again to to show that also $\inorm{g-G} \leq Ch^2$, so $\inorm{u-U} \leq Ch^2$ and $(\nabla_5^2)^2$ is $\Oh(h^2)$.
-
+Finally, apply \cref{thm:five} again on the last term to obtain
+\begin{equation*}
+\begin{split}
+	\inorm{u-U} &\leq Ch^2 \abs{D^4 u}_\infty + Ch^2 \abs{D^4 g}_\infty \\
+	            &\leq Ch^2 \abs{D^4 u}_\infty + Ch^2 \abs{D^6 u}_\infty \\
+	            &\leq Ch^2 \min \left[ \abs{D^4 u}_\infty,  Ch^2 \abs{D^6 u}_\infty \right]. \\
+\end{split}
+\end{equation*}
 To show consistency, note that \cref{thm:five} already ensures consistency for the Poisson equation.
 But if $\nabla_5^2(u-U) \rightarrow 0$ as $h \rightarrow 0$, then also $\nabla_5^2 \nabla_5^2 (u-U) \rightarrow 0$, so $(\nabla_5^2)^2$ is also consistent on the Biharmonic equation.
 By Lax' equivalence lemma, it is therefore also stable.
 \end{proof}
 
-\begin{theorem}[Nine-point stencil order and stability on Biharmonic equation]
+\begin{theorem}[Order, consistency, convergence and stability of nine-point stencil on Biharmonic equation]
 If 
 $$ \nabla^2 u = g, \,\,\, \nabla_9^2 U = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) G, \,\,\, \nabla^2 g = f, \,\,\, \nabla_9^2 G = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
-$u=U$ and $g=G$ on $\partial \Omega$ and derivatives up to $8$-th order of $u$ are bounded, 
-then the $9$-point stencil $(\nabla_9^2)^2$ is consistent, stable and convergent of order $h^4$ on the Biharmonic equation.
+$u=U$ and $g=G$ on $\partial \Omega$,
+then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
+\begin{equation*}
+	\inorm{u-U} \leq Ch^2 \min \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].
+\end{equation*}
 \end{theorem}
 \begin{proof}
 We \emph{cannot} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U = (1 + \frac{h^2}{12} \nabla_5^2) G$, since $g \neq G$.
@@ -660,10 +668,17 @@ Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound9} to the s
 \begin{split}
 	\inorm{u-U} &\leq Ch^4 + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
 				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)+\frac{h^2}{12} \inorm{\nabla_5^2 (G-g)}}\\
-				&\leq Ch^4 + \frac{3}{40} \inorm{(G-g)} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
+				&\leq Ch^4 + \frac{3}{40} \inorm{G-g} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2 (G-g)} \\
 \end{split}
 \end{equation*}
-Finally, apply \cref{thm:nine} again on the two last terms to show that they are also $\Oh(h^4)$, so $\inorm{u-U} \leq Ch^4$ and $(\nabla_9^2)^2$ is $\Oh(h^2)$.
+Finally, apply \cref{thm:nine} again on the two last terms to get
+%show that they are also $\Oh(h^4)$, so $\inorm{u-U} \leq Ch^4$ and $(\nabla_9^2)^2$ is $\Oh(h^2)$.
+\begin{equation*}
+\begin{split}
+	\inorm{u-U} \leq Ch^4 + Ch^4 + \frac{3}{40} \frac{h^2}{12} Ch^2 \leq Ch^4.
+\end{split}
+\end{equation*}
+
 
 Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 \end{proof}
