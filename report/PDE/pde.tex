@@ -142,7 +142,7 @@ Plug this Fourier series into \cref{eq:PDE} and act with the biharmonic operator
 \begin{equation*}
 \nabla^4 u(x,y) = \fourierseries{\left((m\pi)^2+(n\pi)^2\right)^2 \hat{u}_{mn}}{m}{n} = f(x,y).
 \end{equation*}
-For simplicity, we \emph{restrict ourselves to sources that can also be written}
+For simplicity, we \emph{restrict our analytical solution to sources that can also be written}
 \begin{equation}
 	f(x,y) = \fourierexpand{f}.
 \end{equation}
@@ -320,7 +320,7 @@ J_5 =
 \end{bmatrix}
 .
 $$
-Using the Kroenecker product $\otimes$ and the Kroenecker sum $\oplus$, the $5$-point stencil is represented by
+Using the Kroenecker product $\otimes$ and the Kroenecker sum $\oplus$, \cite{Laub_2004} the $5$-point stencil is represented by
 \begin{equation}
 K_5 =
 \begin{bmatrix}
@@ -410,7 +410,7 @@ But $F$ need \emph{not} be zero on the boundary.
 When calculating the right side of the $9$-point equation, we must therefore \emph{first} use the $(N+2) \times (N+2)$ grid \emph{with} the boundary to make $K_5$ sample $F$ there, \emph{then} cut away the boundary and go back to the $N \times N$ grid before solving for $U$ in the interior.
 
 We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
-We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of Kroenecker products and sums.
+We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of the Kroenecker products and sums.
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
@@ -442,7 +442,7 @@ $$
 \end{lemma}
 \begin{proof}
 Suppose instead that $\max_\Omega f > \max_{\partial \Omega} f$.
-Then there is an internal grid point $x_0$ on which $f$ attains its maximum value $f(x_0) \geq f(x_i)$, where $x_i$ are the neighbouring points $x_i$.
+Then there is an internal grid point $x_0$ on which $f$ attains its maximum value $f(x_0) \geq f(x_i)$, where $x_i$ are the neighbouring points.
 Then
 \begin{equation}
   -a_0 f(x_0)
@@ -564,7 +564,7 @@ Taylor expand all terms in $\nabla_5^2 u$ around the center of the stencil to ge
 \end{split}
 \label{eq:pde:taylornabla2}
 \end{equation}
-where the last term is the remainder term evaluated not at the center of the stencil, but still somewhere inside $\Omega$.
+where the last term is the remainder term evaluated not at the center of the stencil, but \emph{somewhere} inside $\Omega$ (or outside, for that matter, which would be equivalent due to the periodic continuation described in \cref{continuationfig}).
 Finally, substitute $f = \nabla_5^2 U$ to conclude that
 \begin{equation*}
   \inorm{u - U}
@@ -582,7 +582,7 @@ If
 $$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega $$
 and $u = U$ on $\partial \Omega$, then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 $$
-\inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} \leq C h^4.
+\inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} \leq C h^4 \abs{D^6 u}_\infty.
 $$
 \end{theorem}
 \begin{proof}
@@ -611,7 +611,7 @@ Together, the two Taylor expansions imply
 \end{equation}
 Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 U$ to get
 \begin{equation*}
-  \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4.
+  \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4 \abs{D^6 u}_\infty.
 \end{equation*}
 Consistency, convergence and stability is shown like in \cref{thm:five}.
 \end{proof}
