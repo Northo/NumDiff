@@ -1,7 +1,7 @@
 \begin{tikzpicture}
   \begin{loglogaxis}[
 %      title={Convergence plot for Laplace equation.},
-      xlabel={Grid size ($N \times M$)},
+      xlabel={$N_{\text{dof}} = N \times M$},
       ylabel={Relative error},
       xmin=50,
       xmax=200000,
