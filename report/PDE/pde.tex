@@ -126,7 +126,7 @@ so $\hat{u}_{00} = -\hat{u}_{00} = 0$ and we can write the Fourier series as
 	       &= -4 \sum_{m=1}^{+\infty} \sum_{n=1}^{+\infty} \hat{u}_{mn} \sin(m \pi x) \sin(n \pi y)
 \end{split}
 \end{equation*}
-after simplifying all complex expontentials using Euler's identity $e^{ix} = \cos x + i \sin x$.
+after simplifying all complex exponentials using Euler's identity $e^{ix} = \cos x + i \sin x$.
 Rescaling $\hat{u}_{mn} \rightarrow -\hat{u}_{mn}/4$, we then begin by expressing our analytical solution as the double sine series
 \newcommand{\fourierseries}[3]{
 	\sum_{#2=1}^{\infty} \sum_{#3=1}^{\infty} #1 \sin(#2 \pi x) \sin(#3 \pi y)
@@ -139,7 +139,7 @@ u(x,y) = \fourierexpand{u}.
 \label{pde:equation:fourierexpansion}
 \end{equation}
 
-Plug this Fourier series into \cref{eq:PDE} and act with the biharmonic operator to get
+Plug this Fourier series into \cref{eq:PDE} and act with the Biharmonic operator to get
 \begin{equation*}
 \nabla^4 u(x,y) = \fourierseries{\left((m\pi)^2+(n\pi)^2\right)^2 \hat{u}_{mn}}{m}{n} = f(x,y).
 \end{equation*}
@@ -321,7 +321,7 @@ J_5 =
 \end{bmatrix}
 .
 $$
-Using the Kroenecker product $\otimes$ and the Kroenecker sum $\oplus$, \cite{Laub_2004} the $5$-point stencil is represented by
+Using the Kronecker product $\otimes$ and the Kronecker sum $\oplus$, \cite{Laub_2004} the $5$-point stencil is represented by
 \begin{equation}
 K_5 =
 \begin{bmatrix}
@@ -411,7 +411,7 @@ But $F$ need \emph{not} be zero on the boundary.
 When calculating the right side of the $9$-point equation, we must therefore \emph{first} use the $(N+2) \times (N+2)$ grid \emph{with} the boundary to make $K_5$ sample $F$ there, \emph{then} cut away the boundary and go back to the $N \times N$ grid before solving for $U$ in the interior.
 
 We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
-We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of the Kroenecker products and sums.
+We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of the Kronecker products and sums.
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
@@ -453,7 +453,7 @@ Then
   = -a_0 f(x_0).
 \end{equation}
 The right side is equal to the left side, so equality must hold throughout and $\sum_{i=1}^{n-1} a_i (f(x_0) - f(x_i)) = 0$.
-The stencil is proper, so $a_i > 0$ for $i \geq 1$ and all the terms are nonnegative, so the sum can only vanish if $f(x_0) = f(x_1) = \dots = f(x_{n-1})$.
+The stencil is proper, so $a_i > 0$ for $i \geq 1$ and all the terms are non-negative, so the sum can only vanish if $f(x_0) = f(x_1) = \dots = f(x_{n-1})$.
 Repeating the argument at each neighbour $x_i$, then to their neighbours and so on, we ultimately reach the conclusion that the same value is attained on $\partial \Omega$, so we have a contradiction.
 \end{proof}
 
@@ -862,7 +862,7 @@ U = h^2 \text{IDST}(\text{DST}(F_n) / \Lambda)
 \end{equation*}
 where $\Lambda$ is the matrix with the eigenvalues \ref{eq:pde:eigvals5} or \ref{eq:pde:eigvals9} corresponding to the right stencil on the diagonal.
 This is the awaited and much more efficient Fast Poisson Solver.
-Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or contiuous source and basis functions.
+Note the strong similarity with the analytical solution \ref{pde:equation:fourierexpansion} -- in both cases the solution is expressed as a sum of discrete or continuous sine functions whose coefficients are given by the inner product between the discrete or continuous source and basis functions.
 
 \subsection{Demonstration of order}
 To demonstrate the order of the five and nine point stencils, we will perform UMR on the Poisson equation with the inhomogenity $f = -\sin(m \pi x)\sin(n \pi y), ~m=3, n=4$.
@@ -1076,7 +1076,7 @@ and have thus eluded the computation of $\nabla_5^2 G$.
     \right)^4
     e^{-(x-0.5)^2 - (y-0.5)^2}$.
     Figure \subref{fig:pde:bvp_convergence} shows the relative error using the nine point stencil, while figure \subref{fig:pde:bvp_time} shows the computation time.
-    Both are plottet with degrees of freedom on the first axis, the total number of internal points $N^2$.
+    Both are plotted with degrees of freedom on the first axis, the total number of internal points $N^2$.
   }
 \end{figure}
 
