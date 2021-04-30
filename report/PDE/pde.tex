@@ -363,10 +363,10 @@ The second stencil picks out neighbours located diagonally from the center point
 Summarizing, the finite difference matrix equations corresponding to \ref{eq:pde:stencilequation} that we will solve are
 \begin{equation}
 \begin{alignedat}{2}
-	K_5 U &= F
+	K_5 U &= h^2 F
 	&& \qquad \text{with} \qquad
 	K_5 = J_5 \oplus J_5 \\
-	K_9 U &= \left(I + \frac{h^2}{12} K_5 \right) F 
+	K_9 U &= h^2 \left(I + \frac{1}{12} K_5 \right) F 
 	&& \qquad \text{with} \qquad
 	K_9 = J_9 \oplus J_9 + \Sigma \otimes \Sigma.
 \end{alignedat}
@@ -380,7 +380,7 @@ When calculating the right side of the $9$-point equation, we must therefore \em
 We will solve the matrix equations with sparse matrices. \cite{scipy_sparse} 
 We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \cite{scipy_kron} to construct sparse representations of Kroenecker products and sums.
 
-(TODO: check conventions on $h^2$)
+(TODO: check conventions on $h^2$ TODO: this breaks symmetry of many equations)
 
 %% Let us defne an infinity norm for convenience
 \newcommand{\inorm}[1]{
