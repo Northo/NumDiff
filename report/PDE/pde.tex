@@ -282,12 +282,13 @@ We divide $[0,1] \times [0,1]$ into the uniformly spaced two-dimensional grid
 % task c)
 The boundary conditions in \ref{eq:PDE} already tell us that $g = u = 0$ on $\partial \Omega$, so we will only solve for $U$ in the interior $1 \leq m,n \leq N$.
 To do so, we approximate the Laplacian $\nabla^2$ with the $5$-point and $9$-point stencils % task c
-\begin{equation*}
+\begin{equation}
 	\nabla_5^2 = \crossStencil{1}{1}{1}{1}{-4}
 	\qquad \text{and} \qquad
 	\nabla_9^2 = \boxStencil{\frac23}{\frac23}{\frac23}{\frac23}{-\frac{10}{3}}{\frac16}{\frac16}{\frac16}{\frac16} 
 	\,.
-\end{equation*}
+\label{eq:pde:stencildiagrams}
+\end{equation}
 The diagrams define the stencils by their action on some function.
 For example,
 \begin{equation*}
@@ -417,7 +418,9 @@ We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \
 }
 
 \subsection{Stability and order of the five and nine point stencils}
-\begin{definition}
+Here, we will show that the $5$- and $9$-point stencils are $\Oh(h^2)$ and $\Oh(h^4)$, respectively.
+
+\begin{definition}[Proper stencil]
   A proper $n$-point stencil $\nabla_n^2$ with weights $a_i$ has the properties
   \begin{equation*}
   	\nabla_n^2 f(x_0) = \sum_{i=0}^{n-1} a_i f(x_i),
@@ -428,6 +431,8 @@ We first represent $J_5$, $J_9$ and $\Sigma$ with sparse matrices and then use \
   \end{equation*}
   where $x_i$ are the neighbouring points of $x_0$.
 \end{definition}
+
+It is straightforward to verify from the stencil diagrams \ref{eq:pde:stencildiagrams} that both $\nabla_5^2$ and $\nabla_9^2$ are proper stencils.
 
 \begin{lemma}[Discrete maximum principle]\label{pde:lemma:max}
 If $\nabla_n^2 f \geq 0$ on $\Omega$ and $\nabla_n^2$ is a proper stencil, then $f$ attains its maximum value on $\partial \Omega$, that is
@@ -447,8 +452,8 @@ Then
   = -a_0 f(x_0).
 \end{equation}
 The right side is equal to the left side, so equality must hold throughout and $\sum_{i=1}^{n-1} a_i (f(x_0) - f(x_i)) = 0$.
-The stencil is proper, so $a_i > 0$ for $i \geq 1$ and all the are nonnegative, so it can only vanish if $f(x_0) = f(x_1) = \dots = f(x_{n-1})$.
-Repeating the argument at each neighbour $x_i$, and then to their neighbours and so on, we ultimately reach the conclusion that the same value is also attained on $\partial \Omega$, so we have a contradiction.
+The stencil is proper, so $a_i > 0$ for $i \geq 1$ and all the terms are nonnegative, so the sum can only vanish if $f(x_0) = f(x_1) = \dots = f(x_{n-1})$.
+Repeating the argument at each neighbour $x_i$, then to their neighbours and so on, we ultimately reach the conclusion that the same value is attained on $\partial \Omega$, so we have a contradiction.
 \end{proof}
 
 \begin{lemma}\label{pde:lemma:bound}
@@ -482,7 +487,7 @@ If $U$ is a discrete function that equals zero on $\partial \Omega$, then
 $$ \inorm{U} \leq \frac18 \inorm{\nabla_5^2 U}.$$
 \end{lemma}
 \begin{proof}
-Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_5^2$ and
+Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_5^2$ and the function
 $$
 \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right).
 $$
@@ -494,7 +499,7 @@ If $U$ is a discrete function that equals zero on $\partial \Omega$, then
 $$ \inorm{U} \leq \frac{3}{40} \inorm{\nabla_9^2 U}.$$
 \end{lemma}
 \begin{proof}
-Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_9^2$ and
+Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_9^2$ and the function
 $$
 \phi_9(x,y) = \phinine.
 $$
@@ -529,18 +534,18 @@ As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_9 \leq 3/40$
 \caption{\label{pde:figure:phi}The functions $\phi_5(x,y)$ and $\phi_9(x,y)$ range from $\phi_5(\frac12,\frac12)=\phi_9(\frac12,\frac12)=0$ at the center to $\phi_5(0,0) = 1/8$ and $\phi_9(0,0)=3/40$ at the boundaries of $[0,1]\times[0,1]$.}
 \end{figure}
 
-Let us now move on to analyze the order, consistency, convergence and stability of the stencils.
-But first, we will make a couple of definitions.
+Let us now use the two last lemmas to analyze the order of the stencils and show their consistency, convergence and stability.
+But first, we will make a couple of useful definitions.
 \begin{definition}
 Let $D^m u = \sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n} u$ be \emph{some} combination of $m$-derivatives evaluated \emph{somewhere} in $\Omega$.
 \end{definition}
 \begin{definition}
 Let $\abs{D^m u}_\infty = \max_{n=0}^m \abs{\partial_x^n \partial_y^{m-n} u}$ be the maximum value of \emph{some} $m$-derivative in $\Omega$.
 \end{definition}
-These definitions may seem a bit vague or odd at this stage, but they will allow us to write reminders of Taylor's theorem very efficiently in the following.
+These definitions may seem a bit vague or odd at this stage, but they will allow us to write remainder terms in Taylor's theorem very efficiently in the following.
 
 %% 3
-\begin{theorem}[Order, consistency, convergence and stability of five-point stencil on Poisson equation]\label{thm:five}
+\begin{theorem}[Order, consistency, convergence and stability of $5$-point stencil on Poisson equation]\label{thm:five}
 If 
 $$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_5^2 U = f \,\,\, \text{in} \,\,\, \Omega $$
 and $u = U$ on $\partial \Omega$, then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
@@ -567,12 +572,12 @@ Finally, substitute $f = \nabla_5^2 U$ to conclude that
   \leq C h^2 \abs{D^4 u}_\infty. \qedhere
 \end{equation*}
 As $\inorm{u-U} \rightarrow 0$ and $\inorm{\nabla_5^2(u-U)} \rightarrow 0$ as $h \rightarrow 0$, the stencil is both convergent and consistent.
-By Lax' equivalence theorem, it is therefore also stable.
+By Lax' equivalence theorem, it is therefore also stable. \cite{owren}
 \end{proof}
 
 
 %% 3
-\begin{theorem}[Order, consistency, convergence and stability of nine-point stencil on Poisson equation]\label{thm:nine}
+\begin{theorem}[Order, consistency, convergence and stability of $9$-point stencil on Poisson equation]\label{thm:nine}
 If 
 $$ \nabla^2 u = f \,\,\, \text{and} \,\,\, \nabla_9^2 U = \left( 1 + \frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega $$
 and $u = U$ on $\partial \Omega$, then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
@@ -611,24 +616,27 @@ Finally, substitute $f + \frac{h^2}{12} \nabla_5^2 f = \nabla_9^2 U$ to get
 Consistency, convergence and stability is shown like in \cref{thm:five}.
 \end{proof}
 
-\begin{theorem}[Order, consistency, convergence and stability of five-point stencil on Biharmonic equation]
+We have now shown that the the $5$-point and $9$-point stencils are $\Oh(h^2)$ and $\Oh(h^4)$ on the \emph{Poisson} equation, but it is not obvious that this property also holds for the \emph{Biharmonic} equation.
+Let us show this, too.
+
+\begin{theorem}[Order, consistency, convergence and stability of $5$-point stencil on Biharmonic equation]
 If 
 $$ \nabla^2 u = g, \,\,\, \nabla_5^2 U = G, \,\,\, \nabla^2 g = f \,\,\, \text{and} \,\,\, \nabla_5^2 G = f \,\,\, \text{in} \,\,\, \Omega $$
 and $u=U$ and $g=G$ on $\partial \Omega$,
 then the $5$-point stencil is consistent, stable and convergent of order $h^2$ with
 \begin{equation*}
-	\inorm{u-U} \leq Ch^2 \min \left[ \abs{D^4 u}_\infty, \abs{D^6 u}_\infty \right].
+	\inorm{u-U} \leq Ch^2 \max \left[ \abs{D^4 u}_\infty, \abs{D^6 u}_\infty \right].
 \end{equation*}
 \label{pde:lemma:fivebi}
 \end{theorem}
 \begin{proof}
 We \emph{cannot} apply \cref{thm:five} to $\nabla^2 u = g$ and $\nabla_5^2 U = G$ since $g \neq G$.
-But we \emph{can} apply \cref{thm:five} to $\nabla^2 u = g$ and $\nabla_5^2 U' = g$.
-This gives
+But we \emph{can} apply \cref{thm:five} to $\nabla^2 u = g$ and $\nabla_5^2 U' = g$, where we defined $U'$.
+First, use the triangle inequality to split
 \begin{equation*}
 \begin{split}
 	\inorm{u-U} &= \inorm{(u-U') - (U-U')} \\
-                &\leq \inorm{u-U'} + \inorm{U-U'} \\
+                &\leq \inorm{u-U'} + \inorm{U-U'}.\\
 \end{split}
 \end{equation*}
 Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound5} to the second term to get
@@ -643,28 +651,28 @@ Finally, apply \cref{thm:five} again on the last term to obtain
 \begin{split}
 	\inorm{u-U} &\leq Ch^2 \abs{D^4 u}_\infty + Ch^2 \abs{D^4 g}_\infty \\
 	            &\leq Ch^2 \abs{D^4 u}_\infty + Ch^2 \abs{D^6 u}_\infty \\
-	            &\leq Ch^2 \min \left[ \abs{D^4 u}_\infty,  Ch^2 \abs{D^6 u}_\infty \right]. \\
+	            &\leq Ch^2 \max \left[ \abs{D^4 u}_\infty,  Ch^2 \abs{D^6 u}_\infty \right]. \\
 \end{split}
 \end{equation*}
 As $\inorm{u-U} \rightarrow 0$ as $h \rightarrow 0$, the stencil is convergent.
-To show consistency, note that \cref{thm:five} already ensures consistency on the Poisson equation.
+To show consistency, note that \cref{thm:five} ensures consistency on the Poisson equation.
 But if $\nabla_5^2(u-U) \rightarrow 0$ as $h \rightarrow 0$, then also $\nabla_5^2 \nabla_5^2 (u-U) \rightarrow 0$, so $(\nabla_5^2)^2$ is also consistent on the Biharmonic equation.
 By Lax' equivalence lemma, it is therefore also stable.
 \end{proof}
 
-\begin{theorem}[Order, consistency, convergence and stability of nine-point stencil on Biharmonic equation]
+\begin{theorem}[Order, consistency, convergence and stability of $9$-point stencil on Biharmonic equation]
 If 
-$$ \nabla^2 u = g, \,\,\, \nabla_9^2 U = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) G, \,\,\, \nabla^2 g = f, \,\,\, \nabla_9^2 G = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
-$u=U$ and $g=G$ on $\partial \Omega$,
+$$ \nabla^2 u = g, \,\,\, \nabla_9^2 U = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) G, \,\,\, \nabla^2 g = f \,\,\, \text{and} \,\,\, \nabla_9^2 G = \left( 1+\frac{h^2}{12} \nabla_5^2 \right) f \,\,\, \text{in} \,\,\, \Omega,$$
+and $u=U$ and $g=G$ on $\partial \Omega$,
 then the $9$-point stencil is consistent, stable and convergent of order $h^4$ with
 \begin{equation*}
-	\inorm{u-U} \leq Ch^2 \min \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].
+	\inorm{u-U} \leq Ch^2 \max \left[ \abs{D^6 u}_\infty, \abs{D^8 u}_\infty \right].
 \end{equation*}
 \end{theorem}
 \begin{proof}
 We \emph{cannot} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U = (1 + \frac{h^2}{12} \nabla_5^2) G$, since $g \neq G$.
-But we \emph{can} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U' = (1 + \frac{h^2}{12} \nabla_5^2) g$.
-This gives
+But we \emph{can} apply \cref{thm:nine} to $\nabla^2 u = g$ and $\nabla_9^2 U' = (1 + \frac{h^2}{12} \nabla_5^2) g$, where we defined $U'$.
+First, use the triangle inequality to split
 \begin{equation*}
 \begin{split}
 	\inorm{u-U} &=    \inorm{(u-U') - (U-U')} \\
@@ -689,6 +697,8 @@ Finally, apply \cref{thm:nine} again on the two last terms to get
 
 Consistency and stability is shown like in \cref{pde:lemma:fivebi}.
 \end{proof}
+
+Thus, the $\Oh(h^2)$ and $\Oh(h^4)$ convergence holds also for the Biharmonic equation!
 
 
 \subsection{The Fast Poisson Solver}
