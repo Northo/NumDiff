@@ -214,7 +214,7 @@ class Series:
         self.f = f
         self.errors = {"five": [], "nine": []}
         self.times = {"five": [], "nine": []}
-        self.store_solution_index = store_solution_index % N_num
+        self.store_solution_index = store_solution_index % N_num if store_solution_index is not None else None
         self.solver = solver
 
     def run(self):
@@ -259,8 +259,9 @@ class Series:
     def write_error(self):
         minmaxnum = f"{self.Ns[0]}:{self.Ns[-1]}:{len(self.Ns)}"
         filename = f"error_{self.solver.__name__}_N_{minmaxnum}.dat"
-        data = np.array([self.Ns, self.errors["five"], self.errors["nine"]]).T
-        header = "N five nine"
+        dof = self.Ns**2
+        data = np.array([self.Ns, dof, self.errors["five"], self.errors["nine"]]).T
+        header = "N dof five nine"
         np.savetxt(filename, data, header=header, comments="")
         return filename
 
@@ -291,7 +292,8 @@ class Series:
 ### Let's do this! ###
 ######################
 
-CASE = 2
+CASE = 3
+minmaxstep = (8, 256, 10)
 
 if CASE == 0:
     u, f = problems.get_poisson_sin_problem(k=[1], l=[3, 4])
@@ -302,10 +304,13 @@ elif CASE == 1:
 elif CASE == 2:
     u, f = problems.get_biharmonic()
     solver = BiharmonicSolver
+elif CASE == 3:
+    u, f = problems.get_poisson_sin_problem(k=[3], l=[4])
+    solver = PoissonSolver
 else:
     raise("Invalid case!")
 
-s = Series(u, f, solver, *(20, 21, 1), name="", store_solution_index=0)
+s = Series(u, f, solver, *minmaxstep, name="", store_solution_index=4)
 s.run()
 # s.plot_times()
 # s.plot_error()
