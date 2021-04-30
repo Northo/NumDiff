@@ -1,4 +1,4 @@
-\section{Poisson equation in one dimension with finite elements}
+\section{Poisson equation in one dimension using finite elements}
 
 \newcommand\basisexpand[2]{\sum_{i=0}^{M+1} #1_i \varphi_i(#2)}
 
@@ -8,6 +8,7 @@ In this section, we will again solve the Poisson equation
 	\label{poisson_equation2}
 \end{equation}
 subject to Dirichlet conditions, but this time using finite elements instead of finite differences.
+Both uniform and adaptive approaches to the grid refinement will be implemented, and we will compare these methods.
 
 \subsection{Analytical solution}
 
