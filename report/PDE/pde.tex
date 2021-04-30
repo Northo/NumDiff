@@ -475,24 +475,31 @@ Thus
 \end{equation*}
 \end{proof}
 
-\begin{remark}
-  For the five and nine point stencil, such functions do exist.
-  Suspecting that the stencils are second and fourth order, we look for second and fourth order polynomials in $x$ and $y$ with this property.
-  We find 
-  \begin{equation}
-    \phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right)
-    \label{pde:equation:phi5}
-  \end{equation}
-  with the property $\nabla_5^2 \phi_5(x,y) = 1$, taking the values $0 \leq \phi_5(x,y) \leq 1/8$ on $\Omega$ and attaining the maximum on $\partial \Omega$.
-  \newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
-  Similarly, the polynomial
-  \begin{equation}
-  \phi_9(x,y) = \phinine
-  \label{pde:equation:phi9}
-  \end{equation}
-  is such that $\nabla_9^2 \phi_9(x,y) = 1$, takes the values $0 \leq \phi_9(x,y) \leq 3/40$ on $\Omega$ and attains the maximum on $\partial \Omega$.
-  Both are shown in \cref{pde:figure:phi}.
-\end{remark}
+For the five and nine point stencil, such functions do exist.
+Suspecting that the stencils are second and fourth order, we look for second and fourth order polynomials in $x$ and $y$ with this property.
+\begin{lemma}\label{pde:lemma:bound5}
+If $U$ is a discrete function that equals zero on $\partial \Omega$, then
+$$ \inorm{U} \leq \frac18 \inorm{\nabla_5^2 U}.$$
+\end{lemma}
+\begin{proof}
+Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_5^2$ and
+$$
+\phi_5(x,y) = \frac14 \left(\left(x-\frac12\right)^2 + \left(y-\frac12\right)^2\right).
+$$
+As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_5 \leq 1/8$ in $\Omega$ and attains the maximum on $\partial \Omega$.
+\end{proof}
+\newcommand{\phinine}{\frac{1}{5} \left(\left(x-\frac{1}{2}\right)^4+\left(y-\frac{1}{2}\right)^4\right) - \frac{6}{5} \left(x-\frac{1}{2}\right)^2\left(y-\frac{1}{2}\right)^2 + \frac{1}{4} \left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2\right)}
+\begin{lemma}\label{pde:lemma:bound9}
+If $U$ is a discrete function that equals zero on $\partial \Omega$, then
+$$ \inorm{U} \leq \frac{3}{40} \inorm{\nabla_9^2 U}.$$
+\end{lemma}
+\begin{proof}
+Apply \cref{pde:lemma:bound} with the proper stencil $\nabla_9^2$ and
+$$
+\phi_9(x,y) = \phinine.
+$$
+As shown in \cref{pde:figure:phi}, it takes the values $0 \leq \phi_9 \leq 3/40$ in $\Omega$ and attains the maximum on $\partial \Omega$.
+\end{proof}
 
 \newcommand{\phidisplay}[3]{
 \begin{tikzpicture}
@@ -528,7 +535,7 @@ If $\nabla^2 u = f$ and $\nabla_5^2 U = f$ in $\Omega$, $u = U$ on $\partial \Om
 $$ \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = Ch^2. $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5},
+By \cref{pde:lemma:bound5},
 $$
 \inorm{u - U} \leq \frac18 \inorm{\nabla_5^2 (u  - U)}.
 $$
@@ -563,7 +570,7 @@ $$
 $$
 \end{theorem}
 \begin{proof}
-By lemma \ref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9},
+By \cref{pde:lemma:bound9},
 $$
 \inorm{u - U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u  - U)}.
 $$
@@ -613,7 +620,7 @@ This gives
                 &\leq \inorm{u-U'} + \inorm{U-U'} \\
 \end{split}
 \end{equation*}
-Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound} with $\phi_5$ from \ref{pde:equation:phi5} to the second term to get
+Now apply \cref{thm:five} to the first term and \cref{pde:lemma:bound5} to the second term to get
 \begin{equation*}
 \begin{split}
 	\inorm{u-U} &\leq \frac18 \inorm{\nabla_5^2(u-U')} + \frac18 \inorm{\nabla_5^2(U-U')} \\
@@ -643,7 +650,7 @@ This gives
                 &\leq \inorm{u-U'} + \inorm{U-U'} \\
 \end{split}
 \end{equation*}
-Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound} with $\phi_9$ from \ref{pde:equation:phi9} to the second term to get
+Now apply \cref{thm:nine} to the first term and \cref{pde:lemma:bound9} to the second term to get
 \begin{equation*}
 \begin{split}
 	\inorm{u-U} &\leq \frac{3}{40} \inorm{\nabla_9^2(u-U')} + \frac{3}{40} \inorm{\nabla_9^2(U-U')} \\
