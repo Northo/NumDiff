@@ -281,11 +281,13 @@ Which in turn lets us express the order of convergence as
     \label{ex3:fig:convergence_plot}
 \end{figure}
 
-\textbf{Will revise this to soon:}
 The resulting convergence plot is presented in \ref{ex3:fig:convergence_plot}. 
-We notice that the error decreases as $\Oh(h^2)$, but that it flats out to $\Oh(h)$ when $M$ and $N$ are approximately equal -- that is, of the same order of magnitude -- and further to order $\Oh(h^0)$ as the difference grows.
-The convergence plot shows that varying the grid size in either direction when $M \approx N$, converges to first order.
-However, when $M \neq N$, varying the smaller one increases accuracy to second order, and increasing the largest one, yields almost no gain in accuracy.
-
-This error behaviour is intuitive: When the resolution is a lot higher in one direction than the other, then the error is almost entirely due to the direction with the lowest resolution.
-Thus, increasing the resolution in the most precise direction gives only insignificant increases in the overall error.
+We see that the error curves largely follow the expected convergence rates. 
+For the two former cases when either $N$ or $M$ is kept constant, 
+and we refine in one dimension solely, 
+we see that the error curves flatten when the refined solution get large. 
+This is the exact same thing we observed for the heat equation in section \ref{heat-equation}. 
+When refining one dimension only we will eventually reach a point where the error in the other dimension, 
+which stays constant, 
+starts to dominate the total error. 
+After this further refinement yields only diminishing reminishing returns in terms of reduction in the total error. 
