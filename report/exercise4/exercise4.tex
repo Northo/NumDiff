@@ -11,7 +11,7 @@ where the solution $u = u(x,t)$ is subject to the periodic boundary condition
 u(x+L, t) = u(x, t).
 \label{ex5:eq:boundary_conditions}
 \end{equation}
-The equation is solved using the forward Euler and Crank-Nicholson method, and we conduct a stabiity analysis, showing that -- in this paricular case -- the choice of method is crucial.
+The equation is solved using the forward Euler and Crank-Nicolson method, and we conduct a stabiity analysis, showing that -- in this paricular case -- the choice of method is crucial.
 
 \subsection{Analytical solution}
 
@@ -47,7 +47,7 @@ which is a sum of plane waves propagating at different velocities.
 
 \subsection{Numerical solution method}
 
-To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Forward Euler method and the Crank-Nicholson method.
+To find a numerical solution $U_m^n = U(x_m, t_n) \approx u(x_m, t_n) = u_m^n$ of the Korteweg-De Vries equation, we will discretize it with central differences in space and integrate over time with the Forward Euler method and the Crank-Nicolson method.
 We will find the solution on the periodic spatial grid
 \begin{figure}[htbp]
 \begin{center}
@@ -92,12 +92,12 @@ Inserting these approximations into \cref{kdv_equation}, we get the intermediate
 \begin{equation*}
 	\dpd{u_m^n}{t} = -\left(1+\pi^2\right) \frac{u_{m+1}^n-u_{m-1}^n}{2 h} - \frac{u_{m+3}^n-3u_{m+1}^n+3u_{m-1}^n-u_{m-3}^n}{8 h^3} + \Oh(h^2) \equiv F(u^n) + \Oh(h^2).
 \end{equation*}
-For later convenience, we write the Forward Euler method and Crank-Nicholson method collectively with the $\theta$-method.
+For later convenience, we write the Forward Euler method and Crank-Nicolson method collectively with the $\theta$-method.
 This gives the final system of difference equations for the numerical solution
 \begin{equation}\label{theta_method_discretized}
 	\frac{U_m^{n+1} - U_m^n}{k} = (1-\theta) F(U^n) + \theta F(U^{n+1}),
 \end{equation}
-where the Forward Euler method or the Crank-Nicholson method is obtained by setting $\theta = 0$ or $\theta = 1/2$, respectively.
+where the Forward Euler method or the Crank-Nicolson method is obtained by setting $\theta = 0$ or $\theta = 1/2$, respectively.
 In matrix form, the system can be written
 \begin{equation}
 	\left(I - \theta k A\right) U^{n+1} = \left(I + \left(1-\theta\right) k A\right) U^n,
@@ -178,22 +178,22 @@ Note that with the Forward Euler method, $\theta = 0$ and this matrix reduces to
 % \path (group c3r1.south east) -- node[below, inner ysep=30]{\pgfplotslegendfromname{thelegend}} (group c3r1.south west);
 \node at ($(group c3r1) + (0,-2.5cm)$) {\pgfplotslegendfromname{thelegend}};
 \end{tikzpicture}
-%\caption{\label{sine_evolution}Time evolution of the numerical solution from the Crank-Nicholson method compared with the exact solution $\sin(\pi(x-t))$. The numerical solution is calculated using $M=800$ spatial grid points and $N=100$ temporal grid points.}
-\caption{\label{sine_evolution}Comparison between the time evolution of the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicholson method with $h=1/799$ and $k=1/99$.}
+%\caption{\label{sine_evolution}Time evolution of the numerical solution from the Crank-Nicolson method compared with the exact solution $\sin(\pi(x-t))$. The numerical solution is calculated using $M=800$ spatial grid points and $N=100$ temporal grid points.}
+\caption{\label{sine_evolution}Comparison between the time evolution of the exact solution $u(x,t)=\sin(\pi(x-t))$ and the numerical solution from the Crank-Nicolson method with $h=1/799$ and $k=1/99$.}
 \end{figure}
 
 Next, we test our numerical solution on the problem defined by the initial condition $u(x, 0) = \sin(\pi x)$ on $x \in [-1, +1]$ with $L = 2$.
 The analytical solution \ref{fourier_series} then gets nonzero contributions only from $n = \pm 1$, which gives the analytical solution $u(x, t) = \sin(\pi(x-t))$.
 As shown in \cref{sine_evolution}, the solution represents a sine wave traveling with velocity $1$ to the right.
 
-In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Forward Euler method and the Crank-Nicholson method.
-Note that the Crank-Nicholson method approaches the exact solution with only $N=10$ time steps and under hundred spatial grid points $M$.
+In \cref{ex4_euler_vs_crank_snapshots}, we compare snapshots of the numerical solution at $t = 1$ from the Forward Euler method and the Crank-Nicolson method.
+Note that the Crank-Nicolson method approaches the exact solution with only $N=10$ time steps and under hundred spatial grid points $M$.
 In contrast, the Forward Euler method seems to become unstable as the spatial resolution is increased, even with $N=100000$ time steps.
 
 The convergence plot at $t=1$ in \cref{ex4_euler_vs_crank_convergence} supports our suspicions.
 As we expect from the central finite differences, both methods show second order convergence in space for sufficiently refined grids. 
 But the Forward Euler method diverges as $h$ decreases, although the divergence is delayed by also decreasing $k$.
-The Crank-Nicholson method remains stable with much fewer time steps and much finer spatial grids.
+The Crank-Nicolson method remains stable with much fewer time steps and much finer spatial grids.
 
 \begin{figure}
 \begin{tikzpicture}
@@ -210,7 +210,7 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \end{axis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{axis}[ymin=-1.2, ymax=+1.2, title={Crank-Nicholson ($N=10$)},yticklabels={,,},cycle list={
+\begin{axis}[ymin=-1.2, ymax=+1.2, title={Crank-Nicolson ($N=10$)},yticklabels={,,},cycle list={
 	{blue!100!black, style=solid, mark=square*, mark size=0.75pt},
 	{blue!75!black, style=dashed, mark=square*, mark size=0.75pt},
 	{blue!50!black, style=dotted, mark=square*, mark size=0.75pt},
@@ -223,7 +223,7 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \end{axis}
 \end{tikzpicture}
 \caption{\label{ex4_euler_vs_crank_snapshots}
-	Snapshots of the numerical solution $U(x,1)$ and the exact solution $u(x,1)$ for a constant number of time steps $N$, but varying number of grid points $M$ with the Forward Euler and Crank-Nicholson method.
+	Snapshots of the numerical solution $U(x,1)$ and the exact solution $u(x,1)$ for a constant number of time steps $N$, but varying number of grid points $M$ with the Forward Euler and Crank-Nicolson method.
 	The left plot is meant to demonstrate the downfall of the Euler method and is not supposed to look pretty.
 }
 \end{figure}
@@ -244,7 +244,7 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 \end{loglogaxis}
 \end{tikzpicture}
 \begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$M$,legend pos=north east,legend cell align={left},width=8.4cm,title=Crank-Nicholson,xmin=5,xmax=2000,cycle list={
+\begin{loglogaxis}[xlabel=$M$,legend pos=north east,legend cell align={left},width=8.4cm,title=Crank-Nicolson,xmin=5,xmax=2000,cycle list={
 	{cyan, mark=square*, mark size=1.5pt},
 	{teal, mark=*, mark size=1.5pt},
 	{blue, mark=triangle*, mark size=1.5pt},
@@ -258,12 +258,12 @@ The Crank-Nicholson method remains stable with much fewer time steps and much fi
 }
 \end{loglogaxis}
 \end{tikzpicture}
-\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots with the discrete $L_2$ error of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicholson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
+\caption{\label{ex4_euler_vs_crank_convergence}Convergence plots with the discrete $L_2$ error of the numerical solution $U(x,t)$ for the Forward Euler and Crank-Nicolson method on the problem defined by the exact solution $u(x,t) = \sin(\pi(x-t))$.}
 \end{figure}
 
 \subsection{Stability analysis}
 
-Motivated by the examples of the Euler method and the Crank-Nicholson method, we perform a Von Neumann analysis of their stability.
+Motivated by the examples of the Euler method and the Crank-Nicolson method, we perform a Von Neumann analysis of their stability.
 Just like the exact solution, the numerical solution is subject to periodic boundary conditions in space and can therefore be expanded in a Fourier series \cite{Kreyszig}
 \begin{equation}
 	U_m^n = U(x_m, t_n) = \sum_l C_l^n \exp \left(i q_l x_m\right).
@@ -278,12 +278,12 @@ Inserting it into \cref{theta_method_discretized}, dividing by $\exp(i q_l x_m)$
 \end{equation*}
 
 Now look at the amplification factor $G_l = C_l^{n+1} / C_l^n$ of Fourier mode $l$ over one time step. 
-With $\theta = 1/2$, the Crank-Nicholson method gives 
+With $\theta = 1/2$, the Crank-Nicolson method gives 
 \begin{equation}
 	G_l = \frac{1 + i k f(q_l) / 2}{1 - i k f(q_l) / 2} \quad \implies \quad \abs{G_l} = 1.
-	\label{crank_nicholson_amplification_factor}
+	\label{crank_Nicolson_amplification_factor}
 \end{equation}
-The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicholson method is \textbf{unconditionally stable}.
+The amplitude of all Fourier modes is thus preserved over time independently of $k$ and $h$, and we say the Crank-Nicolson method is \textbf{unconditionally stable}.
 
 The Euler method has $\theta = 0$ and gives
 \begin{equation}
@@ -299,7 +299,7 @@ But the Von Neumann stability criterion $\abs{G_l} \leq 1 + O(k)$ \cite{owren} i
 Only if $k/h^6 << 1$ does it remain stable, which explains the divergence for decreasing $h$ and fixed $k$ we found in \cref{ex4_euler_vs_crank_convergence} and why this is delayed by also decreasing $k$.
 
 Thus, while the Euler method in theory is stable, it is unstable for practical combinations of $k$ and $h$.
-The Crank-Nicholson method is far superior, as it remains stable over time and allows both smaller resolution in time and greater resolution in space.
+The Crank-Nicolson method is far superior, as it remains stable over time and allows both smaller resolution in time and greater resolution in space.
 
 \iffalse
 \begin{figure}
@@ -361,7 +361,7 @@ We now investigate the norm of the numerical solution with the initial gaussian 
 The time evolution illustrated in \cref{gaussian_evolution} shows how multiple modes are activated.
 In \cref{norm_evolution}, we show how the norm of the numerical solution evolves over time.
 The Euler method diverges even with tiny time steps, reflecting the amplification factor $G_l > 1$ found in \cref{euler_amplification_factor}.
-In contrast, the Crank-Nicholson metohd is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_nicholson_amplification_factor}.
+In contrast, the Crank-Nicolson metohd is always stable and preserves the norm of the solution, reflecting the amplification factor $G_l = 1$ found in \cref{crank_Nicolson_amplification_factor}.
 
 \begin{figure}[t]
 \centering
@@ -391,7 +391,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(-x^2/0.1)$ computed from the Crank-Nicholson method on a grid with $M=800$ points in space and $N=100$ points in time.}
+\caption{\label{gaussian_evolution}Time evolution of a initial gaussian $u(x,0)=\exp(-x^2/0.1)$ computed from the Crank-Nicolson method on a grid with $M=800$ points in space and $N=100$ points in time.}
 \end{figure}
 
 \begin{figure}[!ht]
@@ -436,7 +436,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 	\pgfplotscreateplotcyclelist{mycyclee}{
 	};
 
-	\nextgroupplot[title={Crank-Nicholson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={
+	\nextgroupplot[title={Crank-Nicolson ($M=800$)}, xlabel=$t$,yticklabels={,,},cycle list={
 		{red,thick},{blue,semithick},{green,thin}
 	}, legend entries={$N=100$,$N=200$,$N=300$},
 	];
@@ -449,7 +449,7 @@ In contrast, the Crank-Nicholson metohd is always stable and preserves the norm 
 % \addplot [color=black] table [y={crank-nicholson-M800-N300}] {exercise4/norm-evolution.dat};
 \end{groupplot}
 \end{tikzpicture}
-\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Euler and the Crank-Nicholson method, on different grids.}
+\caption{\label{norm_evolution}Time evolution of the discrete $L_2$-norm of the initial gaussian $u(x,0) = \exp(-x^2/0.1)$ computed from the Euler and the Crank-Nicolson method, on different grids.}
 \end{figure}
 
-The stability of the Crank-Nicholson method and the property that it preserves the amplitude of Fourier modes make it an optimal method for equations like the Korteweg-De Vries equation, where the analytical solution is known to have a constant norm.
+The stability of the Crank-Nicolson method and the property that it preserves the amplitude of Fourier modes make it an optimal method for equations like the Korteweg-De Vries equation, where the analytical solution is known to have a constant norm.
