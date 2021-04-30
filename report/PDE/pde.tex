@@ -546,9 +546,10 @@ From the Taylor expansion \ref{eq:pde:taylornabla2} with $u \leftrightarrow f$, 
 \nabla^2 f \leq \nabla_5^2 f + Ch^2 \abs{D^4 f}_\infty \leq \nabla_5^2 f + Ch^2 \abs{D^6 u}_\infty.
 \end{equation*}
 Together, the two Taylor expansions imply
-\begin{equation*}
+\begin{equation}
 	\nabla_9^2 u \leq f + \frac{h^2}{12} \nabla_5^2 f + Ch^4 \abs{D^6 u}_\infty.
-\end{equation*}
+	\label{eq:pde:taylornabla22}
+\end{equation}
 Finally, substitute $f + \frac{1}{12} \nabla_5^2 f = \nabla_9^2 U$ to conclude that
 \begin{equation*}
   \inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2 (u - U)} \leq C h^4 \abs{D^6 u}_\infty. \qedhere
@@ -562,22 +563,68 @@ By Lax' equivalence theorem \cite{owren}, they are then also stable.
 
 (TODO: using $u$ with $f$ is also weird. using $u$ with $g$ would be more consistent with what we already have)
 
-\begin{theorem}[Nine point stencil stability TODO biharmonic]
+(TODO: write theorems for biharmonic, too)
+
+\begin{theorem}[Five point stencil order and stability on biharmonic]
 TODO: make theorems for stability on biharmonic
 \end{theorem}
 \begin{proof}
 From \cref{thm:five}, we know that
 \begin{equation*}
-\inorm{u-U} \leq \frac18 \inorm{\nabla_5^2(u-U)} = \frac18 \inorm{\nabla_5^2 u - G}
+\inorm{u-U} \leq \frac18 \inorm{\nabla_5^2(u-U)}
 \end{equation*}
-By the Taylor expansion \ref{eq:pde:taylornabla2},
+By the Taylor expansion \ref{eq:pde:taylornabla2} with $f \rightarrow g$, $\nabla_5^2 u \leq g + Ch^2$.
+Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:five} again to get
 \begin{equation*}
-\nabla_5^2 u \leq \nabla^2 u + Ch^2 \inorm{D^4 u} = g + Ch^2 \inorm{D^4 u}.
+\begin{split}
+\inorm{u-U} &\leq \frac18 \inorm{(\nabla^2 u - \nabla_5^2 U) + Ch^2 \abs{D^4u}_\infty} \\
+            &=    \frac18 \inorm{(g-G) + Ch^2 \abs{D^4u}_\infty} \\
+            &\leq \frac18 \inorm{(g-G)} + \inorm{Ch^2 \abs{D^4u}_\infty} \\
+\end{split}
+\end{equation*}
+Now use \cref{pde:lemma:five} again with $f \rightarrow g$ to get
+\begin{equation*}
+\begin{split}
+\inorm{u-U} &\leq \frac18 \inorm{(\nabla^2 u - \nabla_5^2 U) + Ch^2 \abs{D^4u}_\infty} \\
+            &=    \frac18 \inorm{(g-G) + Ch^2 \abs{D^4u}_\infty} \\
+            &\leq \frac18 \inorm{(g-G)} + \inorm{Ch^2 \abs{D^4u}_\infty} \\
+\end{split}
+\end{equation*}
+
+
+
+To use \cref{thm:five} again, we must replace $\nabla_5^2 u$ by $\nabla^2 u = g$.
+\begin{equation*}
+\nabla_5^2 u \leq \nabla^2 u + Ch^2 \abs{D^4 u}_\infty.
 \end{equation*}
 Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:five} again to get
 \begin{equation*}
-\inorm{u-U} \leq C \inorm{g-G} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u}. \qedhere
+\inorm{u-U} \leq \frac18 \inorm{g-G} + \frac18 C h^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u} + Ch^2 \inorm{D^4 u} \leq Ch^2 \inorm{D^4 u}. \qedhere
 \end{equation*}
+\end{proof}
+
+\begin{theorem}[Nine point stencil order and stability on biharmonic]
+TODO
+\end{theorem}
+\begin{proof}
+From \cref{thm:nine}, we know that
+\begin{equation*}
+\inorm{u-U} \leq \frac{3}{40} \inorm{\nabla_9^2(u-U)} = \frac{3}{40} \inorm{\nabla_9^2 u - G - \frac{\nabla_5^2}{12} G}
+\end{equation*}
+To use \cref{thm:five} again, we must replace $\nabla_9^2 u$ by $\nabla^2 u = g$.
+By the Taylor expansion \ref{eq:pde:taylornabla22} with $f \rightarrow g$,
+\begin{equation*}
+\nabla_9^2 u \leq g + \frac{h^2}{12} \nabla_5^2 g + Ch^4 \abs{D^6 u}_\infty.
+\end{equation*}
+Insert the latter inequality into the former, use the triangle inequality and then use \cref{thm:nine,thm:five} again to get
+\begin{equation*}
+\begin{split}
+\inorm{u-U} &\leq \frac{3}{40} \inorm{g-G} + \frac{3}{40} \frac{h^2}{12} \inorm{\nabla_5^2(g-G)} + \frac{3}{40} C h^4 \inorm{D^6 u} \\
+            &\leq Ch^2 \inorm{D^4 g} + Ch^2 \inorm{D^4 g} \\
+            &\leq Ch^2 \inorm{D^6 u} \qedhere
+\end{split}
+\end{equation*}
+\end{proof}
 
 \begin{equation*}
 \begin{split}
@@ -588,7 +635,6 @@ Insert the latter inequality into the former, use the triangle inequality and th
 			&\leq C h^2 \inorm{D^4 u}.
 \end{split}
 \end{equation*}
-\end{proof}
 
 \subsubsection{Stability when solving the Biharmonic equation}
 Theorems \ref{thm:five} and \ref{thm:nine} shows that the solutions to the Poisson equation using the five and nine point stencils are stable and of order 2 and 4 respectively.
