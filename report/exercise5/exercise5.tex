@@ -27,7 +27,7 @@ First, we split the solution into two terms
 	\label{splitting_exact}
 \end{equation}
 Note that $u''(x) = \hat{u}''(x)$ and $r(a) = \alpha$ and $r(b) = \beta$.
-The purpose of this splitting is that $\hat{u}$ solves \ref{poisson_equation2} with homogenuous Dirichlet boundary conditions, while $r(x)$ \emph{lifts} the values at the boundaries to satisfy the inhomogenuous boundary conditions.
+The purpose of this splitting is that $\hat{u}$ solves \ref{poisson_equation2} with homogeneous Dirichlet boundary conditions, while $r(x)$ \emph{lifts} the values at the boundaries to satisfy the inhomogeneous boundary conditions.
 
 Now insert \ref{splitting_exact} into \cref{poisson_equation2}, multiply it by an arbitrary \emph{trial function} $v(x)$ and integrate both sides from $a$ to $b$.
 We let $v(a) = v(b) = 0$ and use integration by parts on the left, dropping the boundary term $-[u'(x) v(x)]_a^b$.
@@ -244,7 +244,7 @@ These resources would be better spent by increasing the grid resolution in the a
 This is the motivation for turning to adaptive refinement and non-uniform grids.
 
 \figureseries{exercise5/data/UMR}{femumr}{
-  Uniform mesh refinement on the one dimensional Poisson equation with inhomogenity $f$.
+  Uniform mesh refinement on the one dimensional Poisson equation with homogeneity $f$.
   Shown is the evolution of an initial mesh whose elements are split in half over three iterations, along with the distribution of $L_2$-errors across the elements.
   See main text for details.
 }
@@ -299,7 +299,7 @@ This suggests that the oscillating pattern is due to refinements where intervals
 For example, it would be a bad idea to refine only \emph{one} element in the first problem in \cref{femamr}, where errors are even across the elements.
 
 \figureseries{exercise5/data/AMR}{femamr}{
-  Adaptive mesh refinement with the average strategy on the one dimensional Poisson equation with inhomogenity $f$.
+  Adaptive mesh refinement with the average strategy on the one dimensional Poisson equation with homogeneity $f$.
   Shown is the evolution of an initial uniform mesh as it is refined over three iterations. Elements whose $L_2$-error lie above the reference error \protect\begin{tikzpicture}[baseline=-0.5ex]\protect\draw[black, dashed] (0,0.0) -- (4ex,0.0);\protect\end{tikzpicture} are split in half.
   See main text for details.
 }
@@ -346,7 +346,7 @@ For example, it would be a bad idea to refine only \emph{one} element in the fir
 \end{groupplot}
 \end{tikzpicture}
 \caption{\label{femconvergence}Convergence plots for the one dimensional Poisson equation, solved using the final element method.
-  The inhomogenity $f$ used is indicated on each subplot.
-  Uniform and two adaptive mesh refinemeth strategies are shown.
+  The homogeneity $f$ used is indicated on each subplot.
+  Uniform and two adaptive mesh refinement strategies are shown.
   See main text for details.}
 \end{figure}

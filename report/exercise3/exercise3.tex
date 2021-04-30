@@ -18,7 +18,7 @@ We will solve this equation numerically using a five point stencil, but first, w
 \subsection{Analytical solution}
 
 The solution of equation \ref{ex3:eq:laplace} can be found by separation of variables.
-First, asssume that we can write
+First, assume that we can write
 \begin{equation*}
     % I used these names, but I think it's more common with capital X and Y or something.
     % I'm open for discussions of this.
@@ -33,7 +33,7 @@ Rearranging, we get that
 \begin{equation*}
     \frac{\alpha''(x)}{\alpha(x)} = \frac{\beta''(y)}{\beta(y)} = c
 \end{equation*}
-must be constant, since $\alpha$ and $\beta$ are functions of indepentent variables.
+must be constant, since $\alpha$ and $\beta$ are functions of independent variables.
 Thus, we have two second order differential equations
 \begin{equation*}
     \begin{split}
@@ -54,7 +54,7 @@ Solving the equation for $\beta(y)$, we find that
 \begin{equation*}
     \beta(y) = b_1 e^{\sqrt{c} y} + b_2 e^{-\sqrt{c} y}.
 \end{equation*}
-Inserting $c = 4\pi$ and the boundary condtitions $\beta(0) = 0$ and $\beta(1) = 1$, we get
+Inserting $c = 4\pi$ and the boundary conditions $\beta(0) = 0$ and $\beta(1) = 1$, we get
 \begin{equation*}
     \beta(y) = \frac{\sinh(2\pi y)}{\sinh(2\pi)},
 \end{equation*}
@@ -172,7 +172,7 @@ We thus write
 \end{equation*}
 which can be solved.
 Note that the matrix is \emph{not} Toeplitz!
-There are zeros on the upper and lower diagonal, correponding to the nodes that have less than four neighbours, ie. the nodes on the border.
+There are zeros on the upper and lower diagonal, corresponding to the nodes that have less than four neighbours, ie. the nodes on the border.
 These nodes are handled with the boundary conditions, which come from $b$. 
 As was mentioned briefly above, the values in $b$ are set in points that correspond to the borders of the system.
 In this way, the edges of the system are determined with the boundary conditions.
@@ -180,9 +180,9 @@ In this way, the edges of the system are determined with the boundary conditions
 The final equation will be on the form $AU = b$, where $b$ and $U$ are flattened matrices, i.e. vectors, of length $N \times M$, while $A$ is a matrix of size $(N \times M)^2$
 %\todo{Should probably be explained in more detail?}
 
-The large matrix $A$ is also showed in a more managable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
+The large matrix $A$ is also showed in a more manageable way in figure \ref{fig:laplace:stencil}, where it is plotted as a heatmap.
 By noticing its recursive structure, one may realize that the matrix can be constructed by a Kronecker sum.
-This procedure is discussed in depth in \cref{sec:PDE}, where we show that the stencil can be represented by the Kroenecker sum \ref{eq:pde:fivepointkroeneckersum}.
+This procedure is discussed in depth in \cref{sec:PDE}, where we show that the stencil can be represented by the Kronecker sum \ref{eq:pde:fivepointkroeneckersum}.
 
     %% sp.kron(Ky, sp.eye(Nx))/hx**2
     %% + sp.kron(sp.eye(Ny), Kx)/hy**2
@@ -238,7 +238,7 @@ Using the method described above, the solution to equation \ref{ex3:eq:laplace} 
             table[meta=U]{./exercise3/laplace_uniform.dat};
         \end{axis}
     \end{tikzpicture}
-    \caption{The numerical solution $U(x, y)$ to the Laplace equation with dirichlet boundary conditions, on a uniform grid with $N = M = 100$.
+    \caption{The numerical solution $U(x, y)$ to the Laplace equation with Dirichlet boundary conditions, on a uniform grid with $N = M = 100$.
       The boundary conditions are $U = 0$ everywhere on the boundary, except for $y=1$ where $U(x,y) = \sin 2 \pi x$.
       See main text for details.
     }
@@ -260,7 +260,7 @@ then we switch it around, refining the in the $y$-direction, i.e. keep $M$ const
 Finally we do simultaneous refinement in both directions, keeping $c = N/M$ constant, 
 and specifically we set $c=1$ so that $N = M$. 
 
-For the three refinment cases, 
+For the three refinement cases, 
 we get that the number of degrees of freedom scales as 
 \begin{align*}
     N_{\text{dof}} & = MN = \Oh\left(\frac{1}{c}\frac{1}{h}\right) = \Oh(h^{-1}) & \text{for} \: N = c = constant, \\
@@ -285,9 +285,9 @@ The resulting convergence plot is presented in \ref{ex3:fig:convergence_plot}.
 We see that the error curves largely follow the expected convergence rates. 
 For the two former cases when either $N$ or $M$ is kept constant, 
 and we refine in one dimension solely, 
-we see that the error curves flatten when the refined solution get large. 
+we see that the error curves flatten when the refined resolution gets large. 
 This is the exact same thing we observed for the heat equation in section \ref{heat-equation}. 
 When refining one dimension only we will eventually reach a point where the error in the other dimension, 
 which stays constant, 
 starts to dominate the total error. 
-After this further refinement yields only diminishing reminishing returns in terms of reduction in the total error. 
+After this further refinement yields only diminishing returns in terms of reduction of the total error. 
