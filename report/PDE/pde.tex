@@ -497,12 +497,6 @@ Thus
 \end{figure}
 
 %% 3
-In the following we will use Taylor expansions heavily.
-For simplicity, we \emph{define} $D^m = \sum_{n=0}^m c_n \partial_x^n \partial_y^{m-n}$ to be an arbitrary combination of $m$-derivatives and $C$ be a ``floating'' constant whose value can change between equations in such a way that they are consistent with the remainder term in Taylor's theorem \cite{owren}
-\begin{equation*}
-	y(\boldsymbol{x}+\boldsymbol{h}) = \sum_{m=0}^n \frac{1}{m!} \left ( \boldsymbol{h} \cdot \nabla \right)^m y(\boldsymbol{x}) + C D^{n+1} y(\boldsymbol{x} + \boldsymbol{\theta}).
-\end{equation*}
-
 \begin{theorem}[Five point stencil stability]\label{thm:five}
 If $\nabla^2 u = f$ and $\nabla_5^2 v = f$ and $u = v$ on $\partial \Omega$, then
 $$
